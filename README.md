@@ -1,2 +1,4 @@
 # agent_evolution
-Agent-based model of a vector-borne infection incorporating evolution.
+Agent-based model of infection incorporating strain evolution.
+
+Pablo Cárdenas R.
