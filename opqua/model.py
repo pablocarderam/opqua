@@ -1,8 +1,8 @@
 
 import numpy as np
 import pandas as pd
-from agevo.classes import *
-from agevo.gillespie import *
+from opqua.classes import *
+from opqua.gillespie import *
 
 class Model(object):
     """docstring for Model."""

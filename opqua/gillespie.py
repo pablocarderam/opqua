@@ -1,8 +1,8 @@
 
 import pandas as pd
 import numpy as np
-from agevo.classes import *
-from agevo.model import *
+from opqua.classes import *
+from opqua.model import *
 
 class Gillespie(object):
 
