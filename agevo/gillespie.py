@@ -1,6 +1,10 @@
-#TODO: adapt to this model's events
 
-class StocModel(object):
+import pandas as pd
+import numpy as np
+from agevo.classes import *
+from agevo.model import *
+
+class Gillespie(object):
 
     """
     Class defines a model's parameters and methods for changing system state
@@ -8,20 +12,28 @@ class StocModel(object):
     Gillespie algorithm.
     """
 
-    def __init__(self):
+    MIGRATE = 0
+    CONTACT_HOST_HOST = 1
+    CONTACT_HOST_VECTOR = 2
+    RECOVER_HOST = 3
+    RECOVER_VECTOR = 4
+
+    def __init__(self, model):
 
         '''
         Class constructor defines parameters and declares state variables.
         '''
 
-        super(StocModel, self).__init__() # initialize as parent class object
+        super(Gillespie, self).__init__() # initialize as parent class object
 
         # Event IDs
-        self.evt_IDs = [ R_F, R_B, E_F, E_B, N_F, N_B, P_F, P_B, S_F, S_B ]
+        self.evt_IDs = [ MIGRATE, CONTACT_HOST_HOST, CONTACT_HOST_VECTOR, RECOVER_HOST, RECOVER_VECTOR ]
             # event IDs in specific order
 
+        self.model = model
 
-    def getRates(self):
+
+    def getRates(model):
 
         '''
         Calculates event rates according to current system state.
@@ -30,51 +42,31 @@ class StocModel(object):
                 Includes total rate under 'tot' key.
         '''
 
-        T = self.mu * np.power( np.sin( (self.t_var-self.xi)*np.pi/self.lam ), 2*self.nu )
-            # TF concentration at this time
-
-        rates = np.zeros( [ len(self.evt_IDs),N_GEN ] )
+        rates = np.zeros( [ len(self.evt_IDs), len(model.populations) ] )
             # rate array size of event space
 
-        rates[R_F,:] = (
-            ( self.alp * np.power(T,self.h_T) / ( np.power(T,self.h_T) + np.power(self.k_T,self.h_T) ) ) * ( ( self.x_var[E,:] * np.power(self.x_var[N,:],self.h_R) / ( np.power(self.x_var[N,:],self.h_R) + np.power(self.k_R,self.h_R) ) ) + self.kap )
-        )
+        rates[MIGRATE,:] = \
+            np.array( [ len(p.hosts) * p.total_migration_rate for id,p in model.populations.items() ] )
 
-        rates[R_B,:] = (
-            self.dlt * self.x_var[R,:]
-        )
+        rates[CONTACT_HOST_HOST,:] = \
+            np.array( [ p.host_host_transmission * len(p.hosts) * len(p.hosts) * p.contact_rate_host_host for id,p in model.populations.items() ] )
+                # contact rate assumes fixed area--large populations are dense
+                # populations, so contact scales linearly with both host and vector
+                # populations. If you don't want this to happen, modify the population's
+                # contact rate accordingly.
 
-        rates[E_F,:] = (
-            self.eps * self.x_var[N,:] * np.power( (self.d - self.x_var[E,:]),self.h_E ) / ( ( np.power( (self.d - self.x_var[E,:]),self.h_E ) + np.power(self.k_E,self.h_E) ) )
-        )
+        rates[CONTACT_HOST_VECTOR,:] = \
+            np.array( [ p.vector_borne * len(p.hosts) * len(p.vectors) * p.contact_rate_host_vector for id,p in model.populations.items() ] )
+                # contact rate assumes fixed area--large populations are dense
+                # populations, so contact scales linearly with both host and vector
+                # populations. If you don't want this to happen, modify the population's
+                # contact rate accordingly.
 
-        rates[E_B,:] = (
-            self.zet * np.sum(self.x_var[S,:]) * np.power(self.x_var[E,:],self.h_H) / ( ( np.power(self.x_var[E,:],self.h_H) + np.power(self.k_H,self.h_H) ) )
-        )
+        rates[RECOVER_HOST,:] = \
+            np.array( [ p.num_infected_hosts * p.recovery_rate_host for id,p in model.populations.items() ] )
 
-        rates[N_F,:] = (
-            self.gam * self.x_var[R,:] * np.power( (self.n_t - np.sum(self.x_var[N,:]) ),self.h_N ) / ( ( np.power( (self.n_t - np.sum(self.x_var[N,:]) ),self.h_N ) + np.power(self.k_N,self.h_N) ) )
-        )
-
-        rates[N_B,:] = (
-            self.bet * self.x_var[N,:]
-        )
-
-        rates[P_F,:] = (
-            self.eta * self.x_var[E,:] * np.power(T,self.h_T) * np.power(self.x_var[N,:],self.h_R) / ( ( np.power(T,self.h_T) + np.power(self.k_T,self.h_T) ) * ( np.power(self.x_var[N,:],self.h_R) + np.power(self.k_R,self.h_R) ) )
-        )
-
-        rates[P_B,:] = (
-            0
-        )
-
-        rates[S_F,:] = (
-            self.the * (self.d - self.x_var[E,:]) * np.power(T,self.h_T) / ( np.power(T,self.h_T) + np.power(self.k_T,self.h_T) )
-        )
-
-        rates[S_B,:] = (
-            self.iot * self.x_var[S,:]
-        )
+        rates[RECOVER_VECTOR,:] = \
+            np.array( [ p.num_infected_vectors * p.recovery_rate_vector for id,p in model.populations.items() ] )
 
         #print(np.sum(rates,1), T)
 
@@ -84,7 +76,7 @@ class StocModel(object):
         return rates
 
 
-    def doAction(self,act,gen):
+    def doAction(self,act,pop,rand):
 
         '''
         Changes system state variables according to act argument passed (must be
@@ -93,31 +85,61 @@ class StocModel(object):
             act : int event ID constant - defines action to be taken
         '''
 
-        if act == R_F:
-            self.x_var[R,gen] += 1
-        elif act == R_B:
-            self.x_var[R,gen] -= 1
-        elif act == E_F:
-            self.x_var[E,gen] += 1
-        elif act == E_B:
-            self.x_var[E,gen] -= 1
-        elif act == N_F:
-            self.x_var[N,gen] += 1
-            #self.x_var[R,gen] -= 1
-        elif act == N_B:
-            self.x_var[N,gen] -= 1
-            #self.x_var[R,gen] += 1
-        elif act == P_F:
-            self.x_var[P,gen] += 1
-        elif act == P_B:
-            self.x_var[P,:] = 0 # RBC lysis!
-        elif act == S_F:
-            self.x_var[S,gen] += 1
-        elif act == S_B:
-            self.x_var[S,gen] -= 1
+        if act == MIGRATE:
+            rand = rand * pop.total_migration_rate
+            r_cum = 0
+            for neighbor in pop.neighbors:
+                r_cum += pop.neighbors[neighbor]
+                if r_cum > rand:
+                    pop.migrate(neighbor,1,0)
 
 
-    def gillespie(self):
+
+        elif act == CONTACT_HOST_VECTOR:
+            rand = rand * len(pop.hosts)
+            host = np.floor(rand)
+            vector = np.floor( ( rand - host ) * len(pop.vectors) )
+            pop.contactVectorBorne(host,vector)
+
+        elif act == CONTACT_HOST_HOST:
+            rand = rand * len(pop.hosts)
+            host1 = np.floor(rand)
+            host2 = np.floor( ( rand - host1 ) * len(pop.hosts) )
+            pop.contactHostHost(host1,host2)
+
+        elif act == RECOVER_HOST:
+            host = np.floor( rand * len(pop.hosts) )
+            pop.recoverHost(host)
+
+        elif act == RECOVER_VECTOR:
+            vector = np.floor( rand * len(pop.vectors) )
+            pop.recoverVector(vector)
+
+
+    def addToDf(model,df,time):
+        """ Saves status of model to dataframe given """
+
+        df = pd.concat([df] +
+            [
+                [
+                    pd.DataFrame( time, pop.id, 'Host', host.id, [ str(host.parasites) ],
+                        columns=['Time','Population','Organism','ID','Parasites'] )
+                for host in pop.hosts ]
+            for id,pop in model.populations.items() ] +
+            [
+                [
+                    pd.DataFrame( time, pop.id, 'Vector', vector.id, [ str(vector.parasites) ],
+                        columns=['Time','Population','Organism','ID','Parasites'] )
+                for vector in pop.vectors ]
+            for id,pop in model.populations.items() ],
+
+          ignore_index=True
+        )
+
+        return df
+
+
+    def run(t0,tf):
 
         '''
         Simulates a time series with time values specified in argument t_vec
@@ -128,77 +150,43 @@ class StocModel(object):
         '''
 
         # Simulation variables
-        self.t_var = self.t[0] # keeps track of time
-        self.x[:,:,0] = self.x_var # initialize distance at current distance
-        i = 0 # keeps track of index within x and t_vec lists
-        intervention_tracker = False # keeps track of what the next intervention should be
+        t_var = t0 # keeps track of time
+        dat = pd.DataFrame( columns=['Time','Population','Organism','ID','Parasites'] )
+        intervention_tracker = 0 # keeps track of what the next intervention should be
+        model.interventions = sorted(model.interventions, key=lambda i: i.time)
 
-        while self.t_var < self.t[-1]:
+        while t_var < tf:
                 # repeat until t reaches end of timecourse
             r = self.getRates() # get event rates in this state
             r_tot = np.sum(r) # sum of all rates
-            print(self.t_var)
-            if not intervention_tracker and self.t_var > 124: # if there are any interventions left and if it is time to make one,
-                # self.x_var[R,0] = 0 # get rid of all aslncRNA for gene 0
-                # self.x_var[R,1] += 2500 # add aslncRNA for gene 1
 
-                # self.eps = 0 # get rid of all euchromatin markers
-                # self.eps = self.eps*10 # add all euchromatin markers
-                # self.zet = 0 # get rid of all heterochromatin markers
-                # self.dlt = self.dlt/10 # get rid of all aslncRNAses
+            if intervention_tracker < len(model.interventions) and t_var > model.interventions[intervention_tracker].time: # if there are any interventions left and if it is time to make one,
+                model.interventions[intervention_tracker].doIntervention()
+                intervention_tracker += 1 # advance the tracker
 
-                intervention_tracker = True # advance the tracker
+            # Time handling
+            dt = np.random.exponential( 1/r_tot ) # time until next event
+            t_var += dt # add time step to main timer
 
-            if 1/self.max_dt < r_tot: # if average time to next event is less than maximum permitted time step,
-                # allow it, calculate probability
-                # Time handling
-                dt = np.random.exponential( 1/r_tot ) # time until next event
-                self.t_var += dt # add time step to main timer
-                while i < len(self.t)-1 and self.t[i+1] < self.t_var:
-                    # while still within bounds and the new time exceeds the next
-                    # time in list,
-                    i += 1 # move to next time frame in list
-                    self.x[:,:,i] = self.x[:,:,i-1]
-                        # fill in the state with the previous frame
-                    self.t_l += self.t[i] - self.t[i-1] # advance life cycle timer
-                    if self.t_l > self.lam: # if over life cycle time,
-                        self.t_l = 0 # restart life cycle timer
-                        self.doAction(P_B,-1) # lysis
-
-                # Event handling
-                if self.t_var < self.t[-1]: # if still within max time
-                    u = np.random.random() * r_tot
-                        # random uniform number between 0 (inc) and total rate (exc)
-                    r_cum = 0 # cumulative rate
-                    for e in range(r.shape[0]): # for every possible event,
-                        for g in range(r.shape[1]): # for every possible gene,
-                            r_cum += r[e,g] # add this event's rate to cumulative rate
-                            if u < r_cum: # if random number is under cumulative rate
-                                self.doAction(e,g) # do corresponding action
-                                self.x[:,:,i] = self.x_var # record distance in list
-                                break # exit event loop
+            # Event handling
+            if t_var < tf: # if still within max time
+                u = np.random.random() * r_tot
+                    # random uniform number between 0 (inc) and total rate (exc)
+                r_cum = 0 # cumulative rate
+                for e in range(r.shape[0]): # for every possible event,
+                    for p in range(r.shape[1]): # for every possible population,
+                        r_cum += r[e,p] # add this event's rate to cumulative rate
+                        if u < r_cum: # if random number is under cumulative rate
+                            self.doAction( e, p, ( u - r_cum + r[e,p] ) / r[e,p] ) # do corresponding action, feed in renormalized random number
+                            dat = self.addToDf(model,dat) # record model state in dataframe
+                            break # exit event loop
 
 
-                        else: # if the inner loop wasn't broken,
-                            continue # continue outer loop
+                    else: # if the inner loop wasn't broken,
+                        continue # continue outer loop
 
-                        break # otherwise, break outer loop
+                    break # otherwise, break outer loop
 
 
 
-            else: # if no event happening probabilistically in this max permitted time step,
-                self.t_var += self.max_dt # add time step to main timer
-                while i < len(self.t)-1 and self.t[i+1] < self.t_var:
-                    # while still within bounds and the new time exceeds the next
-                    # time in list,
-                    i += 1 # move to next time frame in list
-                    self.x[:,:,i] = self.x[:,:,i-1]
-                        # fill in the distance with the previous frame
-                    self.t_l += self.t[i] - self.t[i-1] # advance life cycle timer
-                    if self.t_l > self.lam: # if over life cycle time,
-                        self.t_l = 0 # restart life cycle timer
-                        self.doAction(P_B,-1) # lysis
-
-        self.t = self.t[0:i+1] # keep only time points that have been simulated
-        self.x = self.x[:,:,0:i+1] # keep only distances that have been simulated
-        #self.x = self.x / self.vol # make concentration
+        return dat
