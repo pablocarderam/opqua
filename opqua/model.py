@@ -13,12 +13,12 @@ class Model(object):
         self.setups = {}
         self.interventions = []
 
-    def newSetup(name,
-        num_loci, alleles_per_locus,
-        num_hosts, num_vectors, fitnessHost, fitnessVector,
-        contact_rate_host_vector, contact_rate_host_host,
-        inoculum_host, inoculum_vector, inoculation_rate_host, inoculation_rate_vector,
-        recovery_rate_host, recovery_rate_vector,
+    def newSetup(self, name,
+        num_loci=10, possible_alleles='ATCG',
+        num_hosts=10, num_vectors=10, fitnessHost=lambda g: 1, fitnessVector=lambda g: 1,
+        contact_rate_host_vector=1, contact_rate_host_host=1,
+        inoculum_host=10, inoculum_vector=10, inoculation_rate_host=1e0, inoculation_rate_vector=1e0,
+        recovery_rate_host=1e0, recovery_rate_vector=1e0,
         recombine_in_host=0, recombine_in_vector=1,
         mutate_in_host=1e-6, mutate_in_vector=0,
         vector_borne=True, host_host_transmission=False):
@@ -26,7 +26,7 @@ class Model(object):
             setups dict under given name """
 
         self.setups[name] = Parameters(
-            num_loci, alleles_per_locus,
+            num_loci, possible_alleles,
             num_hosts, num_vectors, fitnessHost, fitnessVector,
             contact_rate_host_vector, contact_rate_host_host,
             inoculum_host, inoculum_vector, inoculation_rate_host, inoculation_rate_vector,
@@ -36,14 +36,14 @@ class Model(object):
             vector_borne, host_host_transmission)
 
 
-    def newIntervention(time, function, args):
+    def newIntervention(self, time, function, args):
         """ Creates a new Parameters object with model parameters, saves it in
             setups dict under given name """
 
         self.interventions.append( Intervention(time, function, args) )
 
 
-    def run(t0,tf,save_to_dir=""):
+    def run(self,t0,tf,save_to_dir=""):
         """ Runs the model between the given times, returns pandas dataframe with
             all data and saves it to a file if filepath given. """
 
@@ -51,11 +51,11 @@ class Model(object):
         data = sim.run(t0,tf)
 
         if len(save_to_dir) > 0:
-            data.write_csv(save_to_dir)
+            data.to_csv(save_to_dir,index=False)
 
         return data
 
-    def createPopulation(setup_name,id):
+    def newPopulation(self, id, setup_name):
         """ Creates a new Population object with model parameters and adds it to
             the model. """
 
@@ -65,13 +65,13 @@ class Model(object):
         self.populations[id] = Population(self,self.setups[setup_name],id)
 
 
-    def linkPopulations(pop1_id,pop2_id,rate):
+    def linkPopulations(self, pop1_id,pop2_id,rate):
         """ Establishes the migration rate between populations 1 and 2. """
 
         self.populations[pop1_id].neighbors[ self.populations[pop2_id] ] = rate
 
 
-    def createInterconnectedPopulations(num_populations, id_prefix, setup_name, migration_rate):
+    def createInterconnectedPopulations(self, num_populations, id_prefix, setup_name, migration_rate):
         """ Creates new Population objects with model parameters and adds them to
             the model; links all of them to each other with same migration rate. """
 
@@ -88,52 +88,52 @@ class Model(object):
 
 
 
-    def addHosts(pop_id, num_hosts):
+    def addHosts(self, pop_id, num_hosts):
         """ Add a number of healthy hosts to population. """
 
         self.populations[pop_id].addHosts(num_hosts)
 
 
-    def addVectors(pop_id, num_vectors):
+    def addVectors(self, pop_id, num_vectors):
         """ Add a number of healthy vectors to population """
 
         self.populations[pop_id].addVectors(num_vectors)
 
 
-    def removeHosts(pop_id, num_hosts):
+    def removeHosts(self, pop_id, num_hosts):
         """ Remove a number of random hosts from population """
 
         self.populations[pop_id].removeHosts(num_hosts)
 
 
-    def removeVectors(pop_id, num_vectors):
+    def removeVectors(self, pop_id, num_vectors):
         """ Remove a number of random vectors from population """
 
         self.populations[pop_id].removeVectors(num_vectors)
 
 
-    def addPathogens( pop_id, strains, hosts=True ):
+    def addPathogens(self, pop_id, strains, hosts=True):
         """ Seeds pathogens according to strains dict (keys=genomes,
             values=num of infections); seeds on hosts unless hosts=False """
 
         self.populations[pop_id].addPathogens(strains,hosts)
 
-    def treatHosts(pop_id, frac_hosts, treatment_seqs):
+    def treatHosts(self, pop_id, frac_hosts, treatment_seqs):
         """ Treat random hosts """
 
         self.populations[pop_id].treatHosts(frac_hosts,treatment_seqs)
 
-    def treatVectors(pop_id, frac_vectors, treatment_seqs):
+    def treatVectors(self, pop_id, frac_vectors, treatment_seqs):
         """ Treat random vectors """
 
         self.populations[pop_id].treatVectors(frac_vectors,treatment_seqs)
 
-    def protectHosts(pop_id, frac_hosts, protection_sequence):
+    def protectHosts(self, pop_id, frac_hosts, protection_sequence):
         """ Treat random hosts """
 
         self.populations[pop_id].protectHosts(frac_hosts,protection_sequence)
 
-    def protectVectors(pop_id, frac_vectors, protection_sequence):
+    def protectVectors(self, pop_id, frac_vectors, protection_sequence):
         """ Treat random vectors """
 
         self.populations[pop_id].protectVectors(frac_vectors,protection_sequence)

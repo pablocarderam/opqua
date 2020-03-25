@@ -27,13 +27,13 @@ class Gillespie(object):
         super(Gillespie, self).__init__() # initialize as parent class object
 
         # Event IDs
-        self.evt_IDs = [ MIGRATE, CONTACT_HOST_HOST, CONTACT_HOST_VECTOR, RECOVER_HOST, RECOVER_VECTOR ]
+        self.evt_IDs = [ self.MIGRATE, self.CONTACT_HOST_HOST, self.CONTACT_HOST_VECTOR, self.RECOVER_HOST, self.RECOVER_VECTOR ]
             # event IDs in specific order
 
         self.model = model
 
 
-    def getRates(model):
+    def getRates(self,population_ids):
 
         '''
         Calculates event rates according to current system state.
@@ -42,36 +42,31 @@ class Gillespie(object):
                 Includes total rate under 'tot' key.
         '''
 
-        rates = np.zeros( [ len(self.evt_IDs), len(model.populations) ] )
+        rates = np.zeros( [ len(self.evt_IDs), len(population_ids) ] )
             # rate array size of event space
 
-        rates[MIGRATE,:] = \
-            np.array( [ len(p.hosts) * p.total_migration_rate for id,p in model.populations.items() ] )
+        rates[self.MIGRATE,:] = \
+            np.array( [ len(self.model.populations[id].hosts) * self.model.populations[id].total_migration_rate for id in population_ids ] )
 
-        rates[CONTACT_HOST_HOST,:] = \
-            np.array( [ p.host_host_transmission * len(p.hosts) * len(p.hosts) * p.contact_rate_host_host for id,p in model.populations.items() ] )
+        rates[self.CONTACT_HOST_HOST,:] = \
+            np.array( [ self.model.populations[id].host_host_transmission * len(self.model.populations[id].hosts) * len(self.model.populations[id].hosts) * self.model.populations[id].contact_rate_host_host for id,p in self.model.populations.items() ] )
                 # contact rate assumes fixed area--large populations are dense
                 # populations, so contact scales linearly with both host and vector
                 # populations. If you don't want this to happen, modify the population's
                 # contact rate accordingly.
 
-        rates[CONTACT_HOST_VECTOR,:] = \
-            np.array( [ p.vector_borne * len(p.hosts) * len(p.vectors) * p.contact_rate_host_vector for id,p in model.populations.items() ] )
+        rates[self.CONTACT_HOST_VECTOR,:] = \
+            np.array( [ self.model.populations[id].vector_borne * len(self.model.populations[id].hosts) * len(self.model.populations[id].vectors) * self.model.populations[id].contact_rate_host_vector for id,p in self.model.populations.items() ] )
                 # contact rate assumes fixed area--large populations are dense
                 # populations, so contact scales linearly with both host and vector
                 # populations. If you don't want this to happen, modify the population's
                 # contact rate accordingly.
 
-        rates[RECOVER_HOST,:] = \
-            np.array( [ p.num_infected_hosts * p.recovery_rate_host for id,p in model.populations.items() ] )
+        rates[self.RECOVER_HOST,:] = \
+            np.array( [ self.model.populations[id].num_infected_hosts * self.model.populations[id].recovery_rate_host for id,p in self.model.populations.items() ] )
 
-        rates[RECOVER_VECTOR,:] = \
-            np.array( [ p.num_infected_vectors * p.recovery_rate_vector for id,p in model.populations.items() ] )
-
-        #print(np.sum(rates,1), T)
-
-        # rate_dict = dict(zip( self.evt_IDs, rates )) # save IDs, rates in dict
-        # rate_dict['tot'] = rates.sum() # save total sum of rates
+        rates[self.RECOVER_VECTOR,:] = \
+            np.array( [ self.model.populations[id].num_infected_vectors * self.model.populations[id].recovery_rate_vector for id,p in self.model.populations.items() ] )
 
         return rates
 
@@ -85,7 +80,7 @@ class Gillespie(object):
             act : int event ID constant - defines action to be taken
         '''
 
-        if act == MIGRATE:
+        if act == self.MIGRATE:
             rand = rand * pop.total_migration_rate
             r_cum = 0
             for neighbor in pop.neighbors:
@@ -95,51 +90,50 @@ class Gillespie(object):
 
 
 
-        elif act == CONTACT_HOST_VECTOR:
+        elif act == self.CONTACT_HOST_VECTOR:
             rand = rand * len(pop.hosts)
-            host = np.floor(rand)
-            vector = np.floor( ( rand - host ) * len(pop.vectors) )
+            host = int( np.floor(rand) )
+            vector = int( np.floor( ( rand - host ) * len(pop.vectors) ) )
             pop.contactVectorBorne(host,vector)
 
-        elif act == CONTACT_HOST_HOST:
+        elif act == self.CONTACT_HOST_HOST:
             rand = rand * len(pop.hosts)
-            host1 = np.floor(rand)
-            host2 = np.floor( ( rand - host1 ) * len(pop.hosts) )
+            host1 = int( np.floor(rand) )
+            host2 = int( np.floor( ( rand - host1 ) * len(pop.hosts) ) )
             pop.contactHostHost(host1,host2)
 
-        elif act == RECOVER_HOST:
-            host = np.floor( rand * len(pop.hosts) )
+        elif act == self.RECOVER_HOST:
+            host = int( np.floor( rand * len(pop.hosts) ) )
             pop.recoverHost(host)
 
-        elif act == RECOVER_VECTOR:
-            vector = np.floor( rand * len(pop.vectors) )
+        elif act == self.RECOVER_VECTOR:
+            vector = int( np.floor( rand * len(pop.vectors) ) )
             pop.recoverVector(vector)
 
 
-    def addToDf(model,df,time):
+    def addToDf(self,model,df,time):
         """ Saves status of model to dataframe given """
 
         df = pd.concat([df] +
             [
-                [
-                    pd.DataFrame( time, pop.id, 'Host', host.id, [ str(host.parasites) ],
-                        columns=['Time','Population','Organism','ID','Parasites'] )
-                for host in pop.hosts ]
+                pd.concat([
+                    pd.DataFrame( [ [ time, pop.id, 'Host', host.id, str( list( host.pathogens.keys() ) ) ] ],
+                        columns=['Time','Population','Organism','ID','Pathogens'] )
+                for host in pop.hosts ])
             for id,pop in model.populations.items() ] +
             [
-                [
-                    pd.DataFrame( time, pop.id, 'Vector', vector.id, [ str(vector.parasites) ],
-                        columns=['Time','Population','Organism','ID','Parasites'] )
-                for vector in pop.vectors ]
+                pd.concat([
+                    pd.DataFrame( [ [ time, pop.id, 'Host', vector.id, str( list( host.pathogens.keys() ) ) ] ],
+                        columns=['Time','Population','Organism','ID','Pathogens'] )
+                for vector in pop.vectors ])
             for id,pop in model.populations.items() ],
-
           ignore_index=True
         )
 
         return df
 
 
-    def run(t0,tf):
+    def run(self,t0,tf):
 
         '''
         Simulates a time series with time values specified in argument t_vec
@@ -151,17 +145,18 @@ class Gillespie(object):
 
         # Simulation variables
         t_var = t0 # keeps track of time
-        dat = pd.DataFrame( columns=['Time','Population','Organism','ID','Parasites'] )
+        dat = pd.DataFrame( columns=['Time','Population','Organism','ID','Pathogens'] )
         intervention_tracker = 0 # keeps track of what the next intervention should be
-        model.interventions = sorted(model.interventions, key=lambda i: i.time)
+        self.model.interventions = sorted(self.model.interventions, key=lambda i: i.time)
 
         while t_var < tf:
                 # repeat until t reaches end of timecourse
-            r = self.getRates() # get event rates in this state
+            population_ids = list( self.model.populations.keys() )
+            r = self.getRates(population_ids) # get event rates in this state
             r_tot = np.sum(r) # sum of all rates
 
-            if intervention_tracker < len(model.interventions) and t_var > model.interventions[intervention_tracker].time: # if there are any interventions left and if it is time to make one,
-                model.interventions[intervention_tracker].doIntervention()
+            if intervention_tracker < len(self.model.interventions) and t_var > self.model.interventions[intervention_tracker].time: # if there are any interventions left and if it is time to make one,
+                self.model.interventions[intervention_tracker].doIntervention()
                 intervention_tracker += 1 # advance the tracker
 
             # Time handling
@@ -177,8 +172,9 @@ class Gillespie(object):
                     for p in range(r.shape[1]): # for every possible population,
                         r_cum += r[e,p] # add this event's rate to cumulative rate
                         if u < r_cum: # if random number is under cumulative rate
-                            self.doAction( e, p, ( u - r_cum + r[e,p] ) / r[e,p] ) # do corresponding action, feed in renormalized random number
-                            dat = self.addToDf(model,dat) # record model state in dataframe
+                            self.doAction( e, self.model.populations[ population_ids[p] ], ( u - r_cum + r[e,p] ) / r[e,p] ) # do corresponding action, feed in renormalized random number
+                            dat = self.addToDf(self.model,dat,t_var) # record model state in dataframe
+                            print(t_var)
                             break # exit event loop
 
 

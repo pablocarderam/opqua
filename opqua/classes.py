@@ -14,7 +14,7 @@ class Host(object):
         self.protection_sequences = []
 
 
-    def infectVector(vector):
+    def infectVector(self, vector):
         """ Infects given vector """
 
         for genome,fitness in self.pathogens:
@@ -37,7 +37,7 @@ class Host(object):
 
 
 
-    def infectHost(host):
+    def infectHost(self, host):
         """ Infects given host. """
 
         for genome,fitness in self.pathogens:
@@ -58,13 +58,13 @@ class Host(object):
 
 
 
-    def recover():
+    def recover(self):
         ''' Remove all infections '''
         self.pathogens = {}
         self.population.num_infected_hosts -= 1
 
 
-    def applyTreatment(treatment_seqs):
+    def applyTreatment(self, treatment_seqs):
         """ Applies given treatment on this host """
 
         genomes_removed = []
@@ -97,7 +97,7 @@ class Vector(object):
         self.protection_sequences = []
 
 
-    def infectHost(host):
+    def infectHost(self, host):
         """ Infects given host """
 
         for genome,fitness in self.pathogens:
@@ -114,12 +114,12 @@ class Vector(object):
 
 
 
-    def recover():
+    def recover(self):
         ''' Remove all infections '''
         self.pathogens = {}
         self.population.num_infected_vectors -= 1
 
-    def applyTreatment(treatment_seqs):
+    def applyTreatment(self, treatment_seqs):
         """ Applies given treatment on this vector """
 
         genomes_removed = []
@@ -157,7 +157,7 @@ class Population(object):
         self.num_infected_vectors = 0
 
         self.num_loci = params.num_loci
-        self.alleles_per_locus = params.alleles_per_locus
+        self.possible_alleles = params.possible_alleles
         self.contact_rate_host_vector = params.contact_rate_host_vector
         self.contact_rate_host_host = params.contact_rate_host_host
             # contact rate assumes fixed area--large populations are dense
@@ -180,19 +180,19 @@ class Population(object):
         self.host_host_transmission = params.host_host_transmission
 
 
-    def addHosts(num_hosts):
+    def addHosts(self, num_hosts):
         """ Add a number of healthy hosts to population """
 
         self.hosts += [ Host( self, len(self.hosts) + i ) for i in range(num_hosts) ]
 
 
-    def addVectors(num_vectors):
+    def addVectors(self, num_vectors):
         """ Add a number of healthy vectors to population """
 
         self.vectors += [ Vector( self, len(self.vectors) + i ) for i in range(num_vectors) ]
 
 
-    def removeHosts(num_hosts):
+    def removeHosts(self, num_hosts):
         """ Remove a number of random hosts from population """
         for _ in range(num_hosts):
             host_removed = np.random.choice(self.hosts)
@@ -202,7 +202,7 @@ class Population(object):
             self.hosts.remove( host_removed )
 
 
-    def removeVectors(num_vectors):
+    def removeVectors(self, num_vectors):
         """ Remove a number of random vectors from population """
         for _ in range(num_vectors):
             vector_removed = np.random.choice(self.vectors)
@@ -212,7 +212,7 @@ class Population(object):
             self.vectors.remove( vector_removed )
 
 
-    def addPathogens( strains, hosts=True ):
+    def addPathogens(self, strains, hosts=True):
         """ Seeds pathogens according to strains dict (keys=genomes,
             values=num of infections); seeds on hosts unless hosts=False """
 
@@ -231,19 +231,19 @@ class Population(object):
 
 
 
-    def recoverHost(index_host):
+    def recoverHost(self, index_host):
         """ Treats host with this specific index. """
 
         self.hosts[index_host].recover()
 
 
-    def recoverVector(index_vector):
+    def recoverVector(self, index_vector):
         """ Treats vector with this specific index. """
 
         self.vectors[index_vector].recover()
 
 
-    def treatHosts(frac_hosts,treatment_seqs):
+    def treatHosts(self, frac_hosts, treatment_seqs):
         """ Treat random hosts """
 
         infected_hosts = []
@@ -258,7 +258,7 @@ class Population(object):
 
 
 
-    def treatVectors(frac_vectors,treatment_seqs):
+    def treatVectors(self, frac_vectors, treatment_seqs):
         """ Treat random vectors """
 
         infected_vectors = []
@@ -273,7 +273,7 @@ class Population(object):
 
 
 
-    def protectHosts(frac_hosts,protection_sequence):
+    def protectHosts(self, frac_hosts, protection_sequence):
         """ Treat random hosts """
 
         protect_hosts = np.random.choice( self.hosts, int( frac_hosts * len( self.hosts ) ) )
@@ -282,7 +282,7 @@ class Population(object):
 
 
 
-    def protectVectors(frac_vectors,protection_sequence):
+    def protectVectors(self, frac_vectors, protection_sequence):
         """ Treat random vectors """
 
         protect_vectors = np.random.choice( self.vectors, int( frac_vectors * len( self.vectors ) ) )
@@ -291,7 +291,7 @@ class Population(object):
 
 
 
-    def setNeighbor(neighbor,rate):
+    def setNeighbor(self, neighbor, rate):
         """ Adds or edits a neighbor to this population and associates the
             corresponding migration rate (from this population to the neighboring one). """
 
@@ -301,7 +301,7 @@ class Population(object):
         self.neighbors[neighbor] = rate
         self.total_migration_rate += rate
 
-    def migrate(target_pop,num_hosts,num_vectors):
+    def migrate(self, target_pop, num_hosts, num_vectors):
         """ Transfers hosts and/or vectors to a target population """
 
         migrating_hosts = np.random.choice(self.hosts,num_hosts)
@@ -324,7 +324,7 @@ class Population(object):
 
 
 
-    def contactVectorBorne(index_host,index_vector):
+    def contactVectorBorne(self, index_host, index_vector):
         """ Carries out a contact and possible transmission event between this host
             and vector. """
 
@@ -333,7 +333,7 @@ class Population(object):
         temp_host.infectVector(self.vectors[index_vector])
 
 
-    def contactHostHost(index_host1,index_host2):
+    def contactHostHost(self, index_host1, index_host2):
         """ Carries out a contact and possible transmission event between two
             hosts if not vector-borne. """
 
@@ -342,17 +342,17 @@ class Population(object):
         temp_host.infectHost(self.hosts[index_host2])
 
 
-    def mutate(host_or_pathogen):
+    def mutate(self, host_or_pathogen):
         """ Creates a new genotype from a de novo mutation event in the host or
             pathogen given. """
 
-        old_genome = np.random.choice( host_or_pathogen.pathogens.keys() )
+        old_genome = np.random.choice( list( host_or_pathogen.pathogens.keys() ) )
         mut_index = np.random.randint( self.num_loci )
-        new_genome = old_genome[0:mut_index] + np.random.choice( list(self.alleles_per_locus) ) + old_genome[mut_index+1:-1]
+        new_genome = old_genome[0:mut_index] + np.random.choice( list(self.possible_alleles) ) + old_genome[mut_index+1:-1]
         host_or_pathogen.pathogens[new_genome] = self.fitnessHost(new_genome)
 
 
-    def recombine(host_or_pathogen):
+    def recombine(self, host_or_pathogen):
         """ Creates all new genotypes from all possible recombination events in
             the host or pathogen given. """
 
@@ -390,7 +390,7 @@ class Intervention(object):
         self.intervention = function
         self.args = args
 
-    def doIntervention():
+    def doIntervention(self):
         """ Intervention. """
 
         self.intervention(*args)
@@ -401,7 +401,7 @@ class Parameters(object):
     """docstring for Parameters."""
 
     def __init__(self,
-        num_loci, alleles_per_locus,
+        num_loci, possible_alleles,
         num_hosts, num_vectors, fitnessHost, fitnessVector,
         contact_rate_host_vector, contact_rate_host_host,
         inoculum_host, inoculum_vector, inoculation_rate_host, inoculation_rate_vector,
@@ -412,7 +412,7 @@ class Parameters(object):
 
         super(Parameters, self).__init__()
         self.num_loci = num_loci
-        self.alleles_per_locus = alleles_per_locus
+        self.possible_alleles = possible_alleles
         self.contact_rate_host_vector = contact_rate_host_vector
         self.contact_rate_host_host = contact_rate_host_host
             # contact rate assumes fixed area--large populations are dense
