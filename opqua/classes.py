@@ -161,15 +161,22 @@ class Vector(object):
 class Population(object):
     """docstring for Population."""
 
-    def __init__(self, model, params, id):
+    def __init__(self, model, id, params, num_hosts, num_vectors):
 
         super(Population, self).__init__()
 
         self.id = id
 
-        self.hosts = [ Host(self,id) for id in range(params.num_hosts) ]
-        self.vectors = [ Vector(self,id) for id in range(params.num_vectors) ]
+        self.hosts = [ Host(self,id) for id in range(num_hosts) ]
+        self.vectors = [ Vector(self,id) for id in range(num_vectors) ]
         self.neighbors = {}
+
+        self.setSetup(params)
+
+
+    def setSetup(self, params)
+        self.setup = params
+
         self.total_migration_rate = 0
         self.num_infected_hosts = 0
         self.num_infected_vectors = 0
@@ -202,15 +209,21 @@ class Population(object):
 
 
     def addHosts(self, num_hosts):
-        """ Add a number of healthy hosts to population """
+        """ Add a number of healthy hosts to population, return list containing them """
 
-        self.hosts += [ Host( self, len(self.hosts) + i ) for i in range(num_hosts) ]
+        new_hosts = [ Host( self, len(self.hosts) + i ) for i in range(num_hosts) ]
+        self.hosts += new_hosts
+
+        return new_hosts
 
 
     def addVectors(self, num_vectors):
         """ Add a number of healthy vectors to population """
 
+        new_vectors = [ Vector( self, len(self.vectors) + i ) for i in range(num_vectors) ]
         self.vectors += [ Vector( self, len(self.vectors) + i ) for i in range(num_vectors) ]
+
+        return new_vectors
 
 
     def removeHosts(self, num_hosts):
@@ -434,8 +447,8 @@ class Intervention(object):
 
 
 
-class Parameters(object):
-    """docstring for Parameters."""
+class Setup(object):
+    """docstring for Setup."""
 
     def __init__(self,
         num_loci, possible_alleles,
@@ -447,7 +460,7 @@ class Parameters(object):
         mutate_in_host, mutate_in_vector,
         vector_borne, host_host_transmission):
 
-        super(Parameters, self).__init__()
+        super(Setup, self).__init__()
         self.num_loci = num_loci
         self.possible_alleles = possible_alleles
 

@@ -1,3 +1,4 @@
+#TODO: select hosts/vectors and intervene on selections
 
 import numpy as np
 import pandas as pd
@@ -22,10 +23,10 @@ class Model(object):
         recombine_in_host=0, recombine_in_vector=1e-2,
         mutate_in_host=1e-6, mutate_in_vector=0,
         vector_borne=True, host_host_transmission=False):
-        """ Creates a new Parameters object with model parameters, saves it in
+        """ Creates a new Setup object with model parameters, saves it in
             setups dict under given name """
 
-        self.setups[name] = Parameters(
+        self.setups[name] = Setup(
             num_loci, possible_alleles,
             num_hosts, num_vectors, fitnessHost, fitnessVector,
             contact_rate_host_vector, contact_rate_host_host,
@@ -37,7 +38,7 @@ class Model(object):
 
 
     def newIntervention(self, time, function, args):
-        """ Creates a new Parameters object with model parameters, saves it in
+        """ Creates a new Setup object with model parameters, saves it in
             setups dict under given name """
 
         self.interventions.append( Intervention(time, function, args) )
@@ -55,28 +56,28 @@ class Model(object):
 
         return data
 
-    def newPopulation(self, id, setup_name):
+    def newPopulation(self, id, setup_name, num_hosts=100, num_vectors=100):
         """ Creates a new Population object with model parameters and adds it to
             the model. """
 
         if id in self.populations.keys():
             id = id+'_2'
 
-        self.populations[id] = Population(self,self.setups[setup_name],id)
+        self.populations[id] = Population( self, id, self.setups[setup_name], num_hosts, num_vectors )
 
 
-    def linkPopulations(self, pop1_id,pop2_id,rate):
+    def linkPopulations(self, pop1_id, pop2_id, rate):
         """ Establishes the migration rate between populations 1 and 2. """
 
         self.populations[pop1_id].neighbors[ self.populations[pop2_id] ] = rate
 
 
-    def createInterconnectedPopulations(self, num_populations, id_prefix, setup_name, migration_rate):
+    def createInterconnectedPopulations(self, num_populations, migration_rate, id_prefix, setup_name, num_hosts=100, num_vectors=100):
         """ Creates new Population objects with model parameters and adds them to
             the model; links all of them to each other with same migration rate. """
 
 
-        new_pops = [ Population( self, self.setups[setup_name], id_prefix + str(i) ) for i in range(num_populations) ]
+        new_pops = [ Population( self, id_prefix + str(i), self.setups[setup_name], num_hosts, num_vectors ) for i in range(num_populations) ]
         for p1 in new_pops:
             if p1.id in self.populations.keys():
                 p1.id = p1.id+'_2'
@@ -91,13 +92,13 @@ class Model(object):
     def addHosts(self, pop_id, num_hosts):
         """ Add a number of healthy hosts to population. """
 
-        self.populations[pop_id].addHosts(num_hosts)
+        return self.populations[pop_id].addHosts(num_hosts)
 
 
     def addVectors(self, pop_id, num_vectors):
         """ Add a number of healthy vectors to population """
 
-        self.populations[pop_id].addVectors(num_vectors)
+        return self.populations[pop_id].addVectors(num_vectors)
 
 
     def removeHosts(self, pop_id, num_hosts):
@@ -137,3 +138,8 @@ class Model(object):
         """ Treat random vectors """
 
         self.populations[pop_id].protectVectors(frac_vectors,protection_sequence)
+
+    def setSetup(self, pop_id, setup_id):
+        """ Treat random vectors """
+
+        self.populations[pop_id].setSetup( self.setups[setup_id] )
