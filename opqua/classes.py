@@ -17,21 +17,26 @@ class Host(object):
     def infectVector(self, vector):
         """ Infects given vector """
 
-        for genome,fitness in self.pathogens:
+        changed = False
+        for genome,fitness in self.pathogens.items():
             if genome not in vector.pathogens.keys() and genome not in vector.protection_sequences and np.random.binomial( self.population.inoculum_host, self.population.inoculation_rate_host * fitness / self.sum_fitness, 1 ) > 0:
                 vector.pathogens[genome] = vector.population.fitnessVector(genome)
                 vector.sum_fitness += vector.pathogens[genome]
                 vector.population.num_infected_vectors += 1
+                changed = True
 
             rand = np.random.random()
-            if self.population.mutate_in_vector > rand:
+            if self.population.mutate_in_vector > rand and changed:
                 self.population.mutate(vector)
                 rand = rand / self.population.mutate_in_vector
             else:
                 rand = ( rand - self.population.mutate_in_vector ) / ( 1 - self.population.mutate_in_vector )
 
-            if self.population.recombine_in_vector > rand:
+            if self.population.recombine_in_vector > rand and changed:
                 self.population.recombine(vector)
+
+
+        return changed
 
 
 
@@ -40,22 +45,26 @@ class Host(object):
     def infectHost(self, host):
         """ Infects given host. """
 
-        for genome,fitness in self.pathogens:
-            if genome not in vector.pathogens.keys() and genome not in host.protection_sequences and np.random.binomial( self.population.inoculum_host, self.population.inoculation_rate_host * fitness / self.sum_fitness, 1 ) > 0:
+        changed = False
+        for genome,fitness in self.pathogens.items():
+            if genome not in host.pathogens.keys() and genome not in host.protection_sequences and np.random.binomial( self.population.inoculum_host, self.population.inoculation_rate_host * fitness / self.sum_fitness, 1 ) > 0:
                 host.pathogens[genome] = host.population.fitnessHost(genome)
                 host.sum_fitness += host.pathogens[genome]
                 host.population.num_infected_hosts += 1
+                changed = True
 
             rand = np.random.random()
-            if self.population.mutate_in_host > rand:
+            if self.population.mutate_in_host > rand and changed:
                 self.population.mutate(host)
                 rand = rand / self.population.mutate_in_host
             else:
                 rand = ( rand - self.population.mutate_in_host ) / ( 1 - self.population.mutate_in_host )
 
-            if self.population.recombine_in_host > rand:
+            if self.population.recombine_in_host > rand and changed:
                 self.population.recombine(host)
 
+
+        return changed
 
 
     def recover(self):
@@ -100,17 +109,26 @@ class Vector(object):
     def infectHost(self, host):
         """ Infects given host """
 
-        for genome,fitness in self.pathogens:
-            if genome not in vector.pathogens.keys() and genome not in host.protection_sequences and np.random.binomial( self.population.inoculum_vector, self.population.inoculation_rate_vector * fitness / self.sum_fitness, 1 ) > 0:
+        changed = False
+        for genome,fitness in self.pathogens.items():
+            if genome not in host.pathogens.keys() and genome not in host.protection_sequences and np.random.binomial( self.population.inoculum_vector, self.population.inoculation_rate_vector * fitness / self.sum_fitness, 1 ) > 0:
                 host.pathogens[genome] = host.population.fitnessHost(genome)
                 host.sum_fitness += host.pathogens[genome]
                 host.population.num_infected_hosts += 1
+                changed = True
 
-            if self.population.mutate_in_host:
+            rand = np.random.random()
+            if self.population.mutate_in_host > rand and changed:
                 self.population.mutate(host)
+                rand = rand / self.population.mutate_in_host
+            else:
+                rand = ( rand - self.population.mutate_in_host ) / ( 1 - self.population.mutate_in_host )
 
-            if self.population.recombine_in_host:
+            if self.population.recombine_in_host > rand and changed:
                 self.population.recombine(host)
+
+
+        return changed
 
 
 
@@ -158,16 +176,19 @@ class Population(object):
 
         self.num_loci = params.num_loci
         self.possible_alleles = params.possible_alleles
+
+        self.num_hosts = params.num_hosts
+        self.num_vectors = params.num_vectors
+        self.fitnessHost = params.fitnessHost
+        self.fitnessVector = params.fitnessVector
         self.contact_rate_host_vector = params.contact_rate_host_vector
         self.contact_rate_host_host = params.contact_rate_host_host
             # contact rate assumes fixed area--large populations are dense
             # populations, so contact scales linearly with both host and vector
             # populations. If you don't want this to happen, modify the population's
             # contact rate accordingly.
-
-        self.fitnessHost = params.fitnessHost
-        self.fitnessVector = params.fitnessVector
         self.inoculum_host = params.inoculum_host
+        self.inoculum_vector = params.inoculum_vector
         self.inoculation_rate_host = params.inoculation_rate_host
         self.inoculation_rate_vector = params.inoculation_rate_vector
         self.recovery_rate_host = params.recovery_rate_host
@@ -212,21 +233,33 @@ class Population(object):
             self.vectors.remove( vector_removed )
 
 
-    def addPathogens(self, strains, hosts=True):
+    def addPathogens(self, genomes_numbers, hosts=True):
         """ Seeds pathogens according to strains dict (keys=genomes,
             values=num of infections); seeds on hosts unless hosts=False """
 
-        for genome in strains:
-            if hosts:
-                self.num_infected_hosts += 1
-                for _ in range( strains[genome] ):
-                    np.random.choice(self.hosts).pathogens[genome] = self.fitnessHost(genome)
+        for genome in genomes_numbers:
+            if len(genome) == self.num_loci and all( [ allele in self.possible_alleles for allele in genome ] ):
+                if hosts:
+                    self.num_infected_hosts += 1
+                    for _ in range( genomes_numbers[genome] ):
+                        new_fitness = self.fitnessHost(genome)
+                        rand_host = np.random.choice(self.hosts)
+                        rand_host.pathogens[genome] = new_fitness
+                        rand_host.sum_fitness += new_fitness
+
+
+                else:
+                    self.num_infected_vectors += 1
+                    for _ in range( genomes_numbers[genome] ):
+                        new_fitness = self.fitnessVector(genome)
+                        rand_vector = np.random.choice(self.vectors)
+                        rand_vector.pathogens[genome] = new_fitness
+                        rand_vector.sum_fitness += new_fitness
+
 
 
             else:
-                self.num_infected_vectors += 1
-                for _ in range( strains[genome] ):
-                    np.random.choice(self.vectors).pathogens[genome] = self.fitnessVector(genome)
+                raise ValueError('Genome ' + genome + ' must be of length ' + str(self.num_loci) + ' and contain only ' + self.possible_alleles + ' characters.')
 
 
 
@@ -295,7 +328,7 @@ class Population(object):
         """ Adds or edits a neighbor to this population and associates the
             corresponding migration rate (from this population to the neighboring one). """
 
-        if neighbor in self.neighbors.keys():
+        if neighbor in self.neighbors:
             self.total_migration_rate -= self.neighbors[neighbor]
 
         self.neighbors[neighbor] = rate
@@ -346,33 +379,37 @@ class Population(object):
         """ Creates a new genotype from a de novo mutation event in the host or
             pathogen given. """
 
-        old_genome = np.random.choice( list( host_or_pathogen.pathogens.keys() ) )
-        mut_index = np.random.randint( self.num_loci )
-        new_genome = old_genome[0:mut_index] + np.random.choice( list(self.possible_alleles) ) + old_genome[mut_index+1:-1]
-        host_or_pathogen.pathogens[new_genome] = self.fitnessHost(new_genome)
+        if len(host_or_pathogen.pathogens) > 0:
+            old_genome = np.random.choice( list( host_or_pathogen.pathogens.keys() ) )
+            mut_index = np.random.randint( self.num_loci )
+            new_genome = old_genome[0:mut_index] + np.random.choice( list(self.possible_alleles) ) + old_genome[mut_index+1:]
+            host_or_pathogen.pathogens[new_genome] = self.fitnessHost(new_genome)
+
 
 
     def recombine(self, host_or_pathogen):
         """ Creates all new genotypes from all possible recombination events in
             the host or pathogen given. """
 
-        new_genomes = [""]
-        for position in range( self.num_loci ):
-            new_genomes_position = new_genomes
-            new_genomes = []
-            alleles_at_locus = []
-            for genome in host_or_pathogen.pathogens:
-                if genome[position] not in alleles_at_locus:
-                    alleles_at_locus.append(genome[position])
-                    for new_genome in new_genomes_position:
-                        new_genomes.append( new_genome + genome[position] )
+        if len(host_or_pathogen.pathogens) > 0:
+            new_genomes = [""]
+            for position in range( self.num_loci ):
+                new_genomes_position = new_genomes
+                new_genomes = []
+                alleles_at_locus = []
+                for genome in host_or_pathogen.pathogens:
+                    if genome[position] not in alleles_at_locus:
+                        alleles_at_locus.append(genome[position])
+                        for new_genome in new_genomes_position:
+                            new_genomes.append( new_genome + genome[position] )
 
 
 
 
-        for new_genome in new_genomes:
-            if new_genome not in host_or_pathogen.pathogens.keys():
-                host_or_pathogen.pathogens[new_genome] = self.fitnessVector(new_genome)
+            for new_genome in new_genomes:
+                if new_genome not in host_or_pathogen.pathogens.keys():
+                    host_or_pathogen.pathogens[new_genome] = self.fitnessVector(new_genome)
+
 
 
 
@@ -413,18 +450,19 @@ class Parameters(object):
         super(Parameters, self).__init__()
         self.num_loci = num_loci
         self.possible_alleles = possible_alleles
+
+        self.num_hosts = num_hosts
+        self.num_vectors = num_vectors
+        self.fitnessHost = fitnessHost
+        self.fitnessVector = fitnessVector
         self.contact_rate_host_vector = contact_rate_host_vector
         self.contact_rate_host_host = contact_rate_host_host
             # contact rate assumes fixed area--large populations are dense
             # populations, so contact scales linearly with both host and vector
             # populations. If you don't want this to happen, modify the population's
             # contact rate accordingly.
-
-        self.num_hosts = num_hosts
-        self.num_vectors = num_vectors
-        self.fitnessHost = fitnessHost
-        self.fitnessVector = fitnessVector
         self.inoculum_host = inoculum_host
+        self.inoculum_vector = inoculum_vector
         self.inoculation_rate_host = inoculation_rate_host
         self.inoculation_rate_vector = inoculation_rate_vector
         self.recovery_rate_host = recovery_rate_host

@@ -15,11 +15,11 @@ class Model(object):
 
     def newSetup(self, name,
         num_loci=10, possible_alleles='ATCG',
-        num_hosts=10, num_vectors=10, fitnessHost=lambda g: 1, fitnessVector=lambda g: 1,
-        contact_rate_host_vector=1, contact_rate_host_host=1,
-        inoculum_host=10, inoculum_vector=10, inoculation_rate_host=1e0, inoculation_rate_vector=1e0,
-        recovery_rate_host=1e0, recovery_rate_vector=1e0,
-        recombine_in_host=0, recombine_in_vector=1,
+        num_hosts=100, num_vectors=100, fitnessHost=lambda g: 1, fitnessVector=lambda g: 1,
+        contact_rate_host_vector=1e-2, contact_rate_host_host=0,
+        inoculum_host=10, inoculum_vector=10, inoculation_rate_host=1e-1, inoculation_rate_vector=1e-1,
+        recovery_rate_host=1e0, recovery_rate_vector=1e1,
+        recombine_in_host=0, recombine_in_vector=1e-2,
         mutate_in_host=1e-6, mutate_in_vector=0,
         vector_borne=True, host_host_transmission=False):
         """ Creates a new Parameters object with model parameters, saves it in
@@ -112,11 +112,11 @@ class Model(object):
         self.populations[pop_id].removeVectors(num_vectors)
 
 
-    def addPathogens(self, pop_id, strains, hosts=True):
+    def addPathogens(self, pop_id, genomes_numbers, hosts=True):
         """ Seeds pathogens according to strains dict (keys=genomes,
             values=num of infections); seeds on hosts unless hosts=False """
 
-        self.populations[pop_id].addPathogens(strains,hosts)
+        self.populations[pop_id].addPathogens(genomes_numbers,hosts)
 
     def treatHosts(self, pop_id, frac_hosts, treatment_seqs):
         """ Treat random hosts """

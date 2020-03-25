@@ -1,4 +1,5 @@
 
+import copy as cp
 import pandas as pd
 import numpy as np
 from opqua.classes import *
@@ -80,6 +81,8 @@ class Gillespie(object):
             act : int event ID constant - defines action to be taken
         '''
 
+        changed = False
+
         if act == self.MIGRATE:
             rand = rand * pop.total_migration_rate
             r_cum = 0
@@ -87,6 +90,7 @@ class Gillespie(object):
                 r_cum += pop.neighbors[neighbor]
                 if r_cum > rand:
                     pop.migrate(neighbor,1,0)
+                    changed = True
 
 
 
@@ -94,41 +98,45 @@ class Gillespie(object):
             rand = rand * len(pop.hosts)
             host = int( np.floor(rand) )
             vector = int( np.floor( ( rand - host ) * len(pop.vectors) ) )
-            pop.contactVectorBorne(host,vector)
+            changed = pop.contactVectorBorne(host,vector)
 
         elif act == self.CONTACT_HOST_HOST:
             rand = rand * len(pop.hosts)
             host1 = int( np.floor(rand) )
             host2 = int( np.floor( ( rand - host1 ) * len(pop.hosts) ) )
-            pop.contactHostHost(host1,host2)
+            changed = pop.contactHostHost(host1,host2)
 
         elif act == self.RECOVER_HOST:
             host = int( np.floor( rand * len(pop.hosts) ) )
             pop.recoverHost(host)
+            changed = True
 
         elif act == self.RECOVER_VECTOR:
             vector = int( np.floor( rand * len(pop.vectors) ) )
             pop.recoverVector(vector)
+            changed = True
+
+        return changed
 
 
-    def addToDf(self,model,df,time):
+    def saveToDf(self,history,df):
         """ Saves status of model to dataframe given """
 
+        print('Saving file...')
         df = pd.concat([df] +
-            [
-                pd.concat([
-                    pd.DataFrame( [ [ time, pop.id, 'Host', host.id, str( list( host.pathogens.keys() ) ) ] ],
-                        columns=['Time','Population','Organism','ID','Pathogens'] )
-                for host in pop.hosts ])
-            for id,pop in model.populations.items() ] +
-            [
-                pd.concat([
-                    pd.DataFrame( [ [ time, pop.id, 'Host', vector.id, str( list( host.pathogens.keys() ) ) ] ],
-                        columns=['Time','Population','Organism','ID','Pathogens'] )
-                for vector in pop.vectors ])
-            for id,pop in model.populations.items() ],
-          ignore_index=True
-        )
+            [ pd.concat(
+                [ pd.concat(
+                        [ pd.DataFrame( [ [ time, pop.id, 'Host', host.id, str( list( host.pathogens.keys() ) ) ] ],
+                            columns=['Time','Population','Organism','ID','Pathogens'] )
+                            for host in pop.hosts ] + [
+                        pd.DataFrame( [ [ time, pop.id, 'Vector', vector.id, str( list( vector.pathogens.keys() ) ) ] ],
+                                    columns=['Time','Population','Organism','ID','Pathogens'] )
+                            for vector in pop.vectors ]
+                    )
+                    for id,pop in model.populations.items() ]
+                )
+                for time,model in history.items() ],
+            ignore_index=True)
 
         return df
 
@@ -146,6 +154,7 @@ class Gillespie(object):
         # Simulation variables
         t_var = t0 # keeps track of time
         dat = pd.DataFrame( columns=['Time','Population','Organism','ID','Pathogens'] )
+        history = { 0: cp.deepcopy(self.model) }
         intervention_tracker = 0 # keeps track of what the next intervention should be
         self.model.interventions = sorted(self.model.interventions, key=lambda i: i.time)
 
@@ -172,9 +181,12 @@ class Gillespie(object):
                     for p in range(r.shape[1]): # for every possible population,
                         r_cum += r[e,p] # add this event's rate to cumulative rate
                         if u < r_cum: # if random number is under cumulative rate
-                            self.doAction( e, self.model.populations[ population_ids[p] ], ( u - r_cum + r[e,p] ) / r[e,p] ) # do corresponding action, feed in renormalized random number
-                            dat = self.addToDf(self.model,dat,t_var) # record model state in dataframe
-                            print(t_var)
+                            print('Simulating time: ' + t_var,e)
+                            changed = self.doAction( e, self.model.populations[ population_ids[p] ], ( u - r_cum + r[e,p] ) / r[e,p] ) # do corresponding action, feed in renormalized random number
+                            #dat = self.addToDf(self.model,dat,t_var) # record model state in dataframe
+                            if changed:
+                                history[t_var] = cp.deepcopy(self.model)
+
                             break # exit event loop
 
 
@@ -185,4 +197,5 @@ class Gillespie(object):
 
 
 
+        dat = self.saveToDf(history,dat) # record model state in dataframe
         return dat
