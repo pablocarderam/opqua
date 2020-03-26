@@ -64,10 +64,10 @@ class Gillespie(object):
                 # contact rate accordingly.
 
         rates[self.RECOVER_HOST,:] = \
-            np.array( [ self.model.populations[id].num_infected_hosts * self.model.populations[id].recovery_rate_host for id,p in self.model.populations.items() ] )
+            np.array( [ len( self.model.populations[id].infected_hosts ) * self.model.populations[id].recovery_rate_host for id,p in self.model.populations.items() ] )
 
         rates[self.RECOVER_VECTOR,:] = \
-            np.array( [ self.model.populations[id].num_infected_vectors * self.model.populations[id].recovery_rate_vector for id,p in self.model.populations.items() ] )
+            np.array( [ len( self.model.populations[id].infected_vectors ) * self.model.populations[id].recovery_rate_vector for id,p in self.model.populations.items() ] )
 
         return rates
 
@@ -123,7 +123,7 @@ class Gillespie(object):
         """ Saves status of model to dataframe given """
 
         print('Saving file...')
-        df = pd.concat([df] +
+        df = pd.concat([df] + #TODO: this can be parallelized with jl
             [ pd.concat(
                 [ pd.concat(
                         [ pd.DataFrame( [ [ time, pop.id, 'Host', host.id, str( list( host.pathogens.keys() ) ) ] ],
@@ -137,6 +137,8 @@ class Gillespie(object):
                 )
                 for time,model in history.items() ],
             ignore_index=True)
+
+        print('...file saved.')
 
         return df
 
@@ -181,7 +183,9 @@ class Gillespie(object):
                     for p in range(r.shape[1]): # for every possible population,
                         r_cum += r[e,p] # add this event's rate to cumulative rate
                         if u < r_cum: # if random number is under cumulative rate
-                            print('Simulating time: ' + t_var,e)
+                            t_inf_hosts = np.array([(len(h.pathogens)>0) for h in self.model.populations['p1'].hosts]).sum()
+                            t_inf_vectors = np.array([(len(v.pathogens)>0) for v in self.model.populations['p1'].vectors]).sum()
+                            print('Simulating time: ' + str(t_var),e,len(self.model.populations['p1'].infected_hosts), t_inf_hosts, len(self.model.populations['p1'].infected_vectors), t_inf_vectors)
                             changed = self.doAction( e, self.model.populations[ population_ids[p] ], ( u - r_cum + r[e,p] ) / r[e,p] ) # do corresponding action, feed in renormalized random number
                             #dat = self.addToDf(self.model,dat,t_var) # record model state in dataframe
                             if changed:

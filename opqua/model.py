@@ -18,8 +18,8 @@ class Model(object):
         num_loci=10, possible_alleles='ATCG',
         num_hosts=100, num_vectors=100, fitnessHost=lambda g: 1, fitnessVector=lambda g: 1,
         contact_rate_host_vector=1e-2, contact_rate_host_host=0,
-        inoculum_host=10, inoculum_vector=10, inoculation_rate_host=1e-1, inoculation_rate_vector=1e-1,
-        recovery_rate_host=1e0, recovery_rate_vector=1e1,
+        inoculum_host=1e2, inoculum_vector=1e2, inoculation_rate_host=1e-1, inoculation_rate_vector=1e-1,
+        recovery_rate_host=1e1, recovery_rate_vector=1e1,
         recombine_in_host=0, recombine_in_vector=1e-2,
         mutate_in_host=1e-6, mutate_in_vector=0,
         vector_borne=True, host_host_transmission=False):
@@ -101,43 +101,49 @@ class Model(object):
         return self.populations[pop_id].addVectors(num_vectors)
 
 
-    def removeHosts(self, pop_id, num_hosts):
+    def removeHosts(self, pop_id, num_hosts_or_list):
         """ Remove a number of random hosts from population """
 
-        self.populations[pop_id].removeHosts(num_hosts)
+        self.populations[pop_id].removeHosts(num_hosts_or_list)
 
 
-    def removeVectors(self, pop_id, num_vectors):
+    def removeVectors(self, pop_id, num_vectors_or_list):
         """ Remove a number of random vectors from population """
 
-        self.populations[pop_id].removeVectors(num_vectors)
+        self.populations[pop_id].removeVectors(num_vectors_or_list)
 
 
-    def addPathogens(self, pop_id, genomes_numbers, hosts=True):
+    def addPathogensToHosts(self, pop_id, genomes_numbers, hosts=[]):
         """ Seeds pathogens according to strains dict (keys=genomes,
             values=num of infections); seeds on hosts unless hosts=False """
 
-        self.populations[pop_id].addPathogens(genomes_numbers,hosts)
+        self.populations[pop_id].addPathogensToHosts(genomes_numbers,hosts)
 
-    def treatHosts(self, pop_id, frac_hosts, treatment_seqs):
+    def addPathogensToVectors(self, pop_id, genomes_numbers, vectors=[]):
+        """ Seeds pathogens according to strains dict (keys=genomes,
+            values=num of infections); seeds on hosts unless hosts=False """
+
+        self.populations[pop_id].addPathogensToVectors(genomes_numbers,vectors)
+
+    def treatHosts(self, pop_id, frac_hosts, treatment_seqs, hosts=[]):
         """ Treat random hosts """
 
-        self.populations[pop_id].treatHosts(frac_hosts,treatment_seqs)
+        self.populations[pop_id].treatHosts(frac_hosts,treatment_seqs,hosts)
 
-    def treatVectors(self, pop_id, frac_vectors, treatment_seqs):
+    def treatVectors(self, pop_id, frac_vectors, treatment_seqs, vectors=[]):
         """ Treat random vectors """
 
-        self.populations[pop_id].treatVectors(frac_vectors,treatment_seqs)
+        self.populations[pop_id].treatVectors(frac_vectors,treatment_seqs,vectors)
 
-    def protectHosts(self, pop_id, frac_hosts, protection_sequence):
+    def protectHosts(self, pop_id, frac_hosts, protection_sequence, hosts=[]):
         """ Treat random hosts """
 
-        self.populations[pop_id].protectHosts(frac_hosts,protection_sequence)
+        self.populations[pop_id].protectHosts(frac_hosts,protection_sequence,hosts)
 
-    def protectVectors(self, pop_id, frac_vectors, protection_sequence):
+    def protectVectors(self, pop_id, frac_vectors, protection_sequence, vectors=[]):
         """ Treat random vectors """
 
-        self.populations[pop_id].protectVectors(frac_vectors,protection_sequence)
+        self.populations[pop_id].protectVectors(frac_vectors,protection_sequence,vectors)
 
     def setSetup(self, pop_id, setup_id):
         """ Treat random vectors """

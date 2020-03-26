@@ -9,7 +9,8 @@ from opqua.model import Model
 m = Model()
 m.newSetup('s')
 m.newPopulation('p1','s')
-m.addPathogens( 'p1',{'AAAAAAAAAA':1} )
+m.addPathogensToHosts( 'p1',{'AAAAAAAAAA':4} )
+print(m.populations['p1'].num_infected_hosts)
 #TODO: test fitness functions
 #TODO: test interventions
 
