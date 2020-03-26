@@ -2,6 +2,10 @@
 import copy as cp
 import pandas as pd
 import numpy as np
+import joblib as jl
+
+import time
+
 from opqua.classes import *
 from opqua.model import *
 
@@ -119,24 +123,53 @@ class Gillespie(object):
         return changed
 
 
-    def saveToDf(self,history,df):
+    def saveToDf(self,history,df,n_cores=0):
         """ Saves status of model to dataframe given """
 
         print('Saving file...')
-        df = pd.concat([df] + #TODO: this can be parallelized with jl
+
+        # In my hands at least, parallelization resulted in worse performance...
+
+        if not n_cores:
+            n_cores = jl.cpu_count()
+
+        start = time.time()
+        new_df = jl.Parallel(n_jobs=n_cores, verbose=10) ( jl.delayed( pd.concat ) (
             [ pd.concat(
-                [ pd.concat(
-                        [ pd.DataFrame( [ [ time, pop.id, 'Host', host.id, str( list( host.pathogens.keys() ) ) ] ],
-                            columns=['Time','Population','Organism','ID','Pathogens'] )
-                            for host in pop.hosts ] + [
-                        pd.DataFrame( [ [ time, pop.id, 'Vector', vector.id, str( list( vector.pathogens.keys() ) ) ] ],
-                                    columns=['Time','Population','Organism','ID','Pathogens'] )
-                            for vector in pop.vectors ]
+                    [ pd.DataFrame( [ [ time, pop.id, 'Host', host.id, str( list( host.pathogens.keys() ) ) ] ],
+                        columns=['Time','Population','Organism','ID','Pathogens'] )
+                        for host in pop.hosts ] + [
+                    pd.DataFrame( [ [ time, pop.id, 'Vector', vector.id, str( list( vector.pathogens.keys() ) ) ] ],
+                                columns=['Time','Population','Organism','ID','Pathogens'] )
+                        for vector in pop.vectors ],
+                ignore_index=True )
+                for id,pop in model.populations.items() ],
+            ignore_index=True )
+            for time,model in history.items()
+        )
+        # end = time.time()
+        # print(end - start)
+        #
+        # print('\nNON PARALLEL\n')
+
+        # start = time.time()
+        new_df = [ pd.concat(
+                    [ pd.concat(
+                            [ pd.DataFrame( [ [ time, pop.id, 'Host', host.id, str( list( host.pathogens.keys() ) ) ] ],
+                                columns=['Time','Population','Organism','ID','Pathogens'] )
+                                for host in pop.hosts ] + [
+                            pd.DataFrame( [ [ time, pop.id, 'Vector', vector.id, str( list( vector.pathogens.keys() ) ) ] ],
+                                        columns=['Time','Population','Organism','ID','Pathogens'] )
+                                for vector in pop.vectors ]
+                        )
+                        for id,pop in model.populations.items() ]
                     )
-                    for id,pop in model.populations.items() ]
-                )
-                for time,model in history.items() ],
-            ignore_index=True)
+                    for time,model in history.items() ]
+
+        # end = time.time()
+        # print(end - start)
+
+        df = pd.concat([df] + new_df, ignore_index=True)
 
         print('...file saved.')
 
