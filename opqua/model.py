@@ -2,6 +2,7 @@
 
 import numpy as np
 import pandas as pd
+import difflib as dl
 from opqua.classes import *
 from opqua.gillespie import *
 
@@ -14,17 +15,56 @@ class Model(object):
         self.setups = {}
         self.interventions = []
 
-    def newSetup(self, name,
-        num_loci=10, possible_alleles='ATCG',
-        num_hosts=100, num_vectors=100, fitnessHost=lambda g: 1, fitnessVector=lambda g: 1,
-        contact_rate_host_vector=1e-2, contact_rate_host_host=0,
-        inoculum_host=1e2, inoculum_vector=1e2, inoculation_rate_host=1e-1, inoculation_rate_vector=1e-1,
-        recovery_rate_host=1e1, recovery_rate_vector=1e1,
-        recombine_in_host=0, recombine_in_vector=1e-2,
-        mutate_in_host=1e-6, mutate_in_vector=0,
-        vector_borne=True, host_host_transmission=False):
+    def newSetup(self, name, default=None,
+        num_loci=None, possible_alleles=None,
+        num_hosts=None, num_vectors=None, fitnessHost=None, fitnessVector=None,
+        contact_rate_host_vector=None, contact_rate_host_host=None,
+        inoculum_host=None, inoculum_vector=None, inoculation_rate_host=None, inoculation_rate_vector=None,
+        recovery_rate_host=None, recovery_rate_vector=None,
+        recombine_in_host=None, recombine_in_vector=None,
+        mutate_in_host=None, mutate_in_vector=None):
         """ Creates a new Setup object with model parameters, saves it in
             setups dict under given name """
+
+        if default == "vector-borne":
+            num_loci = num_loci or 10
+            possible_alleles = possible_alleles or 'ATCG'
+            num_hosts = num_hosts or 100
+            num_vectors = num_vectors or 100
+            fitnessHost = fitnessHost or (lambda g: 1)
+            fitnessVector = fitnessVector or (lambda g: 1)
+            contact_rate_host_vector = contact_rate_host_vector or 1e-2
+            contact_rate_host_host = contact_rate_host_host or 0
+            inoculum_host = inoculum_host or 1e2
+            inoculum_vector = inoculum_vector or 1e2
+            inoculation_rate_host = inoculation_rate_host or 1e-1
+            inoculation_rate_vector = inoculation_rate_vector or 1e-1
+            recovery_rate_host = recovery_rate_host or 1e1
+            recovery_rate_vector = recovery_rate_vector or 1e1
+            recombine_in_host = recombine_in_host or 0
+            recombine_in_vector = recombine_in_vector or 1e-2
+            mutate_in_host = mutate_in_host or 1e-6
+            mutate_in_vector = mutate_in_vector or 0
+
+        elif default == "host-host":
+            num_loci = num_loci or 10
+            possible_alleles = possible_alleles or 'ATCG'
+            num_hosts = num_hosts or 100
+            num_vectors = num_vectors or 100
+            fitnessHost = fitnessHost or (lambda g: 1)
+            fitnessVector = fitnessVector or (lambda g: 1)
+            contact_rate_host_vector = contact_rate_host_vector or 0
+            contact_rate_host_host = contact_rate_host_host or 1e-2
+            inoculum_host = inoculum_host or 1e2
+            inoculum_vector = inoculum_vector or 1e2
+            inoculation_rate_host = inoculation_rate_host or 1e-1
+            inoculation_rate_vector = inoculation_rate_vector or 1e-1
+            recovery_rate_host = recovery_rate_host or 5e-1
+            recovery_rate_vector = recovery_rate_vector or 1e1
+            recombine_in_host = recombine_in_host or 1e-3
+            recombine_in_vector = recombine_in_vector or 0
+            mutate_in_host = mutate_in_host or 1e-6
+            mutate_in_vector = mutate_in_vector or 0
 
         self.setups[name] = Setup(
             num_loci, possible_alleles,
@@ -33,8 +73,7 @@ class Model(object):
             inoculum_host, inoculum_vector, inoculation_rate_host, inoculation_rate_vector,
             recovery_rate_host, recovery_rate_vector,
             recombine_in_host, recombine_in_vector,
-            mutate_in_host, mutate_in_vector,
-            vector_borne, host_host_transmission)
+            mutate_in_host, mutate_in_vector)
 
 
     def newIntervention(self, time, function, args):
@@ -44,15 +83,12 @@ class Model(object):
         self.interventions.append( Intervention(time, function, args) )
 
 
-    def run(self,t0,tf,save_to_dir=""):
+    def run(self,t0,tf,save_to_file):
         """ Runs the model between the given times, returns pandas dataframe with
             all data and saves it to a file if filepath given. """
 
         sim = Gillespie(self)
-        data = sim.run(t0,tf)
-
-        if len(save_to_dir) > 0:
-            data.to_csv(save_to_dir,index=False)
+        data = sim.run(t0,tf,save_to_file)
 
         return data
 
@@ -149,3 +185,24 @@ class Model(object):
         """ Treat random vectors """
 
         self.populations[pop_id].setSetup( self.setups[setup_id] )
+
+    # Fitness functions
+    @staticmethod
+    def stabilizingSelection(genome,optimal_genome,min_fitness):
+        """ A purifying selection fitness function based on exponential decay of
+            fitness based on distance from an optimal genome sequence. """
+
+        similarity = dl.SequenceMatcher(None, genome, optimal_genome).ratio()
+        fitness = np.exp( np.log( min_fitness ) * ( 1-similarity ) )
+
+        return fitness
+
+    @staticmethod
+    def disruptiveSelection(genome,worst_genome,min_fitness):
+        """ A purifying selection fitness function based on exponential decay of
+            fitness based on distance from an optimal genome sequence. """
+
+        similarity = dl.SequenceMatcher(None, genome, optimal_genome).ratio()
+        fitness = np.exp( np.log( min_fitness ) * ( similarity ) )
+
+        return fitness

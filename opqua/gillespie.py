@@ -22,6 +22,10 @@ class Gillespie(object):
     CONTACT_HOST_VECTOR = 2
     RECOVER_HOST = 3
     RECOVER_VECTOR = 4
+    MUTATE_HOST = 5
+    MUTATE_VECTOR = 6
+    RECOMBINE_HOST = 7
+    RECOMBINE_VECTOR = 8
 
     def __init__(self, model):
 
@@ -32,7 +36,9 @@ class Gillespie(object):
         super(Gillespie, self).__init__() # initialize as parent class object
 
         # Event IDs
-        self.evt_IDs = [ self.MIGRATE, self.CONTACT_HOST_HOST, self.CONTACT_HOST_VECTOR, self.RECOVER_HOST, self.RECOVER_VECTOR ]
+        self.evt_IDs = [ self.MIGRATE, self.CONTACT_HOST_HOST, self.CONTACT_HOST_VECTOR,
+            self.RECOVER_HOST, self.RECOVER_VECTOR, self.MUTATE_HOST, self.MUTATE_VECTOR,
+            self.RECOMBINE_HOST, self.RECOMBINE_VECTOR ]
             # event IDs in specific order
 
         self.model = model
@@ -54,14 +60,14 @@ class Gillespie(object):
             np.array( [ len(self.model.populations[id].hosts) * self.model.populations[id].total_migration_rate for id in population_ids ] )
 
         rates[self.CONTACT_HOST_HOST,:] = \
-            np.array( [ self.model.populations[id].host_host_transmission * len(self.model.populations[id].hosts) * len(self.model.populations[id].hosts) * self.model.populations[id].contact_rate_host_host for id,p in self.model.populations.items() ] )
+            np.array( [ ( len( self.model.populations[id].infected_hosts ) > 0 ) * len(self.model.populations[id].hosts) * len(self.model.populations[id].hosts) * self.model.populations[id].contact_rate_host_host for id,p in self.model.populations.items() ] )
                 # contact rate assumes fixed area--large populations are dense
                 # populations, so contact scales linearly with both host and vector
                 # populations. If you don't want this to happen, modify the population's
                 # contact rate accordingly.
 
         rates[self.CONTACT_HOST_VECTOR,:] = \
-            np.array( [ self.model.populations[id].vector_borne * len(self.model.populations[id].hosts) * len(self.model.populations[id].vectors) * self.model.populations[id].contact_rate_host_vector for id,p in self.model.populations.items() ] )
+            np.array( [ ( len( self.model.populations[id].infected_hosts ) + len( self.model.populations[id].infected_vectors ) > 0 ) * len(self.model.populations[id].hosts) * len(self.model.populations[id].vectors) * self.model.populations[id].contact_rate_host_vector for id,p in self.model.populations.items() ] )
                 # contact rate assumes fixed area--large populations are dense
                 # populations, so contact scales linearly with both host and vector
                 # populations. If you don't want this to happen, modify the population's
@@ -72,6 +78,18 @@ class Gillespie(object):
 
         rates[self.RECOVER_VECTOR,:] = \
             np.array( [ len( self.model.populations[id].infected_vectors ) * self.model.populations[id].recovery_rate_vector for id,p in self.model.populations.items() ] )
+
+        rates[self.MUTATE_HOST,:] = \
+            np.array( [ len( self.model.populations[id].infected_hosts ) * self.model.populations[id].mutate_in_host for id,p in self.model.populations.items() ] )
+
+        rates[self.MUTATE_VECTOR,:] = \
+            np.array( [ len( self.model.populations[id].infected_vectors ) * self.model.populations[id].mutate_in_vector for id,p in self.model.populations.items() ] )
+
+        rates[self.RECOMBINE_HOST,:] = \
+            np.array( [ len( self.model.populations[id].infected_hosts ) * self.model.populations[id].recombine_in_host for id,p in self.model.populations.items() ] )
+
+        rates[self.RECOMBINE_VECTOR,:] = \
+            np.array( [ len( self.model.populations[id].infected_vectors ) * self.model.populations[id].recombine_in_vector for id,p in self.model.populations.items() ] )
 
         return rates
 
@@ -111,72 +129,103 @@ class Gillespie(object):
             changed = pop.contactHostHost(host1,host2)
 
         elif act == self.RECOVER_HOST:
-            host = int( np.floor( rand * len(pop.hosts) ) )
+            host = int( np.floor( rand * len(pop.infected_hosts) ) )
             pop.recoverHost(host)
             changed = True
 
         elif act == self.RECOVER_VECTOR:
-            vector = int( np.floor( rand * len(pop.vectors) ) )
+            vector = int( np.floor( rand * len(pop.infected_vectors) ) )
             pop.recoverVector(vector)
+            changed = True
+
+        elif act == self.MUTATE_HOST:
+            host = int( np.floor( rand * len(pop.infected_hosts) ) )
+            pop.mutate(host)
+            changed = True
+
+        elif act == self.MUTATE_VECTOR:
+            vector = int( np.floor( rand * len(pop.infected_vectors) ) )
+            pop.mutate(vector)
+            changed = True
+
+        elif act == self.RECOMBINE_HOST:
+            host = int( np.floor( rand * len(pop.infected_hosts) ) )
+            pop.recombine(host)
+            changed = True
+
+        elif act == self.RECOMBINE_VECTOR:
+            vector = int( np.floor( rand * len(pop.infected_vectors) ) )
+            pop.recombine(vector)
             changed = True
 
         return changed
 
 
-    def saveToDf(self,history,df,n_cores=0):
+    def saveToDf(self,history,save_to_file,n_cores=0):
         """ Saves status of model to dataframe given """
 
         print('Saving file...')
 
-        # In my hands at least, parallelization resulted in worse performance...
-
         if not n_cores:
             n_cores = jl.cpu_count()
 
-        start = time.time()
-        new_df = jl.Parallel(n_jobs=n_cores, verbose=10) ( jl.delayed( pd.concat ) (
-            [ pd.concat(
-                    [ pd.DataFrame( [ [ time, pop.id, 'Host', host.id, str( list( host.pathogens.keys() ) ) ] ],
-                        columns=['Time','Population','Organism','ID','Pathogens'] )
-                        for host in pop.hosts ] + [
-                    pd.DataFrame( [ [ time, pop.id, 'Vector', vector.id, str( list( vector.pathogens.keys() ) ) ] ],
-                                columns=['Time','Population','Organism','ID','Pathogens'] )
-                        for vector in pop.vectors ],
-                ignore_index=True )
-                for id,pop in model.populations.items() ],
-            ignore_index=True )
-            for time,model in history.items()
-        )
-        # end = time.time()
-        # print(end - start)
-        #
-        # print('\nNON PARALLEL\n')
-
         # start = time.time()
-        new_df = [ pd.concat(
-                    [ pd.concat(
-                            [ pd.DataFrame( [ [ time, pop.id, 'Host', host.id, str( list( host.pathogens.keys() ) ) ] ],
-                                columns=['Time','Population','Organism','ID','Pathogens'] )
-                                for host in pop.hosts ] + [
-                            pd.DataFrame( [ [ time, pop.id, 'Vector', vector.id, str( list( vector.pathogens.keys() ) ) ] ],
-                                        columns=['Time','Population','Organism','ID','Pathogens'] )
-                                for vector in pop.vectors ]
+        new_df = ','.join( ['Time','Population','Organism','ID','Pathogens'] ) + '\n' + \
+            '\n'.join(
+                jl.Parallel(n_jobs=n_cores, verbose=10) (
+                    jl.delayed( lambda d: ''.join(d) )
+                        (
+                            '\n'.join( [
+                                    '\n'.join( [ ','.join( [ str(time), str(pop.id), 'Host', str(host.id), ';'.join( host.pathogens.keys() ) ] )
+                                        for host in pop.hosts ] ) + '\n' +
+                                    '\n'.join( [ ','.join( [ str(time), str(pop.id), 'Vector', str(vector.id), ';'.join( vector.pathogens.keys() ) ] )
+                                        for vector in pop.vectors ] )
+                                for id,pop in model.populations.items()
+                            ] )
                         )
-                        for id,pop in model.populations.items() ]
-                    )
-                    for time,model in history.items() ]
+                    for time,model in history.items()
+                )
+            )
 
         # end = time.time()
         # print(end - start)
 
-        df = pd.concat([df] + new_df, ignore_index=True)
+        file = open(save_to_file,'w')
+        file.write(new_df)
+        file.close()
+
+        new_df = pd.read_csv(save_to_file)
+
+        # end = time.time()
+        # print(end - start)
+
+        # print('\nNON PARALLEL\n')
+        #
+        # start = time.time()
+        # new_df = [ pd.concat(
+        #             [ pd.concat(
+        #                     [ pd.DataFrame( [ [ time, pop.id, 'Host', host.id, str( list( host.pathogens.keys() ) ) ] ],
+        #                         columns=['Time','Population','Organism','ID','Pathogens'] )
+        #                         for host in pop.hosts ] + [
+        #                     pd.DataFrame( [ [ time, pop.id, 'Vector', vector.id, str( list( vector.pathogens.keys() ) ) ] ],
+        #                                 columns=['Time','Population','Organism','ID','Pathogens'] )
+        #                         for vector in pop.vectors ]
+        #                 )
+        #                 for id,pop in model.populations.items() ]
+        #             )
+        #             for time,model in history.items() ]
+        #
+        # end = time.time()
+        # print(end - start)
+
+        # df = pd.concat([df] + new_df, ignore_index=True)
 
         print('...file saved.')
 
-        return df
+        return new_df
 
 
-    def run(self,t0,tf):
+    def run(self,t0,tf,save_to_file):
 
         '''
         Simulates a time series with time values specified in argument t_vec
@@ -188,7 +237,6 @@ class Gillespie(object):
 
         # Simulation variables
         t_var = t0 # keeps track of time
-        dat = pd.DataFrame( columns=['Time','Population','Organism','ID','Pathogens'] )
         history = { 0: cp.deepcopy(self.model) }
         intervention_tracker = 0 # keeps track of what the next intervention should be
         self.model.interventions = sorted(self.model.interventions, key=lambda i: i.time)
@@ -204,35 +252,40 @@ class Gillespie(object):
                 intervention_tracker += 1 # advance the tracker
 
             # Time handling
-            dt = np.random.exponential( 1/r_tot ) # time until next event
-            t_var += dt # add time step to main timer
+            if r_tot > 0:
+                dt = np.random.exponential( 1/r_tot ) # time until next event
+                t_var += dt # add time step to main timer
 
-            # Event handling
-            if t_var < tf: # if still within max time
-                u = np.random.random() * r_tot
-                    # random uniform number between 0 (inc) and total rate (exc)
-                r_cum = 0 # cumulative rate
-                for e in range(r.shape[0]): # for every possible event,
-                    for p in range(r.shape[1]): # for every possible population,
-                        r_cum += r[e,p] # add this event's rate to cumulative rate
-                        if u < r_cum: # if random number is under cumulative rate
-                            t_inf_hosts = np.array([(len(h.pathogens)>0) for h in self.model.populations['p1'].hosts]).sum()
-                            t_inf_vectors = np.array([(len(v.pathogens)>0) for v in self.model.populations['p1'].vectors]).sum()
-                            print('Simulating time: ' + str(t_var),e,len(self.model.populations['p1'].infected_hosts), t_inf_hosts, len(self.model.populations['p1'].infected_vectors), t_inf_vectors)
-                            changed = self.doAction( e, self.model.populations[ population_ids[p] ], ( u - r_cum + r[e,p] ) / r[e,p] ) # do corresponding action, feed in renormalized random number
-                            #dat = self.addToDf(self.model,dat,t_var) # record model state in dataframe
-                            if changed:
-                                history[t_var] = cp.deepcopy(self.model)
+                # Event handling
+                if t_var < tf: # if still within max time
+                    u = np.random.random() * r_tot
+                        # random uniform number between 0 (inc) and total rate (exc)
+                    r_cum = 0 # cumulative rate
+                    for e in range(r.shape[0]): # for every possible event,
+                        for p in range(r.shape[1]): # for every possible population,
+                            r_cum += r[e,p] # add this event's rate to cumulative rate
+                            if u < r_cum: # if random number is under cumulative rate
+                                print( 'Simulating time: ' + str(t_var), e, len(self.model.populations['my_population'].infected_hosts), len(self.model.populations['my_population'].infected_vectors) )
+                                changed = self.doAction( e, self.model.populations[ population_ids[p] ], ( u - r_cum + r[e,p] ) / r[e,p] ) # do corresponding action, feed in renormalized random number
+                                if changed:
+                                    history[t_var] = cp.deepcopy(self.model)
 
-                            break # exit event loop
+                                break # exit event loop
 
 
-                    else: # if the inner loop wasn't broken,
-                        continue # continue outer loop
+                        else: # if the inner loop wasn't broken,
+                            continue # continue outer loop
 
-                    break # otherwise, break outer loop
+                        break # otherwise, break outer loop
 
 
 
-        dat = self.saveToDf(history,dat) # record model state in dataframe
+            else:
+                t_var = tf
+
+
+
+        history[tf] = cp.deepcopy(self.model)
+        dat = self.saveToDf(history,save_to_file) # record model state in dataframe
+
         return dat

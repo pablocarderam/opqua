@@ -1,3 +1,4 @@
+# TODO: death and immunity
 
 import numpy as np
 import copy as cp
@@ -27,15 +28,15 @@ class Host(object):
                     vector.population.infected_vectors.append(vector)
 
 
-            rand = np.random.random()
-            if self.population.mutate_in_vector > rand and changed:
-                self.population.mutate(vector)
-                rand = rand / self.population.mutate_in_vector
-            else:
-                rand = ( rand - self.population.mutate_in_vector ) / ( 1 - self.population.mutate_in_vector )
-
-            if self.population.recombine_in_vector > rand and changed:
-                self.population.recombine(vector)
+            # rand = np.random.random()
+            # if self.population.mutate_in_vector > rand and changed:
+            #     self.population.mutate(vector)
+            #     rand = rand / self.population.mutate_in_vector
+            # else:
+            #     rand = ( rand - self.population.mutate_in_vector ) / ( 1 - self.population.mutate_in_vector )
+            #
+            # if self.population.recombine_in_vector > rand and changed:
+            #     self.population.recombine(vector)
 
 
         return changed
@@ -56,15 +57,15 @@ class Host(object):
                 if host not in host.population.infected_hosts:
                     host.population.infected_hosts.append(host)
 
-            rand = np.random.random()
-            if self.population.mutate_in_host > rand and changed:
-                self.population.mutate(host)
-                rand = rand / self.population.mutate_in_host
-            else:
-                rand = ( rand - self.population.mutate_in_host ) / ( 1 - self.population.mutate_in_host )
-
-            if self.population.recombine_in_host > rand and changed:
-                self.population.recombine(host)
+            # rand = np.random.random()
+            # if self.population.mutate_in_host > rand and changed:
+            #     self.population.mutate(host)
+            #     rand = rand / self.population.mutate_in_host
+            # else:
+            #     rand = ( rand - self.population.mutate_in_host ) / ( 1 - self.population.mutate_in_host )
+            #
+            # if self.population.recombine_in_host > rand and changed:
+            #     self.population.recombine(host)
 
 
         return changed
@@ -122,15 +123,15 @@ class Vector(object):
                 if host not in host.population.infected_hosts:
                     host.population.infected_hosts.append(host)
 
-            rand = np.random.random()
-            if self.population.mutate_in_host > rand and changed:
-                self.population.mutate(host)
-                rand = rand / self.population.mutate_in_host
-            else:
-                rand = ( rand - self.population.mutate_in_host ) / ( 1 - self.population.mutate_in_host )
-
-            if self.population.recombine_in_host > rand and changed:
-                self.population.recombine(host)
+            # rand = np.random.random()
+            # if self.population.mutate_in_host > rand and changed:
+            #     self.population.mutate(host)
+            #     rand = rand / self.population.mutate_in_host
+            # else:
+            #     rand = ( rand - self.population.mutate_in_host ) / ( 1 - self.population.mutate_in_host )
+            #
+            # if self.population.recombine_in_host > rand and changed:
+            #     self.population.recombine(host)
 
 
         return changed
@@ -210,8 +211,6 @@ class Population(object):
         self.recombine_in_vector = params.recombine_in_vector
         self.mutate_in_host = params.mutate_in_host
         self.mutate_in_vector = params.mutate_in_vector
-        self.vector_borne = params.vector_borne
-        self.host_host_transmission = params.host_host_transmission
 
 
     def addHosts(self, num_hosts):
@@ -346,13 +345,13 @@ class Population(object):
     def recoverHost(self, index_host):
         """ Treats host with this specific index. """
 
-        self.hosts[index_host].recover()
+        self.infected_hosts[index_host].recover()
 
 
     def recoverVector(self, index_vector):
         """ Treats vector with this specific index. """
 
-        self.vectors[index_vector].recover()
+        self.infected_vectors[index_vector].recover()
 
 
     def treatHosts(self, frac_hosts, treatment_seqs, hosts=[]):
@@ -474,40 +473,60 @@ class Population(object):
         return ( changed1 or changed2 )
 
 
-    def mutate(self, host_or_pathogen):
+    def mutate(self, index_host_or_vector, host=True):
         """ Creates a new genotype from a de novo mutation event in the host or
             pathogen given. """
 
-        if len(host_or_pathogen.pathogens) > 0:
-            old_genome = np.random.choice( list( host_or_pathogen.pathogens.keys() ) )
+        if host:
+            host_or_vector = self.infected_hosts[index_host_or_vector]
+        else:
+            host_or_vector = self.infected_vectors[index_host_or_vector]
+
+        if len(host_or_vector.pathogens) > 0:
+            old_genome = np.random.choice( list( host_or_vector.pathogens.keys() ) )
             mut_index = np.random.randint( self.num_loci )
             new_genome = old_genome[0:mut_index] + np.random.choice( list(self.possible_alleles) ) + old_genome[mut_index+1:]
-            host_or_pathogen.pathogens[new_genome] = self.fitnessHost(new_genome)
+            host_or_vector.pathogens[new_genome] = self.fitnessHost(new_genome)
+            host_or_vector.sum_fitness += host_or_vector.pathogens[new_genome]
 
 
 
-    def recombine(self, host_or_pathogen):
-        """ Creates all new genotypes from all possible recombination events in
+    def recombine(self, index_host_or_vector, host=True):
+        """ Creates a new genotype from two random possible pathogens in
             the host or pathogen given. """
 
-        if len(host_or_pathogen.pathogens) > 0:
-            new_genomes = [""]
-            for position in range( self.num_loci ):
-                new_genomes_position = new_genomes
-                new_genomes = []
-                alleles_at_locus = []
-                for genome in host_or_pathogen.pathogens:
-                    if genome[position] not in alleles_at_locus:
-                        alleles_at_locus.append(genome[position])
-                        for new_genome in new_genomes_position:
-                            new_genomes.append( new_genome + genome[position] )
+        if host:
+            host_or_vector = self.infected_hosts[index_host_or_vector]
+        else:
+            host_or_vector = self.infected_vectors[index_host_or_vector]
 
+        if len(host_or_vector.pathogens) > 1:
+            parents = np.random.choice( list( host_or_vector.pathogens.keys() ), 2, replace=False )
+            print(parents)
+            recom_index = np.random.randint( self.num_loci )
+            new_genome = parents[0][0:recom_index] + parents[1][recom_index:]
+            host_or_vector.pathogens[new_genome] = self.fitnessHost(new_genome)
+            host_or_vector.sum_fitness += host_or_vector.pathogens[new_genome]
 
-
-
-            for new_genome in new_genomes:
-                if new_genome not in host_or_pathogen.pathogens.keys():
-                    host_or_pathogen.pathogens[new_genome] = self.fitnessVector(new_genome)
+            # This code makes all possible new genomes simultaneously:
+            # new_genomes = [""]
+            # for position in range( self.num_loci ):
+            #     new_genomes_position = new_genomes
+            #     new_genomes = []
+            #     alleles_at_locus = []
+            #     for genome in host_or_vector.pathogens:
+            #         if genome[position] not in alleles_at_locus:
+            #             alleles_at_locus.append(genome[position])
+            #             for new_genome in new_genomes_position:
+            #                 new_genomes.append( new_genome + genome[position] )
+            #
+            #
+            #
+            #
+            # for new_genome in new_genomes:
+            #     if new_genome not in host_or_vector.pathogens.keys():
+            #         host_or_vector.pathogens[new_genome] = self.fitnessVector(new_genome)
+            #         host_or_vector.sum_fitness += host_or_vector.pathogens[new_genome]
 
 
 
@@ -543,8 +562,7 @@ class Setup(object):
         inoculum_host, inoculum_vector, inoculation_rate_host, inoculation_rate_vector,
         recovery_rate_host, recovery_rate_vector,
         recombine_in_host, recombine_in_vector,
-        mutate_in_host, mutate_in_vector,
-        vector_borne, host_host_transmission):
+        mutate_in_host, mutate_in_vector):
 
         super(Setup, self).__init__()
         self.num_loci = num_loci
@@ -571,6 +589,3 @@ class Setup(object):
         self.recombine_in_vector = recombine_in_vector
         self.mutate_in_host = mutate_in_host
         self.mutate_in_vector = mutate_in_vector
-
-        self.vector_borne = vector_borne
-        self.host_host_transmission = host_host_transmission
