@@ -8,9 +8,9 @@ from opqua.model import Model
 # Used for custom fitness function:
 import numpy as np
 
-# Define custom fitness function for the host
-my_optimal_genome = 'BEST'
+my_optimal_genome = 'BEST' #
 
+# Define custom fitness function for the host
 def myHostFitness(genome):
     """ Fitness functions must take in 1 argument and retuen a positive number
         as a fitness value. Here, we take advantage of one of the presets,

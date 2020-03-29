@@ -3,8 +3,8 @@
 import numpy as np
 import pandas as pd
 import difflib as dl
-from opqua.classes import *
-from opqua.gillespie import *
+from opqua.internal.classes import *
+from opqua.internal.gillespie import *
 
 class Model(object):
     """docstring for Model."""

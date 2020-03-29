@@ -1,4 +1,5 @@
-
+# TODO: all interventions
+# TODO: metapopulations and subpopulations
 '''
 Simple model
 '''
