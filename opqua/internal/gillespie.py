@@ -1,4 +1,4 @@
-# TODO: print death, protection sequences to results
+
 import copy as cp
 import pandas as pd
 import numpy as np
@@ -24,6 +24,8 @@ class Gillespie(object):
     MUTATE_VECTOR = 6
     RECOMBINE_HOST = 7
     RECOMBINE_VECTOR = 8
+    KILL_HOST = 9
+    KILL_VECTOR = 10
 
     def __init__(self, model):
 
@@ -36,7 +38,7 @@ class Gillespie(object):
         # Event IDs
         self.evt_IDs = [ self.MIGRATE, self.CONTACT_HOST_HOST, self.CONTACT_HOST_VECTOR,
             self.RECOVER_HOST, self.RECOVER_VECTOR, self.MUTATE_HOST, self.MUTATE_VECTOR,
-            self.RECOMBINE_HOST, self.RECOMBINE_VECTOR ]
+            self.RECOMBINE_HOST, self.RECOMBINE_VECTOR, self.KILL_HOST, self.KILL_VECTOR ]
             # event IDs in specific order
 
         self.model = model
@@ -88,6 +90,13 @@ class Gillespie(object):
 
         rates[self.RECOMBINE_VECTOR,:] = \
             np.array( [ len( self.model.populations[id].infected_vectors ) * self.model.populations[id].recombine_in_vector for id,p in self.model.populations.items() ] )
+
+        rates[self.KILL_HOST,:] = \
+            np.array( [ len( self.model.populations[id].infected_hosts ) * self.model.populations[id].death_rate_host for id,p in self.model.populations.items() ] )
+
+        rates[self.KILL_VECTOR,:] = \
+            np.array( [ len( self.model.populations[id].infected_vectors ) * self.model.populations[id].death_rate_vector for id,p in self.model.populations.items() ] )
+
 
         return rates
 
@@ -156,6 +165,16 @@ class Gillespie(object):
             pop.recombine(vector)
             changed = True
 
+        elif act == self.KILL_HOST:
+            host = int( np.floor( rand * len(pop.infected_hosts) ) )
+            pop.killHost(host)
+            changed = True
+
+        elif act == self.KILL_VECTOR:
+            vector = int( np.floor( rand * len(pop.infected_vectors) ) )
+            pop.killVector(vector)
+            changed = True
+
         return changed
 
 
@@ -167,16 +186,20 @@ class Gillespie(object):
         if not n_cores:
             n_cores = jl.cpu_count()
 
-        new_df = ','.join( ['Time','Population','Organism','ID','Pathogens'] ) + '\n' + \
+        new_df = ','.join( ['Time','Population','Organism','ID','Pathogens','Protection','Alive'] ) + '\n' + \
             '\n'.join(
                 jl.Parallel(n_jobs=n_cores, verbose=10) (
                     jl.delayed( lambda d: ''.join(d) )
                         (
                             '\n'.join( [
-                                    '\n'.join( [ ','.join( [ str(time), str(pop.id), 'Host', str(host.id), ';'.join( host.pathogens.keys() ) ] )
+                                    '\n'.join( [ ','.join( [ str(time), str(pop.id), 'Host', str(host.id), ';'.join( host.pathogens.keys() ), ';'.join( host.protection_sequences ), 'True' ] )
                                         for host in pop.hosts ] ) + '\n' +
-                                    '\n'.join( [ ','.join( [ str(time), str(pop.id), 'Vector', str(vector.id), ';'.join( vector.pathogens.keys() ) ] )
-                                        for vector in pop.vectors ] )
+                                    '\n'.join( [ ','.join( [ str(time), str(pop.id), 'Vector', str(vector.id), ';'.join( vector.pathogens.keys() ), ';'.join( vector.protection_sequences ), 'True' ] )
+                                        for vector in pop.vectors ] ) + '\n' +
+                                    '\n'.join( [ ','.join( [ str(time), str(pop.id), 'Host', str(host.id), ';'.join( host.pathogens.keys() ), ';'.join( host.protection_sequences ), 'False' ] )
+                                        for host in pop.dead_hosts ] ) + '\n' +
+                                    '\n'.join( [ ','.join( [ str(time), str(pop.id), 'Vector', str(vector.id), ';'.join( vector.pathogens.keys() ), ';'.join( vector.protection_sequences ), 'False' ] )
+                                        for vector in pop.dead_vectors ] )
                                 for id,pop in model.populations.items()
                             ] )
                         )
@@ -211,20 +234,26 @@ class Gillespie(object):
         intervention_tracker = 0 # keeps track of what the next intervention should be
         self.model.interventions = sorted(self.model.interventions, key=lambda i: i.time)
 
-        while t_var < tf:
-                # repeat until t reaches end of timecourse
+        while t_var < tf: # repeat until t reaches end of timecourse
             population_ids = list( self.model.populations.keys() )
             r = self.getRates(population_ids) # get event rates in this state
             r_tot = np.sum(r) # sum of all rates
-
-            if intervention_tracker < len(self.model.interventions) and t_var > self.model.interventions[intervention_tracker].time: # if there are any interventions left and if it is time to make one,
-                self.model.interventions[intervention_tracker].doIntervention()
-                intervention_tracker += 1 # advance the tracker
 
             # Time handling
             if r_tot > 0:
                 dt = np.random.exponential( 1/r_tot ) # time until next event
                 t_var += dt # add time step to main timer
+
+                if intervention_tracker < len(self.model.interventions) and t_var >= self.model.interventions[intervention_tracker].time: # if there are any interventions left and if it is time to make one,
+                    self.model.interventions[intervention_tracker].doIntervention()
+                    t_var = self.model.interventions[intervention_tracker].time
+                    intervention_tracker += 1 # advance the tracker
+
+                    population_ids = list( self.model.populations.keys() )
+                    r = self.getRates(population_ids) # get event rates in this state
+                    r_tot = np.sum(r) # sum of all rates
+                    dt = np.random.exponential( 1/r_tot ) # time until next event
+                    t_var += dt # add time step to main timer
 
                 # Event handling
                 if t_var < tf: # if still within max time
@@ -251,7 +280,12 @@ class Gillespie(object):
 
 
             else:
-                t_var = tf # TODO: next intervention
+                if intervention_tracker < len(self.model.interventions):
+                    self.model.interventions[intervention_tracker].doIntervention()
+                    t_var = self.model.interventions[intervention_tracker].time
+                    intervention_tracker += 1 # advance the tracker
+                else:
+                    t_var = tf
 
 
 

@@ -1,4 +1,3 @@
-#TODO: select hosts/vectors and intervene on selections
 
 import numpy as np
 import pandas as pd
@@ -14,23 +13,25 @@ class Model(object):
         self.populations = {}
         self.setups = {}
         self.interventions = []
+        self.groups = {}
+
+    # Model initialization:
 
     def newSetup(self, name, default=None,
         num_loci=None, possible_alleles=None,
-        num_hosts=None, num_vectors=None, fitnessHost=None, fitnessVector=None,
+        fitnessHost=None, fitnessVector=None,
         contact_rate_host_vector=None, contact_rate_host_host=None,
         inoculum_host=None, inoculum_vector=None, inoculation_rate_host=None, inoculation_rate_vector=None,
         recovery_rate_host=None, recovery_rate_vector=None,
         recombine_in_host=None, recombine_in_vector=None,
-        mutate_in_host=None, mutate_in_vector=None):
+        mutate_in_host=None, mutate_in_vector=None, death_rate_host=None, death_rate_vector=None,
+        immunity_upon_recovery_host=None, immunity_upon_recovery_vector=None):
         """ Creates a new Setup object with model parameters, saves it in
             setups dict under given name """
 
         if default == "vector-borne":
             num_loci = num_loci or 10
             possible_alleles = possible_alleles or 'ATCG'
-            num_hosts = num_hosts or 100
-            num_vectors = num_vectors or 100
             fitnessHost = fitnessHost or (lambda g: 1)
             fitnessVector = fitnessVector or (lambda g: 1)
             contact_rate_host_vector = contact_rate_host_vector or 1e-2
@@ -45,12 +46,14 @@ class Model(object):
             recombine_in_vector = recombine_in_vector or 1e-2
             mutate_in_host = mutate_in_host or 1e-6
             mutate_in_vector = mutate_in_vector or 0
+            death_rate_host = death_rate_host or 0
+            death_rate_vector = death_rate_vector or 0
+            immunity_upon_recovery_host = immunity_upon_recovery_host or False
+            immunity_upon_recovery_vector = immunity_upon_recovery_vector or False
 
         elif default == "host-host":
             num_loci = num_loci or 10
             possible_alleles = possible_alleles or 'ATCG'
-            num_hosts = num_hosts or 100
-            num_vectors = num_vectors or 100
             fitnessHost = fitnessHost or (lambda g: 1)
             fitnessVector = fitnessVector or (lambda g: 1)
             contact_rate_host_vector = contact_rate_host_vector or 0
@@ -65,15 +68,20 @@ class Model(object):
             recombine_in_vector = recombine_in_vector or 0
             mutate_in_host = mutate_in_host or 1e-6
             mutate_in_vector = mutate_in_vector or 0
+            death_rate_host = death_rate_host or 0
+            death_rate_vector = death_rate_vector or 0
+            immunity_upon_recovery_host = immunity_upon_recovery_host or False
+            immunity_upon_recovery_vector = immunity_upon_recovery_vector or False
 
         self.setups[name] = Setup(
             num_loci, possible_alleles,
-            num_hosts, num_vectors, fitnessHost, fitnessVector,
+            fitnessHost, fitnessVector,
             contact_rate_host_vector, contact_rate_host_host,
             inoculum_host, inoculum_vector, inoculation_rate_host, inoculation_rate_vector,
             recovery_rate_host, recovery_rate_vector,
             recombine_in_host, recombine_in_vector,
-            mutate_in_host, mutate_in_vector)
+            mutate_in_host, mutate_in_vector, death_rate_host, death_rate_vector,
+            immunity_upon_recovery_host, immunity_upon_recovery_vector)
 
 
     def newIntervention(self, time, function, args):
@@ -91,6 +99,9 @@ class Model(object):
         data = sim.run(t0,tf,save_to_file)
 
         return data
+
+
+    # Interventions:
 
     def newPopulation(self, id, setup_name, num_hosts=100, num_vectors=100):
         """ Creates a new Population object with model parameters and adds it to
@@ -125,16 +136,28 @@ class Model(object):
 
 
 
+    def newHostGroup(self, pop_id, group_id, num_hosts, healthy=False):
+        """ Add a number of healthy hosts to population. """
+
+        self.groups[group.id] = self.populations[pop_id].newHostGroup(num_hosts)
+
+
+    def newVectorGroup(self, pop_id, group_id, num_vectors, healthy=False):
+        """ Add a number of healthy hosts to population. """
+
+        self.groups[group.id] = self.populations[pop_id].newHostGroup(num_hosts)
+
+
     def addHosts(self, pop_id, num_hosts):
         """ Add a number of healthy hosts to population. """
 
-        return self.populations[pop_id].addHosts(num_hosts)
+        self.populations[pop_id].addHosts(num_hosts)
 
 
     def addVectors(self, pop_id, num_vectors):
         """ Add a number of healthy vectors to population """
 
-        return self.populations[pop_id].addVectors(num_vectors)
+        self.populations[pop_id].addVectors(num_vectors)
 
 
     def removeHosts(self, pop_id, num_hosts_or_list):
@@ -149,35 +172,65 @@ class Model(object):
         self.populations[pop_id].removeVectors(num_vectors_or_list)
 
 
-    def addPathogensToHosts(self, pop_id, genomes_numbers, hosts=[]):
+    def addPathogensToHosts(self, pop_id, genomes_numbers, group_id=""):
         """ Seeds pathogens according to strains dict (keys=genomes,
             values=num of infections); seeds on hosts unless hosts=False """
+
+        if group_id == "":
+            hosts = self.populations[pop_id].hosts
+        else:
+            hosts = self.populations.groups[group_id]
 
         self.populations[pop_id].addPathogensToHosts(genomes_numbers,hosts)
 
-    def addPathogensToVectors(self, pop_id, genomes_numbers, vectors=[]):
+    def addPathogensToVectors(self, pop_id, genomes_numbers, group_id=""):
         """ Seeds pathogens according to strains dict (keys=genomes,
             values=num of infections); seeds on hosts unless hosts=False """
 
+        if group_id == "":
+            vectors = self.populations[pop_id].vectors
+        else:
+            vectors = self.populations.groups[group_id]
+
         self.populations[pop_id].addPathogensToVectors(genomes_numbers,vectors)
 
-    def treatHosts(self, pop_id, frac_hosts, treatment_seqs, hosts=[]):
+    def treatHosts(self, pop_id, frac_hosts, treatment_seqs, group_id=""):
         """ Treat random hosts """
+
+        if group_id == "":
+            hosts = self.populations[pop_id].hosts
+        else:
+            hosts = self.populations.groups[group_id]
 
         self.populations[pop_id].treatHosts(frac_hosts,treatment_seqs,hosts)
 
-    def treatVectors(self, pop_id, frac_vectors, treatment_seqs, vectors=[]):
+    def treatVectors(self, pop_id, frac_vectors, treatment_seqs, group_id=""):
         """ Treat random vectors """
+
+        if group_id == "":
+            vectors = self.populations[pop_id].vectors
+        else:
+            vectors = self.populations.groups[group_id]
 
         self.populations[pop_id].treatVectors(frac_vectors,treatment_seqs,vectors)
 
-    def protectHosts(self, pop_id, frac_hosts, protection_sequence, hosts=[]):
+    def protectHosts(self, pop_id, frac_hosts, protection_sequence, group_id=""):
         """ Treat random hosts """
+
+        if group_id == "":
+            hosts = self.populations[pop_id].hosts
+        else:
+            hosts = self.populations.groups[group_id]
 
         self.populations[pop_id].protectHosts(frac_hosts,protection_sequence,hosts)
 
-    def protectVectors(self, pop_id, frac_vectors, protection_sequence, vectors=[]):
+    def protectVectors(self, pop_id, frac_vectors, protection_sequence, group_id=""):
         """ Treat random vectors """
+
+        if group_id == "":
+            vectors = self.populations[pop_id].vectors
+        else:
+            vectors = self.populations.groups[group_id]
 
         self.populations[pop_id].protectVectors(frac_vectors,protection_sequence,vectors)
 

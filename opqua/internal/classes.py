@@ -54,10 +54,24 @@ class Host(object):
 
     def recover(self):
         ''' Remove all infections '''
+
+        if self.population.immunity_upon_recovery_host:
+            for genome in self.pathogens:
+                if genome not in self.protection_sequences:
+                    self.protection_sequences.append(genome)
+
+
+
         self.pathogens = {}
         if self in self.population.infected_hosts:
             self.population.infected_hosts.remove(self)
 
+
+    def die(self):
+        ''' Remove all infections '''
+
+        self.population.dead_hosts.append(self)
+        self.population.hosts.remove(self)
 
     def applyTreatment(self, treatment_seqs):
         """ Applies given treatment on this host """
@@ -112,9 +126,23 @@ class Vector(object):
 
     def recover(self):
         ''' Remove all infections '''
+
+        if self.population.immunity_upon_recovery_host:
+            for genome in self.pathogens:
+                if genome not in self.protection_sequences:
+                    self.protection_sequences.append(genome)
+
+
+
         self.pathogens = {}
         if self in self.population.infected_vectors:
             self.population.infected_vectors.remove(self)
+
+    def die(self):
+        ''' Remove all infections '''
+
+        self.population.dead_vectors.append(self)
+        self.population.vectors.remove(self)
 
     def applyTreatment(self, treatment_seqs):
         """ Applies given treatment on this vector """
@@ -150,6 +178,8 @@ class Population(object):
         self.vectors = [ Vector(self,id) for id in range(num_vectors) ]
         self.infected_hosts = []
         self.infected_vectors = []
+        self.dead_hosts = []
+        self.dead_vectors = []
         self.neighbors = {}
 
         self.total_migration_rate = 0
@@ -163,8 +193,6 @@ class Population(object):
         self.num_loci = params.num_loci
         self.possible_alleles = params.possible_alleles
 
-        self.num_hosts = params.num_hosts
-        self.num_vectors = params.num_vectors
         self.fitnessHost = params.fitnessHost
         self.fitnessVector = params.fitnessVector
         self.contact_rate_host_vector = params.contact_rate_host_vector
@@ -183,6 +211,10 @@ class Population(object):
         self.recombine_in_vector = params.recombine_in_vector
         self.mutate_in_host = params.mutate_in_host
         self.mutate_in_vector = params.mutate_in_vector
+        self.death_rate_host = params.death_rate_host
+        self.death_rate_vector = params.death_rate_vector
+        self.immunity_upon_recovery_host = params.immunity_upon_recovery_host
+        self.immunity_upon_recovery_vector = params.immunity_upon_recovery_vector
 
 
     def addHosts(self, num_hosts):
@@ -201,6 +233,52 @@ class Population(object):
         self.vectors += [ Vector( self, len(self.vectors) + i ) for i in range(num_vectors) ]
 
         return new_vectors
+
+
+    def newHostGroup(self, num_hosts, healthy=True):
+        """ Add a number of healthy hosts to population, return list containing them """
+
+        possible_hosts = []
+        if healthy:
+            if len(self.hosts) - len(self.infected_hosts) >= num_hosts:
+                for host in self.hosts:
+                    if host not in self.infected_hosts:
+                        possible_hosts.append(host)
+
+
+
+            else:
+                raise ValueError("You're asking for " + str(num_hosts) + " healthy hosts, but population " + str(self.id) + " only has " + str( len(self.hosts) - len(self.infected_hosts) ) + "." )
+
+        else:
+            possible_hosts = self.hosts
+
+        hosts = [ np.random.choice(possible_hosts) for i in range(num_hosts) ]
+
+        return hosts
+
+
+    def newVectorGroup(self, num_vectors, healthy=True):
+        """ Add a number of healthy vectors to population """
+
+        possible_vectors = []
+        if healthy:
+            if len(self.vectors) - len(self.infected_vectors) >= num_vectors:
+                for vector in self.vectors:
+                    if vector not in self.infected_vectors:
+                        possible_vectors.append(vector)
+
+
+
+            else:
+                raise ValueError("You're asking for " + str(num_vectors) + " healthy vectors, but population " + str(self.id) + " only has " + str( len(self.vectors) - len(self.infected_vectors) ) + "." )
+
+        else:
+            possible_vectors = self.vectors
+
+        vectors = [ np.random.choice(possible_vectors) for i in range(num_vectors) ]
+
+        return vectors
 
 
     def removeHosts(self, num_hosts_or_list):
@@ -256,23 +334,15 @@ class Population(object):
             if len(genome) == self.num_loci and all( [ allele in self.possible_alleles for allele in genome ] ):
                 new_fitness = self.fitnessHost(genome)
                 if len(hosts) == 0:
-                    for _ in range( genomes_numbers[genome] ):
-                        rand_host = np.random.choice(self.hosts)
-                        if rand_host not in self.infected_hosts:
-                            self.infected_hosts.append(rand_host)
+                    hosts = self.hosts
 
-                        rand_host.pathogens[genome] = new_fitness
-                        rand_host.sum_fitness += new_fitness
+                for _ in range( genomes_numbers[genome] ):
+                    rand_host = np.random.choice(hosts)
+                    if rand_host not in self.infected_hosts:
+                        self.infected_hosts.append(rand_host)
 
-                else:
-                    for host in hosts:
-                        if host in self.hosts:
-                            if host not in self.infected_hosts:
-                                self.infected_hosts.append(host)
-
-                            host.pathogens[genome] = new_fitness
-                            host.sum_fitness += new_fitness
-
+                    rand_host.pathogens[genome] = new_fitness
+                    rand_host.sum_fitness += new_fitness
 
 
             else:
@@ -289,23 +359,15 @@ class Population(object):
             if len(genome) == self.num_loci and all( [ allele in self.possible_alleles for allele in genome ] ):
                 new_fitness = self.fitnessVector(genome)
                 if len(vectors) == 0:
-                    for _ in range( genomes_numbers[genome] ):
-                        rand_vector = np.random.choice(self.vectors)
-                        if rand_vector not in self.infected_vectors:
-                            self.infected_vectors.append(rand_vector)
+                    vectors = self.vectors
 
-                        rand_vector.pathogens[genome] = new_fitness
-                        rand_vector.sum_fitness += new_fitness
+                for _ in range( genomes_numbers[genome] ):
+                    rand_vector = np.random.choice(vectors)
+                    if rand_vector not in self.infected_vectors:
+                        self.infected_vectors.append(rand_vector)
 
-                else:
-                    for vector in vectors:
-                        if vector in self.vectors:
-                            if vector not in self.infected_vectors:
-                                self.infected_vectors.append(vector)
-
-                            vector.pathogens[genome] = new_fitness
-                            vector.sum_fitness += new_fitness
-
+                    rand_vector.pathogens[genome] = new_fitness
+                    rand_vector.sum_fitness += new_fitness
 
 
             else:
@@ -324,6 +386,18 @@ class Population(object):
         """ Treats vector with this specific index. """
 
         self.infected_vectors[index_vector].recover()
+
+
+    def killHost(self, index_host):
+        """ Treats host with this specific index. """
+
+        self.infected_hosts[index_host].die()
+
+
+    def killVector(self, index_vector):
+        """ Treats host with this specific index. """
+
+        self.infected_vectors[index_vector].die()
 
 
     def treatHosts(self, frac_hosts, treatment_seqs, hosts=[]):
@@ -373,7 +447,7 @@ class Population(object):
 
         protect_hosts = np.random.choice( self.hosts, int( frac_hosts * len( hosts_to_consider ) ) )
         for host in protect_hosts:
-            hosts_to_consider[host].protection_sequences.append(protection_sequence)
+            host.protection_sequences.append(protection_sequence)
 
 
 
@@ -386,7 +460,7 @@ class Population(object):
 
         protect_vectors = np.random.choice( self.vectors, int( frac_vectors * len( vectors_to_consider ) ) )
         for vector in protect_vectors:
-            vectors_to_consider[vector].protection_sequences.append(protection_sequence)
+            vector.protection_sequences.append(protection_sequence)
 
 
 
@@ -500,7 +574,7 @@ class Intervention(object):
     def doIntervention(self):
         """ Intervention. """
 
-        self.intervention(*args)
+        self.intervention(*self.args)
 
 
 
@@ -509,19 +583,18 @@ class Setup(object):
 
     def __init__(self,
         num_loci, possible_alleles,
-        num_hosts, num_vectors, fitnessHost, fitnessVector,
+        fitnessHost, fitnessVector,
         contact_rate_host_vector, contact_rate_host_host,
         inoculum_host, inoculum_vector, inoculation_rate_host, inoculation_rate_vector,
         recovery_rate_host, recovery_rate_vector,
         recombine_in_host, recombine_in_vector,
-        mutate_in_host, mutate_in_vector):
+        mutate_in_host, mutate_in_vector, death_rate_host, death_rate_vector,
+        immunity_upon_recovery_host, immunity_upon_recovery_vector):
 
         super(Setup, self).__init__()
         self.num_loci = num_loci
         self.possible_alleles = possible_alleles
 
-        self.num_hosts = num_hosts
-        self.num_vectors = num_vectors
         self.fitnessHost = fitnessHost
         self.fitnessVector = fitnessVector
         self.contact_rate_host_vector = contact_rate_host_vector
@@ -541,3 +614,8 @@ class Setup(object):
         self.recombine_in_vector = recombine_in_vector
         self.mutate_in_host = mutate_in_host
         self.mutate_in_vector = mutate_in_vector
+
+        self.death_rate_host = death_rate_host
+        self.death_rate_vector = death_rate_vector
+        self.immunity_upon_recovery_host = immunity_upon_recovery_host
+        self.immunity_upon_recovery_vector = immunity_upon_recovery_vector
