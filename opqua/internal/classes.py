@@ -1,4 +1,3 @@
-# TODO: death --> bool and immunity --> protect array seqs (immune to all is "")
 
 import numpy as np
 import copy as cp
@@ -253,7 +252,7 @@ class Population(object):
         else:
             possible_hosts = self.hosts
 
-        hosts = [ np.random.choice(possible_hosts) for i in range(num_hosts) ]
+        hosts = np.random.choice(possible_hosts, num_hosts, replace=False)
 
         return hosts
 
@@ -276,7 +275,7 @@ class Population(object):
         else:
             possible_vectors = self.vectors
 
-        vectors = [ np.random.choice(possible_vectors) for i in range(num_vectors) ]
+        vectors = np.random.choice(possible_vectors, num_vectors, replace=False)
 
         return vectors
 
@@ -336,13 +335,15 @@ class Population(object):
                 if len(hosts) == 0:
                     hosts = self.hosts
 
-                for _ in range( genomes_numbers[genome] ):
-                    rand_host = np.random.choice(hosts)
+                rand_hosts = np.random.choice(hosts, genomes_numbers[genome], replace=False)
+                for rand_host in rand_hosts:
                     if rand_host not in self.infected_hosts:
                         self.infected_hosts.append(rand_host)
 
-                    rand_host.pathogens[genome] = new_fitness
-                    rand_host.sum_fitness += new_fitness
+                    if genome not in rand_host.pathogens:
+                        rand_host.pathogens[genome] = new_fitness
+                        rand_host.sum_fitness += new_fitness
+
 
 
             else:
@@ -361,13 +362,15 @@ class Population(object):
                 if len(vectors) == 0:
                     vectors = self.vectors
 
-                for _ in range( genomes_numbers[genome] ):
-                    rand_vector = np.random.choice(vectors)
+                rand_vectors = np.random.choice(vectors, genomes_numbers[genome], replace=False)
+                for rand_vector in rand_vectors:
                     if rand_vector not in self.infected_vectors:
                         self.infected_vectors.append(rand_vector)
 
-                    rand_vector.pathogens[genome] = new_fitness
-                    rand_vector.sum_fitness += new_fitness
+                    if genome not in rand_vector.pathogens:
+                        rand_vector.pathogens[genome] = new_fitness
+                        rand_vector.sum_fitness += new_fitness
+
 
 
             else:
@@ -413,7 +416,7 @@ class Population(object):
                 infected_hosts.append( host )
 
 
-        treat_hosts = np.random.choice( infected_hosts, int( frac_hosts * len( infected_hosts ) ) )
+        treat_hosts = np.random.choice( infected_hosts, int( frac_hosts * len( infected_hosts ) ), replace=False )
         for host in treat_hosts:
             infected_hosts[host].applyTreatment(treatment_seqs)
 
@@ -432,7 +435,7 @@ class Population(object):
                 infected_vectors.append( vector )
 
 
-        treat_vectors = np.random.choice( infected_vectors, int( frac_vectors * len( infected_vectors ) ) )
+        treat_vectors = np.random.choice( infected_vectors, int( frac_vectors * len( infected_vectors ) ), replace=False )
         for vector in treat_vectors:
             infected_vectors[vector].applyTreatment(treatment_seqs)
 
@@ -445,7 +448,7 @@ class Population(object):
         if len(hosts) > 0:
             hosts_to_consider = hosts
 
-        protect_hosts = np.random.choice( self.hosts, int( frac_hosts * len( hosts_to_consider ) ) )
+        protect_hosts = np.random.choice( self.hosts, int( frac_hosts * len( hosts_to_consider ) ), replace=False  )
         for host in protect_hosts:
             host.protection_sequences.append(protection_sequence)
 
@@ -458,7 +461,7 @@ class Population(object):
         if len(vectors) > 0:
             vectors_to_consider = vectors
 
-        protect_vectors = np.random.choice( self.vectors, int( frac_vectors * len( vectors_to_consider ) ) )
+        protect_vectors = np.random.choice( self.vectors, int( frac_vectors * len( vectors_to_consider ) ), replace=False )
         for vector in protect_vectors:
             vector.protection_sequences.append(protection_sequence)
 
@@ -477,7 +480,7 @@ class Population(object):
     def migrate(self, target_pop, num_hosts, num_vectors):
         """ Transfers hosts and/or vectors to a target population """
 
-        migrating_hosts = np.random.choice(self.hosts,num_hosts)
+        migrating_hosts = np.random.choice(self.hosts,num_hosts, replace=False)
         for host in migrating_hosts:
             self.hosts.remove(host)
             target_pop.hosts.append(host)
@@ -486,7 +489,7 @@ class Population(object):
                 target_pop.infected_hosts.append(host)
 
 
-        migrating_vectors = np.random.choice(self.vectors,num_vectors)
+        migrating_vectors = np.random.choice(self.vectors,num_vectors, replace=False)
         for vector in migrating_vectors:
             self.vectors.remove(vector)
             target_pop.vectors.append(vector)
@@ -519,40 +522,63 @@ class Population(object):
         return ( changed1 or changed2 )
 
 
-    def mutate(self, index_host_or_vector, host=True):
+    def mutateHost(self, index_host):
         """ Creates a new genotype from a de novo mutation event in the host or
             pathogen given. """
 
-        if host:
-            host_or_vector = self.infected_hosts[index_host_or_vector]
-        else:
-            host_or_vector = self.infected_vectors[index_host_or_vector]
+        host = self.infected_hosts[index_host]
 
-        if len(host_or_vector.pathogens) > 0:
-            old_genome = np.random.choice( list( host_or_vector.pathogens.keys() ) )
+        if len(host.pathogens) > 0:
+            old_genome = np.random.choice( list( host.pathogens.keys() ) )
             mut_index = np.random.randint( self.num_loci )
             new_genome = old_genome[0:mut_index] + np.random.choice( list(self.possible_alleles) ) + old_genome[mut_index+1:]
-            host_or_vector.pathogens[new_genome] = self.fitnessHost(new_genome)
-            host_or_vector.sum_fitness += host_or_vector.pathogens[new_genome]
+            host.pathogens[new_genome] = self.fitnessHost(new_genome)
+            host.sum_fitness += host.pathogens[new_genome]
 
 
 
-    def recombine(self, index_host_or_vector, host=True):
+    def mutateVector(self, index_vector):
+        """ Creates a new genotype from a de novo mutation event in the host or
+            pathogen given. """
+
+        vector = self.infected_vectors[index_vector]
+
+        if len(vector.pathogens) > 0:
+            old_genome = np.random.choice( list( vector.pathogens.keys() ) )
+            mut_index = np.random.randint( self.num_loci )
+            new_genome = old_genome[0:mut_index] + np.random.choice( list(self.possible_alleles) ) + old_genome[mut_index+1:]
+            vector.pathogens[new_genome] = self.fitnessHost(new_genome)
+            vector.sum_fitness += vector.pathogens[new_genome]
+
+
+
+    def recombineHost(self, index_host):
         """ Creates a new genotype from two random possible pathogens in
             the host or pathogen given. """
 
-        if host:
-            host_or_vector = self.infected_hosts[index_host_or_vector]
-        else:
-            host_or_vector = self.infected_vectors[index_host_or_vector]
+        host = self.infected_hosts[index_host]
 
-        if len(host_or_vector.pathogens) > 1:
-            parents = np.random.choice( list( host_or_vector.pathogens.keys() ), 2, replace=False )
-            print(parents)
+        if len(host.pathogens) > 1:
+            parents = np.random.choice( list( host.pathogens.keys() ), 2, replace=False )
             recom_index = np.random.randint( self.num_loci )
             new_genome = parents[0][0:recom_index] + parents[1][recom_index:]
-            host_or_vector.pathogens[new_genome] = self.fitnessHost(new_genome)
-            host_or_vector.sum_fitness += host_or_vector.pathogens[new_genome]
+            host.pathogens[new_genome] = self.fitnessHost(new_genome)
+            host.sum_fitness += host.pathogens[new_genome]
+
+
+
+    def recombineVector(self, index_vector):
+        """ Creates a new genotype from two random possible pathogens in
+            the host or pathogen given. """
+
+        vector = self.infected_vectors[index_vector]
+
+        if len(vector.pathogens) > 1:
+            parents = np.random.choice( list( vector.pathogens.keys() ), 2, replace=False )
+            recom_index = np.random.randint( self.num_loci )
+            new_genome = parents[0][0:recom_index] + parents[1][recom_index:]
+            vector.pathogens[new_genome] = self.fitnessHost(new_genome)
+            vector.sum_fitness += vector.pathogens[new_genome]
 
 
 

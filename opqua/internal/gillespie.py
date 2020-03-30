@@ -65,6 +65,7 @@ class Gillespie(object):
                 # populations, so contact scales linearly with both host and vector
                 # populations. If you don't want this to happen, modify the population's
                 # contact rate accordingly.
+                # TODO: only infection events
 
         rates[self.CONTACT_HOST_VECTOR,:] = \
             np.array( [ ( len( self.model.populations[id].infected_hosts ) + len( self.model.populations[id].infected_vectors ) > 0 ) * len(self.model.populations[id].hosts) * len(self.model.populations[id].vectors) * self.model.populations[id].contact_rate_host_vector for id,p in self.model.populations.items() ] )
@@ -72,6 +73,7 @@ class Gillespie(object):
                 # populations, so contact scales linearly with both host and vector
                 # populations. If you don't want this to happen, modify the population's
                 # contact rate accordingly.
+                # TODO: only infection events
 
         rates[self.RECOVER_HOST,:] = \
             np.array( [ len( self.model.populations[id].infected_hosts ) * self.model.populations[id].recovery_rate_host for id,p in self.model.populations.items() ] )
@@ -147,22 +149,22 @@ class Gillespie(object):
 
         elif act == self.MUTATE_HOST:
             host = int( np.floor( rand * len(pop.infected_hosts) ) )
-            pop.mutate(host)
+            pop.mutateHost(host)
             changed = True
 
         elif act == self.MUTATE_VECTOR:
             vector = int( np.floor( rand * len(pop.infected_vectors) ) )
-            pop.mutate(vector)
+            pop.mutateVector(vector)
             changed = True
 
         elif act == self.RECOMBINE_HOST:
             host = int( np.floor( rand * len(pop.infected_hosts) ) )
-            pop.recombine(host)
+            pop.recombineHost(host)
             changed = True
 
         elif act == self.RECOMBINE_VECTOR:
             vector = int( np.floor( rand * len(pop.infected_vectors) ) )
-            pop.recombine(vector)
+            pop.recombineVector(vector)
             changed = True
 
         elif act == self.KILL_HOST:
@@ -206,6 +208,8 @@ class Gillespie(object):
                     for time,model in history.items()
                 )
             )
+
+        new_df = new_df.replace('\n\n','\n').replace('\n\n','\n').replace('\n\n','\n')
 
         file = open(save_to_file,'w')
         file.write(new_df)
@@ -281,10 +285,13 @@ class Gillespie(object):
 
             else:
                 if intervention_tracker < len(self.model.interventions):
+                    print( 'Simulating time: ' + str(t_var), e, len(self.model.populations['my_population'].infected_hosts), len(self.model.populations['my_population'].infected_vectors) )
                     self.model.interventions[intervention_tracker].doIntervention()
                     t_var = self.model.interventions[intervention_tracker].time
                     intervention_tracker += 1 # advance the tracker
                 else:
+                    print( 'Simulating time: ' + str(t_var), e, len(self.model.populations['my_population'].infected_hosts), len(self.model.populations['my_population'].infected_vectors) )
+                    print(self.model.interventions,intervention_tracker)
                     t_var = tf
 
 

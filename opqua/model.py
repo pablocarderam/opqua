@@ -34,14 +34,14 @@ class Model(object):
             possible_alleles = possible_alleles or 'ATCG'
             fitnessHost = fitnessHost or (lambda g: 1)
             fitnessVector = fitnessVector or (lambda g: 1)
-            contact_rate_host_vector = contact_rate_host_vector or 1e-2
+            contact_rate_host_vector = contact_rate_host_vector or 5e-2
             contact_rate_host_host = contact_rate_host_host or 0
             inoculum_host = inoculum_host or 1e2
             inoculum_vector = inoculum_vector or 1e2
             inoculation_rate_host = inoculation_rate_host or 1e-1
             inoculation_rate_vector = inoculation_rate_vector or 1e-1
-            recovery_rate_host = recovery_rate_host or 1e1
-            recovery_rate_vector = recovery_rate_vector or 1e1
+            recovery_rate_host = recovery_rate_host or 1e0
+            recovery_rate_vector = recovery_rate_vector or 1e0
             recombine_in_host = recombine_in_host or 0
             recombine_in_vector = recombine_in_vector or 1e-2
             mutate_in_host = mutate_in_host or 1e-6
@@ -139,13 +139,13 @@ class Model(object):
     def newHostGroup(self, pop_id, group_id, num_hosts, healthy=False):
         """ Add a number of healthy hosts to population. """
 
-        self.groups[group.id] = self.populations[pop_id].newHostGroup(num_hosts)
+        self.groups[group_id] = self.populations[pop_id].newHostGroup(num_hosts)
 
 
     def newVectorGroup(self, pop_id, group_id, num_vectors, healthy=False):
         """ Add a number of healthy hosts to population. """
 
-        self.groups[group.id] = self.populations[pop_id].newHostGroup(num_hosts)
+        self.groups[group_id] = self.populations[pop_id].newVectorGroup(num_vectors)
 
 
     def addHosts(self, pop_id, num_hosts):
@@ -179,7 +179,7 @@ class Model(object):
         if group_id == "":
             hosts = self.populations[pop_id].hosts
         else:
-            hosts = self.populations.groups[group_id]
+            hosts = self.groups[group_id]
 
         self.populations[pop_id].addPathogensToHosts(genomes_numbers,hosts)
 
@@ -190,7 +190,7 @@ class Model(object):
         if group_id == "":
             vectors = self.populations[pop_id].vectors
         else:
-            vectors = self.populations.groups[group_id]
+            vectors = self.groups[group_id]
 
         self.populations[pop_id].addPathogensToVectors(genomes_numbers,vectors)
 
@@ -200,7 +200,7 @@ class Model(object):
         if group_id == "":
             hosts = self.populations[pop_id].hosts
         else:
-            hosts = self.populations.groups[group_id]
+            hosts = self.groups[group_id]
 
         self.populations[pop_id].treatHosts(frac_hosts,treatment_seqs,hosts)
 
@@ -210,7 +210,7 @@ class Model(object):
         if group_id == "":
             vectors = self.populations[pop_id].vectors
         else:
-            vectors = self.populations.groups[group_id]
+            vectors = self.groups[group_id]
 
         self.populations[pop_id].treatVectors(frac_vectors,treatment_seqs,vectors)
 
@@ -220,7 +220,7 @@ class Model(object):
         if group_id == "":
             hosts = self.populations[pop_id].hosts
         else:
-            hosts = self.populations.groups[group_id]
+            hosts = self.groups[group_id]
 
         self.populations[pop_id].protectHosts(frac_hosts,protection_sequence,hosts)
 
@@ -230,7 +230,7 @@ class Model(object):
         if group_id == "":
             vectors = self.populations[pop_id].vectors
         else:
-            vectors = self.populations.groups[group_id]
+            vectors = self.groups[group_id]
 
         self.populations[pop_id].protectVectors(frac_vectors,protection_sequence,vectors)
 
