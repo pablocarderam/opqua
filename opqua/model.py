@@ -125,13 +125,17 @@ class Model(object):
 
 
         new_pops = [ Population( self, id_prefix + str(i), self.setups[setup_name], num_hosts, num_vectors ) for i in range(num_populations) ]
-        for p1 in new_pops:
-            if p1.id in self.populations.keys():
-                p1.id = p1.id+'_2'
+        new_pop_ids = []
+        for pop in new_pops:
+            if pop.id in self.populations.keys():
+                pop.id = pop.id+'_2'
 
-            self.populations[p1.id] = p1
-            for p2 in new_pops:
-                self.linkPopulations(p1.id,p2.id,rate)
+            self.populations[pop.id] = pop
+            new_pop_ids.append(pop.id)
+
+        for p1_id in new_pop_ids:
+            for p2_id in new_pop_ids:
+                self.linkPopulations(p1_id,p2_id,migration_rate)
 
 
 
