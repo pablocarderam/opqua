@@ -16,16 +16,17 @@ class Gillespie(object):
     """
 
     MIGRATE = 0
-    CONTACT_HOST_HOST = 1
-    CONTACT_HOST_VECTOR = 2
-    RECOVER_HOST = 3
-    RECOVER_VECTOR = 4
-    MUTATE_HOST = 5
-    MUTATE_VECTOR = 6
-    RECOMBINE_HOST = 7
-    RECOMBINE_VECTOR = 8
-    KILL_HOST = 9
-    KILL_VECTOR = 10
+    CONTACT_INFECTED_HOST_ANY_HOST = 1
+    CONTACT_INFECTED_HOST_ANY_VECTOR = 2
+    CONTACT_HEALTHY_HOST_INFECTED_VECTOR = 3
+    RECOVER_HOST = 4
+    RECOVER_VECTOR = 5
+    MUTATE_HOST = 6
+    MUTATE_VECTOR = 7
+    RECOMBINE_HOST = 8
+    RECOMBINE_VECTOR = 9
+    KILL_HOST = 10
+    KILL_VECTOR = 11
 
     def __init__(self, model):
 
@@ -36,7 +37,8 @@ class Gillespie(object):
         super(Gillespie, self).__init__() # initialize as parent class object
 
         # Event IDs
-        self.evt_IDs = [ self.MIGRATE, self.CONTACT_HOST_HOST, self.CONTACT_HOST_VECTOR,
+        self.evt_IDs = [ self.MIGRATE, self.CONTACT_INFECTED_HOST_ANY_HOST,
+            self.CONTACT_INFECTED_HOST_ANY_VECTOR, self.CONTACT_HEALTHY_HOST_INFECTED_VECTOR,
             self.RECOVER_HOST, self.RECOVER_VECTOR, self.MUTATE_HOST, self.MUTATE_VECTOR,
             self.RECOMBINE_HOST, self.RECOMBINE_VECTOR, self.KILL_HOST, self.KILL_VECTOR ]
             # event IDs in specific order
@@ -59,21 +61,30 @@ class Gillespie(object):
         rates[self.MIGRATE,:] = \
             np.array( [ len(self.model.populations[id].hosts) * self.model.populations[id].total_migration_rate for id in population_ids ] )
 
-        rates[self.CONTACT_HOST_HOST,:] = \
-            np.array( [ ( len( self.model.populations[id].infected_hosts ) > 0 ) * len(self.model.populations[id].hosts) * len(self.model.populations[id].hosts) * self.model.populations[id].contact_rate_host_host for id,p in self.model.populations.items() ] )
+        rates[self.CONTACT_INFECTED_HOST_ANY_HOST,:] = \
+            np.array( [ len(self.model.populations[id].infected_hosts) * len(self.model.populations[id].hosts) * self.model.populations[id].contact_rate_host_host for id,p in self.model.populations.items() ] )
                 # contact rate assumes fixed area--large populations are dense
                 # populations, so contact scales linearly with both host and vector
                 # populations. If you don't want this to happen, modify the population's
                 # contact rate accordingly.
-                # TODO: only infection events
+                # Examines contacts between infected hosts and all hosts
 
-        rates[self.CONTACT_HOST_VECTOR,:] = \
-            np.array( [ ( len( self.model.populations[id].infected_hosts ) + len( self.model.populations[id].infected_vectors ) > 0 ) * len(self.model.populations[id].hosts) * len(self.model.populations[id].vectors) * self.model.populations[id].contact_rate_host_vector for id,p in self.model.populations.items() ] )
+        rates[self.CONTACT_INFECTED_HOST_ANY_VECTOR,:] = \
+            np.array( [ len(self.model.populations[id].infected_hosts) * len(self.model.populations[id].vectors) * self.model.populations[id].contact_rate_host_vector for id,p in self.model.populations.items() ] )
                 # contact rate assumes fixed area--large populations are dense
                 # populations, so contact scales linearly with both host and vector
                 # populations. If you don't want this to happen, modify the population's
                 # contact rate accordingly.
-                # TODO: only infection events
+                # Examines contacts between infected hosts and all vectors
+
+        rates[self.CONTACT_HEALTHY_HOST_INFECTED_VECTOR,:] = \
+            np.array( [ len( self.model.populations[id].healthy_hosts ) * len(self.model.populations[id].infected_vectors) * self.model.populations[id].contact_rate_host_vector for id,p in self.model.populations.items() ] )
+                # contact rate assumes fixed area--large populations are dense
+                # populations, so contact scales linearly with both host and vector
+                # populations. If you don't want this to happen, modify the population's
+                # contact rate accordingly.
+                # Examines contacts between healthy hosts and infected vectors
+                # (infected-infected contacts are considered in CONTACT_INFECTED_HOST_VECTOR).
 
         rates[self.RECOVER_HOST,:] = \
             np.array( [ len( self.model.populations[id].infected_hosts ) * self.model.populations[id].recovery_rate_host for id,p in self.model.populations.items() ] )
@@ -125,17 +136,23 @@ class Gillespie(object):
 
 
 
-        elif act == self.CONTACT_HOST_VECTOR:
-            rand = rand * len(pop.hosts)
-            host = int( np.floor(rand) )
-            vector = int( np.floor( ( rand - host ) * len(pop.vectors) ) )
-            changed = pop.contactVectorBorne(host,vector)
+        elif act == self.CONTACT_INFECTED_HOST_ANY_HOST:
+            rand = rand * len(pop.infected_hosts)
+            infected_host = int( np.floor(rand) )
+            other_host = int( np.floor( ( rand - infected_host ) * len(pop.hosts) ) )
+            changed = pop.contactInfectedHostAnyHost(infected_host,other_host)
 
-        elif act == self.CONTACT_HOST_HOST:
-            rand = rand * len(pop.hosts)
-            host1 = int( np.floor(rand) )
-            host2 = int( np.floor( ( rand - host1 ) * len(pop.hosts) ) )
-            changed = pop.contactHostHost(host1,host2)
+        elif act == self.CONTACT_INFECTED_HOST_ANY_VECTOR:
+            rand = rand * len(pop.infected_hosts)
+            infected_host = int( np.floor(rand) )
+            vector = int( np.floor( ( rand - infected_host ) * len(pop.vectors) ) )
+            changed = pop.contactInfectedHostAnyVector(infected_host,vector)
+
+        elif act == self.CONTACT_HEALTHY_HOST_INFECTED_VECTOR:
+            rand = rand * len(pop.healthy_hosts)
+            healthy_host = int( np.floor(rand) )
+            infected_vector = int( np.floor( ( rand - healthy_host ) * len(pop.infected_vectors) ) )
+            changed = pop.contactHealthyHostInfectedVector(healthy_host,infected_vector)
 
         elif act == self.RECOVER_HOST:
             host = int( np.floor( rand * len(pop.infected_hosts) ) )
@@ -268,7 +285,7 @@ class Gillespie(object):
                         for p in range(r.shape[1]): # for every possible population,
                             r_cum += r[e,p] # add this event's rate to cumulative rate
                             if u < r_cum: # if random number is under cumulative rate
-                                print( 'Simulating time: ' + str(t_var), e, len(self.model.populations['my_population'].infected_hosts), len(self.model.populations['my_population'].infected_vectors) )
+                                print( 'Simulating time: ' + str(t_var), e, len(self.model.populations['my_population'].infected_hosts), len(self.model.populations['my_population'].infected_hosts)+len(self.model.populations['my_population'].healthy_hosts), len(self.model.populations['my_population'].infected_vectors) )
                                 changed = self.doAction( e, self.model.populations[ population_ids[p] ], ( u - r_cum + r[e,p] ) / r[e,p] ) # do corresponding action, feed in renormalized random number
                                 if changed:
                                     history[t_var] = cp.deepcopy(self.model)

@@ -48,8 +48,8 @@ class Model(object):
             mutate_in_vector = mutate_in_vector or 0
             death_rate_host = death_rate_host or 0
             death_rate_vector = death_rate_vector or 0
-            immunity_upon_recovery_host = immunity_upon_recovery_host or False
-            immunity_upon_recovery_vector = immunity_upon_recovery_vector or False
+            immunity_upon_recovery_host = immunity_upon_recovery_host or None
+            immunity_upon_recovery_vector = immunity_upon_recovery_vector or None
 
         elif default == "host-host":
             num_loci = num_loci or 10
@@ -70,8 +70,8 @@ class Model(object):
             mutate_in_vector = mutate_in_vector or 0
             death_rate_host = death_rate_host or 0
             death_rate_vector = death_rate_vector or 0
-            immunity_upon_recovery_host = immunity_upon_recovery_host or False
-            immunity_upon_recovery_vector = immunity_upon_recovery_vector or False
+            immunity_upon_recovery_host = immunity_upon_recovery_host or None
+            immunity_upon_recovery_vector = immunity_upon_recovery_vector or None
 
         self.setups[name] = Setup(
             num_loci, possible_alleles,

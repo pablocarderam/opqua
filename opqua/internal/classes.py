@@ -45,6 +45,7 @@ class Host(object):
                 changed = True
                 if host not in host.population.infected_hosts:
                     host.population.infected_hosts.append(host)
+                    host.population.healthy_hosts.remove(host)
 
 
 
@@ -57,19 +58,25 @@ class Host(object):
         if self.population.immunity_upon_recovery_host:
             for genome in self.pathogens:
                 if genome not in self.protection_sequences:
-                    self.protection_sequences.append(genome)
+                    self.protection_sequences.append(genome[self.immunity_upon_recovery_host[0]:self.immunity_upon_recovery_host[1]])
 
 
 
         self.pathogens = {}
         if self in self.population.infected_hosts:
             self.population.infected_hosts.remove(self)
+            self.population.healthy_hosts.append(self)
 
 
     def die(self):
         ''' Remove all infections '''
 
         self.population.dead_hosts.append(self)
+        if self in self.population.infected_hosts:
+            self.population.infected_hosts.remove(host)
+        else:
+            self.population.healthy_hosts.remove(self)
+
         self.population.hosts.remove(self)
 
     def applyTreatment(self, treatment_seqs):
@@ -89,6 +96,7 @@ class Host(object):
 
         if len(self.pathogens) == 0 and self in self.population.infected_hosts:
             self.population.infected_hosts.remove(self)
+            self.population.healthy_hosts.append(self)
 
 
 
@@ -116,6 +124,7 @@ class Vector(object):
                 changed = True
                 if host not in host.population.infected_hosts:
                     host.population.infected_hosts.append(host)
+                    host.population.healthy_hosts.remove(host)
 
 
 
@@ -129,7 +138,7 @@ class Vector(object):
         if self.population.immunity_upon_recovery_host:
             for genome in self.pathogens:
                 if genome not in self.protection_sequences:
-                    self.protection_sequences.append(genome)
+                    self.protection_sequences.append(genome[self.immunity_upon_recovery_host[0]:self.immunity_upon_recovery_host[1]])
 
 
 
@@ -176,6 +185,7 @@ class Population(object):
         self.hosts = [ Host(self,id) for id in range(num_hosts) ]
         self.vectors = [ Vector(self,id) for id in range(num_vectors) ]
         self.infected_hosts = []
+        self.healthy_hosts = self.hosts
         self.infected_vectors = []
         self.dead_hosts = []
         self.dead_vectors = []
@@ -221,6 +231,7 @@ class Population(object):
 
         new_hosts = [ Host( self, len(self.hosts) + i ) for i in range(num_hosts) ]
         self.hosts += new_hosts
+        self.healthy_hosts += new_hosts
 
         return new_hosts
 
@@ -239,15 +250,10 @@ class Population(object):
 
         possible_hosts = []
         if healthy:
-            if len(self.hosts) - len(self.infected_hosts) >= num_hosts:
-                for host in self.hosts:
-                    if host not in self.infected_hosts:
-                        possible_hosts.append(host)
-
-
-
+            if len(self.healthy_hosts) >= num_hosts:
+                possible_hosts = self.healthy_hosts
             else:
-                raise ValueError("You're asking for " + str(num_hosts) + " healthy hosts, but population " + str(self.id) + " only has " + str( len(self.hosts) - len(self.infected_hosts) ) + "." )
+                raise ValueError("You're asking for " + str(num_hosts) + " healthy hosts, but population " + str(self.id) + " only has " + str( len(self.healthy_hosts) ) + "." )
 
         else:
             possible_hosts = self.hosts
@@ -288,6 +294,8 @@ class Population(object):
                 if host_removed in self.hosts:
                     if host_removed in self.infected_hosts:
                         self.infected_hosts.remove( host_removed )
+                    else:
+                        self.healthy_hosts.remove( host_removed )
 
                     self.hosts.remove( host_removed )
 
@@ -298,6 +306,8 @@ class Population(object):
                 host_removed = np.random.choice(self.hosts)
                 if host_removed in self.infected_hosts:
                     self.infected_hosts.remove( host_removed )
+                else:
+                    self.healthy_hosts.remove( host_removed )
 
                 self.hosts.remove( host_removed )
 
@@ -339,6 +349,7 @@ class Population(object):
                 for rand_host in rand_hosts:
                     if rand_host not in self.infected_hosts:
                         self.infected_hosts.append(rand_host)
+                        self.healthy_hosts.remove(rand_host)
 
                     if genome not in rand_host.pathogens:
                         rand_host.pathogens[genome] = new_fitness
@@ -410,15 +421,15 @@ class Population(object):
         if len(hosts) > 0:
             hosts_to_consider = hosts
 
-        infected_hosts = []
+        possible_infected_hosts = []
         for host in hosts_to_consider:
             if len( host.pathogens ):
-                infected_hosts.append( host )
+                possible_infected_hosts.append( host )
 
 
-        treat_hosts = np.random.choice( infected_hosts, int( frac_hosts * len( infected_hosts ) ), replace=False )
+        treat_hosts = np.random.choice( possible_infected_hosts, int( frac_hosts * len( possible_infected_hosts ) ), replace=False )
         for host in treat_hosts:
-            infected_hosts[host].applyTreatment(treatment_seqs)
+            possible_infected_hosts[host].applyTreatment(treatment_seqs)
 
 
 
@@ -487,6 +498,9 @@ class Population(object):
             if host in self.infected_hosts:
                 self.infected_hosts.remove(host)
                 target_pop.infected_hosts.append(host)
+            else:
+                self.healthy_hosts.remove(host)
+                target_pop.healthy_hosts.append(host)
 
 
         migrating_vectors = np.random.choice(self.vectors,num_vectors, replace=False)
@@ -500,24 +514,35 @@ class Population(object):
 
 
 
-    def contactVectorBorne(self, index_host, index_vector):
+    def contactInfectedHostAnyVector(self, index_host, index_vector):
         """ Carries out a contact and possible transmission event between this host
             and vector. """
 
-        temp_host = cp.deepcopy(self.hosts[index_host])
-        changed1 = self.vectors[index_vector].infectHost(self.hosts[index_host])
+        temp_host = cp.deepcopy(self.infected_hosts[index_host])
+        changed1 = self.vectors[index_vector].infectHost(self.infected_hosts[index_host])
         changed2 = temp_host.infectVector(self.vectors[index_vector])
 
         return ( changed1 or changed2 )
 
 
-    def contactHostHost(self, index_host1, index_host2):
+    def contactHealthyHostInfectedVector(self, index_host, index_vector):
+        """ Carries out a contact and possible transmission event between this host
+            and vector. """
+
+        temp_host = cp.deepcopy(self.healthy_hosts[index_host])
+        changed1 = self.infected_vectors[index_vector].infectHost(self.healthy_hosts[index_host])
+        changed2 = temp_host.infectVector(self.infected_vectors[index_vector])
+
+        return ( changed1 or changed2 )
+
+
+    def contactInfectedHostAnyHost(self, index_infected_host, index_other_host):
         """ Carries out a contact and possible transmission event between two
             hosts if not vector-borne. """
 
-        temp_host = cp.deepcopy(self.hosts[index_host1])
-        changed1 = self.hosts[index_host2].infectHost(self.hosts[index_host1])
-        changed2 = temp_host.infectHost(self.hosts[index_host2])
+        temp_host = cp.deepcopy(self.infected_hosts[index_infected_host])
+        changed1 = self.hosts[index_other_host].infectHost(self.infected_hosts[index_infected_host])
+        changed2 = temp_host.infectHost(self.hosts[index_other_host])
 
         return ( changed1 or changed2 )
 
