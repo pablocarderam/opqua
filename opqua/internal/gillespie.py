@@ -198,7 +198,7 @@ class Gillespie(object):
         return changed
 
 
-    def saveToDf(self,history,save_to_file,n_cores=0):
+    def saveToDf(self,history,save_to_file="",n_cores=0):
         """ Saves status of model to dataframe given """
 
         print('Saving file...')
@@ -212,13 +212,13 @@ class Gillespie(object):
                     jl.delayed( lambda d: ''.join(d) )
                         (
                             '\n'.join( [
-                                    '\n'.join( [ ','.join( [ str(time), str(pop.id), 'Host', str(host.id), ';'.join( host.pathogens.keys() ), ';'.join( host.protection_sequences ), 'True' ] )
+                                    '\n'.join( [ ','.join( [ str(time), str(pop.id), 'Host', str(host.id), '"' + ';'.join( host.pathogens.keys() ) + '"', '"' + ';'.join( host.protection_sequences ) + '"', 'True' ] )
                                         for host in pop.hosts ] ) + '\n' +
-                                    '\n'.join( [ ','.join( [ str(time), str(pop.id), 'Vector', str(vector.id), ';'.join( vector.pathogens.keys() ), ';'.join( vector.protection_sequences ), 'True' ] )
+                                    '\n'.join( [ ','.join( [ str(time), str(pop.id), 'Vector', str(vector.id), '"' + ';'.join( vector.pathogens.keys() ) + '"', '"' + ';'.join( vector.protection_sequences ) + '"', 'True' ] )
                                         for vector in pop.vectors ] ) + '\n' +
-                                    '\n'.join( [ ','.join( [ str(time), str(pop.id), 'Host', str(host.id), ';'.join( host.pathogens.keys() ), ';'.join( host.protection_sequences ), 'False' ] )
+                                    '\n'.join( [ ','.join( [ str(time), str(pop.id), 'Host', str(host.id), '"' + ';'.join( host.pathogens.keys() ) + '"', '"' + ';'.join( host.protection_sequences ) + '"', 'False' ] )
                                         for host in pop.dead_hosts ] ) + '\n' +
-                                    '\n'.join( [ ','.join( [ str(time), str(pop.id), 'Vector', str(vector.id), ';'.join( vector.pathogens.keys() ), ';'.join( vector.protection_sequences ), 'False' ] )
+                                    '\n'.join( [ ','.join( [ str(time), str(pop.id), 'Vector', str(vector.id), '"' + ';'.join( vector.pathogens.keys() ) + '"', '"' + ';'.join( vector.protection_sequences ) + '"', 'False' ] )
                                         for vector in pop.dead_vectors ] )
                                 for id,pop in model.populations.items()
                             ] )
@@ -233,14 +233,15 @@ class Gillespie(object):
         file.write(new_df)
         file.close()
 
-        new_df = pd.read_csv(save_to_file)
+        if len(save_to_file) > 0:
+            new_df = pd.read_csv(save_to_file)
 
         print('...file saved.')
 
         return new_df
 
 
-    def run(self,t0,tf,save_to_file):
+    def run(self,t0,tf):
 
         '''
         Simulates a time series with time values specified in argument t_vec
@@ -286,7 +287,7 @@ class Gillespie(object):
                         for p in range(r.shape[1]): # for every possible population,
                             r_cum += r[e,p] # add this event's rate to cumulative rate
                             if u < r_cum: # if random number is under cumulative rate
-                                print( 'Simulating time: ' + str(t_var), e, len(self.model.populations['population_A'].infected_hosts), len(self.model.populations['population_A'].infected_hosts)+len(self.model.populations['population_A'].healthy_hosts), len(self.model.populations['population_A'].infected_vectors) )
+                                print( 'Simulating time: ' + str(t_var) + ', event ID: ' + str(e))#, len(self.model.populations['population_A'].infected_hosts), len(self.model.populations['population_A'].infected_hosts)+len(self.model.populations['population_A'].healthy_hosts), len(self.model.populations['population_A'].infected_vectors) )
                                 changed = self.doAction( e, self.model.populations[ population_ids[p] ], ( u - r_cum + r[e,p] ) / r[e,p] ) # do corresponding action, feed in renormalized random number
                                 if changed:
                                     history[t_var] = cp.deepcopy(self.model)
@@ -303,17 +304,17 @@ class Gillespie(object):
 
             else:
                 if intervention_tracker < len(self.model.interventions):
-                    print( 'Simulating time: ' + str(t_var), e, len(self.model.populations['population_A'].infected_hosts), len(self.model.populations['population_A'].infected_vectors) )
+                    print( 'Simulating time: ' + str(t_var), e)#, len(self.model.populations['population_A'].infected_hosts), len(self.model.populations['population_A'].infected_vectors) )
                     self.model.interventions[intervention_tracker].doIntervention()
                     t_var = self.model.interventions[intervention_tracker].time
                     intervention_tracker += 1 # advance the tracker
                 else:
-                    print( 'Simulating time: ' + str(t_var), e, len(self.model.populations['population_A'].infected_hosts), len(self.model.populations['population_A'].infected_vectors) )
+                    print( 'Simulating time: ' + str(t_var), e)#, len(self.model.populations['population_A'].infected_hosts), len(self.model.populations['population_A'].infected_vectors) )
                     print(self.model.interventions,intervention_tracker)
                     t_var = tf
 
 
 
         history[tf] = cp.deepcopy(self.model)
-        dat = self.saveToDf(history,save_to_file) # record model state in dataframe
-            # TODO: move saving to external function so you can parallelize simulations and then save each one
+
+        return history

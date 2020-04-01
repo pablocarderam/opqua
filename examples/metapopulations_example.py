@@ -20,4 +20,5 @@ model.linkPopulations('population_A','population_B',1)
 model.addPathogensToHosts( 'population_A',{'AAAAAAAAAA':5} )
 model.addPathogensToHosts( 'population_B',{'GGGGGGGGGG':5} )
 
-output = model.run(0,100,"metapopulations_example.csv")
+output = model.run(0,100)
+data = my_model.saveToDataFrame("metapopulations_example.csv")

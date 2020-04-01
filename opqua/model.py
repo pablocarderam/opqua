@@ -92,22 +92,22 @@ class Model(object):
         self.interventions.append( Intervention(time, function, args) )
 
 
-    def saveToDf(self,save_to_file):
+    def saveToDataFrame(self,save_to_file="",n_cores=0):
         """ Runs the model between the given times, returns pandas dataframe with
             all data and saves it to a file if filepath given. """
 
         sim = Gillespie(self)
-        data = sim.saveToDf(self.history,save_to_file,n_cores=0)
+        data = sim.saveToDf(self.history,save_to_file,n_cores)
 
         return data
 
 
-    def run(self,t0,tf,save_to_file,n_cores=0):
+    def run(self,t0,tf,n_cores=0):
         """ Runs the model between the given times, returns pandas dataframe with
             all data and saves it to a file if filepath given. """
 
         sim = Gillespie(self)
-        data = sim.run(t0,tf,save_to_file)
+        self.history = sim.run(t0,tf)
 
 
     # Interventions:

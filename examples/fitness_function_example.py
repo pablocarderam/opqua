@@ -5,9 +5,6 @@ Example with a model
 
 from opqua.model import Model
 
-# Used for custom fitness function:
-import numpy as np
-
 my_optimal_genome = 'BEST' # define an optimal genome
 
 # Define custom fitness function for the host
@@ -21,8 +18,6 @@ def myHostFitness(genome):
         # results in an exponential decay in fitness to the min_fitness value at
         # the maximum possible distance.
 
-
-
 my_model = Model()
 my_model.newSetup( 'my_setup', default='host-host', # use default host-host parameters
                     possible_alleles='ABDEST', # letters in the "genome"
@@ -33,4 +28,5 @@ my_model.newSetup( 'my_setup', default='host-host', # use default host-host para
 
 my_model.newPopulation('my_population','my_setup')
 my_model.addPathogensToHosts( 'my_population',{'BADD':4} )
-output = my_model.run(0,100,'StabilizingSelection.csv')
+my_model.run(0,100)
+data = my_model.saveToDataFrame('StabilizingSelection.csv')

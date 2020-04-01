@@ -33,4 +33,5 @@ my_model.newIntervention( 50, my_model.setSetup, [ 'my_population', 'my_setup_2'
 my_model.newIntervention( 70, my_model.protectHosts, [ 'my_population', 0.75, 'A' ] )
     # At time 70, protects a random 75% of the host population from pathogens with a 'A' in their genome
 
-output = my_model.run(0,100,"intervention_examples.csv")
+output = my_model.run(0,100)
+data = my_model.saveToDataFrame("intervention_examples.csv")
