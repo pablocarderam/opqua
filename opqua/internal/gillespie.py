@@ -62,27 +62,28 @@ class Gillespie(object):
             np.array( [ len(self.model.populations[id].hosts) * self.model.populations[id].total_migration_rate for id in population_ids ] )
 
         rates[self.CONTACT_INFECTED_HOST_ANY_HOST,:] = \
-            np.array( [ len(self.model.populations[id].infected_hosts) * len(self.model.populations[id].hosts) * self.model.populations[id].contact_rate_host_host for id,p in self.model.populations.items() ] )
-                # contact rate assumes fixed area--large populations are dense # TODO: CHANGE THIS
-                # populations, so contact scales linearly with both host and vector
+            np.array( [ len(self.model.populations[id].infected_hosts) * self.model.populations[id].contact_rate_host_host for id,p in self.model.populations.items() ] )
+                # contact rate assumes scaling area--large populations are equally dense
+                # as small ones, so contact is constant with both host and vector
                 # populations. If you don't want this to happen, modify the population's
                 # contact rate accordingly.
                 # Examines contacts between infected hosts and all hosts
 
         rates[self.CONTACT_INFECTED_HOST_ANY_VECTOR,:] = \
-            np.array( [ len(self.model.populations[id].infected_hosts) * len(self.model.populations[id].vectors) * self.model.populations[id].contact_rate_host_vector for id,p in self.model.populations.items() ] )
-                # contact rate assumes fixed area--large populations are dense
-                # populations, so contact scales linearly with both host and vector
+            np.array( [ len(self.model.populations[id].infected_hosts) * self.model.populations[id].contact_rate_host_vector / len(self.model.populations[id].hosts) for id,p in self.model.populations.items() ] )
+                # contact rate assumes scaling area--large populations are equally dense
+                # as small ones, so contact is constant with both host and vector
                 # populations. If you don't want this to happen, modify the population's
                 # contact rate accordingly.
-                # Examines contacts between infected hosts and all vectors
+                # Examines contacts between infected hosts and all hosts
 
         rates[self.CONTACT_HEALTHY_HOST_INFECTED_VECTOR,:] = \
-            np.array( [ len( self.model.populations[id].healthy_hosts ) * len(self.model.populations[id].infected_vectors) * self.model.populations[id].contact_rate_host_vector for id,p in self.model.populations.items() ] )
-                # contact rate assumes fixed area--large populations are dense
-                # populations, so contact scales linearly with both host and vector
+            np.array( [ ( len( self.model.populations[id].healthy_hosts ) / len(self.model.populations[id].hosts) ) * ( len(self.model.populations[id].infected_vectors) / len(self.model.populations[id].vectors) ) * self.model.populations[id].contact_rate_host_vector for id,p in self.model.populations.items() ] )
+                # contact rate assumes scaling area--large populations are equally dense
+                # as small ones, so contact is constant with both host and vector
                 # populations. If you don't want this to happen, modify the population's
                 # contact rate accordingly.
+                # Examines contacts between infected hosts and all hosts
                 # Examines contacts between healthy hosts and infected vectors
                 # (infected-infected contacts are considered in CONTACT_INFECTED_HOST_VECTOR).
 
@@ -316,5 +317,3 @@ class Gillespie(object):
         history[tf] = cp.deepcopy(self.model)
         dat = self.saveToDf(history,save_to_file) # record model state in dataframe
             # TODO: move saving to external function so you can parallelize simulations and then save each one
-
-        return dat

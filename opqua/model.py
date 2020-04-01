@@ -14,6 +14,7 @@ class Model(object):
         self.setups = {}
         self.interventions = []
         self.groups = {}
+        self.history = {}
 
     # Model initialization:
 
@@ -34,14 +35,14 @@ class Model(object):
             possible_alleles = possible_alleles or 'ATCG'
             fitnessHost = fitnessHost or (lambda g: 1)
             fitnessVector = fitnessVector or (lambda g: 1)
-            contact_rate_host_vector = contact_rate_host_vector or 5e-2
+            contact_rate_host_vector = contact_rate_host_vector or 1e1
             contact_rate_host_host = contact_rate_host_host or 0
             inoculum_host = inoculum_host or 1e2
             inoculum_vector = inoculum_vector or 1e2
             inoculation_rate_host = inoculation_rate_host or 1e-1
             inoculation_rate_vector = inoculation_rate_vector or 1e-1
-            recovery_rate_host = recovery_rate_host or 1e0
-            recovery_rate_vector = recovery_rate_vector or 1e0
+            recovery_rate_host = recovery_rate_host or 1e-1
+            recovery_rate_vector = recovery_rate_vector or 1e-2
             recombine_in_host = recombine_in_host or 0
             recombine_in_vector = recombine_in_vector or 1e-2
             mutate_in_host = mutate_in_host or 1e-6
@@ -57,7 +58,7 @@ class Model(object):
             fitnessHost = fitnessHost or (lambda g: 1)
             fitnessVector = fitnessVector or (lambda g: 1)
             contact_rate_host_vector = contact_rate_host_vector or 0
-            contact_rate_host_host = contact_rate_host_host or 1e-2
+            contact_rate_host_host = contact_rate_host_host or 1e0
             inoculum_host = inoculum_host or 1e2
             inoculum_vector = inoculum_vector or 1e2
             inoculation_rate_host = inoculation_rate_host or 1e-1
@@ -91,14 +92,22 @@ class Model(object):
         self.interventions.append( Intervention(time, function, args) )
 
 
-    def run(self,t0,tf,save_to_file):
+    def saveToDf(self,save_to_file):
+        """ Runs the model between the given times, returns pandas dataframe with
+            all data and saves it to a file if filepath given. """
+
+        sim = Gillespie(self)
+        data = sim.saveToDf(self.history,save_to_file,n_cores=0)
+
+        return data
+
+
+    def run(self,t0,tf,save_to_file,n_cores=0):
         """ Runs the model between the given times, returns pandas dataframe with
             all data and saves it to a file if filepath given. """
 
         sim = Gillespie(self)
         data = sim.run(t0,tf,save_to_file)
-
-        return data
 
 
     # Interventions:

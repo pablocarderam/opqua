@@ -185,7 +185,7 @@ class Population(object):
         self.hosts = [ Host(self,id) for id in range(num_hosts) ]
         self.vectors = [ Vector(self,id) for id in range(num_vectors) ]
         self.infected_hosts = []
-        self.healthy_hosts = self.hosts
+        self.healthy_hosts = self.hosts.copy()
         self.infected_vectors = []
         self.dead_hosts = []
         self.dead_vectors = []
