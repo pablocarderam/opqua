@@ -7,7 +7,7 @@ from opqua.model import Model
 
 my_model = Model()
 my_model.newSetup('my_setup',default="vector-borne") # uses default parameters
-my_model.newSetup('my_setup_2', contact_rate_host_vector=1e-1, default="vector-borne")
+my_model.newSetup('my_setup_2', contact_rate_host_vector=2e1, default="vector-borne")
     # uses default parameters, duplicate contact rate
 
 my_model.newPopulation('my_population','my_setup')

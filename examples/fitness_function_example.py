@@ -29,4 +29,4 @@ my_model.newSetup( 'my_setup', default='host-host', # use default host-host para
 my_model.newPopulation('my_population','my_setup')
 my_model.addPathogensToHosts( 'my_population',{'BADD':4} )
 my_model.run(0,100)
-data = my_model.saveToDataFrame('StabilizingSelection.csv')
+dat = my_model.saveToDataFrame('StabilizingSelection.csv')

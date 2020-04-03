@@ -340,7 +340,7 @@ class Population(object):
             values=num of infections); seeds on hosts. """
 
         for genome in genomes_numbers:
-            if len(genome) == self.num_loci and all( [ allele in self.possible_alleles for allele in genome ] ):
+            if len(genome) == self.num_loci and all( [ allele in self.possible_alleles[i] for i,allele in enumerate(genome) ] ):
                 new_fitness = self.fitnessHost(genome)
                 if len(hosts) == 0:
                     hosts = self.hosts
@@ -358,7 +358,7 @@ class Population(object):
 
 
             else:
-                raise ValueError('Genome ' + genome + ' must be of length ' + str(self.num_loci) + ' and contain only ' + self.possible_alleles + ' characters.')
+                raise ValueError('Genome ' + genome + ' must be of length ' + str(self.num_loci) + ' and contain only the following characters at each position: ' + self.possible_alleles + ' .')
 
 
 
@@ -368,7 +368,7 @@ class Population(object):
             values=num of infections); seeds on vectors """
 
         for genome in genomes_numbers:
-            if len(genome) == self.num_loci and all( [ allele in self.possible_alleles for allele in genome ] ):
+            if len(genome) == self.num_loci and all( [ allele in self.possible_alleles[i] for i,allele in enumerate(genome) ] ):
                 new_fitness = self.fitnessVector(genome)
                 if len(vectors) == 0:
                     vectors = self.vectors
@@ -385,7 +385,7 @@ class Population(object):
 
 
             else:
-                raise ValueError('Genome ' + genome + ' must be of length ' + str(self.num_loci) + ' and contain only ' + self.possible_alleles + ' characters.')
+                raise ValueError('Genome ' + genome + ' must be of length ' + str(self.num_loci) + ' and contain only the following characters at each position: ' + self.possible_alleles + ' .')
 
 
 
@@ -556,7 +556,7 @@ class Population(object):
         if len(host.pathogens) > 0:
             old_genome = np.random.choice( list( host.pathogens.keys() ) )
             mut_index = np.random.randint( self.num_loci )
-            new_genome = old_genome[0:mut_index] + np.random.choice( list(self.possible_alleles) ) + old_genome[mut_index+1:]
+            new_genome = old_genome[0:mut_index] + np.random.choice( list(self.possible_alleles[mut_index]) ) + old_genome[mut_index+1:]
             host.pathogens[new_genome] = self.fitnessHost(new_genome)
             host.sum_fitness += host.pathogens[new_genome]
 
@@ -571,7 +571,7 @@ class Population(object):
         if len(vector.pathogens) > 0:
             old_genome = np.random.choice( list( vector.pathogens.keys() ) )
             mut_index = np.random.randint( self.num_loci )
-            new_genome = old_genome[0:mut_index] + np.random.choice( list(self.possible_alleles) ) + old_genome[mut_index+1:]
+            new_genome = old_genome[0:mut_index] + np.random.choice( list(self.possible_alleles[mut_index]) ) + old_genome[mut_index+1:]
             vector.pathogens[new_genome] = self.fitnessHost(new_genome)
             vector.sum_fitness += vector.pathogens[new_genome]
 
@@ -644,7 +644,11 @@ class Setup(object):
 
         super(Setup, self).__init__()
         self.num_loci = num_loci
-        self.possible_alleles = possible_alleles
+        if isinstance(possible_alleles, list):
+            self.possible_alleles = possible_alleles
+        else:
+            self.possible_alleles = [possible_alleles] * self.num_loci
+
 
         self.fitnessHost = fitnessHost
         self.fitnessVector = fitnessVector

@@ -7,7 +7,7 @@ from opqua.model import Model
 
 model = Model()
 model.newSetup('setup_normal', default="vector-borne") # uses default parameters
-model.newSetup('setup_cluster', contact_rate_host_vector=1e-1 ,default="vector-borne") # uses default parameters
+model.newSetup('setup_cluster', contact_rate_host_vector=2e1 ,default="vector-borne") # uses default parameters
 
 model.newPopulation('population_A','setup_normal', num_hosts=20, num_vectors=20)
 model.newPopulation('population_B','setup_normal', num_hosts=20, num_vectors=20)
