@@ -4,6 +4,8 @@ import pandas as pd
 import difflib as dl
 from opqua.internal.classes import *
 from opqua.internal.gillespie import *
+from opqua.internal.data import *
+from opqua.internal.plot import *
 
 class Model(object):
     """docstring for Model."""
@@ -96,8 +98,7 @@ class Model(object):
         """ Runs the model between the given times, returns pandas dataframe with
             all data and saves it to a file if filepath given. """
 
-        sim = Gillespie(self)
-        data = sim.saveToDf(self.history,save_to_file,n_cores)
+        data = saveToDf(self.history,save_to_file,n_cores)
 
         return data
 
@@ -109,6 +110,16 @@ class Model(object):
         sim = Gillespie(self)
         self.history = sim.run(t0,tf)
 
+
+    # Plots:
+
+    def compositionPlot(self, file_name, data, populations=[], type='Pathogens', hosts=True, vectors=True,
+                        num_top_genomes=7, track_specific_genomes=[], save_data_to_file="",
+                        x_label='Time', y_label='Infections', figsize=(8, 4), dpi=200, palette=cb_palette):
+
+        return compositionPlot(file_name, data, populations=populations, type=type, hosts=hosts, vectors=vectors,
+                            num_top_genomes=num_top_genomes, track_specific_genomes=track_specific_genomes, save_data_to_file=save_data_to_file,
+                            x_label=x_label, y_label=y_label, figsize=figsize, dpi=dpi, palette=palette)
 
     # Interventions:
 

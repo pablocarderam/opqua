@@ -6,8 +6,8 @@ Simple model
 from opqua.model import Model
 
 my_model = Model()
-my_model.newSetup('my_setup',default="vector-borne") # uses default parameters
-my_model.newSetup('my_setup_2', contact_rate_host_vector=2e1, default="vector-borne")
+my_model.newSetup('my_setup',default='vector-borne') # uses default parameters
+my_model.newSetup('my_setup_2', contact_rate_host_vector=2e1, default='vector-borne')
     # uses default parameters, duplicate contact rate
 
 my_model.newPopulation('my_population','my_setup')
@@ -34,4 +34,5 @@ my_model.newIntervention( 70, my_model.protectHosts, [ 'my_population', 0.75, 'A
     # At time 70, protects a random 75% of the host population from pathogens with a 'A' in their genome
 
 output = my_model.run(0,100)
-data = my_model.saveToDataFrame("intervention_examples.csv")
+data = my_model.saveToDataFrame('Intervention_examples.csv')
+graph = my_model.compositionPlot('Intervention_examples.png', data,num_top_genomes=6)

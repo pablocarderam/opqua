@@ -198,49 +198,6 @@ class Gillespie(object):
         return changed
 
 
-    def saveToDf(self,history,save_to_file="",n_cores=0):
-        """ Saves status of model to dataframe given """
-
-        print('Saving file...')
-
-        if not n_cores:
-            n_cores = jl.cpu_count()
-
-        new_df = ','.join( ['Time','Population','Organism','ID','Pathogens','Protection','Alive'] ) + '\n' + \
-            '\n'.join(
-                jl.Parallel(n_jobs=n_cores, verbose=10) (
-                    jl.delayed( lambda d: ''.join(d) )
-                        (
-                            '\n'.join( [
-                                    '\n'.join( [ ','.join( [ str(time), str(pop.id), 'Host', str(host.id), '"' + ';'.join( host.pathogens.keys() ) + '"', '"' + ';'.join( host.protection_sequences ) + '"', 'True' ] )
-                                        for host in pop.hosts ] ) + '\n' +
-                                    '\n'.join( [ ','.join( [ str(time), str(pop.id), 'Vector', str(vector.id), '"' + ';'.join( vector.pathogens.keys() ) + '"', '"' + ';'.join( vector.protection_sequences ) + '"', 'True' ] )
-                                        for vector in pop.vectors ] ) + '\n' +
-                                    '\n'.join( [ ','.join( [ str(time), str(pop.id), 'Host', str(host.id), '"' + ';'.join( host.pathogens.keys() ) + '"', '"' + ';'.join( host.protection_sequences ) + '"', 'False' ] )
-                                        for host in pop.dead_hosts ] ) + '\n' +
-                                    '\n'.join( [ ','.join( [ str(time), str(pop.id), 'Vector', str(vector.id), '"' + ';'.join( vector.pathogens.keys() ) + '"', '"' + ';'.join( vector.protection_sequences ) + '"', 'False' ] )
-                                        for vector in pop.dead_vectors ] )
-                                for id,pop in model.populations.items()
-                            ] )
-                        )
-                    for time,model in history.items()
-                )
-            )
-
-        new_df = new_df.replace('\n\n','\n').replace('\n\n','\n').replace('\n\n','\n')
-
-        file = open(save_to_file,'w')
-        file.write(new_df)
-        file.close()
-
-        if len(save_to_file) > 0:
-            new_df = pd.read_csv(save_to_file)
-
-        print('...file saved.')
-
-        return new_df
-
-
     def run(self,t0,tf):
 
         '''
@@ -310,7 +267,6 @@ class Gillespie(object):
                     intervention_tracker += 1 # advance the tracker
                 else:
                     print( 'Simulating time: ' + str(t_var), e)#, len(self.model.populations['population_A'].infected_hosts), len(self.model.populations['population_A'].infected_vectors) )
-                    print(self.model.interventions,intervention_tracker)
                     t_var = tf
 
 
