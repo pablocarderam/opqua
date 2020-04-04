@@ -113,13 +113,20 @@ class Model(object):
 
     # Plots:
 
-    def compositionPlot(self, file_name, data, populations=[], type='Pathogens', hosts=True, vectors=True,
+    def compositionPlot(self, file_name, data, populations=[], type='Pathogens', hosts=True, vectors=False,
                         num_top_genomes=7, track_specific_genomes=[], save_data_to_file="",
                         x_label='Time', y_label='Infections', figsize=(8, 4), dpi=200, palette=cb_palette):
 
         return compositionPlot(file_name, data, populations=populations, type=type, hosts=hosts, vectors=vectors,
                             num_top_genomes=num_top_genomes, track_specific_genomes=track_specific_genomes, save_data_to_file=save_data_to_file,
                             x_label=x_label, y_label=y_label, figsize=figsize, dpi=dpi, palette=palette)
+
+    def compartmentPlot(self, file_name, data, populations=[], hosts=True, vectors=False,
+                        save_data_to_file="", x_label='Time', y_label='Hosts',
+                        figsize=(8, 4), dpi=200, palette=cb_palette):
+
+        return compartmentPlot(file_name, data, populations=populations, hosts=hosts, vectors=vectors,
+                            save_data_to_file=save_data_to_file, x_label=x_label, y_label=y_label, figsize=figsize, dpi=dpi, palette=palette)
 
     # Interventions:
 
