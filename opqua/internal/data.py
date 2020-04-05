@@ -1,5 +1,3 @@
-# TODO: write data wrangling for time series, graphs, phylogeny
-# TODO: distance matrix
 
 import numpy as np # handle arrays
 import pandas as pd # data wrangling
@@ -47,6 +45,60 @@ def saveToDf(history,save_to_file,n_cores=0):
 
     return new_df
 
+
+def populationsDf(data, compartment='Infected', hosts=True, vectors=False, num_top_populations=7, track_specific_populations=[], save_to_file=""):
+    ''' Populations '''
+
+    dat = cp.deepcopy( data )
+
+    if not hosts:
+        dat = dat[ dat['Organism'] != 'Host' ]
+    if not vectors:
+        dat = dat[ dat['Organism'] != 'Vector' ]
+
+
+    dat['Infected'] = ( dat['Pathogens'].fillna('').str.len() > 0 )
+    dat['Protected'] = ( dat['Protection'].fillna('').str.len() > 0 )
+
+    grouped = dat.groupby( [ 'Time','Population','Alive','Infected','Protected' ] ).size().reset_index(name='Number')
+
+    compartment_names = ['Naive','Infected','Recovered','Dead']
+
+    grouped['Compartment'] = compartment_names[3]
+    grouped.loc[ ( grouped['Alive'] == True ) & ( grouped['Infected'] == False ) & ( grouped['Protected'] == False ), 'Compartment' ] = compartment_names[0]
+    grouped.loc[ ( grouped['Alive'] == True ) & ( grouped['Infected'] == True ), 'Compartment' ] = compartment_names[1]
+    grouped.loc[ ( grouped['Alive'] == True ) & ( grouped['Infected'] == False ) & ( grouped['Protected'] == True ), 'Compartment' ] = compartment_names[2]
+
+    grouped = grouped[ grouped['Compartment'] == compartment ]
+    grouped = grouped.drop( columns=['Alive','Infected','Protected','Compartment'] )
+    grouped = grouped.pivot( columns='Population', values='Number', index='Time' ).fillna(0).reset_index('Time')
+
+    for pop in pd.unique(data['Population']):
+        if pop not in grouped.columns:
+            grouped[pop] = 0
+
+
+    if len(grouped.columns)-1 < num_top_populations:
+        num_top_populations = len(grouped.columns)-1
+
+    populations_to_drop = list(grouped.columns)[ num_top_populations+1: ]
+    for pop in track_specific_populations:
+        if pop in populations_to_drop:
+            populations_to_drop = populations_to_drop.remove(pop)
+
+
+    grouped['Other'] = grouped[populations_to_drop].sum(axis=1)
+    if grouped['Other'].sum() == 0:
+        populations_to_drop = populations_to_drop + ['Other']
+
+    grouped = grouped.drop( columns=populations_to_drop )
+
+    if len(save_to_file) > 0:
+        grouped.to_csv(save_to_file, index=False)
+
+    return grouped
+
+
 def compartmentDf(data, populations=[], hosts=True, vectors=False, save_to_file=""):
     ''' Composition '''
 
@@ -80,13 +132,14 @@ def compartmentDf(data, populations=[], hosts=True, vectors=False, save_to_file=
         if comp_name not in grouped.columns:
             grouped[comp_name] = 0
 
+
     if len(save_to_file) > 0:
         grouped.to_csv(save_to_file, index=False)
 
     return grouped
 
 
-def compositionDf(data, populations=[], type='Pathogens', hosts=True, vectors=False, num_top_genomes=7, track_specific_genomes=[], save_to_file=""):
+def compositionDf(data, populations=[], organism='Pathogens', hosts=True, vectors=False, num_top_genomes=7, track_specific_genomes=[], save_to_file=""):
     ''' Composition '''
 
     if len(populations) > 0:
@@ -99,7 +152,7 @@ def compositionDf(data, populations=[], type='Pathogens', hosts=True, vectors=Fa
     if not vectors:
         dat = dat[ dat['Organism'] != 'Vector' ]
 
-    all_genomes = pd.Series( ';'.join( dat[type].dropna() ).split(';') ).str.strip()
+    all_genomes = pd.Series( ';'.join( dat[organism].dropna() ).split(';') ).str.strip()
     top_genomes = all_genomes.value_counts(ascending=False)
 
     if len(top_genomes) < num_top_genomes:
@@ -117,7 +170,7 @@ def compositionDf(data, populations=[], type='Pathogens', hosts=True, vectors=Fa
 
     if len( ''.join(top_genomes.index) ) > 0:
         for genome in top_genomes.index:
-            dat_genome = dat[ dat[type].str.contains(genome, na=False) ]
+            dat_genome = dat[ dat[organism].str.contains(genome, na=False) ]
             grouped = dat_genome.groupby('Time').size().reset_index(name=genome)
             grouped = grouped.set_index('Time')
 
@@ -140,9 +193,31 @@ def compositionDf(data, populations=[], type='Pathogens', hosts=True, vectors=Fa
     times = pd.DataFrame( np.zeros( len( pd.unique( data['Time'] ) ) ), index=pd.unique( data['Time'] ), columns=['*None*'] )
     composition = times.join( genome_split_data, how='outer' )
     composition = composition.drop(columns=['*None*']).fillna(0)
-    composition = composition.reset_index(name='Time')
+    composition = composition.reset_index()
+    composition.columns = ['Time'] + list( composition.columns )[1:]
 
     if len(save_to_file) > 0:
         composition.to_csv(save_to_file, index=False)
 
     return composition
+
+
+def getPathogens(dat, save_to_file=""):
+
+    out = pd.Series( ';'.join( dat['Pathogens'].dropna() ).split(';') ).str.strip().value_counts(ascending=False).reset_index()
+    out.columns = ['Pathogens'] + list( out.columns )[1:]
+
+    if len(save_to_file) > 0:
+        out.to_csv(save_to_file, index=False)
+
+    return out
+
+def getProtections(dat, save_to_file=""):
+
+    out = pd.Series( ';'.join( dat['Protection'].dropna() ).split(';') ).str.strip().value_counts(ascending=False).reset_index()
+    out.columns = ['Protection'] + list( out.columns )[1:]
+
+    if len(save_to_file) > 0:
+        out.to_csv(save_to_file, index=False)
+
+    return out

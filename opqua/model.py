@@ -113,20 +113,38 @@ class Model(object):
 
     # Plots:
 
-    def compositionPlot(self, file_name, data, populations=[], type='Pathogens', hosts=True, vectors=False,
+    def compositionPlot(self, file_name, data, populations=[], organism='Pathogens', hosts=True, vectors=False,
                         num_top_genomes=7, track_specific_genomes=[], save_data_to_file="",
-                        x_label='Time', y_label='Infections', figsize=(8, 4), dpi=200, palette=cb_palette):
+                        x_label='Time', y_label='Infections', figsize=(8, 4), dpi=200, palette=cb_palette, stacked=True):
 
-        return compositionPlot(file_name, data, populations=populations, type=type, hosts=hosts, vectors=vectors,
+        return compositionPlot(file_name, data, populations=populations, organism=organism, hosts=hosts, vectors=vectors,
                             num_top_genomes=num_top_genomes, track_specific_genomes=track_specific_genomes, save_data_to_file=save_data_to_file,
-                            x_label=x_label, y_label=y_label, figsize=figsize, dpi=dpi, palette=palette)
+                            x_label=x_label, y_label=y_label, figsize=figsize, dpi=dpi, palette=palette, stacked=stacked)
+
+    def populationPlot(self, file_name, data, compartment='Infected', hosts=True, vectors=False,
+                       num_top_populations=7, track_specific_populations=[], save_data_to_file="",
+                       x_label='Time', y_label='Hosts', figsize=(8, 4), dpi=200, palette=cb_palette, stacked=False):
+
+        return populationPlot(file_name, data, compartment=compartment, hosts=hosts, vectors=vectors,
+                            num_top_populations=num_top_populations, track_specific_populations=track_specific_populations, save_data_to_file=save_data_to_file,
+                            x_label=x_label, y_label=y_label, figsize=figsize, dpi=dpi, palette=palette, stacked=stacked)
 
     def compartmentPlot(self, file_name, data, populations=[], hosts=True, vectors=False,
                         save_data_to_file="", x_label='Time', y_label='Hosts',
-                        figsize=(8, 4), dpi=200, palette=cb_palette):
+                        figsize=(8, 4), dpi=200, palette=cb_palette, stacked=False):
 
+        print(stacked)
         return compartmentPlot(file_name, data, populations=populations, hosts=hosts, vectors=vectors,
-                            save_data_to_file=save_data_to_file, x_label=x_label, y_label=y_label, figsize=figsize, dpi=dpi, palette=palette)
+                            save_data_to_file=save_data_to_file, x_label=x_label,
+                            y_label=y_label, figsize=figsize, dpi=dpi, palette=palette, stacked=stacked)
+
+    def getPathogens(self, dat, save_to_file=""):
+
+        return getPathogens(dat, save_to_file=save_to_file)
+
+    def getProtections(self, dat, save_to_file=""):
+
+        return getProtections(dat, save_to_file=save_to_file)
 
     # Interventions:
 
@@ -290,3 +308,8 @@ class Model(object):
         fitness = np.exp( np.log( min_fitness ) * ( similarity ) )
 
         return fitness
+
+    cb_palette = ["#E69F00", "#56B4E9", "#009E73",
+                  "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#999999"]
+        # www.cookbook-r.com/Graphs/Colors_(ggplot2)/#a-colorblind-friendly-palette
+        # http://jfly.iam.u-tokyo.ac.jp/color/

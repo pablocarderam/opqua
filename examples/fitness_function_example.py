@@ -17,16 +17,16 @@ def myHostFitness(genome):
         # results in an exponential decay in fitness to the min_fitness value at
         # the maximum possible distance.
 
-my_model = Model()
-my_model.newSetup( 'my_setup', default='host-host', # use default host-host parameters
+model = Model()
+model.newSetup( 'my_setup', default='host-host', # use default host-host parameters
                     possible_alleles='ABDEST', # letters in the "genome"
                     num_loci=len(my_optimal_genome), # length of "genome"
                     fitnessHost=myHostFitness, # feed in custom
                     mutate_in_host=0.5
                     ) # uses default parameters except for possible alleles per locus and host fitness function
 
-my_model.newPopulation('my_population','my_setup')
-my_model.addPathogensToHosts( 'my_population',{'BADD':4} )
-my_model.run(0,100)
-data = my_model.saveToDataFrame('Stabilizing_selection.csv')
-graph = my_model.compositionPlot('Stabilizing_selection.png', data, num_top_genomes=6, track_specific_genomes=['BADD'])
+model.newPopulation('my_population','my_setup')
+model.addPathogensToHosts( 'my_population',{'BADD':4} )
+model.run(0,100)
+data = model.saveToDataFrame('Stabilizing_selection.csv')
+graph = model.compositionPlot('Stabilizing_selection.png', data, num_top_genomes=6, track_specific_genomes=['BADD'])

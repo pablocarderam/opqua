@@ -22,4 +22,4 @@ model.addPathogensToHosts( 'population_B',{'GGGGGGGGGG':5} )
 
 output = model.run(0,100)
 data = model.saveToDataFrame('Metapopulations_example.csv')
-graph = my_model.compositionPlot('Metapopulations_example.png', data, num_top_genomes=6, track_specific_genomes=['BADD'])
+graph = model.populationPlot('Metapopulations_example.png', data, track_specific_populations=['isolated_population'])
