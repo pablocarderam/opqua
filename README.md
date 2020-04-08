@@ -1,8 +1,11 @@
 # Opqua
 
-opqua (opkua, upkua)
-[\[Chibcha\]](http://muysca.cubun.org/opqua)
+[opqua (opkua, upkua)](http://muysca.cubun.org/opqua)
+
+[\[Chibcha/muysccubun\]](https://en.wikipedia.org/wiki/Chibcha_language)
+
       I.  *noun*. ailment, disease, illness
+
       II. *noun*. cause, reason \[*for which something occurs*\]
 
 
@@ -25,6 +28,7 @@ landscapes
 
 ## Installation
 
+
 ## Usage
 
 For example usage, have a look at the ```examples``` folder
@@ -32,5 +36,5 @@ For example usage, have a look at the ```examples``` folder
 Opqua was developed by [Pablo Cárdenas](https://pablo-cardenas.com).
 Follow my science antics at [@pcr_guy on Twitter](https://twitter.com/pcr_guy).
 
-## License
-Well [MIT](https://choosealicense.com/licenses/mit/), of course!
+Opqua is available under an [MIT](https://choosealicense.com/licenses/mit/)
+License.
