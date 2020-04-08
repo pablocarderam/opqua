@@ -391,6 +391,9 @@ class Model(object):
         Creates a line or stacked line plot with dynamics of a compartment
         across populations in the model, with one line for each population.
 
+        A host or vector is considered part of the recovered compartment
+        if it has protection sequences of any kind and is not infected.
+
         Arguments:
         file_name -- file path, name, and extension to save plot under (String)
         data -- dataframe with model history as produced by saveToDf function
@@ -444,6 +447,9 @@ class Model(object):
         Creates a line or stacked line plot with dynamics of all compartments
         (naive, infected, recovered, dead) across selected populations in the
         model, with one line for each compartment.
+
+        A host or vector is considered part of the recovered compartment
+        if it has protection sequences of any kind and is not infected.
 
         Arguments:
         file_name -- file path, name, and extension to save plot under (String)
@@ -712,7 +718,7 @@ class Model(object):
 
         Arguments:
         pop_id -- ID of population to be modified (String)
-        genomes_numbers -- dictionary conatining pathogen genomes to add as keys
+        genomes_numbers -- dictionary containing pathogen genomes to add as keys
             and number of hosts each one will be added to as values (dict with
             keys=Strings, values=int)
 
@@ -733,7 +739,7 @@ class Model(object):
 
         Arguments:
         pop_id -- ID of population to be modified (String)
-        genomes_numbers -- dictionary conatining pathogen genomes to add as keys
+        genomes_numbers -- dictionary containing pathogen genomes to add as keys
             and number of vectors each one will be added to as values (dict with
             keys=Strings, values=int)
 
