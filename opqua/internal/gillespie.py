@@ -38,11 +38,11 @@ class Gillespie(object):
     KILL_VECTOR = 11
 
     def __init__(self, model):
-        '''Create a new Gillespie simulation object.
+        """Create a new Gillespie simulation object.
 
         Arguments:
         model -- the model this simulation belongs to (Model)
-        '''
+        """
 
         super(Gillespie, self).__init__() # initialize as parent class object
 
@@ -61,7 +61,7 @@ class Gillespie(object):
         self.model = model
 
     def getRates(self,population_ids):
-        '''Calculates event rates according to current system state.
+        """Calculates event rates according to current system state.
 
         Arguments:
         population_ids -- list with ids for every population in the model
@@ -70,7 +70,7 @@ class Gillespie(object):
         Returns:
         dictionary with event ID constants as keys and rates as values. Includes
             total rate under 'tot' key.
-        '''
+        """
 
         rates = np.zeros( [ len(self.evt_IDs), len(population_ids) ] )
             # rate array size of event space
@@ -173,7 +173,7 @@ class Gillespie(object):
 
     def doAction(self,act,pop,rand):
 
-        '''Change system state according to act argument passed
+        """Change system state according to act argument passed
 
         Arguments:
         act -- defines action to be taken, one of the event ID constants (int)
@@ -182,7 +182,7 @@ class Gillespie(object):
 
         Returns:
         whether or not the model has changed state (Boolean)
-        '''
+        """
 
         changed = False
 
@@ -268,7 +268,7 @@ class Gillespie(object):
 
     def run(self,t0,tf):
 
-        '''Simulate model for a specified time between two time points.
+        """Simulate model for a specified time between two time points.
 
         Simulates a time series using the Gillespie algorithm.
 
@@ -279,7 +279,7 @@ class Gillespie(object):
         Returns:
         dictionary containing model state history, with keys=times and
             values=Model objects with model snapshot at that time point
-        '''
+        """
 
         # Simulation variables
         t_var = t0 # keeps track of time
@@ -333,7 +333,7 @@ class Gillespie(object):
                                 # if random number is under cumulative rate
                                 print(
                                     'Simulating time: '
-                                    + str(t_var) + ', event ID: ' + str(e)#, len(self.model.populations['population_A'].infected_hosts), len(self.model.populations['population_A'].infected_hosts)+len(self.model.populations['population_A'].healthy_hosts), len(self.model.populations['population_A'].infected_vectors) )
+                                    + str(t_var) + ', event ID: ' + str(e)
                                     )
                                 changed = self.doAction(
                                     e, self.model.populations[
@@ -352,14 +352,14 @@ class Gillespie(object):
                         break # otherwise, break outer loop
             else: # if at end of time course,
                 if intervention_tracker < len(self.model.interventions):
-                    print( 'Simulating time: ' + str(t_var), e)#, len(self.model.populations['population_A'].infected_hosts), len(self.model.populations['population_A'].infected_vectors) )
+                    print( 'Simulating time: ' + str(t_var), e)
                     self.model.interventions[
                         intervention_tracker
                         ].doIntervention()
                     t_var = self.model.interventions[intervention_tracker].time
                     intervention_tracker += 1 # advance the tracker
                 else:
-                    print( 'Simulating time: ' + str(t_var), e)#, len(self.model.populations['population_A'].infected_hosts), len(self.model.populations['population_A'].infected_vectors) )
+                    print( 'Simulating time: ' + str(t_var), e)
                     t_var = tf
 
         history[tf] = cp.deepcopy(self.model)

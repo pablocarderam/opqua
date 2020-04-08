@@ -144,8 +144,10 @@ class Model(object):
         mutate_in_vector = mutate_in_vector or 0
         death_rate_host = death_rate_host or 0
         death_rate_vector = death_rate_vector or 0
-        protection_upon_recovery_host = protection_upon_recovery_host or None
-        protection_upon_recovery_vector = protection_upon_recovery_vector or None
+        protection_upon_recovery_host = ( protection_upon_recovery_host
+            or None )
+        protection_upon_recovery_vector = ( protection_upon_recovery_vector
+            or None )
 
         "host-host":
         num_loci = num_loci or 10
@@ -153,10 +155,10 @@ class Model(object):
         fitnessHost = fitnessHost or (lambda g: 1)
         fitnessVector = fitnessVector or (lambda g: 1)
         contact_rate_host_vector = contact_rate_host_vector or 0
-        contact_rate_host_host = contact_rate_host_host or 1e0
-        mean_inoculum_host = mean_inoculum_host or 1e2
-        mean_inoculum_vector = mean_inoculum_vector or 1e2
-        recovery_rate_host = recovery_rate_host or 5e-1
+        contact_rate_host_host = contact_rate_host_host or 2e1
+        mean_inoculum_host = mean_inoculum_host or 1e1
+        mean_inoculum_vector = mean_inoculum_vector or 0
+        recovery_rate_host = recovery_rate_host or 1e-1
         recovery_rate_vector = recovery_rate_vector or 1e1
         recombine_in_host = recombine_in_host or 1e-3
         recombine_in_vector = recombine_in_vector or 0
@@ -164,8 +166,10 @@ class Model(object):
         mutate_in_vector = mutate_in_vector or 0
         death_rate_host = death_rate_host or 0
         death_rate_vector = death_rate_vector or 0
-        protection_upon_recovery_host = protection_upon_recovery_host or None
-        protection_upon_recovery_vector = protection_upon_recovery_vector or None
+        protection_upon_recovery_host = ( protection_upon_recovery_host
+            or None )
+        protection_upon_recovery_vector = ( protection_upon_recovery_vector
+            or None )
 
         Arguments:
         name -- name of setup to be used as a key in model setups dictionary
@@ -282,7 +286,7 @@ class Model(object):
         self.interventions.append( Intervention(time, function, args) )
 
     def run(self,t0,tf):
-        '''Simulate model for a specified time between two time points.
+        """Simulate model for a specified time between two time points.
 
         Simulates a time series using the Gillespie algorithm.
 
@@ -293,7 +297,7 @@ class Model(object):
         Arguments:
         t0 -- initial time point to start simulation at (number)
         tf -- initial time point to end simulation at (number)
-        '''
+        """
 
         sim = Gillespie(self)
         self.history = sim.run(t0,tf)
