@@ -1,4 +1,7 @@
 
+
+"""Contains graphmaking methods."""
+
 ### Imports ###
 import matplotlib.pyplot as plt # plots
 import seaborn as sns # pretty plots
@@ -6,32 +9,91 @@ import numpy as np # handle arrays
 import pandas as pd # data wrangling
 import copy as cp
 
-from opqua.internal.data import *
+from opqua.internal.data import saveToDf, populationsDf, compartmentDf, \
+    compositionDf
 
-cb_palette = ["#E69F00", "#56B4E9", "#009E73",
+CB_PALETTE = ["#E69F00", "#56B4E9", "#009E73",
               "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#999999"]
     # www.cookbook-r.com/Graphs/Colors_(ggplot2)/#a-colorblind-friendly-palette
     # http://jfly.iam.u-tokyo.ac.jp/color/
 
 
-def populationPlot(file_name, data, compartment='Infected', hosts=True, vectors=False,
-                   num_top_populations=7, track_specific_populations=[], save_data_to_file="",
-                   x_label='Time', y_label='Hosts', legend_title='Population', figsize=(8, 4), dpi=200, palette=cb_palette, stacked=False):
-    '''Plot infection composition'''
+def populationsPlot(
+        file_name, data, compartment='Infected', hosts=True, vectors=False,
+        num_top_populations=7, track_specific_populations=[],
+        save_data_to_file="", x_label='Time', y_label='Infected hosts',
+        legend_title='Population', legend_values=[], figsize=(8, 4), dpi=200,
+        palette=CB_PALETTE, stacked=False):
+    """Create plot with aggregated totals per population across time.
 
-    pops = populationsDf(data, compartment=compartment, hosts=hosts, vectors=vectors, num_top_populations=num_top_populations,
-        track_specific_populations=track_specific_populations, save_to_file=save_data_to_file)
+    Creates a line or stacked line plot with dynamics of a compartment
+    across populations in the model, with one line for each population.
+
+    Arguments:
+    file_name -- file path, name, and extension to save plot under (String)
+    data -- dataframe with model history as produced by saveToDf function
+        (DataFrame)
+
+    Keyword arguments:
+    compartment -- subset of hosts/vectors to count totals of, can be either
+        'Naive','Infected','Recovered', or 'Dead' (default 'Infected'; String)
+    hosts -- whether to count hosts (default True, Boolean)
+    vectors -- whether to count vectors (default False, Boolean)
+    num_top_populations -- how many populations to count separately and include
+        as columns, remainder will be counted under column "Other"; if <0,
+        includes all populations in model (default 7; int)
+    track_specific_populations -- contains IDs of specific populations to have
+        as a separate column if not part of the top num_top_populations
+        populations (list of Strings)
+    save_data_to_file -- file path and name to save model plot data under, no
+        saving occurs if empty string (default ''; String)
+    x_label -- X axis title (default 'Time', String)
+    y_label -- Y axis title (default 'Hosts', String)
+    legend_title -- legend title (default 'Population', String)
+    legend_values -- labels for each trace, if empty list, uses population IDs
+        (default empty list, list of Strings)
+    figsize -- dimensions of figure (default (8,4), array-like of two ints)
+    dpi -- figure resolution (default 200, int)
+    palette -- color palette to use for traces (default CB_PALETTE, list of
+        color Strings)
+    stacked -- whether to draw a regular line plot or a stacked one (default
+        False, Boolean)
+
+    Returns:
+    axis object for plot with model population dynamics as described above
+    """
+
+    pops = populationsDf(
+        data, compartment=compartment, hosts=hosts, vectors=vectors,
+        num_top_populations=num_top_populations,
+        track_specific_populations=track_specific_populations,
+        save_to_file=save_data_to_file
+        )
 
     if pops.shape[1] > 0:
         plt.figure(figsize=figsize, dpi=dpi) # make new figure
         ax = plt.subplot(1, 1, 1) # get axis
 
         if stacked:
-            ax.stackplot( pops['Time'], pops.drop(columns='Time').transpose(), labels=pops.drop(columns='Time').columns, colors=palette )
-        else:
-            for i,c in enumerate(pops.columns[1:]):
-                ax.plot( pops['Time'], pops[c], label=c, color=palette[i] )
+            if len(legend_values) > 0:
+                labs = legend_values
+            else:
+                labs = pops.drop(columns='Time').columns
 
+            ax.stackplot(
+                pops['Time'], pops.drop(columns='Time').transpose(),
+                labels=labs, colors=palette
+                )
+        else:
+            if len(legend_values) > 0:
+                labs = legend_values
+            else:
+                labs = pops.drop(columns='Time').columns
+
+            for i,c in enumerate(pops.columns[1:]):
+                ax.plot(
+                    pops['Time'], pops[c], label=labs[i], color=palette[i]
+                    )
 
         plt.xlabel(x_label) # labels
         plt.ylabel(y_label)
@@ -40,7 +102,10 @@ def populationPlot(file_name, data, compartment='Infected', hosts=True, vectors=
         ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
 
         handles, labels = ax.get_legend_handles_labels() # get legend
-        plt.legend(handles, labels, loc='center left', bbox_to_anchor=(1, 0.5), title=legend_title) # show it
+        plt.legend(
+            handles, labels, loc='center left', bbox_to_anchor=(1, 0.5),
+            title=legend_title
+            ) # show it
 
         plt.savefig(file_name, bbox_inches='tight') # save
     else:
@@ -50,10 +115,44 @@ def populationPlot(file_name, data, compartment='Infected', hosts=True, vectors=
     return ax
 
 
-def compartmentPlot(file_name, data, populations=[], hosts=True, vectors=False,
-                    save_data_to_file="", x_label='Time', y_label='Hosts', legend_title='Compartment',
-                    figsize=(8, 4), dpi=200, palette=cb_palette, stacked=False):
-    '''Plot infection composition'''
+def compartmentPlot(
+        file_name, data, populations=[], hosts=True, vectors=False,
+        save_data_to_file="", x_label='Time', y_label='Hosts',
+        legend_title='Compartment', legend_values=[], figsize=(8, 4), dpi=200,
+        palette=CB_PALETTE, stacked=False):
+    """Create plot with num. of naive, susc., inf., rec. hosts/vectors vs. time.
+
+    Creates a line or stacked line plot with dynamics of all compartments
+    (naive, infected, recovered, dead) across selected populations in the model,
+    with one line for each compartment.
+
+    Arguments:
+    file_name -- file path, name, and extension to save plot under (String)
+    data -- dataframe with model history as produced by saveToDf function
+        (DataFrame)
+
+    Keyword arguments:
+    populations -- IDs of populations to include in analysis; if empty, uses all
+        populations in model (default empty list; list of Strings)
+    hosts -- whether to count hosts (default True, Boolean)
+    vectors -- whether to count vectors (default False, Boolean)
+    save_to_file -- file path and name to save model data under, no saving
+        occurs if empty string (default ''; String)
+    x_label -- X axis title (default 'Time', String)
+    y_label -- Y axis title (default 'Hosts', String)
+    legend_title -- legend title (default 'Population', String)
+    legend_values -- labels for each trace, if empty list, uses population IDs
+        (default empty list, list of Strings)
+    figsize -- dimensions of figure (default (8,4), array-like of two ints)
+    dpi -- figure resolution (default 200, int)
+    palette -- color palette to use for traces (default CB_PALETTE, list of
+        color Strings)
+    stacked -- whether to draw a regular line plot or a stacked one (default
+        False, Boolean)
+
+    Returns:
+    axis object for plot with model compartment dynamics as described above
+    """
 
     comp = compartmentDf(data, populations=populations, hosts=hosts,
         vectors=vectors, save_to_file=save_data_to_file)
@@ -63,11 +162,25 @@ def compartmentPlot(file_name, data, populations=[], hosts=True, vectors=False,
         ax = plt.subplot(1, 1, 1) # get axis
 
         if stacked:
-            ax.stackplot( comp['Time'], comp.drop(columns='Time').transpose(), labels=comp.drop(columns='Time').columns, colors=palette )
-        else:
-            for i,c in enumerate(comp.columns[1:]):
-                ax.plot( comp['Time'], comp[c], label=c, color=palette[i] )
+            if len(legend_values) > 0:
+                labs = legend_values
+            else:
+                labs = comp.drop(columns='Time').columns
 
+            ax.stackplot(
+                comp['Time'], comp.drop(columns='Time').transpose(),
+                labels=labs, colors=palette
+                )
+        else:
+            if len(legend_values) > 0:
+                labs = legend_values
+            else:
+                labs = comp.drop(columns='Time').columns
+
+            for i,c in enumerate(comp.columns[1:]):
+                ax.plot(
+                    comp['Time'], comp[c], label=labs[i], color=palette[i]
+                    )
 
         plt.xlabel(x_label) # labels
         plt.ylabel(y_label)
@@ -76,7 +189,10 @@ def compartmentPlot(file_name, data, populations=[], hosts=True, vectors=False,
         ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
 
         handles, labels = ax.get_legend_handles_labels() # get legend
-        plt.legend(handles, labels, loc='center left', bbox_to_anchor=(1, 0.5), title=legend_title) # show it
+        plt.legend(
+            handles, labels, loc='center left', bbox_to_anchor=(1, 0.5),
+            title=legend_title
+            ) # show it
 
         plt.savefig(file_name, bbox_inches='tight') # save
     else:
@@ -85,26 +201,87 @@ def compartmentPlot(file_name, data, populations=[], hosts=True, vectors=False,
 
     return ax
 
+def compositionPlot(
+        file_name, data, populations=[], type_of_composition='Pathogens',
+        hosts=True, vectors=False, num_top_sequences=7,
+        track_specific_genomes=[], save_data_to_file="", x_label='Time',
+        y_label='Infections', legend_title='Genotype', legend_values=[],
+        figsize=(8, 4), dpi=200, palette=CB_PALETTE, stacked=True):
+    """Create plot with counts for pathogen genomes or resistance across time.
 
-def compositionPlot(file_name, data, populations=[], organism='Pathogens', hosts=True, vectors=False,
-                    num_top_genomes=7, track_specific_genomes=[], save_data_to_file="",
-                    x_label='Time', y_label='Infections', legend_title='Genotype', figsize=(8, 4), dpi=200, palette=cb_palette, stacked=True):
-    '''Plot infection composition'''
+    Creates a line or stacked line plot with dynamics of the pathogen strains or
+    protection sequences across selected populations in the model,
+    with one line for each pathogen genome or protection sequence being shown.
 
-    comp = compositionDf(data, populations=populations, organism=organism, hosts=hosts,
-        vectors=vectors, num_top_genomes=num_top_genomes, track_specific_genomes=track_specific_genomes,
-        save_to_file=save_data_to_file)
+    Of note: sum of totals for all sequences in one time point does not
+    necessarily equal the number of infected hosts and/or vectors, given
+    multiple infections in the same host/vector are counted separately.
+
+    Arguments:
+    data -- dataframe with model history as produced by saveToDf function
+
+    Keyword arguments:
+    populations -- IDs of populations to include in analysis; if empty, uses all
+        populations in model (default empty list; list of Strings)
+    type_of_composition -- field of data to count totals of, can be either
+        'Pathogens' or 'Protection' (default 'Pathogens'; String)
+    hosts -- whether to count hosts (default True, Boolean)
+    vectors -- whether to count vectors (default False, Boolean)
+    num_top_sequences -- how many sequences to count separately and include
+        as columns, remainder will be counted under column "Other"; if <0,
+        includes all genomes in model (default 7; int)
+    track_specific_genomes -- contains specific sequences to have
+        as a separate column if not part of the top num_top_sequences
+        sequences (list of Strings)
+    save_to_file -- file path and name to save model data under, no saving
+        occurs if empty string (default ''; String)
+    x_label -- X axis title (default 'Time', String)
+    y_label -- Y axis title (default 'Hosts', String)
+    legend_title -- legend title (default 'Population', String)
+    legend_values -- labels for each trace, if empty list, uses population IDs
+        (default empty list, list of Strings)
+    figsize -- dimensions of figure (default (8,4), array-like of two ints)
+    dpi -- figure resolution (default 200, int)
+    palette -- color palette to use for traces (default CB_PALETTE, list of
+        color Strings)
+    stacked -- whether to draw a regular line plot or a stacked one (default
+        False, Boolean)
+
+    Returns:
+    axis object for plot with model sequence composition dynamics as described
+    """
+
+    comp = compositionDf(
+        data, populations=populations, type_of_composition=type_of_composition,
+        hosts=hosts, vectors=vectors, num_top_sequences=num_top_sequences,
+        track_specific_genomes=track_specific_genomes,
+        save_to_file=save_data_to_file
+        )
 
     if comp.shape[1] > 0:
         plt.figure(figsize=figsize, dpi=dpi) # make new figure
         ax = plt.subplot(1, 1, 1) # get axis
 
         if stacked:
-            ax.stackplot( comp['Time'], comp.drop(columns='Time').transpose(), labels=comp.drop(columns='Time').columns, colors=palette )
-        else:
-            for i,c in enumerate(comp.columns[1:]):
-                ax.plot( comp['Time'], comp[c], label=c, color=palette[i] )
+            if len(legend_values) > 0:
+                labs = legend_values
+            else:
+                labs = comp.drop(columns='Time').columns
 
+            ax.stackplot(
+                comp['Time'], comp.drop(columns='Time').transpose(),
+                labels=labs, colors=palette
+                )
+        else:
+            if len(legend_values) > 0:
+                labs = legend_values
+            else:
+                labs = comp.drop(columns='Time').columns
+
+            for i,c in enumerate(comp.columns[1:]):
+                ax.plot(
+                    comp['Time'], comp[c], label=labs[i], color=palette[i]
+                    )
 
         plt.xlabel(x_label) # labels
         plt.ylabel(y_label)
@@ -113,7 +290,10 @@ def compositionPlot(file_name, data, populations=[], organism='Pathogens', hosts
         ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
 
         handles, labels = ax.get_legend_handles_labels() # get legend
-        plt.legend(handles, labels, loc='center left', bbox_to_anchor=(1, 0.5), title=legend_title) # show it
+        plt.legend(
+            handles, labels, loc='center left', bbox_to_anchor=(1, 0.5),
+            title=legend_title
+            ) # show it
 
         plt.savefig(file_name, bbox_inches='tight') # save
     else:
