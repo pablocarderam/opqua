@@ -24,6 +24,15 @@ class Model(object):
     in simulation. Also contains groups of hosts/vectors for manipulations and
     stores model history as snapshots for each time point.
 
+    *** --- ATTRIBUTES: --- ***
+    populations -- dictionary with keys=population IDs, values=Population
+        objects
+    setups -- dictionary with keys=setup IDs, values=Setup objects
+    interventions -- contains model interventions in the order they will occur
+    groups -- dictionary with keys=group IDs, values=lists of hosts/vectors
+    self.history -- dictionary with keys=time values, values=Model objects that
+        are snapshots of Model at that timepoint
+
     *** --- METHODS: --- ***
 
     --- Model Initialization and Simulation: ---
