@@ -1,15 +1,17 @@
 # Opqua
 
-[opqua (opkua, upkua)](http://muysca.cubun.org/opqua)
+**opqua** (opkua, upkua)
 
-[\[Chibcha/muysccubun\]](https://en.wikipedia.org/wiki/Chibcha_language)
+\[[Chibcha/muysccubun](https://en.wikipedia.org/wiki/Chibcha_language)\]
 
-      I.  *noun*. ailment, disease, illness
+I. *noun*. ailment, disease, illness
+II. *noun*. cause, reason \[*for which something occurs*\]
 
-      II. *noun*. cause, reason \[*for which something occurs*\]
+Taken from D. F. Gómez Aldana's
+[muysca-spanish dictionary](http://muysca.cubun.org/opqua).
 
-
-### Opqua is an epidemiological modeling framework for pathogen population genetics and evolution.
+### Opqua is an epidemiological modeling framework for pathogen population
+genetics and evolution.
 
 Opqua stochastically simulates pathogens with specific, evolving genotypes that
 spread through populations of hosts that can have specific immune profiles.
