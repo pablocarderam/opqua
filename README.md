@@ -39,9 +39,9 @@ License.
 
 ## Usage
 
-All usage is handled through the Opqua ```Model``` class.
+All usage is handled through the Opqua `Model` class.
 
-For example usage, have a look at the ```examples``` folder.
+For example usage, have a look at the `examples` folder.
 
 The Model class contains populations, setups, and interventions to be used
 in simulation. Also contains groups of hosts/vectors for manipulations and
@@ -109,11 +109,16 @@ hosts/vectors vs time
 
 ## Detailed list:
 
-```Model()```
+```python
+Model()
+```
 
 Class constructor; create a new Model object.
 
-```newSetup()```
+
+```python
+newSetup()
+```
 
 Create a new Setup, save it in setups dict under given name.
 
@@ -125,78 +130,50 @@ having to specify all of them.
 Preset parameter setups:
 
 "vector-borne":
-```num_loci = 10
 
+```python
+num_loci = 10
 possible_alleles = 'ATCG'
-
 fitnessHost = (lambda g: 1)
-
 fitnessVector = (lambda g: 1)
-
 contact_rate_host_vector = 1e1
-
 contact_rate_host_host = 0
-
 mean_inoculum_host = 1e2
-
 mean_inoculum_vector = 1e2
-
 recovery_rate_host = 1e-1
-
 recovery_rate_vector = 1e-2
-
 recombine_in_host = 0
-
 recombine_in_vector = 1e-2
-
 mutate_in_host = 1e-6
-
 mutate_in_vector = 0
-
 death_rate_host = 0
-
 death_rate_vector = 0
-
 protection_upon_recovery_host = None
-
-protection_upon_recovery_vector = None```
+protection_upon_recovery_vector = None
+```
 
 "host-host":
-```num_loci = 10
 
+```python
+num_loci = 10
 possible_alleles = 'ATCG'
-
 fitnessHost = (lambda g: 1)
-
 fitnessVector = (lambda g: 1)
-
 contact_rate_host_vector = 0
-
 contact_rate_host_host = 2e1
-
 mean_inoculum_host = 1e1
-
 mean_inoculum_vector = 0
-
 recovery_rate_host = 1e-1
-
 recovery_rate_vector = 1e1
-
 recombine_in_host = 1e-3
-
 recombine_in_vector = 0
-
 mutate_in_host = 1e-6
-
 mutate_in_vector = 0
-
 death_rate_host = 0
-
 death_rate_vector = 0
-
 protection_upon_recovery_host = None
-
-protection_upon_recovery_vector = None```
+protection_upon_recovery_vector = None
+```
 
 _Arguments:_
 - name -- name of setup to be used as a key in model setups dictionary
@@ -244,7 +221,9 @@ recovery (None or array-like of length 2 with int 0-num_loci)
 define substring to be added to vector protection sequences after
 recovery (None or array-like of length 2 with int 0-num_loci)
 
-```newIntervention(self, time, function, args)```
+```python
+newIntervention(time, function, args)
+```
 
 Create a new intervention to be carried out at a specific time.
 
@@ -253,7 +232,10 @@ _Arguments:_
 - function -- intervention to be carried out (method of class Model)
 - args -- contains arguments for function in positinal order (array-like)
 
-```run(self,t0,tf)```
+
+```python
+run(t0,tf)
+```
 
 Simulate model for a specified time between two time points.
 
@@ -267,7 +249,9 @@ _Arguments:_
 - t0 -- initial time point to start simulation at (number)
 - tf -- initial time point to end simulation at (number)
 
-```saveToDataFrame(self,save_to_file,n_cores=0)```
+```python
+saveToDataFrame(save_to_file,n_cores=0)
+```
 
 Save status of model to dataframe, write to file location given.
 
@@ -291,7 +275,11 @@ _Keyword Arguments:_
 _Returns:_
 - pandas dataframe with model history as described above
 
-```getPathogens(self, dat, save_to_file=""```
+
+```python
+getPathogens(dat, save_to_file="")
+```
+
 
 Create Dataframe with counts for all pathogen genomes in data.
 
@@ -308,7 +296,11 @@ _Keyword Arguments:_
 _Returns:_
 - pandas dataframe with Series as described above
 
-```getProtections(self, dat, save_to_file="")```
+
+```python
+getProtections(dat, save_to_file="")
+```
+
 
 Create Dataframe with counts for all protection sequences in data.
 
@@ -325,12 +317,16 @@ _Keyword Arguments:_
 _Returns:_
 - pandas dataframe with Series as described above
 
-```populationsPlot(
-self, file_name, data, compartment='Infected',
+
+```python
+populationsPlot(
+file_name, data, compartment='Infected',
 hosts=True, vectors=False, num_top_populations=7,
 track_specific_populations=[], save_data_to_file="",
 x_label='Time', y_label='Hosts', figsize=(8, 4), dpi=200,
-palette=CB_PALETTE, stacked=False)```
+palette=CB_PALETTE, stacked=False)
+```
+
 
 Create plot with aggregated totals per population across time.
 
@@ -374,10 +370,14 @@ False, Boolean)
 _Returns:_
 - axis object for plot with model population dynamics as described above
 
-```compartmentPlot(
-self, file_name, data, populations=[], hosts=True, vectors=False,
+
+```python
+compartmentPlot(
+file_name, data, populations=[], hosts=True, vectors=False,
 save_data_to_file="", x_label='Time', y_label='Hosts',
-figsize=(8, 4), dpi=200, palette=CB_PALETTE, stacked=False)```
+figsize=(8, 4), dpi=200, palette=CB_PALETTE, stacked=False)
+```
+
 
 Create plot with number of naive, infected, recovered, dead hosts/vectors vs.
 time.
@@ -416,12 +416,16 @@ False, Boolean)
 _Returns:_
 - axis object for plot with model compartment dynamics as described above
 
-```compositionPlot(
-self, file_name, data, populations=[],
+
+```python
+compositionPlot(
+file_name, data, populations=[],
 type_of_composition='Pathogens', hosts=True, vectors=False,
 num_top_sequences=7, track_specific_genomes=[],
 save_data_to_file="", x_label='Time', y_label='Infections',
-figsize=(8, 4), dpi=200, palette=CB_PALETTE, stacked=True)```
+figsize=(8, 4), dpi=200, palette=CB_PALETTE, stacked=True)
+```
+
 
 Create plot with counts for pathogen genomes or resistance vs. time.
 
@@ -468,7 +472,11 @@ _Returns:_
 - axis object for plot with model sequence composition dynamics as
 described
 
-```newPopulation(self, id, setup_name, num_hosts=100, num_vectors=100)```
+
+```python
+newPopulation(id, setup_name, num_hosts=100, num_vectors=100)
+```
+
 
 Create a new Population object with setup parameters.
 
@@ -484,7 +492,11 @@ int)
 - num_vectors -- number of hosts to initialize population with (default
 100; int)
 
-```linkPopulations(self, pop1_id, pop2_id, rate)```
+
+```python
+linkPopulations(pop1_id, pop2_id, rate)
+```
+
 
 Set migration rate from one population towards another.
 
@@ -494,9 +506,13 @@ _Arguments:_
 - rate -- migration rate from this population to the neighbor; evts/time
 (number)
 
-```createInterconnectedPopulations(
-self, num_populations, migration_rate, id_prefix, setup_name,
-num_hosts=100, num_vectors=100)```
+
+```python
+createInterconnectedPopulations(
+num_populations, migration_rate, id_prefix, setup_name,
+num_hosts=100, num_vectors=100)
+```
+
 
 Create new populations, link all of them to each other.
 
@@ -518,7 +534,11 @@ int)
 - num_vectors -- number of hosts to initialize population with (default
 100; int)
 
-```newHostGroup(self, pop_id, group_id, num_hosts, healthy=False)```
+
+```python
+newHostGroup(pop_id, group_id, num_hosts, healthy=False)
+```
+
 
 Return a list of random (healthy or any) hosts in population.
 
@@ -532,7 +552,11 @@ _Keyword Arguments:_
 _Returns:_
 - list containing sampled hosts
 
-```newVectorGroup(self, pop_id, group_id, num_vectors, healthy=False)```
+
+```python
+newVectorGroup(pop_id, group_id, num_vectors, healthy=False)
+```
+
 
 Return a list of random (healthy or any) vectors in population.
 
@@ -547,7 +571,11 @@ Boolean)
 _Returns:_
 - list containing sampled vectors
 
-```addHosts(self, pop_id, num_hosts)```
+
+```python
+addHosts(pop_id, num_hosts)
+```
+
 
 Add a number of healthy hosts to population, return list with them.
 
@@ -558,7 +586,11 @@ _Arguments:_
 _Returns:_
 list containing new hosts
 
-```addVectors(self, pop_id, num_vectors)```
+
+```python
+addVectors(pop_id, num_vectors)
+```
+
 
 Add a number of healthy vectors to population, return list with them.
 
@@ -569,7 +601,11 @@ _Arguments:_
 _Returns:_
 - list containing new vectors
 
-```removeHosts(self, pop_id, num_hosts_or_list)```
+
+```python
+removeHosts(pop_id, num_hosts_or_list)
+```
+
 
 Remove a number of specified or random hosts from population.
 
@@ -579,7 +615,11 @@ _Arguments:_
 or list of hosts to be removed, must be hosts in this population
 (int or list of Hosts)
 
-```removeVectors(self, pop_id, num_vectors_or_list)```
+
+```python
+removeVectors(pop_id, num_vectors_or_list)
+```
+
 
 Remove a number of specified or random vectors from population.
 
@@ -589,7 +629,11 @@ _Arguments:_
 removal or list of vectors to be removed, must be vectors in this
 population (int or list of Vectors)
 
-```addPathogensToHosts(self, pop_id, genomes_numbers, group_id="")```
+
+```python
+addPathogensToHosts(pop_id, genomes_numbers, group_id="")
+```
+
 
 Add specified pathogens to random hosts, optionally from a list.
 
@@ -603,7 +647,11 @@ _Keyword Arguments:_
 - hosts -- list of specific hosts to sample from, if empty, samples from
 whole population (default empty list; empty)
 
-```addPathogensToVectors(self, pop_id, genomes_numbers, group_id="")```
+
+```python
+addPathogensToVectors(pop_id, genomes_numbers, group_id="")
+```
+
 
 Add specified pathogens to random vectors, optionally from a list.
 
@@ -617,7 +665,11 @@ _Keyword Arguments:_
 - vectors -- list of specific vectors to sample from, if empty, samples
 from whole population (default empty list; empty)
 
-```treatHosts(self, pop_id, frac_hosts, resistance_seqs, group_id="")```
+
+```python
+treatHosts(pop_id, frac_hosts, resistance_seqs, group_id="")
+```
+
 
 Treat random fraction of infected hosts against some infection.
 
@@ -637,7 +689,11 @@ _Keyword Arguments:_
 - hosts -- list of specific hosts to sample from, if empty, samples from
 whole population (default empty list; empty)
 
-```treatVectors(self, pop_id, frac_vectors, resistance_seqs, group_id="")```
+
+```python
+treatVectors(pop_id, frac_vectors, resistance_seqs, group_id="")
+```
+
 
 Treat random fraction of infected vectors agains some infection.
 
@@ -657,8 +713,12 @@ _Keyword Arguments:_
 - vectors -- list of specific vectors to sample from, if empty, samples
 from whole population (default empty list; empty)
 
-```protectHosts(
-self, pop_id, frac_hosts, protection_sequence, group_id="")```
+
+```python
+protectHosts(
+pop_id, frac_hosts, protection_sequence, group_id="")
+```
+
 
 Protect a random fraction of infected hosts against some infection.
 
@@ -675,8 +735,11 @@ _Keyword Arguments:_
 - hosts -- list of specific hosts to sample from, if empty, samples from
 whole population (default empty list; empty)
 
-```protectVectors(
-self, pop_id, frac_vectors, protection_sequence, group_id="")```
+
+```python
+protectVectors(pop_id, frac_vectors, protection_sequence, group_id="")
+```
+
 
 Protect a random fraction of infected vectors against some infection.
 
@@ -693,7 +756,11 @@ _Keyword Arguments:_
 - vectors -- list of specific vectors to sample from, if empty, samples
 from whole population (default empty list; empty)
 
-```setSetup(self, pop_id, setup_id)```
+
+```python
+setSetup(pop_id, setup_id)
+```
+
 
 Assign parameters stored in Setup object to this population.
 
@@ -701,7 +768,11 @@ _Arguments:_
 - pop_id -- ID of population to be modified (String)
 - setup_id -- ID of setup to be assigned (String)
 
-```stabilizingSelection(genome, optimal_genome, min_fitness)```
+
+```python
+stabilizingSelection(genome, optimal_genome, min_fitness)
+```
+
 
 Evaluate genome fitness by decreasing with distance from optimal seq.
 
@@ -719,7 +790,11 @@ genome (number > 0)
 Return:
 - fitness value of genome (number)
 
-```disruptiveSelection(genome, worst_genome, min_fitness)```
+
+```python
+disruptiveSelection(genome, worst_genome, min_fitness)
+```
+
 
 Evaluate genome fitness by increasing with distance from worst seq.
 
