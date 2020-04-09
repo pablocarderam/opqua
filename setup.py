@@ -5,27 +5,27 @@ with release explanation from Joel Barmettler:
 https://medium.com/@joel.barmettler/how-to-upload-your-python-package-to-pypi-65edc5fe9c56
 """
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name='opqua',
-    version='v0.1.3',
+    version='v0.1.4',
     description='An epidemiological modeling framework for population ' \
         + 'genetics and evolution.',
     long_description='Opqua is an epidemiological modeling framework for ' \
         + 'population genetics and evolution. Opqua stochastically simulates ' \
         + ' pathogens with specific, evolving genotypes spread through ' \
-        + ' populations of hosts that can have specific immune profiles. ' \
+        + ' populations of hosts that can have specific immune profiles. \n\n' \
         + 'Opqua is a useful tool to test out scenarios, explore hypotheses, ' \
         + 'and make predictions about the relationship between pathogen ' \
         + 'evolution and epidemiology.',
     url='https://github.com/pablocarderam/opqua',
-    download_url = 'https://github.com/pablocarderam/opqua/releases/download/v0.1.3/opqua-0.1.3.tar.gz',
+    download_url = 'https://github.com/pablocarderam/opqua/archive/v0.1.4.tar.gz',
     author='Pablo Cardenas',
     author_email='pablocarderam@gmail.com',
     keywords=['epidemiology','evolution','biology'],
     license='MIT',
-    packages=['opqua','opqua.internal'],
+    packages=find_packages(),
     install_requires=['joblib',
                       'numpy',
                       'pandas',
@@ -42,4 +42,5 @@ setup(
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
     ],
+    python_requires='>=3.6',
 )
