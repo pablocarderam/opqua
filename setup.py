@@ -23,7 +23,7 @@ setup(
     download_url = '',
     author='Pablo Cardenas',
     author_email='pablocarderam@gmail.com',
-    keywords=['epidemiology','evolution','biology']
+    keywords=['epidemiology','evolution','biology'],
     license='MIT',
     packages=['opqua'],
     install_requires=['joblib',
