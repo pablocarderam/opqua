@@ -62,8 +62,11 @@ Opqua is available under an
 
 ## Requirements and Installation
 
-You'll need Python 3. A good place to get it if you don't have it is
-[Anaconda](https://www.anaconda.com/distribution/).
+Opqua runs on Python. A good place to get the latest version it if you don't
+have it is [Anaconda](https://www.anaconda.com/distribution/).
+
+Opqua is [available on PyPI](https://pypi.org/project/opqua/) to install
+through `pip`, as explained below.
 
 If you haven't yet, [install pip](https://pip.pypa.io/en/stable/installing/):
 ```bash
