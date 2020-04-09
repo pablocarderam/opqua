@@ -9,7 +9,7 @@ from setuptools import setup
 
 setup(
     name='opqua',
-    version='0.1.1',
+    version='v0.1.1',
     description='An epidemiological modeling framework for population ' \
         + 'genetics and evolution.',
     long_description='Opqua is an epidemiological modeling framework for ' \
@@ -20,7 +20,7 @@ setup(
         + 'and make predictions about the relationship between pathogen ' \
         + 'evolution and epidemiology.',
     url='https://github.com/pablocarderam/opqua',
-    download_url = '',
+    download_url = 'https://github.com/pablocarderam/opqua/archive/v0.1.1.tar.gz',
     author='Pablo Cardenas',
     author_email='pablocarderam@gmail.com',
     keywords=['epidemiology','evolution','biology'],

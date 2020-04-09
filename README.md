@@ -29,6 +29,15 @@ landscapes
 - interventions altering demographic, ecological, or evolutionary parameters
 - treatment and immunization of hosts or vectors
 
+These are some of the plots Opqua is able to produce, but you can output the
+raw simulation data yourself to make your own analyses and plots.
+
+![Compartments](examples/img/Basic_example.png "Basic_example compartments")
+
+![Compartments](examples/img/Metapopulations_example.png "Metapopulations_example populations")
+
+![Compartments](examples/img/Stabilizing_selection_composition.png "Stabilizing_selection composition")
+
 Opqua was developed by [Pablo Cárdenas](https://pablo-cardenas.com).
 Follow my science antics at [@pcr_guy on Twitter](https://twitter.com/pcr_guy).
 
