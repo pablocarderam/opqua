@@ -12,7 +12,7 @@ _Taken from D. F. Gómez Aldana's
 [muysca-spanish dictionary](http://muysca.cubun.org/opqua)_.
 
 ## Contents
-- [About](#opqua-is-an-epidemiological-modeling-framework-for-pathogen-population-genetics-and-evolution)
+- [About](#about)
 - [Requirements and Installation](#requirements-and-installation)
 - [Usage](#usage)
 - [Model Methods List](#model-class-methods-list)
