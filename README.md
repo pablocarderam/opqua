@@ -39,11 +39,17 @@ landscapes
 These are some of the plots Opqua is able to produce, but you can output the
 raw simulation data yourself to make your own analyses and plots.
 
+#### Population genetic composition plots for pathogens
 ![Compartments](examples/img/Stabilizing_selection_composition.png "Stabilizing_selection composition")
 
+#### Host/vector compartment plots
 ![Compartments](examples/img/Basic_example.png "Basic_example compartments")
 
+#### Plots of a host/vector compartment across different populations in a metapopulation
 ![Compartments](examples/img/Metapopulations_example.png "Metapopulations_example populations")
+
+#### Pathogen phylogenies
+![Compartments](examples/img/Stabilizing_selection_clustermap.png "Stabilizing_selection clustermap")
 
 Opqua is developed by [Pablo Cárdenas](https://pablo-cardenas.com).
 Follow my science antics at [@pcr_guy on Twitter](https://twitter.com/pcr_guy).
@@ -463,7 +469,7 @@ _Keyword Arguments:_
 - all populations in model (default empty list; list of Strings)
 - hosts -- whether to count hosts (default True, Boolean)
 - vectors -- whether to count vectors (default False, Boolean)
-- save_to_file -- file path and name to save model data under, no saving
+- save_data_to_file -- file path and name to save model data under, no saving
 - occurs if empty string (default ''; String)
 - x_label -- X axis title (default 'Time', String)
 - y_label -- Y axis title (default 'Hosts', String)
@@ -486,7 +492,7 @@ _Returns:_
 compositionPlot(
 file_name, data, populations=[],
 type_of_composition='Pathogens', hosts=True, vectors=False,
-num_top_sequences=7, track_specific_genomes=[],
+num_top_sequences=7, track_specific_sequences=[],
 save_data_to_file="", x_label='Time', y_label='Infections',
 figsize=(8, 4), dpi=200, palette=CB_PALETTE, stacked=True)
 ```
@@ -497,13 +503,14 @@ Create plot with counts for pathogen genomes or resistance vs. time.
 Creates a line or stacked line plot with dynamics of the pathogen
 strains or protection sequences across selected populations in the
 model, with one line for each pathogen genome or protection sequence
-being shown.
+being shown.s
 
 Of note: sum of totals for all sequences in one time point does not
 necessarily equal the number of infected hosts and/or vectors, given
 multiple infections in the same host/vector are counted separately.
 
 _Arguments:_
+- file_name -- file path, name, and extension to save plot under (String)
 - data -- dataframe with model history as produced by saveToDf function
 
 _Keyword Arguments:_
@@ -516,10 +523,10 @@ _Keyword Arguments:_
 - num_top_sequences -- how many sequences to count separately and include
 as columns, remainder will be counted under column "Other"; if <0,
 includes all genomes in model (default 7; int)
-- track_specific_genomes -- contains specific sequences to have
+- track_specific_sequences -- contains specific sequences to have
 as a separate column if not part of the top num_top_sequences
 sequences (list of Strings)
-- save_to_file -- file path and name to save model data under, no saving
+- save_data_to_file -- file path and name to save model data under, no saving
 occurs if empty string (default ''; String)
 - x_label -- X axis title (default 'Time', String)
 - y_label -- Y axis title (default 'Hosts', String)
@@ -536,6 +543,47 @@ False, Boolean)
 _Returns:_
 - axis object for plot with model sequence composition dynamics as
 described
+
+### clustermap
+
+```python
+clustermap(self, file_name, data, num_top_sequences=-1,
+track_specific_sequences=[], seq_names=[], n_cores=0, method='weighted',
+metric='euclidean',save_data_to_file="", legend_title='Distance',
+legend_values=[], figsize=(10,10), dpi=200, color_map=DEF_CMAP):
+```
+
+Create a heatmap and dendrogram for pathogen genomes in data passed.
+
+Arguments:
+- file_name -- file path, name, and extension to save plot under (String)
+- data -- dataframe with model history as produced by saveToDf function
+
+Keyword arguments:
+- num_top_sequences -- how many sequences to include in matrix; if <0,
+includes all genomes in data passed (default -1; int)
+- track_specific_sequences -- contains specific sequences to include in
+matrixif not part of the top num_top_sequences sequences (default
+empty list; list of Strings)
+- seq_names -- list with names to be used for sequence labels in matrix
+must be of same length as number of sequences to be displayed; if
+empty, uses sequences themselves (default empty list; list of
+Strings)
+- n_cores -- number of cores to parallelize distance compute across, if 0,
+all cores available are used (default 0; int)
+- method -- clustering algorithm to use with seaborn clustermap (default
+'weighted'; String)
+- metric -- distance metric to use with seaborn clustermap (default
+'euclidean'; String)
+- save_data_to_file -- file path and name to save model data under, no
+saving occurs if empty string (default ''; String)
+- legend_title -- legend title (default 'Distance', String)
+- figsize -- dimensions of figure (default (8,4), array-like of two ints)
+- dpi -- figure resolution (default 200, int)
+- color_map -- color map to use for traces (default DEF_CMAP, cmap object)
+
+Returns:
+- figure object for plot with heatmap and dendrogram as described
 
 #### newPopulation
 

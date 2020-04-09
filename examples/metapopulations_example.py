@@ -45,7 +45,8 @@ output = model.run(0,100)
 data = model.saveToDataFrame('Metapopulations_example.csv')
 graph = model.populationsPlot( # Plot infected hosts per population over time.
     'Metapopulations_example.png', data,
-    track_specific_populations=['isolated_population']
+    track_specific_populations=['isolated_population'],
         # Make sure to plot th isolated population totals if not in the top
         # infected populations.
+    x_label='Infected hosts' # change x label
     )

@@ -1,21 +1,23 @@
 
-
 """Contains graphmaking methods."""
 
 ### Imports ###
-import matplotlib.pyplot as plt # plots
-import seaborn as sns # pretty plots
+import copy as cp
 import numpy as np # handle arrays
 import pandas as pd # data wrangling
-import copy as cp
+import matplotlib.pyplot as plt # plots
+import seaborn as sns # pretty plots
+import scipy.cluster.hierarchy as sp_hie
+import scipy.spatial as sp_spa
 
 from opqua.internal.data import saveToDf, populationsDf, compartmentDf, \
-    compositionDf
+    compositionDf, pathogenDistanceDf
 
 CB_PALETTE = ["#E69F00", "#56B4E9", "#009E73",
               "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#999999"]
     # www.cookbook-r.com/Graphs/Colors_(ggplot2)/#a-colorblind-friendly-palette
     # http://jfly.iam.u-tokyo.ac.jp/color/
+DEF_CMAP = sns.cubehelix_palette(start=.5, rot=-.75, as_cmap=True, reverse=True)
 
 
 def populationsPlot(
@@ -136,7 +138,7 @@ def compartmentPlot(
         populations in model (default empty list; list of Strings)
     hosts -- whether to count hosts (default True, Boolean)
     vectors -- whether to count vectors (default False, Boolean)
-    save_to_file -- file path and name to save model data under, no saving
+    save_data_to_file -- file path and name to save model data under, no saving
         occurs if empty string (default ''; String)
     x_label -- X axis title (default 'Time', String)
     y_label -- Y axis title (default 'Hosts', String)
@@ -204,7 +206,7 @@ def compartmentPlot(
 def compositionPlot(
         file_name, data, populations=[], type_of_composition='Pathogens',
         hosts=True, vectors=False, num_top_sequences=7,
-        track_specific_genomes=[], save_data_to_file="", x_label='Time',
+        track_specific_sequences=[], save_data_to_file="", x_label='Time',
         y_label='Infections', legend_title='Genotype', legend_values=[],
         figsize=(8, 4), dpi=200, palette=CB_PALETTE, stacked=True):
     """Create plot with counts for pathogen genomes or resistance across time.
@@ -218,6 +220,7 @@ def compositionPlot(
     multiple infections in the same host/vector are counted separately.
 
     Arguments:
+    file_name -- file path, name, and extension to save plot under (String)
     data -- dataframe with model history as produced by saveToDf function
 
     Keyword arguments:
@@ -230,10 +233,10 @@ def compositionPlot(
     num_top_sequences -- how many sequences to count separately and include
         as columns, remainder will be counted under column "Other"; if <0,
         includes all genomes in model (default 7; int)
-    track_specific_genomes -- contains specific sequences to have
+    track_specific_sequences -- contains specific sequences to have
         as a separate column if not part of the top num_top_sequences
         sequences (list of Strings)
-    save_to_file -- file path and name to save model data under, no saving
+    save_data_to_file -- file path and name to save model data under, no saving
         occurs if empty string (default ''; String)
     x_label -- X axis title (default 'Time', String)
     y_label -- Y axis title (default 'Hosts', String)
@@ -254,7 +257,7 @@ def compositionPlot(
     comp = compositionDf(
         data, populations=populations, type_of_composition=type_of_composition,
         hosts=hosts, vectors=vectors, num_top_sequences=num_top_sequences,
-        track_specific_genomes=track_specific_genomes,
+        track_specific_sequences=track_specific_sequences,
         save_to_file=save_data_to_file
         )
 
@@ -301,3 +304,60 @@ def compositionPlot(
         print('Nothing to plot! Check your data.')
 
     return ax
+
+def clustermap(
+        file_name, data, num_top_sequences=-1, track_specific_sequences=[],
+        seq_names=[], n_cores=0, method='weighted', metric='euclidean',
+        save_data_to_file="", legend_title='Distance', legend_values=[],
+        figsize=(10,10), dpi=200, color_map=DEF_CMAP):
+    """Create a heatmap and dendrogram for pathogen genomes in data passed.
+
+    Arguments:
+    file_name -- file path, name, and extension to save plot under (String)
+    data -- dataframe with model history as produced by saveToDf function
+
+    Keyword arguments:
+    num_top_sequences -- how many sequences to include in matrix; if <0,
+        includes all genomes in data passed (default -1; int)
+    track_specific_sequences -- contains specific sequences to include in matrix
+        if not part of the top num_top_sequences sequences (default empty list;
+        list of Strings)
+    seq_names -- list with names to be used for sequence labels in matrix must
+        be of same length as number of sequences to be displayed; if empty,
+        uses sequences themselves (default empty list; list of Strings)
+    n_cores -- number of cores to parallelize distance compute across, if 0, all
+        cores available are used (default 0; int)
+    method -- clustering algorithm to use with seaborn clustermap (default
+        'weighted'; String)
+    metric -- distance metric to use with seaborn clustermap (default
+        'euclidean'; String)
+    save_data_to_file -- file path and name to save model data under, no saving
+        occurs if empty string (default ''; String)
+    legend_title -- legend title (default 'Distance', String)
+    figsize -- dimensions of figure (default (8,4), array-like of two ints)
+    dpi -- figure resolution (default 200, int)
+    color_map -- color map to use for traces (default DEF_CMAP, cmap object)
+
+    Returns:
+    figure object for plot with heatmap and dendrogram as described
+    """
+
+    dis = pathogenDistanceDf(
+        data, num_top_sequences=num_top_sequences,
+        track_specific_sequences=track_specific_sequences, seq_names=seq_names,
+        n_cores=n_cores, save_to_file=save_data_to_file
+        )
+
+    lin = sp_hie.linkage(
+        sp_spa.distance.squareform(dis), method='weighted',
+        optimal_ordering=True
+        )
+
+    g = sns.clustermap(
+        dis, method=method, metric=metric, cbar_kws={'label': legend_title},
+        cmap=color_map, figsize=figsize
+        ) # show it
+
+    g.savefig(file_name, dpi=dpi, bbox_inches='tight')
+
+    return g

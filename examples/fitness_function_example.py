@@ -63,6 +63,16 @@ graph_composition = model.compositionPlot(
         # Include the initial genome in the graph if it isn't in the top 6.
     )
 
+graph_clustermap = model.clustermap(
+    'Stabilizing_selection_clustermap.png', data,
+    save_data_to_file='Stabilizing_selection_pairwise_distances.csv',
+    num_top_sequences=15,
+    track_specific_sequences=['BADD']
+    )
+    # Generate a heatmap and dendrogram for the top 15 genomes, include the
+    # ancestral genome "BADD" in the phylogeny. Besides creating the plot,
+    # outputs the pairwise distance matrix to a csv file as well.
+
 graph_compartments = model.compartmentPlot(
     'Stabilizing_selection_compartments.png', data
     )

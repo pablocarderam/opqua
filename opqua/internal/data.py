@@ -5,6 +5,8 @@ import numpy as np # handle arrays
 import pandas as pd # data wrangling
 import copy as cp
 import joblib as jl
+import textdistance as td
+import scipy.spatial.distance as sp_dist
 
 def saveToDf(history,save_to_file,n_cores=0):
     """Save status of model to dataframe, write to file location given.
@@ -301,7 +303,7 @@ def compositionDf(
         includes all genomes in model (default -1; int)
     track_specific_genomes -- contains specific sequences to have
         as a separate column if not part of the top num_top_sequences
-        sequences (list of Strings)
+        sequences (default empty list; list of Strings)
     save_to_file -- file path and name to save model data under, no saving
         occurs if empty string (default ''; String)
 
@@ -408,7 +410,7 @@ def getPathogens(data, save_to_file=""):
     out = pd.Series( ';'.join(
         data['Pathogens'].dropna()
         ).split(';') ).str.strip().value_counts(ascending=False).reset_index()
-    out.columns = ['Pathogens'] + list( out.columns )[1:]
+    out.columns = ['Pathogens','Counts']
 
     if len(save_to_file) > 0:
         out.to_csv(save_to_file, index=False)
@@ -435,9 +437,65 @@ def getProtections(data, save_to_file=""):
     out = pd.Series( ';'.join(
         data['Protection'].dropna()
         ).split(';') ).str.strip().value_counts(ascending=False).reset_index()
-    out.columns = ['Protection'] + list( out.columns )[1:]
+    out.columns = ['Protection','Counts']
 
     if len(save_to_file) > 0:
         out.to_csv(save_to_file, index=False)
 
     return out
+
+def pathogenDistanceDf(
+        data, num_top_sequences=-1, track_specific_genomes=[], seq_names=[],
+        save_to_file="", n_cores=0):
+    """Create DataFrame with pairwise distances for pathogen sequences in data.
+
+    DataFrame has indexes and columns named according to genomes or argument
+    seq_names, if passed.
+
+    Arguments:
+    data -- dataframe with model history as produced by saveToDf function
+
+    Keyword arguments:
+    num_top_sequences -- how many sequences to include in matrix; if <0,
+        includes all genomes in data passed (default -1; int)
+    track_specific_genomes -- contains specific sequences to include in matrix
+        if not part of the top num_top_sequences sequences (default empty list;
+        list of Strings)
+    seq_names -- list with names to be used for sequence labels in matrix must
+        be of same length as number of sequences to be displayed; if empty,
+        uses sequences themselves (default empty list; list of Strings)
+    save_to_file -- file path and name to save model data under, no saving
+        occurs if empty string (default ''; String)
+    n_cores -- number of cores to parallelize distance compute across, if 0, all
+        cores available are used (default 0; int)
+
+    Returns:
+    pandas dataframe with distance matrix as described above
+    """
+
+    sequences = getPathogens(data)['Pathogens']
+
+    if num_top_sequences > 0:
+        sequences = sequences[0:num_top_sequences]
+
+    str_mat = [ list(seq) for seq in sequences ]
+
+    if not n_cores:
+        n_cores = jl.cpu_count()
+
+    dis_mat = np.array( jl.Parallel(n_jobs=n_cores, verbose=1) (
+        jl.delayed( lambda s1: [
+            td.hamming(s1, s2) for s2 in sequences
+            ] ) (s1) for s1 in sequences
+        ) )
+
+    names = sequences
+    if len(seq_names) > 0:
+        names = seq_names
+
+    dis_df = pd.DataFrame( dis_mat, index=names, columns=names )
+
+    if len(save_to_file) > 0:
+        dis_df.to_csv(save_to_file, index=False)
+
+    return dis_df

@@ -1,4 +1,4 @@
-
+# TODO: Pathogen genome influences transmission probability
 """Contains class Host."""
 
 import numpy as np
