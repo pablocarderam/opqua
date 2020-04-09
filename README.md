@@ -88,54 +88,72 @@ For example usage, have a look at the `examples` folder.
 
 #### Model Initialization and Simulation
 
-- newSetup -- creates a new Setup, save it in setups dict under given name
-- newIntervention -- creates a new intervention executed during simulation
-- run -- simulates model for a specified length of time
+- [newSetup](####newSetup) -- creates a new Setup, save it in setups dict under
+given name
+- [newIntervention](####newIntervention) -- creates a new intervention executed
+during simulation
+- [run](####run) -- simulates model for a specified length of time
 
 #### Data Output and Plotting ###
 
-- saveToDataFrame -- saves status of model to dataframe, writes to file
-- getPathogens -- creates Dataframe with counts for all pathogen genomes
-- getProtections -- creates Dataframe with counts for all protection sequences
-- populationsPlot -- plots aggregated totals per population across time
-- compartmentPlot -- plots number of naive, infected, recovered, dead
-hosts/vectors vs time
-- compositionPlot -- plots counts for pathogen genomes or resistance vs. time
+- [saveToDataFrame](####saveToDataFrame) -- saves status of model to data frame,
+writes to file
+- [getPathogens](####getPathogens) -- creates data frame with counts for all
+pathogen genomes
+- [getProtections](####getProtections) -- creates data frame with counts for all
+protection sequences
+- [populationsPlot](####populationsPlot) -- plots aggregated totals per
+population across time
+- [compartmentPlot](####compartmentPlot) -- plots number of naive, infected,
+recovered, dead hosts/vectors vs time
+- [compositionPlot](####compositionPlot) -- plots counts for pathogen genomes or
+resistance vs. time
 
 #### Model interventions ###
 
 ##### Make and connect populations ####
-- newPopulation -- create a new Population object with setup parameters
-- linkPopulations -- set migration rate from one population towards another
-- createInterconnectedPopulations -- create new populations, link all of them
-    to each other
+- [newPopulation](####newPopulation) -- create a new Population object with
+setup parameters
+- [linkPopulations](####linkPopulations) -- set migration rate from one
+population towards another
+- [createInterconnectedPopulations](####createInterconnectedPopulations) --
+create new populations, link all of them to each other
 
 ##### Modify population parameters ####
-- setSetup -- assigns a given set of parameters to this population
+- [setSetup](####setSetup) -- assigns a given set of parameters to this
+population
 
 ##### Manipulate hosts and vectors in population ####
-- newHostGroup -- returns a list of random (healthy or any) hosts
-- newVectorGroup -- returns a list of random (healthy or any) vectors
-- addHosts -- adds hosts to the population
-- addVectors -- adds vectors to the population
-- removeHosts -- removes hosts from the population
-- removeVectors -- removes vectors from the population
-- addPathogensToHosts -- adds pathogens with specified genomes to hosts
-- addPathogensToVectors -- adds pathogens with specified genomes to vectors
-- treatHosts -- removes infections susceptible to given treatment from hosts
-- treatVectors -- removes infections susceptible to treatment from vectors
-- protectHosts -- adds protection sequence to hosts
-- protectVectors -- adds protection sequence to vectors
+- [newHostGroup](####newHostGroup) -- returns a list of random (healthy or any)
+hosts
+- [newVectorGroup](####newVectorGroup) -- returns a list of random (healthy or
+  any) vectors
+- [addHosts](####addHosts) -- adds hosts to the population
+- [addVectors](####addVectors) -- adds vectors to the population
+- [removeHosts](####removeHosts) -- removes hosts from the population
+- [removeVectors](####removeVectors) -- removes vectors from the population
+- [addPathogensToHosts](####addPathogensToHosts) -- adds pathogens with
+specified genomes to hosts
+- [addPathogensToVectors](####addPathogensToVectors) -- adds pathogens with
+specified genomes to vectors
+- [treatHosts](####treatHosts) -- removes infections susceptible to given
+treatment from hosts
+- [treatVectors](####treatVectors) -- removes infections susceptible to
+treatment from vectors
+- [protectHosts](####protectHosts) -- adds protection sequence to hosts
+- [protectVectors](####protectVectors) -- adds protection sequence to vectors
 
 
 #### Preset fitness functions ###
 
-- stabilizingSelection -- evaluates genome fitness by decreasing with distance
-    from optimal sequence
-- disruptiveSelection -- evaluates genome fitness by increasing with distance
-    from worst sequence
+- [stabilizingSelection](####stabilizingSelection) -- evaluates genome fitness
+by decreasing with distance from optimal sequence
+- [disruptiveSelection](disruptiveSelection) -- evaluates genome fitness by
+increasing with distance from worst sequence
 
 ### Detailed Model method list
+
+#### Model()
 
 ```python
 Model()
@@ -143,6 +161,7 @@ Model()
 
 Class constructor; create a new Model object.
 
+#### newSetup()
 
 ```python
 newSetup()
@@ -249,6 +268,8 @@ recovery (None or array-like of length 2 with int 0-num_loci)
 define substring to be added to vector protection sequences after
 recovery (None or array-like of length 2 with int 0-num_loci)
 
+#### newIntervention()
+
 ```python
 newIntervention(time, function, args)
 ```
@@ -260,6 +281,7 @@ _Arguments:_
 - function -- intervention to be carried out (method of class Model)
 - args -- contains arguments for function in positinal order (array-like)
 
+#### run()
 
 ```python
 run(t0,tf)
@@ -276,6 +298,8 @@ model's history attribute.
 _Arguments:_
 - t0 -- initial time point to start simulation at (number)
 - tf -- initial time point to end simulation at (number)
+
+#### saveToDataFrame()
 
 ```python
 saveToDataFrame(save_to_file,n_cores=0)
@@ -303,6 +327,7 @@ _Keyword Arguments:_
 _Returns:_
 - pandas dataframe with model history as described above
 
+#### getPathogens()
 
 ```python
 getPathogens(dat, save_to_file="")
@@ -324,6 +349,7 @@ _Keyword Arguments:_
 _Returns:_
 - pandas dataframe with Series as described above
 
+#### getProtections()
 
 ```python
 getProtections(dat, save_to_file="")
@@ -345,6 +371,7 @@ _Keyword Arguments:_
 _Returns:_
 - pandas dataframe with Series as described above
 
+#### populationsPlot()
 
 ```python
 populationsPlot(
@@ -398,6 +425,7 @@ False, Boolean)
 _Returns:_
 - axis object for plot with model population dynamics as described above
 
+#### compartmentPlot()
 
 ```python
 compartmentPlot(
@@ -444,6 +472,7 @@ False, Boolean)
 _Returns:_
 - axis object for plot with model compartment dynamics as described above
 
+#### compositionPlot()
 
 ```python
 compositionPlot(
@@ -500,6 +529,7 @@ _Returns:_
 - axis object for plot with model sequence composition dynamics as
 described
 
+#### newPopulation()
 
 ```python
 newPopulation(id, setup_name, num_hosts=100, num_vectors=100)
@@ -520,6 +550,7 @@ int)
 - num_vectors -- number of hosts to initialize population with (default
 100; int)
 
+#### linkPopulations()
 
 ```python
 linkPopulations(pop1_id, pop2_id, rate)
@@ -534,6 +565,7 @@ _Arguments:_
 - rate -- migration rate from this population to the neighbor; evts/time
 (number)
 
+#### createInterconnectedPopulations()
 
 ```python
 createInterconnectedPopulations(
@@ -562,6 +594,7 @@ int)
 - num_vectors -- number of hosts to initialize population with (default
 100; int)
 
+#### newHostGroup()
 
 ```python
 newHostGroup(pop_id, group_id, num_hosts, healthy=False)
@@ -580,6 +613,7 @@ _Keyword Arguments:_
 _Returns:_
 - list containing sampled hosts
 
+#### newVectorGroup()
 
 ```python
 newVectorGroup(pop_id, group_id, num_vectors, healthy=False)
@@ -599,6 +633,7 @@ Boolean)
 _Returns:_
 - list containing sampled vectors
 
+#### addHosts()
 
 ```python
 addHosts(pop_id, num_hosts)
@@ -614,6 +649,7 @@ _Arguments:_
 _Returns:_
 list containing new hosts
 
+#### addVectors()
 
 ```python
 addVectors(pop_id, num_vectors)
@@ -629,6 +665,7 @@ _Arguments:_
 _Returns:_
 - list containing new vectors
 
+#### removeHosts()
 
 ```python
 removeHosts(pop_id, num_hosts_or_list)
@@ -643,6 +680,7 @@ _Arguments:_
 or list of hosts to be removed, must be hosts in this population
 (int or list of Hosts)
 
+#### removeVectors()
 
 ```python
 removeVectors(pop_id, num_vectors_or_list)
@@ -657,6 +695,7 @@ _Arguments:_
 removal or list of vectors to be removed, must be vectors in this
 population (int or list of Vectors)
 
+#### addPathogensToHosts()
 
 ```python
 addPathogensToHosts(pop_id, genomes_numbers, group_id="")
@@ -675,6 +714,7 @@ _Keyword Arguments:_
 - hosts -- list of specific hosts to sample from, if empty, samples from
 whole population (default empty list; empty)
 
+#### addPathogensToVectors()
 
 ```python
 addPathogensToVectors(pop_id, genomes_numbers, group_id="")
@@ -693,6 +733,7 @@ _Keyword Arguments:_
 - vectors -- list of specific vectors to sample from, if empty, samples
 from whole population (default empty list; empty)
 
+#### treatHosts()
 
 ```python
 treatHosts(pop_id, frac_hosts, resistance_seqs, group_id="")
@@ -717,6 +758,7 @@ _Keyword Arguments:_
 - hosts -- list of specific hosts to sample from, if empty, samples from
 whole population (default empty list; empty)
 
+#### treatVectors()
 
 ```python
 treatVectors(pop_id, frac_vectors, resistance_seqs, group_id="")
@@ -741,6 +783,7 @@ _Keyword Arguments:_
 - vectors -- list of specific vectors to sample from, if empty, samples
 from whole population (default empty list; empty)
 
+#### protectHosts()
 
 ```python
 protectHosts(
@@ -763,6 +806,7 @@ _Keyword Arguments:_
 - hosts -- list of specific hosts to sample from, if empty, samples from
 whole population (default empty list; empty)
 
+#### protectVectors()
 
 ```python
 protectVectors(pop_id, frac_vectors, protection_sequence, group_id="")
@@ -784,6 +828,7 @@ _Keyword Arguments:_
 - vectors -- list of specific vectors to sample from, if empty, samples
 from whole population (default empty list; empty)
 
+#### setSetup()
 
 ```python
 setSetup(pop_id, setup_id)
@@ -796,6 +841,7 @@ _Arguments:_
 - pop_id -- ID of population to be modified (String)
 - setup_id -- ID of setup to be assigned (String)
 
+#### stabilizingSelection()
 
 ```python
 stabilizingSelection(genome, optimal_genome, min_fitness)
@@ -818,6 +864,7 @@ genome (number > 0)
 Return:
 - fitness value of genome (number)
 
+#### disruptiveSelection()
 
 ```python
 disruptiveSelection(genome, worst_genome, min_fitness)
