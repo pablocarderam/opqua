@@ -17,7 +17,7 @@ _Taken from D. F. Gómez Aldana's
 - [Usage](#usage)
 - [Model Methods List](#model-class-methods-list)
 
-### Opqua is an epidemiological modeling framework for pathogen population genetics and evolution.
+## Opqua is an epidemiological modeling framework for pathogen population genetics and evolution.
 
 Opqua stochastically simulates pathogens with distinct, evolving genotypes that
 spread through populations of hosts that can have specific immune profiles.
