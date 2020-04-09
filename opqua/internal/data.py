@@ -256,6 +256,9 @@ def compartmentDf(
         grouped[compartment_names[1]] = ( grouped[ compartment_names[1] ]
             + grouped[ compartment_names[1] + '_2' ] )
         grouped = grouped.drop( columns=[ compartment_names[1] + '_2' ])
+    elif ( compartment_names[1] + '_2' in grouped.columns ):
+        grouped[compartment_names[1]] = grouped[ compartment_names[1] + '_2' ]
+        grouped = grouped.drop( columns=[ compartment_names[1] + '_2' ])
 
     for comp_name in compartment_names:
         if comp_name not in grouped.columns:
