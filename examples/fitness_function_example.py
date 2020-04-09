@@ -59,7 +59,7 @@ graph_composition = model.compositionPlot(
     num_top_sequences=6,
         # Track the 6 most represented genomes overall (remaining genotypes are
         # lumped into the "Other" category).
-    track_specific_genomes=['BADD']
+    track_specific_sequences=['BADD']
         # Include the initial genome in the graph if it isn't in the top 6.
     )
 

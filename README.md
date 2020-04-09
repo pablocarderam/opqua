@@ -37,13 +37,16 @@ landscapes
 - treatment and immunization of hosts or vectors
 
 These are some of the plots Opqua is able to produce, but you can output the
-raw simulation data yourself to make your own analyses and plots.
+raw simulation data yourself to make your own analyses and plots. These are all
+taken from the examples in the `examples` folder.
 
 #### Population genetic composition plots for pathogens
+Here, an optimal pathogen genome arises and outcompetes all others.
 ![Compartments](examples/img/Stabilizing_selection_composition.png "Stabilizing_selection composition")
 
 #### Host/vector compartment plots
-![Compartments](examples/img/Basic_example.png "Basic_example compartments")
+Here "Recovered" denotes immunized hosts.
+![Compartments](examples/img/Intervention_examples_compartments.png "Intervention_examples compartments")
 
 #### Plots of a host/vector compartment across different populations in a metapopulation
 ![Compartments](examples/img/Metapopulations_example.png "Metapopulations_example populations")
@@ -908,10 +911,10 @@ Evaluate genome fitness by decreasing with distance from optimal seq.
 
 A purifying selection fitness function based on exponential decay of
 fitness as genomes move away from the optimal sequence. Distance is
-measured as Hamming distance from an optimal genome sequence.
+measured as percent Hamming distance from an optimal genome sequence.
 
 _Arguments:_
-- genome -- the genome to be evalued (String)
+- genome -- the genome to be evaluated (String)
 - optimal_genome -- the genome sequence to measure distance against, has
 fitness of 1 (String)
 - min_fitness -- minimum fitness value at maximum distance from optimal

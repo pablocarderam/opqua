@@ -275,7 +275,7 @@ def compartmentDf(
 
 def compositionDf(
         data, populations=[], type_of_composition='Pathogens', hosts=True,
-        vectors=False, num_top_sequences=-1, track_specific_genomes=[],
+        vectors=False, num_top_sequences=-1, track_specific_sequences=[],
         save_to_file=""):
     """Create dataframe with counts for pathogen genomes or resistance.
 
@@ -301,7 +301,7 @@ def compositionDf(
     num_top_sequences -- how many sequences to count separately and include
         as columns, remainder will be counted under column "Other"; if <0,
         includes all genomes in model (default -1; int)
-    track_specific_genomes -- contains specific sequences to have
+    track_specific_sequences -- contains specific sequences to have
         as a separate column if not part of the top num_top_sequences
         sequences (default empty list; list of Strings)
     save_to_file -- file path and name to save model data under, no saving
@@ -333,7 +333,7 @@ def compositionDf(
         num_top_sequences = len(top_genomes)
 
     genomes_to_track = list(top_genomes[0:num_top_sequences].index)
-    for genome in track_specific_genomes:
+    for genome in track_specific_sequences:
         if genome not in genomes_to_track:
             genomes_to_track.append(genome)
 
@@ -445,12 +445,13 @@ def getProtections(data, save_to_file=""):
     return out
 
 def pathogenDistanceDf(
-        data, num_top_sequences=-1, track_specific_genomes=[], seq_names=[],
+        data, num_top_sequences=-1, track_specific_sequences=[], seq_names=[],
         save_to_file="", n_cores=0):
     """Create DataFrame with pairwise distances for pathogen sequences in data.
 
     DataFrame has indexes and columns named according to genomes or argument
-    seq_names, if passed.
+    seq_names, if passed. Distance is measured as percent Hamming distance from
+    an optimal genome sequence.
 
     Arguments:
     data -- dataframe with model history as produced by saveToDf function
@@ -458,7 +459,7 @@ def pathogenDistanceDf(
     Keyword arguments:
     num_top_sequences -- how many sequences to include in matrix; if <0,
         includes all genomes in data passed (default -1; int)
-    track_specific_genomes -- contains specific sequences to include in matrix
+    track_specific_sequences -- contains specific sequences to include in matrix
         if not part of the top num_top_sequences sequences (default empty list;
         list of Strings)
     seq_names -- list with names to be used for sequence labels in matrix must
@@ -485,7 +486,7 @@ def pathogenDistanceDf(
 
     dis_mat = np.array( jl.Parallel(n_jobs=n_cores, verbose=1) (
         jl.delayed( lambda s1: [
-            td.hamming(s1, s2) for s2 in sequences
+            td.hamming(s1, s2) / len(s1) for s2 in sequences
             ] ) (s1) for s1 in sequences
         ) )
 
@@ -496,6 +497,6 @@ def pathogenDistanceDf(
     dis_df = pd.DataFrame( dis_mat, index=names, columns=names )
 
     if len(save_to_file) > 0:
-        dis_df.to_csv(save_to_file, index=False)
+        dis_df.to_csv(save_to_file, index=True)
 
     return dis_df

@@ -937,10 +937,10 @@ class Model(object):
 
         A purifying selection fitness function based on exponential decay of
         fitness as genomes move away from the optimal sequence. Distance is
-        measured as Hamming distance from an optimal genome sequence.
+        measured as percent Hamming distance from an optimal genome sequence.
 
         Arguments:
-        genome -- the genome to be evalued (String)
+        genome -- the genome to be evaluated (String)
         optimal_genome -- the genome sequence to measure distance against, has
             fitness of 1 (String)
         min_fitness -- minimum fitness value at maximum distance from optimal
@@ -950,8 +950,8 @@ class Model(object):
         fitness value of genome (number)
         """
 
-        similarity = td.hamming(genome, optimal_genome)
-        fitness = np.exp( np.log( min_fitness ) * ( 1-similarity ) )
+        distance = td.hamming(genome, optimal_genome) / len(genome)
+        fitness = np.exp( np.log( min_fitness ) * distance )
 
         return fitness
 
@@ -961,10 +961,11 @@ class Model(object):
 
         A purifying selection fitness function based on exponential decay of
         fitness as genomes move closer to the worst possible sequence. Distance
-        is measured as Hamming distance from the worst possible genome sequence.
+        is measured as percent Hamming distance from the worst possible genome
+        sequence.
 
         Arguments:
-        genome -- the genome to be evalued (String)
+        genome -- the genome to be evaluated (String)
         optimal_genome -- the genome sequence to measure distance against, has
             fitness of min_fitness (String)
         min_fitness -- fitness value of worst possible genome (number > 0)
@@ -973,7 +974,7 @@ class Model(object):
         fitness value of genome (number)
         """
 
-        similarity = td.hamming(genome, optimal_genome)
-        fitness = np.exp( np.log( min_fitness ) * ( similarity ) )
+        distance = td.hamming(genome, worst_genome) / len(genome)
+        fitness = np.exp( np.log( min_fitness ) * ( 1 - distance ) )
 
         return fitness
