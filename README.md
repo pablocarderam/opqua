@@ -40,9 +40,13 @@ raw simulation data yourself to make your own analyses and plots.
 Opqua was developed by [Pablo Cárdenas](https://pablo-cardenas.com).
 Follow my science antics at [@pcr_guy on Twitter](https://twitter.com/pcr_guy).
 
-Opqua is available under an [MIT License](https://choosealicense.com/licenses/mit/).
+Opqua is available under an
+[MIT License](https://choosealicense.com/licenses/mit/).
 
-## Installation
+## Requirements and Installation
+
+You'll need Python 3. A good place to get it if you don't have it is
+[Anaconda](https://www.anaconda.com/distribution/).
 
 If you haven't yet, [install pip](https://pip.pypa.io/en/stable/installing/):
 ```bash
@@ -50,7 +54,11 @@ curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
 python get-pip.py
 ```
 
-Install
+Install opqua by running
+
+```bash
+pip install opqua
+```
 
 ## Usage
 
