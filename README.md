@@ -11,7 +11,8 @@ Opqua
 Taken from D. F. Gómez Aldana's
 [muysca-spanish dictionary](http://muysca.cubun.org/opqua).
 
-### Opqua is an epidemiological modeling framework for pathogen population genetics and evolution.
+### Opqua is an epidemiological modeling framework for pathogen population
+### genetics and evolution.
 
 Opqua stochastically simulates pathogens with specific, evolving genotypes that
 spread through populations of hosts that can have specific immune profiles.
@@ -31,23 +32,34 @@ landscapes
 Opqua was developed by [Pablo Cárdenas](https://pablo-cardenas.com).
 Follow my science antics at [@pcr_guy on Twitter](https://twitter.com/pcr_guy).
 
-Opqua is available under an [MIT](https://choosealicense.com/licenses/mit/)
-License.
+Opqua is available under an [MIT License](https://choosealicense.com/licenses/mit/).
 
 ## Installation
 
+If you haven't yet, [install pip](https://pip.pypa.io/en/stable/installing/):
+```bash
+curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+python get-pip.py
+```
+
+Install
 
 ## Usage
 
 All usage is handled through the Opqua `Model` class.
+The Model class contains populations, setups, and interventions to be used
+in simulation. It also contains groups of hosts/vectors for manipulations and
+stores model history as snapshots for each time point.
+
+To use it, import the class as
+
+```python
+from opqua.model import Model
+```
 
 For example usage, have a look at the `examples` folder.
 
-The Model class contains populations, setups, and interventions to be used
-in simulation. Also contains groups of hosts/vectors for manipulations and
-stores model history as snapshots for each time point.
-
-## Attributes
+### Model class attributes
 - populations -- dictionary with keys=population IDs, values=Population
     objects
 - setups -- dictionary with keys=setup IDs, values=Setup objects
@@ -56,15 +68,15 @@ stores model history as snapshots for each time point.
 - self.history -- dictionary with keys=time values, values=Model objects that
     are snapshots of Model at that timepoint
 
-## Methods list
+### Model class methods list
 
-### Model Initialization and Simulation: ###
+#### Model Initialization and Simulation
 
 - newSetup -- creates a new Setup, save it in setups dict under given name
 - newIntervention -- creates a new intervention executed during simulation
 - run -- simulates model for a specified length of time
 
-### Data Output and Plotting: ###
+#### Data Output and Plotting ###
 
 - saveToDataFrame -- saves status of model to dataframe, writes to file
 - getPathogens -- creates Dataframe with counts for all pathogen genomes
@@ -74,18 +86,18 @@ stores model history as snapshots for each time point.
 hosts/vectors vs time
 - compositionPlot -- plots counts for pathogen genomes or resistance vs. time
 
-### Model interventions: ###
+#### Model interventions ###
 
-#### Make and connect populations ####
+##### Make and connect populations ####
 - newPopulation -- create a new Population object with setup parameters
 - linkPopulations -- set migration rate from one population towards another
 - createInterconnectedPopulations -- create new populations, link all of them
     to each other
 
-#### Modify population parameters ####
+##### Modify population parameters ####
 - setSetup -- assigns a given set of parameters to this population
 
-#### Manipulate hosts and vectors in population ####
+##### Manipulate hosts and vectors in population ####
 - newHostGroup -- returns a list of random (healthy or any) hosts
 - newVectorGroup -- returns a list of random (healthy or any) vectors
 - addHosts -- adds hosts to the population
@@ -100,14 +112,14 @@ hosts/vectors vs time
 - protectVectors -- adds protection sequence to vectors
 
 
-### Preset fitness functions: ###
+#### Preset fitness functions ###
 
 - stabilizingSelection -- evaluates genome fitness by decreasing with distance
     from optimal sequence
 - disruptiveSelection -- evaluates genome fitness by increasing with distance
     from worst sequence
 
-## Detailed list:
+### Detailed Model method list
 
 ```python
 Model()
