@@ -8,12 +8,18 @@ Opqua
 
 **II.** *noun*. cause, reason \[*for which something occurs*\]
 
-Taken from D. F. Gómez Aldana's
-[muysca-spanish dictionary](http://muysca.cubun.org/opqua).
+_Taken from D. F. Gómez Aldana's
+[muysca-spanish dictionary](http://muysca.cubun.org/opqua)_.
+
+# Contents
+- [About](#opqua-is-an-epidemiological-modeling-framework-for-pathogen-population-genetics-and-evolution)
+- [Requirements and Installation](#requirements-and-installation)
+- [Usage](#usage)
+- [Model Methods List](#model-class-methods-list)
 
 ### Opqua is an epidemiological modeling framework for pathogen population genetics and evolution.
 
-Opqua stochastically simulates pathogens with specific, evolving genotypes that
+Opqua stochastically simulates pathogens with distinct, evolving genotypes that
 spread through populations of hosts that can have specific immune profiles.
 
 Opqua is a useful tool to test out scenarios, explore hypotheses, and make
@@ -31,13 +37,13 @@ landscapes
 These are some of the plots Opqua is able to produce, but you can output the
 raw simulation data yourself to make your own analyses and plots.
 
+![Compartments](examples/img/Stabilizing_selection_composition.png "Stabilizing_selection composition")
+
 ![Compartments](examples/img/Basic_example.png "Basic_example compartments")
 
 ![Compartments](examples/img/Metapopulations_example.png "Metapopulations_example populations")
 
-![Compartments](examples/img/Stabilizing_selection_composition.png "Stabilizing_selection composition")
-
-Opqua was developed by [Pablo Cárdenas](https://pablo-cardenas.com).
+Opqua is developed by [Pablo Cárdenas](https://pablo-cardenas.com).
 Follow my science antics at [@pcr_guy on Twitter](https://twitter.com/pcr_guy).
 
 Opqua is available under an
@@ -75,13 +81,13 @@ from opqua.model import Model
 
 For example usage, have a look at the `examples` folder.
 
-### Model class attributes
+### Model attributes
 - populations -- dictionary with keys=population IDs, values=Population
     objects
 - setups -- dictionary with keys=setup IDs, values=Setup objects
 - interventions -- contains model interventions in the order they will occur
 - groups -- dictionary with keys=group IDs, values=lists of hosts/vectors
-- self.history -- dictionary with keys=time values, values=Model objects that
+- history -- dictionary with keys=time values, values=Model objects that
     are snapshots of Model at that timepoint
 
 ### Model class methods list
