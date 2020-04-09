@@ -13,6 +13,7 @@ _Taken from D. F. Gómez Aldana's
 
 ## Contents
 - [About](#about)
+- [Example Plots](#example-plots)
 - [Requirements and Installation](#requirements-and-installation)
 - [Usage](#usage)
 - [Model Methods List](#model-class-methods-list)
@@ -36,6 +37,17 @@ landscapes
 - interventions altering demographic, ecological, or evolutionary parameters
 - treatment and immunization of hosts or vectors
 
+Opqua is developed by [Pablo Cárdenas](https://pablo-cardenas.com) and Mauricio
+Santos-Vega.
+Follow their science antics on Twitter at
+[@pcr_guy](https://twitter.com/pcr_guy) and
+[@msantosvega](https://twitter.com/msantosvega).
+
+Opqua is [available on PyPI](https://pypi.org/project/opqua/) and is distributed
+under an [MIT License](https://choosealicense.com/licenses/mit/).
+
+## Example Plots
+
 These are some of the plots Opqua is able to produce, but you can output the
 raw simulation data yourself to make your own analyses and plots. These are all
 taken from the examples in the `examples` folder.
@@ -53,12 +65,6 @@ Here "Recovered" denotes immunized hosts.
 
 #### Pathogen phylogenies
 ![Compartments](examples/img/Stabilizing_selection_clustermap.png "Stabilizing_selection clustermap")
-
-Opqua is developed by [Pablo Cárdenas](https://pablo-cardenas.com).
-Follow my science antics at [@pcr_guy on Twitter](https://twitter.com/pcr_guy).
-
-Opqua is available under an
-[MIT License](https://choosealicense.com/licenses/mit/).
 
 ## Requirements and Installation
 
