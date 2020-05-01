@@ -57,7 +57,9 @@ class Vector(object):
         changed = False
         for genome,fitness in self.pathogens.items():
             if ( genome not in host.pathogens.keys()
-                    and genome not in host.protection_sequences
+                    and not any(
+                        [ p in genome for p in host.protection_sequences ]
+                    )
                     and np.random.poisson(
                         self.population.mean_inoculum_host
                             * fitness / self.sum_fitness, 1

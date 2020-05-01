@@ -48,5 +48,5 @@ graph = model.populationsPlot( # Plot infected hosts per population over time.
     track_specific_populations=['isolated_population'],
         # Make sure to plot th isolated population totals if not in the top
         # infected populations.
-    x_label='Infected hosts' # change x label
+    y_label='Infected hosts' # change y label
     )

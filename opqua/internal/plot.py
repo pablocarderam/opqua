@@ -261,7 +261,7 @@ def compositionPlot(
         save_to_file=save_data_to_file
         )
 
-    if comp.shape[1] > 0:
+    if comp.shape[1] > 1:
         plt.figure(figsize=figsize, dpi=dpi) # make new figure
         ax = plt.subplot(1, 1, 1) # get axis
 

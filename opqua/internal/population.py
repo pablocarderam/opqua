@@ -55,11 +55,15 @@ class Population(object):
         self.id = id
 
         self.hosts = [
-            Host( self, self.id + '_' + str(id) ) for id in range(num_hosts)
+            Host(
+                self, self.id + '_' + str(id)
+            ) for id in range(int(num_hosts))
             ]
             # contains all live hosts
         self.vectors = [
-            Vector(self, self.id + '_' + str(id) ) for id in range(num_vectors)
+            Vector(
+                self, self.id + '_' + str(id)
+            ) for id in range(int(num_vectors))
             ]
             # contains all live vectors
         self.infected_hosts = []
@@ -293,7 +297,7 @@ class Population(object):
                     hosts = self.hosts
 
                 rand_hosts = np.random.choice(
-                    hosts, genomes_numbers[genome], replace=False
+                    hosts, int(genomes_numbers[genome]), replace=False
                     )
                 for rand_host in rand_hosts:
                     if rand_host not in self.infected_hosts:
@@ -332,7 +336,7 @@ class Population(object):
                     vectors = self.vectors
 
                 rand_vectors = np.random.choice(
-                    vectors, genomes_numbers[genome], replace=False
+                    vectors, int(genomes_numbers[genome]), replace=False
                     )
                 for rand_vector in rand_vectors:
                     if rand_vector not in self.infected_vectors:

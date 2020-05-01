@@ -152,9 +152,15 @@ def populationsDf(
         ] = compartment_names[2]
 
     grouped = grouped[ grouped['Compartment'] == compartment ]
+
+    grouped = grouped.groupby(
+        ['Time','Population','Compartment']
+    ).sum().reset_index()
+
     grouped = grouped.drop(
         columns=['Alive','Infected','Protected','Compartment']
         )
+
     grouped = grouped.pivot(
         columns='Population', values='Number', index='Time'
         ).fillna(0).reset_index('Time')

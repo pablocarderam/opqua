@@ -1,4 +1,11 @@
 # TODO: Update all fitnesses
+# TODO: remove protections
+# TODO: parallelizeable simulations
+# TODO: Pathogen genome influences transmission probability, death rate
+# TODO: contact between populations (without migration)
+# TODO: birth/death rates in populations
+# TODO: arbitrary comparments
+# TODO: independent recombination of alleles
 """Contains class Model; main class user interacts with."""
 
 import numpy as np
@@ -233,48 +240,73 @@ class Model(object):
         """
 
         if preset == "vector-borne":
-            num_loci = num_loci or 10
-            possible_alleles = possible_alleles or 'ATCG'
-            fitnessHost = fitnessHost or (lambda g: 1)
-            fitnessVector = fitnessVector or (lambda g: 1)
-            contact_rate_host_vector = contact_rate_host_vector or 1e1
-            contact_rate_host_host = contact_rate_host_host or 0
-            mean_inoculum_host = mean_inoculum_host or 1e2
-            mean_inoculum_vector = mean_inoculum_vector or 1e2
-            recovery_rate_host = recovery_rate_host or 1e-1
-            recovery_rate_vector = recovery_rate_vector or 1e-2
-            recombine_in_host = recombine_in_host or 0
-            recombine_in_vector = recombine_in_vector or 1e-2
-            mutate_in_host = mutate_in_host or 1e-6
-            mutate_in_vector = mutate_in_vector or 0
-            death_rate_host = death_rate_host or 0
-            death_rate_vector = death_rate_vector or 0
-            protection_upon_recovery_host = ( protection_upon_recovery_host
-                or None )
-            protection_upon_recovery_vector = ( protection_upon_recovery_vector
-                or None )
+            num_loci = 10 if num_loci is None else num_loci
+            possible_alleles = \
+                'ATCG' if possible_alleles is None else possible_alleles
+            fitnessHost = (lambda g: 1) if fitnessHost is None else fitnessHost
+            fitnessVector = \
+                (lambda g: 1) if fitnessVector is None else fitnessVector
+            contact_rate_host_vector = \
+                1e1 if contact_rate_host_vector is None \
+                else contact_rate_host_vector
+            contact_rate_host_host = \
+                0 if contact_rate_host_host is None else contact_rate_host_host
+            mean_inoculum_host = \
+                1e2 if mean_inoculum_host is None else mean_inoculum_host
+            mean_inoculum_vector = \
+                1e2 if mean_inoculum_vector is None else mean_inoculum_vector
+            recovery_rate_host = \
+                1e-1 if recovery_rate_host is None else recovery_rate_host
+            recovery_rate_vector = \
+                1e-2 if recovery_rate_vector is None else recovery_rate_vector
+            recombine_in_host = \
+                0 if recombine_in_host is None else recombine_in_host
+            recombine_in_vector = \
+                1e-2 if recombine_in_vector is None else recombine_in_vector
+            mutate_in_host = 1e-6 if mutate_in_host is None else mutate_in_host
+            mutate_in_vector = \
+                0 if mutate_in_vector is None else mutate_in_vector
+            death_rate_host = 0 if death_rate_host is None else death_rate_host
+            death_rate_vector = \
+                0 if death_rate_vector is None else death_rate_vector
+            protection_upon_recovery_host = protection_upon_recovery_host
+            protection_upon_recovery_vector = protection_upon_recovery_vector
 
         elif preset == "host-host":
-            num_loci = num_loci or 10
-            possible_alleles = possible_alleles or 'ATCG'
-            fitnessHost = fitnessHost or (lambda g: 1)
-            fitnessVector = fitnessVector or (lambda g: 1)
-            contact_rate_host_vector = contact_rate_host_vector or 0
-            contact_rate_host_host = contact_rate_host_host or 2e1
-            mean_inoculum_host = mean_inoculum_host or 1e1
-            mean_inoculum_vector = mean_inoculum_vector or 0
-            recovery_rate_host = recovery_rate_host or 1e-1
-            recovery_rate_vector = recovery_rate_vector or 1e1
-            recombine_in_host = recombine_in_host or 1e-3
-            recombine_in_vector = recombine_in_vector or 0
-            mutate_in_host = mutate_in_host or 1e-6
-            mutate_in_vector = mutate_in_vector or 0
-            death_rate_host = death_rate_host or 0
-            death_rate_vector = death_rate_vector or 0
-            protection_upon_recovery_host = ( protection_upon_recovery_host
-                or None )
-            protection_upon_recovery_vector = ( protection_upon_recovery_vector
-                or None )
+            num_loci = 10 if num_loci is None else num_loci
+            possible_alleles = \
+                'ATCG' if possible_alleles is None else possible_alleles
+            fitnessHost = (lambda g: 1) if fitnessHost is None else fitnessHost
+            fitnessVector = \
+                (lambda g: 1) if fitnessVector is None else fitnessVector
+            contact_rate_host_vector = \
+                0 if contact_rate_host_vector is None \
+                else contact_rate_host_vector
+            contact_rate_host_host = \
+                2e1 if contact_rate_host_host is None \
+                else contact_rate_host_host
+            mean_inoculum_host = \
+                1e1 if mean_inoculum_host is None else mean_inoculum_host
+            mean_inoculum_vector = \
+                0 if mean_inoculum_vector is None else mean_inoculum_vector
+            recovery_rate_host = \
+                1e-1 if recovery_rate_host is None else recovery_rate_host
+            recovery_rate_vector = \
+                1e1 if recovery_rate_vector is None else recovery_rate_vector
+            recombine_in_host = \
+                1e-3 if recombine_in_host is None else recombine_in_host
+            recombine_in_vector = \
+                0 if recombine_in_vector is None else recombine_in_vector
+            mutate_in_host = \
+                1e-6 if mutate_in_host is None else mutate_in_host
+            mutate_in_vector = \
+                0 if mutate_in_vector is None else mutate_in_vector
+            death_rate_host = \
+                0 if death_rate_host is None else death_rate_host
+            death_rate_vector = \
+                0 if death_rate_vector is None else death_rate_vector
+            protection_upon_recovery_host = protection_upon_recovery_host
+            protection_upon_recovery_vector = protection_upon_recovery_vector
 
         self.setups[name] = Setup(
             num_loci, possible_alleles,
