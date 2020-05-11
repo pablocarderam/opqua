@@ -9,7 +9,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='opqua',
-    version='v0.1.5',
+    version='v0.1.6',
     description='An epidemiological modeling framework for population ' \
         + 'genetics and evolution.',
     long_description='Opqua is an epidemiological modeling framework for ' \
