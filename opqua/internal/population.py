@@ -428,7 +428,7 @@ class Population(object):
             int( frac_hosts * len( possible_infected_hosts ) ), replace=False
             )
         for host in treat_hosts:
-            possible_infected_hosts[host].applyTreatment(resistance_seqs)
+            host.applyTreatment(resistance_seqs)
 
     def treatVectors(self, frac_vectors, resistance_seqs, vectors=[]):
         """Treat random fraction of infected vectors agains some infection.
