@@ -1,6 +1,6 @@
 """Seasonal malaria simulation with single population of infected/susceptible hosts and vectors
 -Standard parameters (default setup)
--One whole period of the absolute value of cosine function is given as the transmission rate"""
+-Two whole periods of the absolute value of cosine function is given as the transmission rate"""
 
 from opqua.model import Model
 import numpy as np
@@ -28,11 +28,12 @@ my_model.newPopulation('my_population', 'my_setup', num_hosts=100, num_vectors=1
 my_model.addPathogensToHosts( 'my_population',{('M'*10):5,('N'*10):5,('U'*10):5,('F'*10):5})
     # Add pathogens with a genome of "AAAAAAAAAA" to 20 random hosts in
     # population "my_population".
+for i in range(0, 190, 5):
+    rate = 100 * np.abs((np.cos(np.pi * i / 50))) + 1
+    my_model.newSetup("i_setup", preset='vector-borne', contact_rate_host_vector=rate)
+    my_model.newIntervention(i, my_model.setSetup, ['my_population', 'i_setup'])
+
 my_model.run(0,200) # Run the simulation for 200 time units.
-for i in range(0,190,5):
-    rate=100*np.abs((np.cos(np.pi*i/50)))+1
-    my_model.newSetup("i_setup",preset='vector-borne',contact_rate_host_vector=rate)
-    my_model.newIntervention(i,my_model.setSetup,['my_population','i_setup'])
 data = my_model.saveToDataFrame('Cosine_Seasonal.csv')
     # Save the model results to a table.
 graph = my_model.compartmentPlot('Cosine_Seasonal_Hosts.png', data)
