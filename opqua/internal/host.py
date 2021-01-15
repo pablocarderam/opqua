@@ -130,6 +130,7 @@ class Host(object):
                     self.protection_sequences.append(seq)
 
         self.pathogens = {}
+        self.sum_fitness = 0
         if self in self.population.infected_hosts:
             self.population.infected_hosts.remove(self)
             self.population.healthy_hosts.append(self)
@@ -165,6 +166,7 @@ class Host(object):
                     break
 
         for g in genomes_removed:
+            self.sum_fitness -= self.pathogens[g]
             del self.pathogens[g]
 
         if len(self.pathogens) == 0 and self in self.population.infected_hosts:

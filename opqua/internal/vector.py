@@ -90,6 +90,7 @@ class Vector(object):
                     self.protection_sequences.append(seq)
 
         self.pathogens = {}
+        self.sum_fitness = 0
         if self in self.population.infected_vectors:
             self.population.infected_vectors.remove(self)
 
@@ -119,6 +120,7 @@ class Vector(object):
                     break
 
         for g in genomes_removed:
+            self.sum_fitness -= self.pathogens[g]
             del self.pathogens[g]
 
         if ( len(self.pathogens) == 0

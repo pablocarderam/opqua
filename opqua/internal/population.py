@@ -579,14 +579,9 @@ class Population(object):
         Returns:
         whether or not the model has changed state (Boolean)
         """
+        changed = self.infected_hosts[index_infected_host].infectHost(self.hosts[index_other_host])
 
-        temp_host = cp.deepcopy(self.infected_hosts[index_infected_host])
-        changed1 = self.hosts[index_other_host].infectHost(
-            self.infected_hosts[index_infected_host]
-            )
-        changed2 = temp_host.infectHost(self.hosts[index_other_host])
-
-        return ( changed1 or changed2 )
+        return changed
 
     def contactInfectedHostAnyVector(self, index_host, index_vector):
         """Contact a random infected host and any random vector in population.
@@ -601,13 +596,9 @@ class Population(object):
         whether or not the model has changed state (Boolean)
         """
 
-        temp_host = cp.deepcopy(self.infected_hosts[index_host])
-        changed1 = self.vectors[index_vector].infectHost(
-            self.infected_hosts[index_host]
-            )
-        changed2 = temp_host.infectVector(self.vectors[index_vector])
+        changed = self.infected_hosts[index_host].infectVector(self.vectors[index_vector])
 
-        return ( changed1 or changed2 )
+        return changed
 
     def contactHealthyHostInfectedVector(self, index_host, index_vector):
         """Contact a random healthy host and a random infected vector.
@@ -645,8 +636,10 @@ class Population(object):
             new_genome = old_genome[0:mut_index] + np.random.choice(
                 list(self.possible_alleles[mut_index])
                 ) + old_genome[mut_index+1:]
-            host.pathogens[new_genome] = self.fitnessHost(new_genome)
-            host.sum_fitness += host.pathogens[new_genome]
+            if new_genome not in host.pathogens:
+                host.pathogens[new_genome] = self.fitnessHost(new_genome)
+                host.sum_fitness += host.pathogens[new_genome]
+
 
     def mutateVector(self, index_vector):
         """Mutate a single, random locus in a random pathogen in given vector.
@@ -666,8 +659,9 @@ class Population(object):
             new_genome = old_genome[0:mut_index] + np.random.choice(
                 list(self.possible_alleles[mut_index])
                 ) + old_genome[mut_index+1:]
-            vector.pathogens[new_genome] = self.fitnessHost(new_genome)
-            vector.sum_fitness += vector.pathogens[new_genome]
+            if new_genome not in vector.pathogens:
+                vector.pathogens[new_genome] = self.fitnessHost(new_genome)
+                vector.sum_fitness += vector.pathogens[new_genome]
 
     def recombineHost(self, index_host):
         """Recombine two random pathogen genomes at random locus in given host.
@@ -686,8 +680,9 @@ class Population(object):
                 replace=False )
             recom_index = np.random.randint( self.num_loci )
             new_genome = parents[0][0:recom_index] + parents[1][recom_index:]
-            host.pathogens[new_genome] = self.fitnessHost(new_genome)
-            host.sum_fitness += host.pathogens[new_genome]
+            if new_genome not in host.pathogens:
+                host.pathogens[new_genome] = self.fitnessHost(new_genome)
+                host.sum_fitness += host.pathogens[new_genome]
 
     def recombineVector(self, index_vector):
         """Recombine 2 random pathogen genomes at random locus in given vector.
@@ -706,5 +701,6 @@ class Population(object):
                 replace=False )
             recom_index = np.random.randint( self.num_loci )
             new_genome = parents[0][0:recom_index] + parents[1][recom_index:]
-            vector.pathogens[new_genome] = self.fitnessHost(new_genome)
-            vector.sum_fitness += vector.pathogens[new_genome]
+            if new_genome not in vector.pathogens:
+                vector.pathogens[new_genome] = self.fitnessHost(new_genome)
+                vector.sum_fitness += vector.pathogens[new_genome]

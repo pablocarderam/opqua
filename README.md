@@ -854,8 +854,7 @@ from whole population (default empty list; empty)
 #### protectHosts
 
 ```python
-protectHosts(
-pop_id, frac_hosts, protection_sequence, group_id="")
+protectHosts(pop_id, frac_hosts, protection_sequence, group_id="")
 ```
 
 

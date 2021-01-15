@@ -490,11 +490,17 @@ def pathogenDistanceDf(
     if not n_cores:
         n_cores = jl.cpu_count()
 
-    dis_mat = np.array( jl.Parallel(n_jobs=n_cores, verbose=1) (
-        jl.delayed( lambda s1: [
-            td.hamming(s1, s2) / len(s1) for s2 in sequences
-            ] ) (s1) for s1 in sequences
-        ) )
+
+    dis_mat = np.array([[td.hamming(s1, s2) / len(s1)
+        for s2 in sequences] for s1 in sequences])
+
+    # For some reason, this code triggers a full rerun of the simulation.
+    # Possible joblib bug?
+    # dis_mat = np.array( jl.Parallel(n_jobs=n_cores, verbose=1) (
+    #     jl.delayed( lambda s1: [
+    #         td.hamming(s1, s2) / len(s1) for s2 in sequences
+    #         ] ) (s1) for s1 in sequences
+    #     ) )
 
     names = sequences
     if len(seq_names) > 0:
