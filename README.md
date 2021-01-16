@@ -673,6 +673,7 @@ Return a list of random (healthy or any) hosts in population.
 
 _Arguments:_
 - pop_id -- ID of population to be modified (String)
+- group_id -- ID to call this group by (String)
 - num_vectors -- number of vectors to be sampled randomly (int)
 
 _Keyword Arguments:_
@@ -692,6 +693,7 @@ Return a list of random (healthy or any) vectors in population.
 
 _Arguments:_
 - pop_id -- ID of population to be modified (String)
+- group_id -- ID to call this group by (String)
 - num_vectors -- number of vectors to be sampled randomly (int)
 
 _Keyword Arguments:_
@@ -779,8 +781,8 @@ and number of hosts each one will be added to as values (dict with
 keys=Strings, values=int)
 
 _Keyword Arguments:_
-- hosts -- list of specific hosts to sample from, if empty, samples from
-whole population (default empty list; empty)
+- group_id -- ID of group to sample hosts to sample from, if empty, samples from
+whole population (default empty String; empty)
 
 #### addPathogensToVectors
 
@@ -798,8 +800,8 @@ and number of vectors each one will be added to as values (dict with
 keys=Strings, values=int)
 
 _Keyword Arguments:_
-- vectors -- list of specific vectors to sample from, if empty, samples
-from whole population (default empty list; empty)
+- group_id -- ID of group to sample vectors to sample from, if empty, samples
+from whole population (default empty String; empty)
 
 #### treatHosts
 
@@ -823,8 +825,8 @@ _Arguments:_
 (list of Strings)
 
 _Keyword Arguments:_
-- hosts -- list of specific hosts to sample from, if empty, samples from
-whole population (default empty list; empty)
+- group_id -- ID of group to sample hosts to sample from, if empty, samples from
+whole population (default empty String; empty)
 
 #### treatVectors
 
@@ -848,8 +850,8 @@ _Arguments:_
 (list of Strings)
 
 _Keyword Arguments:_
-- vectors -- list of specific vectors to sample from, if empty, samples
-from whole population (default empty list; empty)
+- group_id -- ID of group to sample vectors to sample from, if empty, samples
+from whole population (default empty String; empty)
 
 #### protectHosts
 
@@ -870,8 +872,8 @@ _Arguments:_
 - protection_sequence -- sequence against which to protect (String)
 
 _Keyword Arguments:_
-- hosts -- list of specific hosts to sample from, if empty, samples from
-whole population (default empty list; empty)
+- group_id -- ID of group to sample hosts to sample from, if empty, samples from
+whole population (default empty String; empty)
 
 #### protectVectors
 
@@ -892,8 +894,8 @@ _Arguments:_
 - protection_sequence -- sequence against which to protect (String)
 
 _Keyword Arguments:_
-- vectors -- list of specific vectors to sample from, if empty, samples
-from whole population (default empty list; empty)
+- group_id -- ID of group to sample vectors to sample from, if empty, samples
+from whole population (default empty String; empty)
 
 #### setSetup
 
