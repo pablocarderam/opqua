@@ -19,7 +19,8 @@ from opqua.internal.population import Population
 from opqua.internal.setup import Setup
 from opqua.internal.intervention import Intervention
 from opqua.internal.gillespie import Gillespie
-from opqua.internal.data import saveToDf, getPathogens, getProtections
+from opqua.internal.data import saveToDf, getPathogens, getProtections, \
+    getPathogenDistanceHistoryDf
 from opqua.internal.plot import populationsPlot, compartmentPlot, \
     compositionPlot, clustermap
 
@@ -632,6 +633,47 @@ class Model(object):
                 legend_title=legend_title, legend_values=legend_values,
                 figsize=figsize, dpi=dpi, color_map=color_map
                 )
+
+
+    def pathogenDistanceHistory(
+        self,
+        data, samples=-1, num_top_sequences=-1, track_specific_sequences=[],
+        seq_names=[], n_cores=0, save_to_file=''):
+        """Create a long-format dataframe with pairwise distances for pathogen
+        genomes in data passed for different time points.
+
+        Arguments:
+        data -- dataframe with model history as produced by saveToDf function
+
+        Keyword arguments:
+        samples -- how many timepoints to uniformly sample from the total
+            timecourse; if <0, takes all timepoints (default -1; int)
+        num_top_sequences -- how many sequences to include in matrix; if <0,
+            includes all genomes in data passed (default -1; int)
+        track_specific_sequences -- contains specific sequences to include in
+            matrixif not part of the top num_top_sequences sequences (default
+            empty list; list of Strings)
+        seq_names -- list with names to be used for sequence labels in matrix
+            must be of same length as number of sequences to be displayed; if
+            empty, uses sequences themselves (default empty list; list of
+            Strings)
+        n_cores -- number of cores to parallelize distance compute across, if 0,
+            all cores available are used (default 0; int)
+        method -- clustering algorithm to use with seaborn clustermap (default
+            'weighted'; String)
+        metric -- distance metric to use with seaborn clustermap (default
+            'euclidean'; String)
+        save_data_to_file -- file path and name to save model data under, no
+            saving occurs if empty string (default ''; String)
+
+        Returns:
+        long-format Pandas dataframe with pairwise distances for pathogen
+        genomes in data passed for different time points.
+        """
+        return getPathogenDistanceHistoryDf(data,
+            samples=samples, num_top_sequences=num_top_sequences,
+            track_specific_sequences=track_specific_sequences,
+            seq_names=seq_names, n_cores=n_cores, save_to_file=save_to_file)
 
     ### Model interventions: ###
 

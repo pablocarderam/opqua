@@ -453,7 +453,8 @@ def getProtections(data, save_to_file=""):
 def pathogenDistanceDf(
         data, num_top_sequences=-1, track_specific_sequences=[], seq_names=[],
         save_to_file="", n_cores=0):
-    """Create DataFrame with pairwise distances for pathogen sequences in data.
+    """Create DataFrame with pairwise Hamming distances for pathogen sequences
+    in data.
 
     DataFrame has indexes and columns named according to genomes or argument
     seq_names, if passed. Distance is measured as percent Hamming distance from
@@ -485,20 +486,21 @@ def pathogenDistanceDf(
     if num_top_sequences > 0:
         sequences = sequences[0:num_top_sequences]
 
-    str_mat = [ list(seq) for seq in sequences ]
-
-    if not n_cores:
-        n_cores = jl.cpu_count()
-
-
-    dis_mat = np.array([[td.hamming(s1, s2) / len(s1)
+    # Fix — non parallelized
+    dis_mat = np.array([[td.hamming(s1, s2) / max(len(s1),1)
         for s2 in sequences] for s1 in sequences])
+            # Added the max() to avoid division by zero error triggered when
+            # getPathogenDistanceHistoryDf calls this method with an empty
+            # dataframe (for a timepoint with no pathogens)
 
     # For some reason, this code triggers a full rerun of the simulation.
     # Possible joblib bug?
+    # if not n_cores:
+    #     n_cores = jl.cpu_count()
+    #
     # dis_mat = np.array( jl.Parallel(n_jobs=n_cores, verbose=1) (
     #     jl.delayed( lambda s1: [
-    #         td.hamming(s1, s2) / len(s1) for s2 in sequences
+    #         td.hamming(s1, s2) / max(len(s1),1) for s2 in sequences
     #         ] ) (s1) for s1 in sequences
     #     ) )
 
@@ -510,5 +512,66 @@ def pathogenDistanceDf(
 
     if len(save_to_file) > 0:
         dis_df.to_csv(save_to_file, index=True)
+
+    return dis_df
+
+def getPathogenDistanceHistoryDf(
+        data, samples=1, num_top_sequences=-1, track_specific_sequences=[], seq_names=[],
+        save_to_file="", n_cores=0):
+    """Create DataFrame with pairwise Hamming distances for pathogen sequences
+    in data.
+
+    DataFrame has indexes and columns named according to genomes or argument
+    seq_names, if passed. Distance is measured as percent Hamming distance from
+    an optimal genome sequence.
+
+    Arguments:
+    data -- dataframe with model history as produced by saveToDf function
+
+    Keyword arguments:
+    samples -- how many timepoints to uniformly sample from the total
+        timecourse; if <0, takes all timepoints (default 1; int)
+    num_top_sequences -- how many sequences to include in matrix; if <0,
+        includes all genomes in data passed (default -1; int)
+    track_specific_sequences -- contains specific sequences to include in matrix
+        if not part of the top num_top_sequences sequences (default empty list;
+        list of Strings)
+    seq_names -- list with names to be used for sequence labels in matrix must
+        be of same length as number of sequences to be displayed; if empty,
+        uses sequences themselves (default empty list; list of Strings)
+    save_to_file -- file path and name to save model data under, no saving
+        occurs if empty string (default ''; String)
+    n_cores -- number of cores to parallelize distance compute across, if 0, all
+        cores available are used (default 0; int)
+
+    Returns:
+    pandas dataframe with distance matrix as described above
+    """
+
+    if samples > 0:
+        samples = np.linspace(
+            0, len(pd.unique(data['Time']))-1, samples
+            ).astype(int)
+        sampled_times = pd.unique(data['Time'])[samples]
+        data = data[ data['Time'].isin(sampled_times) ]
+
+    grouped = data.groupby('Time')
+    dis_df = grouped.apply(
+        lambda d: pd.melt(
+            pathogenDistanceDf(
+                d, num_top_sequences=num_top_sequences,
+                    track_specific_sequences=track_specific_sequences,
+                    seq_names=seq_names, save_to_file="", n_cores=n_cores
+                    ).reset_index(),
+                id_vars=['Pathogens'], var_name='Pathogen_2',
+                value_name='Distance'
+                )
+        ).reset_index()
+
+    dis_df.columns = ['Time','drop','Pathogen_1','Pathogen_2','Distance']
+    dis_df = dis_df.drop(columns='drop')
+
+    if len(save_to_file) > 0:
+        dis_df.to_csv(save_to_file, index=False)
 
     return dis_df

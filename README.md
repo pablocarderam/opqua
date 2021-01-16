@@ -134,6 +134,10 @@ population across time
 recovered, dead hosts/vectors vs time
 - [compositionPlot](#compositionplot) -- plots counts for pathogen genomes or
 resistance vs. time
+- [clustermap](#clustermap) -- plots heatmap and dendrogram of all pathogens in
+given data
+- [pathogenDistanceHistory](#pathogenDistanceHistory) -- calculates pairwise
+distances for pathogen genomes at different times
 
 #### Model interventions ###
 
@@ -559,7 +563,7 @@ described
 ### clustermap
 
 ```python
-clustermap(self, file_name, data, num_top_sequences=-1,
+clustermap(file_name, data, num_top_sequences=-1,
 track_specific_sequences=[], seq_names=[], n_cores=0, method='weighted',
 metric='euclidean',save_data_to_file="", legend_title='Distance',
 legend_values=[], figsize=(10,10), dpi=200, color_map=DEF_CMAP):
@@ -596,6 +600,44 @@ saving occurs if empty string (default ''; String)
 
 Returns:
 - figure object for plot with heatmap and dendrogram as described
+
+#### pathogenDistanceHistory
+
+```python
+pathogenDistanceHistory(data, samples=-1, num_top_sequences=-1,
+track_specific_sequences=[], seq_names=[], n_cores=0, save_to_file='')
+```
+
+Create a long-format dataframe with pairwise distances for pathogen
+genomes in data passed for different time points.
+
+_Arguments:_
+data -- dataframe with model history as produced by saveToDf function
+
+_Keyword Arguments:_
+samples -- how many timepoints to uniformly sample from the total
+    timecourse; if <0, takes all timepoints (default -1; int)
+num_top_sequences -- how many sequences to include in matrix; if <0,
+    includes all genomes in data passed (default -1; int)
+track_specific_sequences -- contains specific sequences to include in
+    matrixif not part of the top num_top_sequences sequences (default
+    empty list; list of Strings)
+seq_names -- list with names to be used for sequence labels in matrix
+    must be of same length as number of sequences to be displayed; if
+    empty, uses sequences themselves (default empty list; list of
+    Strings)
+n_cores -- number of cores to parallelize distance compute across, if 0,
+    all cores available are used (default 0; int)
+method -- clustering algorithm to use with seaborn clustermap (default
+    'weighted'; String)
+metric -- distance metric to use with seaborn clustermap (default
+    'euclidean'; String)
+save_data_to_file -- file path and name to save model data under, no
+    saving occurs if empty string (default ''; String)
+
+_Returns:_
+long-format Pandas dataframe with pairwise distances for pathogen
+genomes in data passed for different time points.
 
 #### newPopulation
 

@@ -14,7 +14,7 @@ model.newSetup( # Now, we'll define our new setup:
         # Define length of "genome", or total number of alleles.
     # recovery_rate_host = 2e-1,
     # contact_rate_host_host = 1e2,
-    mutate_in_host=1e-3 # Modify mutation rate to get some evolution!
+    mutate_in_host=1e-1 # Modify mutation rate to get some evolution!
     )
 
 model.newPopulation('my_population','my_setup')
@@ -23,13 +23,11 @@ model.addPathogensToHosts( 'my_population',{'T'*100:10} )
     # homopolymer genome
 
 model.newIntervention( 100, model.protectHosts,
-                      [ 'my_population', 0.8, 'T'*70 ] )
+                      [ 'my_population', 0.8, 'T'*30 ] )
     # At time 100, vaccinates random 80% of hosts against genomes with 10-mer Ts
 
 model.run(0,200)
-print('SIMULATED!')
 data = model.saveToDataFrame('Bottleneck.csv')
-print('SAVED')
 
 graph_composition = model.compositionPlot(
         # Create a plot to track pathogen genotypes across time.
@@ -39,7 +37,9 @@ graph_composition = model.compositionPlot(
         # lumped into the "Other" category).
     )
 
-print('Composition done')
+model.pathogenDistanceHistory(data,samples=100,
+    save_to_file='pairwise_distance_history.csv')
+
 graph_clustermap = model.clustermap(
     'Bottleneck_clustermap.png', data,
     save_data_to_file='Bottleneck_pairwise_distances.csv',
@@ -49,7 +49,6 @@ graph_clustermap = model.clustermap(
     # Besides creating the plot,
     # outputs the pairwise distance matrix to a csv file as well.
 
-print('Clustermap done')
 graph_compartments = model.compartmentPlot(
     'Bottleneck_compartments.png', data
     )
@@ -57,5 +56,3 @@ graph_compartments = model.compartmentPlot(
     # infections in the composition plot can exceed the number of infected hosts
     # in the compartment plot. This happens because a single host infected by
     # multiple genotypes is counted twice in the former, but not the latter.
-
-print('Compartments done')
