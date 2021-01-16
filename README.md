@@ -28,10 +28,10 @@ spread through populations of hosts that can have specific immune profiles.
 Opqua is a useful tool to test out scenarios, explore hypotheses, and make
 predictions about the relationship between pathogen evolution and epidemiology.
 
-Among many things, Opqua can model
+Among other things, Opqua can model
 - host-host and vector-borne transmission,
 - host recovery and death
-- competition and evolution of pathogen strains across arbitrary adaptive
+- competition and evolution of pathogen strains across user-specified adaptive
 landscapes
 - metapopulations with complex structure
 - interventions altering demographic, ecological, or evolutionary parameters

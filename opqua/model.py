@@ -1,11 +1,16 @@
-# TODO: Update all fitnesses
-# TODO: remove protections
+# TODO: update all fitnesses
+# TODO: remove protection sequences
 # TODO: parallelizeable simulations
-# TODO: Pathogen genome influences transmission probability, death rate
+# TODO: pathogen genome influences transmission probability, death rate
 # TODO: contact between populations (without migration)
-# TODO: birth/death rates in populations
-# TODO: arbitrary comparments
+# TODO: host/vector birth/death rates in populations
+# TODO: arbitrary comparments (group_id) for compartment plot
 # TODO: independent recombination of alleles
+# TODO: Numba, Cython, and JAX
+# TODO: compositionPlot – make custom groupings, eg. "genomes containing
+#       sequence AAA"
+# TODO: make labels optional, if no labels write a file with the genomes in
+#       the same order
 """Contains class Model; main class user interacts with."""
 
 import numpy as np

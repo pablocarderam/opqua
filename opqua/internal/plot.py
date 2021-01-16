@@ -254,6 +254,8 @@ def compositionPlot(
     axis object for plot with model sequence composition dynamics as described
     """
 
+    # TODO: make custom groupings, eg. "genomes containing sequence AAA"
+
     comp = compositionDf(
         data, populations=populations, type_of_composition=type_of_composition,
         hosts=hosts, vectors=vectors, num_top_sequences=num_top_sequences,
@@ -341,6 +343,9 @@ def clustermap(
     Returns:
     figure object for plot with heatmap and dendrogram as described
     """
+
+    # TODO: make labels optional, if no labels write a file with the genomes in
+    # the same order
 
     dis = pathogenDistanceDf(
         data, num_top_sequences=num_top_sequences,
