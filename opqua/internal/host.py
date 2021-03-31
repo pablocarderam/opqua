@@ -8,6 +8,7 @@ class Host(object):
     """Class defines main entities to be infected by pathogens in model.
 
     Methods:
+    copyState -- returns a slimmed-down version of the current host state
     infectVector -- infects given vector with a sample of this host's pathogens
     infectHost -- infects given host with a sample of this host's pathogens
     recover -- removes all infections
@@ -16,22 +17,47 @@ class Host(object):
         treatment
     """
 
-    def __init__(self, population, id):
+    def __init__(self, population, id, slim=False):
         """Create a new Host.
 
         Arguments:
         population -- the population this host belongs to (Population)
         id -- unique identifier for this host within population (String)
+        slim -- whether to create a slimmed-down representation of the
+            population for data storage (only ID, host and vector lists)
+            (Boolean, default False)
         """
         super(Host, self).__init__()
         self.id = id
-        self.pathogens = {} # Dictionary with all current infections in this
-            # host, with keys=genome strings, values=fitness numbers
-        self.population = population
-        self.sum_fitness = 0 # sum of all pathogen fitnesses within this host
-        self.protection_sequences = [] # A list of strings this host is immune
-            # to. If a pathogen's genome contains one of these values, it cannot
-            # infect this host.
+
+        if not slim:
+                # if not slimmed down for data storage, save other attributes
+            self.pathogens = {} # Dictionary with all current infections in this
+                # host, with keys=genome strings, values=fitness numbers
+            self.protection_sequences = [] # A list of strings this host is
+                # immune to. If a pathogen's genome contains one of these
+                # values, it cannot infect this host.
+            self.population = population
+            self.sum_fitness = 0
+                # sum of all pathogen fitnesses within this host
+            self.max_fitness = 0
+                # max of all pathogen fitnesses within this host
+            self.max_lethality = 0
+                # max of all pathogen lethalities within this host (fraction of
+                # death rate)
+
+    def copyState(self):
+        """Returns a slimmed-down representation of the current host state.
+
+        Returns:
+        Host object with current pathogens and protection_sequences.
+        """
+
+        copy = Host(None, self.id, slim=True)
+        copy.pathogens = self.pathogens.copy()
+        copy.protection_sequences = self.protection_sequences.copy()
+
+        return copy
 
     def infectVector(self, vector):
         """Infect given vector with a sample of this host's pathogens.
@@ -61,6 +87,7 @@ class Host(object):
                     )
                     and np.random.poisson(
                         self.population.mean_inoculum_vector
+                            * self.max_fitness
                             * fitness / self.sum_fitness, 1
                         )
                     > 0 ):
@@ -68,6 +95,9 @@ class Host(object):
                     genome
                     )
                 vector.sum_fitness += vector.pathogens[genome]
+                if vector.pathogens[genome] > vector.max_fitness:
+                    vector.max_fitness = vector.pathogens[genome]
+
                 changed = True
                 if vector not in vector.population.infected_vectors:
                     vector.population.infected_vectors.append(vector)
@@ -102,11 +132,15 @@ class Host(object):
                     )
                     and np.random.poisson(
                         self.population.mean_inoculum_host
+                            * self.max_fitness
                             * fitness / self.sum_fitness, 1
                         )
                     > 0 ):
                 host.pathogens[genome] = host.population.fitnessHost(genome)
                 host.sum_fitness += host.pathogens[genome]
+                if host.pathogens[genome] > host.max_fitness:
+                    host.max_fitness = host.pathogens[genome]
+
                 changed = True
                 if host not in host.population.infected_hosts:
                     host.population.infected_hosts.append(host)
@@ -131,6 +165,7 @@ class Host(object):
 
         self.pathogens = {}
         self.sum_fitness = 0
+        self.max_fitness = 0
         if self in self.population.infected_hosts:
             self.population.infected_hosts.remove(self)
             self.population.healthy_hosts.append(self)
@@ -172,3 +207,6 @@ class Host(object):
         if len(self.pathogens) == 0 and self in self.population.infected_hosts:
             self.population.infected_hosts.remove(self)
             self.population.healthy_hosts.append(self)
+            self.max_fitness = 0
+        elif len(self.pathogens) > 0:
+            self.max_fitness = max(self.pathogens.values())

@@ -1,16 +1,18 @@
-# TODO: update all fitnesses
-# TODO: remove protection sequences
-# TODO: parallelizeable simulations
-# TODO: pathogen genome influences transmission probability, death rate
+# TODO: pathogen genome influences transmission probability
+# TODO: independent recombination of alleles
+
+# TODO: migrate vectors
 # TODO: contact between populations (without migration)
 # TODO: host/vector birth/death rates in populations
-# TODO: arbitrary comparments (group_id) for compartment plot
-# TODO: independent recombination of alleles
-# TODO: Numba, Cython, and JAX
+
+# TODO: make labels optional, if no labels write a file with the genomes in
+#       the same order for compositionPlot
 # TODO: compositionPlot – make custom groupings, eg. "genomes containing
 #       sequence AAA"
-# TODO: make labels optional, if no labels write a file with the genomes in
-#       the same order
+# TODO: arbitrary comparments (group_id) for compartment plot
+
+# TODO: parallelizeable simulations
+# TODO: Numba, Cython, and JAX
 """Contains class Model; main class user interacts with."""
 
 import numpy as np
@@ -54,6 +56,7 @@ class Model(object):
     newSetup -- creates a new Setup, save it in setups dict under given name
     newIntervention -- creates a new intervention executed during simulation
     run -- simulates model for a specified length of time
+    copyState -- returns a slimmed-down version of the current model state
 
     --- Data Output and Plotting: ---
 
@@ -88,15 +91,17 @@ class Model(object):
     treatVectors -- removes infections susceptible to treatment from vectors
     protectHosts -- adds protection sequence to hosts
     protectVectors -- adds protection sequence to vectors
+    wipeProtectionHosts -- removes all protection sequences from hosts
+    wipeProtectionVectors -- removes all protection sequences from vectors
 
 
     --- Preset fitness functions: ---
         * these are static methods
 
-    stabilizingSelection -- evaluates genome fitness by decreasing with distance
-        from optimal sequence
-    disruptiveSelection -- evaluates genome fitness by increasing with distance
-        from worst sequence
+    peakLandscape -- evaluates genome numeric phenotype by decreasing with
+        distance from optimal sequence
+    valleyLandscape -- evaluates genome numeric phenotype by increasing with
+        distance from worst sequence
     """
 
     ### CONSTANTS ###
@@ -137,6 +142,7 @@ class Model(object):
             self, name, preset=None,
             num_loci=None, possible_alleles=None,
             fitnessHost=None, fitnessVector=None,
+            lethalityHost=None, lethalityVector=None,
             contact_rate_host_vector=None, contact_rate_host_host=None,
             mean_inoculum_host=None, mean_inoculum_vector=None,
             recovery_rate_host=None, recovery_rate_vector=None,
@@ -213,6 +219,10 @@ class Model(object):
             (number >= 0)
         fitnessVector -- relative fitness in head-to-head competition within
             vector (number >= 0)
+        lethalityHost -- host lethality as a fraction of death rate
+            (number 0 – 1)
+        lethalityVector -- vector lethality as a fraction of death rate
+            (number 0 – 1)
         contact_rate_host_vector -- rate of host-vector contact events, not
             necessarily transmission, assumes constant population density;
             evts/time (number >= 0)
@@ -252,6 +262,10 @@ class Model(object):
             fitnessHost = (lambda g: 1) if fitnessHost is None else fitnessHost
             fitnessVector = \
                 (lambda g: 1) if fitnessVector is None else fitnessVector
+            lethalityHost = \
+                (lambda g: 1) if lethalityHost is None else lethalityHost
+            lethalityVector = \
+                (lambda g: 1) if lethalityVector is None else lethalityVector
             contact_rate_host_vector = \
                 1e1 if contact_rate_host_vector is None \
                 else contact_rate_host_vector
@@ -285,6 +299,10 @@ class Model(object):
             fitnessHost = (lambda g: 1) if fitnessHost is None else fitnessHost
             fitnessVector = \
                 (lambda g: 1) if fitnessVector is None else fitnessVector
+            lethalityHost = \
+                (lambda g: 1) if lethalityHost is None else lethalityHost
+            lethalityVector = \
+                (lambda g: 1) if lethalityVector is None else lethalityVector
             contact_rate_host_vector = \
                 0 if contact_rate_host_vector is None \
                 else contact_rate_host_vector
@@ -317,6 +335,7 @@ class Model(object):
         self.setups[name] = Setup(
             num_loci, possible_alleles,
             fitnessHost, fitnessVector,
+            lethalityHost, lethalityVector,
             contact_rate_host_vector, contact_rate_host_host,
             mean_inoculum_host, mean_inoculum_vector,
             recovery_rate_host, recovery_rate_vector,
@@ -337,7 +356,7 @@ class Model(object):
 
         self.interventions.append( Intervention(time, function, args) )
 
-    def run(self,t0,tf):
+    def run(self,t0,tf,time_sampling=0,host_sampling=0,vector_sampling=0):
         """Simulate model for a specified time between two time points.
 
         Simulates a time series using the Gillespie algorithm.
@@ -349,10 +368,39 @@ class Model(object):
         Arguments:
         t0 -- initial time point to start simulation at (number)
         tf -- initial time point to end simulation at (number)
+        time_sampling -- how many events to skip before saving a snapshot of the
+            system state (saves all by default), if <0, saves only final state
+            (int, default 0)
+        host_sampling -- how many hosts to skip before saving one in a snapshot
+            of the system state (saves all by default) (int, default 0)
+        vector_sampling -- how many vectors to skip before saving one in a
+            snapshot of the system state (saves all by default) (int, default 0)
         """
 
         sim = Gillespie(self)
-        self.history = sim.run(t0,tf)
+        self.history = sim.run(t0,tf,time_sampling,host_sampling,vector_sampling)
+
+    def copyState(self,host_sampling=0,vector_sampling=0):
+        """Returns a slimmed-down representation of the current model state.
+
+        Arguments:
+        host_sampling -- how many hosts to skip before saving one in a snapshot
+            of the system state (saves all by default) (int, default 0)
+        vector_sampling -- how many vectors to skip before saving one in a
+            snapshot of the system state (saves all by default) (int, default 0)
+
+        Returns:
+        Model object with current population host and vector lists.
+        """
+
+        copy = Model()
+
+        copy.populations = {
+            id: p.copyState(host_sampling,vector_sampling)
+            for id,p in self.populations.items()
+            }
+
+        return copy
 
 
     ### Output and Plots: ###
@@ -702,7 +750,7 @@ class Model(object):
             id = id+'_2'
 
         self.populations[id] = Population(
-            self, id, self.setups[setup_name], num_hosts, num_vectors
+            id, self.setups[setup_name], num_hosts, num_vectors
             )
 
     def linkPopulations(self, pop1_id, pop2_id, rate):
@@ -743,7 +791,7 @@ class Model(object):
 
         new_pops = [
             Population(
-                self, id_prefix + str(i), self.setups[setup_name],
+                id_prefix + str(i), self.setups[setup_name],
                 num_hosts, num_vectors
                 ) for i in range(num_populations)
             ]
@@ -855,8 +903,8 @@ class Model(object):
             keys=Strings, values=int)
 
         Keyword arguments:
-        hosts -- list of specific hosts to sample from, if empty, samples from
-            whole population (default empty list; empty)
+        group_id -- ID of specific hosts to sample from, if empty, samples
+            from whole population (default empty String; String)
         """
 
         if group_id == "":
@@ -876,8 +924,8 @@ class Model(object):
             keys=Strings, values=int)
 
         Keyword arguments:
-        vectors -- list of specific vectors to sample from, if empty, samples
-            from whole population (default empty list; empty)
+        group_id -- ID of specific vectors to sample from, if empty, samples
+            from whole population (default empty String; String)
         """
 
         if group_id == "":
@@ -903,8 +951,8 @@ class Model(object):
             (list of Strings)
 
         Keyword arguments:
-        hosts -- list of specific hosts to sample from, if empty, samples from
-            whole population (default empty list; empty)
+        group_id -- ID of specific hosts to sample from, if empty, samples
+            from whole population (default empty String; String)
         """
 
         if group_id == "":
@@ -930,8 +978,8 @@ class Model(object):
             (list of Strings)
 
         Keyword arguments:
-        vectors -- list of specific vectors to sample from, if empty, samples
-            from whole population (default empty list; empty)
+        group_id -- ID of specific vectors to sample from, if empty, samples
+            from whole population (default empty String; String)
         """
 
         if group_id == "":
@@ -957,8 +1005,8 @@ class Model(object):
         protection_sequence -- sequence against which to protect (String)
 
         Keyword arguments:
-        hosts -- list of specific hosts to sample from, if empty, samples from
-            whole population (default empty list; empty)
+        group_id -- ID of specific hosts to sample from, if empty, samples
+            from whole population (default empty String; String)
         """
 
         if group_id == "":
@@ -984,8 +1032,8 @@ class Model(object):
         protection_sequence -- sequence against which to protect (String)
 
         Keyword arguments:
-        vectors -- list of specific vectors to sample from, if empty, samples
-            from whole population (default empty list; empty)
+        group_id -- ID of specific vectors to sample from, if empty, samples
+            from whole population (default empty String; empty)
         """
 
         if group_id == "":
@@ -996,6 +1044,42 @@ class Model(object):
         self.populations[pop_id].protectVectors(
             frac_vectors,protection_sequence,vectors
             )
+
+    def wipeProtectionHosts(self, pop_id, group_id=""):
+        """Removes all protection sequences from hosts.
+
+        Arguments:
+        pop_id -- ID of population to be modified (String)
+
+        Keyword arguments:
+        group_id -- ID of specific hosts to sample from, if empty, samples from
+            whole from whole population (default empty String; String)
+        """
+
+        if group_id == "":
+            hosts = self.populations[pop_id].hosts
+        else:
+            hosts = self.groups[group_id]
+
+        self.populations[pop_id].wipeProtectionHosts(hosts)
+
+    def wipeProtectionVectors(self, pop_id, group_id=""):
+        """Removes all protection sequences from vectors.
+
+        Arguments:
+        pop_id -- ID of population to be modified (String)
+
+        Keyword arguments:
+        group_id -- ID of specific vectors to sample from, if empty, samples
+            from whole population (default empty String; String)
+        """
+
+        if group_id == "":
+            vectors = self.populations[pop_id].vectors
+        else:
+            vectors = self.groups[group_id]
+
+        self.populations[pop_id].wipeProtectionVectors(vectors)
 
     def setSetup(self, pop_id, setup_id):
         """Assign parameters stored in Setup object to this population.
@@ -1011,8 +1095,8 @@ class Model(object):
     ### Preset fitness functions: ###
 
     @staticmethod
-    def stabilizingSelection(genome, optimal_genome, min_fitness):
-        """Evaluate genome fitness by decreasing with distance from optimal seq.
+    def peakLandscape(genome, peak_genome, min_value):
+        """Return genome phenotype by decreasing with distance from optimal seq.
 
         A purifying selection fitness function based on exponential decay of
         fitness as genomes move away from the optimal sequence. Distance is
@@ -1020,40 +1104,40 @@ class Model(object):
 
         Arguments:
         genome -- the genome to be evaluated (String)
-        optimal_genome -- the genome sequence to measure distance against, has
-            fitness of 1 (String)
-        min_fitness -- minimum fitness value at maximum distance from optimal
+        peak_genome -- the genome sequence to measure distance against, has
+            value of 1 (String)
+        min_value -- minimum value at maximum distance from optimal
             genome (number > 0)
 
         Return:
-        fitness value of genome (number)
+        value of genome (number)
         """
 
         distance = td.hamming(genome, optimal_genome) / len(genome)
-        fitness = np.exp( np.log( min_fitness ) * distance )
+        value = np.exp( np.log( min_fitness ) * distance )
 
-        return fitness
+        return value
 
     @staticmethod
-    def disruptiveSelection(genome, worst_genome, min_fitness):
-        """Evaluate genome fitness by increasing with distance from worst seq.
+    def valleyLandscape(genome, valley_genome, min_value):
+        """Return genome phenotype by increasing with distance from worst seq.
 
-        A purifying selection fitness function based on exponential decay of
+        A disruptive selection fitness function based on exponential decay of
         fitness as genomes move closer to the worst possible sequence. Distance
         is measured as percent Hamming distance from the worst possible genome
         sequence.
 
         Arguments:
         genome -- the genome to be evaluated (String)
-        optimal_genome -- the genome sequence to measure distance against, has
-            fitness of min_fitness (String)
-        min_fitness -- fitness value of worst possible genome (number > 0)
+        valley_genome -- the genome sequence to measure distance against, has
+            value of min_value (String)
+        min_value -- fitness value of worst possible genome (number > 0)
 
         Return:
-        fitness value of genome (number)
+        value of genome (number)
         """
 
         distance = td.hamming(genome, worst_genome) / len(genome)
-        fitness = np.exp( np.log( min_fitness ) * ( 1 - distance ) )
+        value = np.exp( np.log( min_fitness ) * ( 1 - distance ) )
 
-        return fitness
+        return value

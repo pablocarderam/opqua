@@ -10,6 +10,7 @@ class Vector(object):
     These can infect hosts, the main entities in the model.
 
     Methods:
+    copyState -- returns a slimmed-down version of the current vector state
     infectHost -- infects given host with a sample of this vector's pathogens
     recover -- removes all infections
     die -- kills this vector
@@ -17,22 +18,47 @@ class Vector(object):
         treatment
     """
 
-    def __init__(self, population, id):
+    def __init__(self, population, id, slim=False):
         """Create a new Vector.
 
         Arguments:
         population -- the population this vector belongs to (Population)
         id -- unique identifier for this vector within population (String)
+        slim -- whether to create a slimmed-down representation of the
+            population for data storage (only ID, host and vector lists)
+            (Boolean, default False)
         """
         super(Vector, self).__init__()
         self.id = id
-        self.pathogens = {} # Dictionary with all current infections in this
-            # vector, with keys=genome strings, values=fitness numbers
-        self.population = population
-        self.sum_fitness = 0 # sum of all pathogen fitnesses within this vector
-        self.protection_sequences = [] # A list of strings this vector is immune
-            # to. If a pathogen's genome contains one of these values, it cannot
-            # infect this vector.
+
+        if not slim:
+                # if not slimmed down for data storage, save other attributes
+            self.pathogens = {} # Dictionary with all current infections in this
+                # vector, with keys=genome strings, values=fitness numbers
+            self.protection_sequences = [] # A list of strings this vector is
+                # immune to. If a pathogen's genome contains one of these
+                # values, it cannot infect this vector.
+            self.population = population
+            self.sum_fitness = 0
+                # sum of all pathogen fitnesses within this vector
+            self.max_fitness = 0
+                # max of all pathogen fitnesses within this vector
+            self.max_lethality = 0
+                # max of all pathogen lethalities within this vector (fraction
+                # of death rate)
+
+    def copyState(self):
+        """Returns a slimmed-down representation of the current vector state.
+
+        Returns:
+        Vector object with current pathogens and protection_sequences.
+        """
+
+        copy = Vector(None, self.id, slim=True)
+        copy.pathogens = self.pathogens.copy()
+        copy.protection_sequences = self.protection_sequences.copy()
+
+        return copy
 
     def infectHost(self, host):
         """Infect given host with a sample of this vector's pathogens.
@@ -62,11 +88,15 @@ class Vector(object):
                     )
                     and np.random.poisson(
                         self.population.mean_inoculum_host
+                            * self.max_fitness
                             * fitness / self.sum_fitness, 1
                         )
                     > 0 ):
                 host.pathogens[genome] = host.population.fitnessHost(genome)
                 host.sum_fitness += host.pathogens[genome]
+                if host.pathogens[genome] > host.max_fitness:
+                    host.max_fitness = host.pathogens[genome]
+
                 changed = True
                 if host not in host.population.infected_hosts:
                     host.population.infected_hosts.append(host)
@@ -77,7 +107,7 @@ class Vector(object):
     def recover(self):
         """Remove all infections from this vector.
 
-        If model is protecting upon recovery, add protecion sequence as defined
+        If model is protecting upon recovery, add protection sequence as defined
         by the indexes in the corresponding model parameter. Remove from
         population infected list and add to healthy list.
         """
@@ -91,6 +121,7 @@ class Vector(object):
 
         self.pathogens = {}
         self.sum_fitness = 0
+        self.max_fitness = 0
         if self in self.population.infected_vectors:
             self.population.infected_vectors.remove(self)
 
@@ -126,3 +157,6 @@ class Vector(object):
         if ( len(self.pathogens) == 0
                 and self in self.population.infected_vectors ):
             self.population.infected_vectors.remove(self)
+            self.max_fitness = 0
+        elif len(self.pathogens) > 0:
+            self.max_fitness = max(self.pathogens.values())

@@ -3,6 +3,7 @@
 
 import numpy as np
 import copy as cp
+import random
 
 from opqua.internal.host import Host
 from opqua.internal.vector import Vector
@@ -12,6 +13,7 @@ class Population(object):
 
     Methods:
     setSetup -- assigns a given set of parameters to this population
+    copyState -- returns a slimmed-down version of the current population state
     addHosts -- adds hosts to the population
     addVectors -- adds vectors to the population
     newHostGroup -- returns a list of random (healthy or any) hosts
@@ -26,6 +28,8 @@ class Population(object):
     treatVectors -- removes infections susceptible to treatment from vectors
     protectHosts -- adds protection sequence to hosts
     protectVectors -- adds protection sequence to vectors
+    wipeProtectionHosts -- removes all protection sequences from hosts
+    wipeProtectionVectors -- removes all protection sequences from hosts
     setNeighbor -- sets migration rate from this population towards another
     migrate -- transfers hosts and/or vectors from this population to a neighbor
     contactInfectedHostAnyHost -- carries out a contact event between a random
@@ -38,50 +42,98 @@ class Population(object):
     mutateVector -- mutates a single locus in a random pathogen in a vector
     recombineHost -- recombines two random pathogens in a host
     recombineVector -- recombines two random pathogens in a host
+    updateHostFitness -- updates fitness of pathogens in population's hosts
+    updateVectorFitness -- updates fitness of pathogens in population's vectors
     """
 
-    def __init__(self, model, id, setup, num_hosts, num_vectors):
+    def __init__(self, id, setup, num_hosts, num_vectors, slim=False):
         """Create a new Population.
 
         Arguments:
-        model -- the model this population belongs to (Model)
         id -- unique identifier for this population in the model (String)
         setup -- setup object with parameters for this population (Setup)
         num_hosts -- number of hosts to initialize population with (int)
         num_vectors -- number of hosts to initialize population with (int)
+        slim -- whether to create a slimmed-down representation of the
+            population for data storage (only ID, host and vector lists)
+            (Boolean, default False)
         """
         super(Population, self).__init__()
 
         self.id = id
 
-        self.hosts = [
-            Host(
-                self, self.id + '_' + str(id)
-            ) for id in range(int(num_hosts))
-            ]
-            # contains all live hosts
-        self.vectors = [
-            Vector(
-                self, self.id + '_' + str(id)
-            ) for id in range(int(num_vectors))
-            ]
-            # contains all live vectors
-        self.infected_hosts = []
-            # contains live, infected hosts (also in hosts list)
-        self.healthy_hosts = self.hosts.copy()
-            # contains live, healthy hosts (also in hosts list)
-        self.infected_vectors = []
-            # contains live, infected vectors (also in vectors list)
-        self.dead_hosts = [] # contains dead hosts (not in hosts list)
-        self.dead_vectors = [] # contains dead vectors (not in vectors list)
-        self.neighbors = {} # dictionary with neighboring populations,
-            # keys=Population, values=migration rate from this population to
-            # neighboring population
+        if not slim:
+                # if not slimmed down for data storage, save other attributes
+            self.hosts = [
+                Host(
+                    self, self.id + '_' + str(id)
+                ) for id in range(int(num_hosts))
+                ]
+                # contains all live hosts
+            self.vectors = [
+                Vector(
+                    self, self.id + '_' + str(id)
+                ) for id in range(int(num_vectors))
+                ]
+                # contains all live vectors
+            self.infected_hosts = []
+                # contains live, infected hosts (also in hosts list)
+            self.healthy_hosts = self.hosts.copy()
+                # contains live, healthy hosts (also in hosts list)
+            self.infected_vectors = []
+                # contains live, infected vectors (also in vectors list)
+            self.dead_hosts = [] # contains dead hosts (not in hosts list)
+            self.dead_vectors = [] # contains dead vectors (not in vectors list)
+            self.neighbors = {} # dictionary with neighboring populations,
+                # keys=Population, values=migration rate from this population to
+                # neighboring population
 
-        self.total_migration_rate = 0 # sum of all migration rates from this
-            # population to neighbors
+            self.total_migration_rate = 0 # sum of all migration rates from this
+                # population to neighbors
 
-        self.setSetup(setup)
+            self.setSetup(setup)
+
+    def copyState(self,host_sampling=0,vector_sampling=0):
+        """Returns a slimmed-down version of the current population state.
+
+        Arguments:
+        host_sampling -- how many hosts to skip before saving one in a snapshot
+            of the system state (saves all by default) (int, default 0)
+        vector_sampling -- how many vectors to skip before saving one in a
+            snapshot of the system state (saves all by default) (int, default 0)
+
+        Returns:
+        Population object with current host and vector lists.
+        """
+
+        copy = Population(self.id, None, 0, 0, slim=True)
+        if host_sampling > 0:
+            host_sample = random.sample(
+                self.hosts, int( len(self.hosts) / host_sampling )
+                )
+            dead_host_sample = random.sample(
+                self.dead_hosts, int( len(self.dead_hosts) / host_sampling )
+                )
+            copy.hosts = [ h.copyState() for h in host_sample ]
+            copy.dead_hosts = [ h.copyState() for h in dead_host_sample ]
+        else:
+            copy.hosts = [ h.copyState() for h in self.hosts ]
+            copy.dead_hosts = [ h.copyState() for h in self.dead_hosts ]
+
+        if vector_sampling > 0:
+            vector_sample = random.sample(
+                self.vectors, int( len(self.vectors) / vector_sampling )
+                )
+            dead_vector_sample = random.sample(
+                self.dead_vectors, int( len(self.dead_vectors)/vector_sampling )
+                )
+            copy.vectors = [ v.copyState() for v in vector_sample ]
+            copy.dead_vectors = [ v.copyState() for v in dead_vector_sample ]
+        else:
+            copy.vectors = [ v.copyState() for v in self.vectors ]
+            copy.dead_vectors = [ v.copyState() for v in self.dead_vectors ]
+
+        return copy
 
     def setSetup(self, setup):
         """Assign parameters stored in Setup object to this population.
@@ -96,7 +148,14 @@ class Population(object):
         self.possible_alleles = setup.possible_alleles
 
         self.fitnessHost = setup.fitnessHost
+        self.updateHostFitness()
         self.fitnessVector = setup.fitnessVector
+        self.updateVectorFitness()
+        self.lethalityHost = setup.lethalityHost
+        self.updateHostLethality()
+        self.lethalityVector = setup.lethalityVector
+        self.updateVectorLethality()
+
         self.contact_rate_host_vector = setup.contact_rate_host_vector
         self.contact_rate_host_host = setup.contact_rate_host_host
             # contact rate assumes fixed area--large populations are dense
@@ -307,6 +366,9 @@ class Population(object):
                     if genome not in rand_host.pathogens:
                         rand_host.pathogens[genome] = new_fitness
                         rand_host.sum_fitness += new_fitness
+                        if rand_host.pathogens[genome] > rand_host.max_fitness:
+                            rand_host.max_fitness = rand_host.pathogens[genome]
+
             else:
                 raise ValueError('Genome ' + genome + ' must be of length '
                     + str(self.num_loci)
@@ -345,6 +407,8 @@ class Population(object):
                     if genome not in rand_vector.pathogens:
                         rand_vector.pathogens[genome] = new_fitness
                         rand_vector.sum_fitness += new_fitness
+                        if rand_vector.pathogens[genome] > rand_vector.max_fitness:
+                            rand_vector.max_fitness = rand_vector.pathogens[genome]
             else:
                 raise ValueError('Genome ' + genome + ' must be of length '
                     + str(self.num_loci)
@@ -377,23 +441,27 @@ class Population(object):
 
         self.infected_vectors[index_vector].recover()
 
-    def killHost(self, index_host):
+    def killHost(self, index_host, rand):
         """Add host at this index to dead list, remove it from alive ones.
 
         Arguments:
         index_host -- index of host in infected_hosts (int)
+        rand -- a random number between 0 and 1 used to determine death
         """
 
-        self.infected_hosts[index_host].die()
+        if infected_hosts[index_host].max_lethality > rand:
+            self.infected_hosts[index_host].die()
 
-    def killVector(self, index_vector):
+    def killVector(self, index_vector, rand):
         """Add host at this index to dead list, remove it from alive ones.
 
         Arguments:
         index_vector -- index of vector in infected_vectors (int)
+        rand -- a random number between 0 and 1 used to determine death
         """
 
-        self.infected_vectors[index_vector].die()
+        if infected_hosts[index_host].max_lethality > rand:
+            self.infected_vectors[index_vector].die()
 
     def treatHosts(self, frac_hosts, resistance_seqs, hosts=[]):
         """Treat random fraction of infected hosts against some infection.
@@ -520,6 +588,52 @@ class Population(object):
         for vector in protect_vectors:
             vector.protection_sequences.append(protection_sequence)
 
+    def wipeProtectionHosts(self, hosts=[]):
+        """Removes all protection sequences from hosts.
+
+        Keyword arguments:
+        hosts -- list of specific hosts to sample from, if empty, samples from
+            whole population (default empty list; empty)
+        """
+
+        hosts_to_consider = self.hosts
+        if len(hosts) > 0:
+            hosts_to_consider = hosts
+
+        for host in hosts_to_consider:
+            host.protection_sequences = []
+
+    def wipeProtectionVectors(self, vectors=[]):
+        """Removes all protection sequences from vectors.
+
+        Keyword arguments:
+        vectors -- list of specific vectors to sample from, if empty, samples from
+            whole population (default empty list; empty)
+        """
+
+        vectors_to_consider = self.vectors
+        if len(vectors) > 0:
+            vectors_to_consider = vectors
+
+        for vector in vectors_to_consider:
+            vector.protection_sequences = []
+
+    def protectHosts(self, frac_hosts, protection_sequence, hosts=[]):
+        """Protect a random fraction of infected hosts against some infection.
+
+        Adds protection sequence specified to a random fraction of the hosts
+        specified. Does not cure them if they are already infected.
+
+        Arguments:
+        frac_hosts -- fraction of hosts considered to be randomly selected
+            (number between 0 and 1)
+        protection_sequence -- sequence against which to protect (String)
+
+        Keyword arguments:
+        hosts -- list of specific hosts to sample from, if empty, samples from
+            whole population (default empty list; empty)
+        """
+
     def setNeighbor(self, neighbor, rate):
         """Set migration rate from this population towards another one.
 
@@ -639,7 +753,12 @@ class Population(object):
             if new_genome not in host.pathogens:
                 host.pathogens[new_genome] = self.fitnessHost(new_genome)
                 host.sum_fitness += host.pathogens[new_genome]
+                if host.pathogens[new_genome] > host.max_fitness:
+                    host.max_fitness = host.pathogens[new_genome]
 
+                lethality = self.lethalityHost(new_genome)
+                if lethality > host.max_lethality:
+                    host.max_lethality = lethality
 
     def mutateVector(self, index_vector):
         """Mutate a single, random locus in a random pathogen in given vector.
@@ -662,6 +781,12 @@ class Population(object):
             if new_genome not in vector.pathogens:
                 vector.pathogens[new_genome] = self.fitnessHost(new_genome)
                 vector.sum_fitness += vector.pathogens[new_genome]
+                if vector.pathogens[new_genome] > vector.max_fitness:
+                    vector.max_fitness = vector.pathogens[new_genome]
+
+                lethality = self.lethalityVector(new_genome)
+                if lethality > vector.max_lethality:
+                    vector.max_lethality = lethality
 
     def recombineHost(self, index_host):
         """Recombine two random pathogen genomes at random locus in given host.
@@ -683,6 +808,12 @@ class Population(object):
             if new_genome not in host.pathogens:
                 host.pathogens[new_genome] = self.fitnessHost(new_genome)
                 host.sum_fitness += host.pathogens[new_genome]
+                if host.pathogens[new_genome] > host.max_fitness:
+                    host.max_fitness = host.pathogens[new_genome]
+
+                lethality = self.lethalityHost(new_genome)
+                if lethality > host.max_lethality:
+                    host.max_lethality = lethality
 
     def recombineVector(self, index_vector):
         """Recombine 2 random pathogen genomes at random locus in given vector.
@@ -704,3 +835,67 @@ class Population(object):
             if new_genome not in vector.pathogens:
                 vector.pathogens[new_genome] = self.fitnessHost(new_genome)
                 vector.sum_fitness += vector.pathogens[new_genome]
+                if vector.pathogens[new_genome] > vector.max_fitness:
+                    vector.max_fitness = vector.pathogens[new_genome]
+
+                lethality = self.lethalityVector(new_genome)
+                if lethality > vector.max_lethality:
+                    vector.max_lethality = lethality
+
+    def updateHostFitness(self):
+        """Updates fitness values of all pathogens in hosts for this population.
+
+        """
+        for h in self.hosts:
+            h.pathogens = {
+                g:self.fitnessHost(g) for g,f in h.pathogens.items()
+                }
+            fitnesses = np.array( list( h.pathogens.values() ) )
+            if len(fitnesses) > 0:
+                h.sum_fitness = fitnesses.sum()
+                h.max_fitness = fitnesses.max()
+            else:
+                h.sum_fitness = 0
+                h.max_fitness = 0
+
+    def updateVectorFitness(self):
+        """Updates fitness values of all pathogens in vectors for this
+        population.
+
+        """
+        for v in self.vectors:
+            v.pathogens = {
+                g:self.fitnessVector(g) for g,f in v.pathogens.items()
+                }
+            fitnesses = np.array( list( v.pathogens.values() ) )
+            if len(fitnesses) > 0:
+                v.sum_fitness = fitnesses.sum()
+                v.max_fitness = fitnesses.max()
+            else:
+                v.sum_fitness = 0
+                v.max_fitness = 0
+
+    def updateHostLethality(self):
+        """Updates lethality values of all pathogens in hosts for population.
+
+        """
+        for h in self.hosts:
+            if len(h.pathogens) > 0:
+                h.max_lethality = max(
+                    [ self.lethalityHost(g) for g,f in h.pathogens.items() ]
+                    )
+            else:
+                h.max_lethality = 0
+
+    def updateVectorLethality(self):
+        """Updates lethality values of all pathogens in vectors for this
+        population.
+
+        """
+        for v in self.vectors:
+            if len(v.pathogens) > 0:
+                v.max_lethality = max(
+                    [ self.lethalityVector(g) for g,f in v.pathogens.items() ]
+                    )
+            else:
+                v.max_lethality = 0

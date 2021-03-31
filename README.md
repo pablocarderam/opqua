@@ -57,7 +57,7 @@ Here, an optimal pathogen genome arises and outcompetes all others.
 ![Compartments](examples/img/Stabilizing_selection_composition.png "Stabilizing_selection composition")
 
 #### Host/vector compartment plots
-Here "Recovered" denotes immunized hosts.
+Here "Recovered" denotes immunized, uninfected hosts.
 ![Compartments](examples/img/Intervention_examples_compartments.png "Intervention_examples compartments")
 
 #### Plots of a host/vector compartment across different populations in a metapopulation
@@ -172,14 +172,19 @@ treatment from hosts
 treatment from vectors
 - [protectHosts](#protecthosts) -- adds protection sequence to hosts
 - [protectVectors](#protectvectors) -- adds protection sequence to vectors
+- [wipeProtectionHosts](#wipeProtectionHosts) -- removes all protection
+sequences from hosts
+- [wipeProtectionVectors](#wipeProtectionVectors) -- removes all protection
+sequences from vectors
 
 
 #### Preset fitness functions ###
 
-- [stabilizingSelection](#stabilizingselection) -- evaluates genome fitness
-by decreasing with distance from optimal sequence
-- [disruptiveSelection](#disruptiveselection) -- evaluates genome fitness by
+- [peakLandscape](#peakLandscape) -- evaluates genome numeric phenotype by
+decreasing with distance from optimal sequence
+- [valleyLandscape](#valleyLandscape) -- evaluates genome numeric phenotype by
 increasing with distance from worst sequence
+
 
 ### Detailed Model method list
 
@@ -314,7 +319,7 @@ _Arguments:_
 #### run
 
 ```python
-run(t0,tf)
+run(t0,tf,sampling=0,host_sampling=0,vector_sampling=0)
 ```
 
 Simulate model for a specified time between two time points.
@@ -328,6 +333,13 @@ model's history attribute.
 _Arguments:_
 - t0 -- initial time point to start simulation at (number)
 - tf -- initial time point to end simulation at (number)
+- time_sampling -- how many events to skip before saving a snapshot of the
+    system state (saves all by default), if <0, saves only final state
+    (int, default 0)
+host_sampling -- how many hosts to skip before saving one in a snapshot
+    of the system state (saves all by default) (int, default 0)
+vector_sampling -- how many vectors to skip before saving one in a  
+    snapshot of the system state (saves all by default) (int, default 0)
 
 #### saveToDataFrame
 
@@ -824,7 +836,7 @@ keys=Strings, values=int)
 
 _Keyword Arguments:_
 - group_id -- ID of group to sample hosts to sample from, if empty, samples from
-whole population (default empty String; empty)
+whole population (default empty String; String)
 
 #### addPathogensToVectors
 
@@ -843,7 +855,7 @@ keys=Strings, values=int)
 
 _Keyword Arguments:_
 - group_id -- ID of group to sample vectors to sample from, if empty, samples
-from whole population (default empty String; empty)
+from whole population (default empty String; String)
 
 #### treatHosts
 
@@ -868,7 +880,7 @@ _Arguments:_
 
 _Keyword Arguments:_
 - group_id -- ID of group to sample hosts to sample from, if empty, samples from
-whole population (default empty String; empty)
+whole population (default empty String; String)
 
 #### treatVectors
 
@@ -893,7 +905,7 @@ _Arguments:_
 
 _Keyword Arguments:_
 - group_id -- ID of group to sample vectors to sample from, if empty, samples
-from whole population (default empty String; empty)
+from whole population (default empty String; String)
 
 #### protectHosts
 
@@ -915,7 +927,7 @@ _Arguments:_
 
 _Keyword Arguments:_
 - group_id -- ID of group to sample hosts to sample from, if empty, samples from
-whole population (default empty String; empty)
+whole population (default empty String; String)
 
 #### protectVectors
 
@@ -937,7 +949,39 @@ _Arguments:_
 
 _Keyword Arguments:_
 - group_id -- ID of group to sample vectors to sample from, if empty, samples
-from whole population (default empty String; empty)
+from whole population (default empty String; String)
+
+#### wipeProtectionHosts
+
+```python
+wipeProtectionHosts(self, pop_id, group_id="")
+```
+
+
+Removes all protection sequences from hosts.
+
+_Arguments:_
+pop_id -- ID of population to be modified (String)
+
+_Keyword Arguments:_
+- group_id -- ID of group to sample hosts to sample from, if empty, takes
+whole population (default empty String; String)
+
+#### wipeProtectionVectors
+
+```python
+wipeProtectionVectors(self, pop_id, group_id="")
+```
+
+
+Removes all protection sequences from vectors.
+
+_Arguments:_
+pop_id -- ID of population to be modified (String)
+
+_Keyword Arguments:_
+- group_id -- ID of group to sample vectors to sample from, if empty, takes
+whole population (default empty String; String)
 
 #### setSetup
 
@@ -952,47 +996,54 @@ _Arguments:_
 - pop_id -- ID of population to be modified (String)
 - setup_id -- ID of setup to be assigned (String)
 
-#### stabilizingSelection
+#### peakLandscape
 
 ```python
-stabilizingSelection(genome, optimal_genome, min_fitness)
+peakLandscape(genome, peak_genome, min_value)
 ```
 
 
-Evaluate genome fitness by decreasing with distance from optimal seq.
+Evaluate a genome's numerical phenotype by decreasing with distance from optimal
+seq.
 
-A purifying selection fitness function based on exponential decay of
-fitness as genomes move away from the optimal sequence. Distance is
+Originally meant as a purifying selection fitness function based on exponential
+decay of fitness as genomes move away from the optimal sequence. Distance is
 measured as percent Hamming distance from an optimal genome sequence.
+
+Can be used to evaluate lethality as well as transmissibility.
 
 _Arguments:_
 - genome -- the genome to be evaluated (String)
-- optimal_genome -- the genome sequence to measure distance against, has
-fitness of 1 (String)
-- min_fitness -- minimum fitness value at maximum distance from optimal
-genome (number > 0)
+- peak_genome -- the genome sequence to measure distance against, has
+    value of 1 (String)
+- min_value -- minimum value at maximum distance from optimal
+    genome (number > 0)
 
 Return:
-- fitness value of genome (number)
+- value of genome (number)
 
-#### disruptiveSelection
+#### valleyLandscape
 
 ```python
-disruptiveSelection(genome, worst_genome, min_fitness)
+valleyLandscape(genome, worst_genome, min_fitness)
 ```
 
 
-Evaluate genome fitness by increasing with distance from worst seq.
+Evaluate a genome's numerical phenotype by increasing with distance from worst
+seq.
 
-A purifying selection fitness function based on exponential decay of
-fitness as genomes move closer to the worst possible sequence. Distance
-is measured as Hamming distance from the worst possible genome sequence.
+Originally meant as a disruptive selection fitness function based on exponential
+decay of fitness as genomes move closer to the worst possible sequence. Distance
+is measured as percent Hamming distance from the worst possible genome
+sequence.
+
+Can be used to evaluate lethality as well as transmissibility.
 
 _Arguments:_
-- genome -- the genome to be evalued (String)
-- optimal_genome -- the genome sequence to measure distance against, has
-fitness of min_fitness (String)
-- min_fitness -- fitness value of worst possible genome (number > 0)
+- genome -- the genome to be evaluated (String)
+- valley_genome -- the genome sequence to measure distance against, has
+        value of min_value (String)
+- min_value -- fitness value of worst possible genome (number > 0)
 
 Return:
-- fitness value of genome (number)
+- value of genome (number)

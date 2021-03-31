@@ -8,6 +8,7 @@ class Setup(object):
             self,
             num_loci, possible_alleles,
             fitnessHost, fitnessVector,
+            lethalityHost, lethalityVector,
             contact_rate_host_vector, contact_rate_host_host,
             mean_inoculum_host, mean_inoculum_vector,
             recovery_rate_host, recovery_rate_vector,
@@ -25,6 +26,10 @@ class Setup(object):
             (number >= 0)
         fitnessVector -- relative fitness in head-to-head competition within
             vector (number >= 0)
+        lethalityHost -- host lethality as a fraction of death rate
+            (number 0 – 1)
+        lethalityVector -- vector lethality as a fraction of death rate
+            (number 0 – 1)
         contact_rate_host_vector -- rate of host-vector contact events, not
             necessarily transmission, assumes constant population density;
             evts/time (number >= 0)
@@ -68,6 +73,8 @@ class Setup(object):
 
         self.fitnessHost = fitnessHost
         self.fitnessVector = fitnessVector
+        self.lethalityHost = lethalityHost
+        self.lethalityVector = lethalityVector
         self.contact_rate_host_vector = contact_rate_host_vector
         self.contact_rate_host_host = contact_rate_host_host
             # contact rates assumes scaling area--large populations are equally
