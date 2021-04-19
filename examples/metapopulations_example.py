@@ -23,16 +23,19 @@ model.newPopulation(
     ) # A third population will remain isolated.
 
 model.createInterconnectedPopulations(
-    5,1e-2,'clustered_population_','setup_cluster', num_hosts=20, num_vectors=20
+    5,'clustered_population_','setup_cluster',
+    host_migration_rate=1e-2, vector_migration_rate=0,
+    host_contact_rate=0, vector_contact_rate=0,
+    num_hosts=20, num_vectors=20
     )
     # Create a cluster of 5 populations connected to each other with a migration
     # rate of 1e-2 between each of them in both directions. Each population has
     # an numbered ID with the prefix "clustered_population_", has the parameters
     # defined in the "setup_cluster" setup, and has 20 hosts and vectors.
-model.linkPopulations('population_A','clustered_population_4',1e-2)
+model.linkPopulationsHostMigration('population_A','clustered_population_4',1e-2)
     # We link population_A to one of the clustered populations with a one-way
     # migration rate of 1e-2.
-model.linkPopulations('population_A','population_B',1e-2)
+model.linkPopulationsHostMigration('population_A','population_B',1e-2)
     # We link population_A to population_B with a one-way migration rate of
     # 1e-2.
 
@@ -41,7 +44,7 @@ model.addPathogensToHosts( 'population_A',{'AAAAAAAAAA':5} )
 model.addPathogensToHosts( 'population_B',{'GGGGGGGGGG':5} )
     # population_B starts with GGGGGGGGGG genotype pathogens.
 
-output = model.run(0,100)
+output = model.run(0,100,time_sampling=0)
 data = model.saveToDataFrame('Metapopulations_example.csv')
 graph = model.populationsPlot( # Plot infected hosts per population over time.
     'Metapopulations_example.png', data,

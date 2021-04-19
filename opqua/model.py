@@ -1,14 +1,14 @@
-# TODO: pathogen genome influences transmission probability
-# TODO: independent recombination of alleles
+# TODO: pathogen genome influences transmission, death, recovery, migration, mutation probabilities. Done, test
+# TODO: independent recombination of alleles -> make chromosome separators!! make reassortment parameter option as related but separate to recombination
 
-# TODO: migrate vectors
-# TODO: contact between populations (without migration)
-# TODO: host/vector birth/death rates in populations
+# TODO: migrate vectors. Done, test
+# TODO: contact between populations (without migration). Done, test
+# TODO: host/vector birth/death rates in populations -> make birth event
 
-# TODO: make labels optional, if no labels write a file with the genomes in
+# TODO: make genome labels optional, if no labels write a file with the genomes in
 #       the same order for compositionPlot
 # TODO: compositionPlot – make custom groupings, eg. "genomes containing
-#       sequence AAA"
+#       sequence AAA". Make option to count only 1 fitness-dominant strain/host
 # TODO: arbitrary comparments (group_id) for compartment plot
 
 # TODO: parallelizeable simulations
@@ -141,8 +141,13 @@ class Model(object):
     def newSetup(
             self, name, preset=None,
             num_loci=None, possible_alleles=None,
-            fitnessHost=None, fitnessVector=None,
-            lethalityHost=None, lethalityVector=None,
+            fitnessHost=None, contactHost=None, lethalityHost=None,
+            recoveryHost=None, migrationHost=None,
+            populationContactHost=None, mutationHost=None,
+            recombinationHost=None, fitnessVector=None,
+            contactVector=None, lethalityVector=None, recoveryVector=None,
+            migrationVector=None, populationContactVector=None,
+            mutationVector=None, recombinationVector=None,
             contact_rate_host_vector=None, contact_rate_host_host=None,
             mean_inoculum_host=None, mean_inoculum_vector=None,
             recovery_rate_host=None, recovery_rate_vector=None,
@@ -260,14 +265,37 @@ class Model(object):
             possible_alleles = \
                 'ATCG' if possible_alleles is None else possible_alleles
             fitnessHost = (lambda g: 1) if fitnessHost is None else fitnessHost
-            fitnessVector = \
-                (lambda g: 1) if fitnessVector is None else fitnessVector
+            contactHost = (lambda g: 1) if contactHost is None else contactHost
             lethalityHost = \
                 (lambda g: 1) if lethalityHost is None else lethalityHost
+            recoveryHost = \
+                (lambda g: 1) if recoveryHost is None else recoveryHost
+            migrationHost = \
+                (lambda g: 1) if migrationHost is None else migrationHost
+            populationContactHost = \
+                (lambda g: 1) if populationContactHost is None else populationContactHost
+            mutationHost = \
+                (lambda g: 1) if mutationHost is None else mutationHost
+            recombinationHost = \
+                (lambda g: 1) if recombinationHost is None else recombinationHost
+            fitnessVector = \
+                (lambda g: 1) if fitnessVector is None else fitnessVector
+            contactVector = \
+                (lambda g: 1) if contactVector is None else contactVector
             lethalityVector = \
                 (lambda g: 1) if lethalityVector is None else lethalityVector
+            recoveryVector = \
+                (lambda g: 1) if recoveryVector is None else recoveryVector
+            migrationVector = \
+                (lambda g: 1) if migrationVector is None else migrationVector
+            populationContactVector = \
+                (lambda g: 1) if populationContactVector is None else populationContactVector
+            mutationVector = \
+                (lambda g: 1) if mutationVector is None else mutationVector
+            recombinationVector = \
+                (lambda g: 1) if recombinationVector is None else recombinationVector
             contact_rate_host_vector = \
-                1e1 if contact_rate_host_vector is None \
+                2e-1 if contact_rate_host_vector is None \
                 else contact_rate_host_vector
             contact_rate_host_host = \
                 0 if contact_rate_host_host is None else contact_rate_host_host
@@ -278,11 +306,11 @@ class Model(object):
             recovery_rate_host = \
                 1e-1 if recovery_rate_host is None else recovery_rate_host
             recovery_rate_vector = \
-                1e-2 if recovery_rate_vector is None else recovery_rate_vector
+                1e-1 if recovery_rate_vector is None else recovery_rate_vector
             recombine_in_host = \
                 0 if recombine_in_host is None else recombine_in_host
             recombine_in_vector = \
-                1e-2 if recombine_in_vector is None else recombine_in_vector
+                1e-4 if recombine_in_vector is None else recombine_in_vector
             mutate_in_host = 1e-6 if mutate_in_host is None else mutate_in_host
             mutate_in_vector = \
                 0 if mutate_in_vector is None else mutate_in_vector
@@ -297,17 +325,40 @@ class Model(object):
             possible_alleles = \
                 'ATCG' if possible_alleles is None else possible_alleles
             fitnessHost = (lambda g: 1) if fitnessHost is None else fitnessHost
-            fitnessVector = \
-                (lambda g: 1) if fitnessVector is None else fitnessVector
+            contactHost = (lambda g: 1) if contactHost is None else contactHost
             lethalityHost = \
                 (lambda g: 1) if lethalityHost is None else lethalityHost
+            recoveryHost = \
+                (lambda g: 1) if recoveryHost is None else recoveryHost
+            migrationHost = \
+                (lambda g: 1) if migrationHost is None else migrationHost
+            populationContactHost = \
+                (lambda g: 1) if populationContactHost is None else populationContactHost
+            mutationHost = \
+                (lambda g: 1) if mutationHost is None else mutationHost
+            recombinationHost = \
+                (lambda g: 1) if recombinationHost is None else recombinationHost
+            fitnessVector = \
+                (lambda g: 1) if fitnessVector is None else fitnessVector
+            contactVector = \
+                (lambda g: 1) if contactVector is None else contactVector
             lethalityVector = \
                 (lambda g: 1) if lethalityVector is None else lethalityVector
+            recoveryVector = \
+                (lambda g: 1) if recoveryVector is None else recoveryVector
+            migrationVector = \
+                (lambda g: 1) if migrationVector is None else migrationVector
+            populationContactVector = \
+                (lambda g: 1) if populationContactVector is None else populationContactVector
+            mutationVector = \
+                (lambda g: 1) if mutationVector is None else mutationVector
+            recombinationVector = \
+                (lambda g: 1) if recombinationVector is None else recombinationVector
             contact_rate_host_vector = \
                 0 if contact_rate_host_vector is None \
                 else contact_rate_host_vector
             contact_rate_host_host = \
-                2e1 if contact_rate_host_host is None \
+                2e-1 if contact_rate_host_host is None \
                 else contact_rate_host_host
             mean_inoculum_host = \
                 1e1 if mean_inoculum_host is None else mean_inoculum_host
@@ -316,9 +367,9 @@ class Model(object):
             recovery_rate_host = \
                 1e-1 if recovery_rate_host is None else recovery_rate_host
             recovery_rate_vector = \
-                1e1 if recovery_rate_vector is None else recovery_rate_vector
+                0 if recovery_rate_vector is None else recovery_rate_vector
             recombine_in_host = \
-                1e-3 if recombine_in_host is None else recombine_in_host
+                1e-4 if recombine_in_host is None else recombine_in_host
             recombine_in_vector = \
                 0 if recombine_in_vector is None else recombine_in_vector
             mutate_in_host = \
@@ -334,8 +385,11 @@ class Model(object):
 
         self.setups[name] = Setup(
             num_loci, possible_alleles,
-            fitnessHost, fitnessVector,
-            lethalityHost, lethalityVector,
+            fitnessHost, contactHost, lethalityHost, recoveryHost, migrationHost,
+            populationContactHost, mutationHost, recombinationHost,
+            fitnessVector, contactVector, lethalityVector,
+            recoveryVector, migrationVector, populationContactVector,
+            mutationVector, recombinationVector,
             contact_rate_host_vector, contact_rate_host_host,
             mean_inoculum_host, mean_inoculum_vector,
             recovery_rate_host, recovery_rate_vector,
@@ -753,8 +807,19 @@ class Model(object):
             id, self.setups[setup_name], num_hosts, num_vectors
             )
 
-    def linkPopulations(self, pop1_id, pop2_id, rate):
-        """Set migration rate from one population towards another.
+        for p in self.populations:
+            self.populations[id].setHostMigrationNeighbor(p,0)
+            self.populations[id].setVectorMigrationNeighbor(p,0)
+            self.populations[id].setHostPopulationContactNeighbor(p,0)
+            self.populations[id].setVectorPopulationContactNeighbor(p,0)
+
+            self.populations[p].setHostMigrationNeighbor(id,0)
+            self.populations[p].setVectorMigrationNeighbor(id,0)
+            self.populations[p].setHostPopulationContactNeighbor(id,0)
+            self.populations[p].setVectorPopulationContactNeighbor(id,0)
+
+    def linkPopulationsHostMigration(self, pop1_id, pop2_id, rate):
+        """Set host migration rate from one population towards another.
 
         Arguments:
         neighbor -- population towards which migration rate will be specified
@@ -763,10 +828,56 @@ class Model(object):
             (number)
         """
 
-        self.populations[pop1_id].setNeighbor( self.populations[pop2_id], rate )
+        self.populations[pop1_id].setHostMigrationNeighbor(
+            self.populations[pop2_id], rate
+            )
+
+    def linkPopulationsVectorMigration(self, pop1_id, pop2_id, rate):
+        """Set vector migration rate from one population towards another.
+
+        Arguments:
+        neighbor -- population towards which migration rate will be specified
+            (Population)
+        rate -- migration rate from this population to the neighbor; evts/time
+            (number)
+        """
+
+        self.populations[pop1_id].setVectorMigrationNeighbor(
+            self.populations[pop2_id], rate
+            )
+
+    def linkPopulationsHostContact(self, pop1_id, pop2_id, rate):
+        """Set host migration rate from one population towards another.
+
+        Arguments:
+        neighbor -- population towards which migration rate will be specified
+            (Population)
+        rate -- migration rate from this population to the neighbor; evts/time
+            (number)
+        """
+
+        self.populations[pop1_id].setHostPopulationContactNeighbor(
+            self.populations[pop2_id], rate
+            )
+
+    def linkPopulationsVectorContact(self, pop1_id, pop2_id, rate):
+        """Set vector migration rate from one population towards another.
+
+        Arguments:
+        neighbor -- population towards which migration rate will be specified
+            (Population)
+        rate -- migration rate from this population to the neighbor; evts/time
+            (number)
+        """
+
+        self.populations[pop1_id].setVectorPopulationContactNeighbor(
+            self.populations[pop2_id], rate
+            )
 
     def createInterconnectedPopulations(
-            self, num_populations, migration_rate, id_prefix, setup_name,
+            self, num_populations, id_prefix, setup_name,
+            host_migration_rate=0, vector_migration_rate=0,
+            host_contact_rate=0, vector_contact_rate=0,
             num_hosts=100, num_vectors=100):
         """Create new populations, link all of them to each other.
 
@@ -791,7 +902,7 @@ class Model(object):
 
         new_pops = [
             Population(
-                id_prefix + str(i), self.setups[setup_name],
+                str(id_prefix) + str(i), self.setups[setup_name],
                 num_hosts, num_vectors
                 ) for i in range(num_populations)
             ]
@@ -803,43 +914,73 @@ class Model(object):
             self.populations[pop.id] = pop
             new_pop_ids.append(pop.id)
 
+            for p in self.populations:
+                self.populations[pop.id].setHostMigrationNeighbor(p,0)
+                self.populations[pop.id].setVectorMigrationNeighbor(p,0)
+                self.populations[pop.id].setHostPopulationContactNeighbor(p,0)
+                self.populations[pop.id].setVectorPopulationContactNeighbor(p,0)
+
+                self.populations[p].setHostMigrationNeighbor(pop.id,0)
+                self.populations[p].setVectorMigrationNeighbor(pop.id,0)
+                self.populations[p].setHostPopulationContactNeighbor(pop.id,0)
+                self.populations[p].setVectorPopulationContactNeighbor(pop.id,0)
+
         for p1_id in new_pop_ids:
             for p2_id in new_pop_ids:
-                self.linkPopulations(p1_id,p2_id,migration_rate)
+                self.linkPopulationsHostMigration(
+                    p1_id,p2_id,host_migration_rate
+                    )
+                self.linkPopulationsVectorMigration(
+                    p1_id,p2_id,vector_migration_rate
+                    )
+                self.linkPopulationsHostContact(
+                    p1_id,p2_id,host_migration_rate
+                    )
+                self.linkPopulationsVectorContact(
+                    p1_id,p2_id,vector_migration_rate
+                    )
 
-    def newHostGroup(self, pop_id, group_id, num_hosts, healthy=False):
-        """Return a list of random (healthy or any) hosts in population.
+    def newHostGroup(self, pop_id, group_id, hosts=-1, type='any'):
+        """Return a list of random hosts in population.
 
         Arguments:
         pop_id -- ID of population to be modified (String)
-        num_vectors -- number of vectors to be sampled randomly (int)
+        hosts -- number of hosts to be sampled randomly: if <0, samples from
+            whole population; if <1, takes that fraction of population; if >=1,
+            samples that integer number of hosts (default -1, number)
 
         Keyword arguments:
-        healthy -- whether to sample healthy hosts only (default True; Boolean)
+        type -- whether to sample healthy hosts only, infected hosts only, or
+            any hosts (default 'any'; String = {'healthy', 'infected', 'any'})
 
         Returns:
         list containing sampled hosts
         """
 
-        self.groups[group_id] = self.populations[pop_id].newHostGroup(num_hosts)
+        self.groups[group_id] = self.populations[pop_id].newHostGroup(
+            hosts, type
+            )
 
-    def newVectorGroup(self, pop_id, group_id, num_vectors, healthy=False):
-        """Return a list of random (healthy or any) vectors in population.
+    def newVectorGroup(self, pop_id, group_id, vectors=-1, type='any'):
+        """Return a list of random vectors in population.
 
         Arguments:
         pop_id -- ID of population to be modified (String)
-        num_vectors -- number of vectors to be sampled randomly (int)
+        vectors -- number of vectors to be sampled randomly: if <0, samples from
+            whole population; if <1, takes that fraction of population; if >=1,
+            samples that integer number of vectors (default -1, number)
 
         Keyword arguments:
-        healthy -- whether to sample healthy vectors only (default True;
-            Boolean)
+        type -- whether to sample healthy vectors only, infected vectors
+            only, or any vectors (default 'any'; String = {'healthy',
+            'infected', 'any'})
 
         Returns:
         list containing sampled vectors
         """
 
         self.groups[group_id] = self.populations[pop_id].newVectorGroup(
-            num_vectors
+            vectors, type
             )
 
     def addHosts(self, pop_id, num_hosts):
@@ -1113,8 +1254,8 @@ class Model(object):
         value of genome (number)
         """
 
-        distance = td.hamming(genome, optimal_genome) / len(genome)
-        value = np.exp( np.log( min_fitness ) * distance )
+        distance = td.hamming(genome, peak_genome) / len(genome)
+        value = np.exp( np.log( min_value ) * distance )
 
         return value
 
@@ -1137,7 +1278,7 @@ class Model(object):
         value of genome (number)
         """
 
-        distance = td.hamming(genome, worst_genome) / len(genome)
-        value = np.exp( np.log( min_fitness ) * ( 1 - distance ) )
+        distance = td.hamming(genome, valley_genome) / len(genome)
+        value = np.exp( np.log( min_value ) * ( 1 - distance ) )
 
         return value

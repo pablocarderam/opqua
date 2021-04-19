@@ -7,8 +7,11 @@ class Setup(object):
     def __init__(
             self,
             num_loci, possible_alleles,
-            fitnessHost, fitnessVector,
-            lethalityHost, lethalityVector,
+            fitnessHost, contactHost, lethalityHost, recoveryHost, migrationHost,
+            populationContactHost, mutationHost, recombinationHost,
+            fitnessVector, contactVector, lethalityVector,
+            recoveryVector, migrationVector, populationContactVector,
+            mutationVector, recombinationVector,
             contact_rate_host_vector, contact_rate_host_host,
             mean_inoculum_host, mean_inoculum_vector,
             recovery_rate_host, recovery_rate_vector,
@@ -72,9 +75,23 @@ class Setup(object):
                 # each position
 
         self.fitnessHost = fitnessHost
-        self.fitnessVector = fitnessVector
+        self.contactHost = contactHost
         self.lethalityHost = lethalityHost
+        self.recoveryHost = recoveryHost
+        self.migrationHost = migrationHost
+        self.populationContactHost = populationContactHost
+        self.mutationHost = mutationHost
+        self.recombinationHost = recombinationHost
+
+        self.fitnessVector = fitnessVector
+        self.contactVector = contactVector
         self.lethalityVector = lethalityVector
+        self.recoveryVector = recoveryVector
+        self.migrationVector = migrationVector
+        self.populationContactVector = populationContactVector
+        self.mutationVector = mutationVector
+        self.recombinationVector = recombinationVector
+
         self.contact_rate_host_vector = contact_rate_host_vector
         self.contact_rate_host_host = contact_rate_host_host
             # contact rates assumes scaling area--large populations are equally

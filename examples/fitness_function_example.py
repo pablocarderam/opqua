@@ -21,8 +21,8 @@ my_optimal_genome = 'BEST' # Define an optimal genome.
 # fitness value. Here, we take advantage of one of the preset functions, but you
 # can define it any way you want!
 def myHostFitness(genome):
-    return Model.stabilizingSelection(
-        genome, optimal_genome=my_optimal_genome, min_fitness=1e-10
+    return Model.peakLandscape(
+        genome, peak_genome=my_optimal_genome, min_value=1e-10
         )
         # Stabilizing selection: any deviation from the "optimal genome"
         # sequence results in an exponential decay in fitness to the min_fitness
