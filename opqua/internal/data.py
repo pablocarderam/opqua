@@ -485,6 +485,9 @@ def pathogenDistanceDf(
 
     if num_top_sequences > 0:
         sequences = sequences[0:num_top_sequences]
+        sequences = sequences.append(
+            pd.Series(track_specific_sequences)
+            ).unique()
 
     # Fix — non parallelized
     dis_mat = np.array([[td.hamming(s1, s2) / max(len(s1),1)

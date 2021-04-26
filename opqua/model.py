@@ -1,5 +1,5 @@
 # TODO: pathogen genome influences transmission, death, recovery, migration, mutation probabilities. Done, test
-# TODO: independent recombination of alleles -> make chromosome separators!! make reassortment parameter option as related but separate to recombination
+# TODO: independent recombination of alleles -> make chromosome separators!! make reassortment parameter option as related but separate to recombination. Done, test
 
 # TODO: migrate vectors. Done, test
 # TODO: contact between populations (without migration). Done, test
@@ -10,6 +10,7 @@
 # TODO: compositionPlot – make custom groupings, eg. "genomes containing
 #       sequence AAA". Make option to count only 1 fitness-dominant strain/host
 # TODO: arbitrary comparments (group_id) for compartment plot
+# TODO: genomes and dates output for TDA
 
 # TODO: parallelizeable simulations
 # TODO: Numba, Cython, and JAX
@@ -246,6 +247,10 @@ class Model(object):
             evts/time (number >= 0)
         recombine_in_vector -- rate at which recombination occurs in vector;
             evts/time (number >= 0)
+        num_crossover_host -- mean number of crossover locations per
+            recombination event in host
+        num_crossover_vector -- mean number of crossover locations per
+            recombination event in vector
         mutate_in_host -- rate at which mutation occurs in host; evts/time
             (number >= 0)
         mutate_in_vector -- rate at which mutation occurs in vector; evts/time
@@ -311,6 +316,10 @@ class Model(object):
                 0 if recombine_in_host is None else recombine_in_host
             recombine_in_vector = \
                 1e-4 if recombine_in_vector is None else recombine_in_vector
+            num_crossover_host = 0 \
+                if num_crossover_host is None else num_crossover_host
+            num_crossover_vector = \
+                1 if num_crossover_vector is None else num_crossover_vector
             mutate_in_host = 1e-6 if mutate_in_host is None else mutate_in_host
             mutate_in_vector = \
                 0 if mutate_in_vector is None else mutate_in_vector
@@ -372,6 +381,10 @@ class Model(object):
                 1e-4 if recombine_in_host is None else recombine_in_host
             recombine_in_vector = \
                 0 if recombine_in_vector is None else recombine_in_vector
+            num_crossover_host = 1 \
+                if num_crossover_host is None else num_crossover_host
+            num_crossover_vector = \
+                0 if num_crossover_vector is None else num_crossover_vector
             mutate_in_host = \
                 1e-6 if mutate_in_host is None else mutate_in_host
             mutate_in_vector = \

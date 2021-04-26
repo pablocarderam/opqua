@@ -249,11 +249,12 @@ class Host(object):
 
         old_genome = genomes[index_genome]
         mut_index = int( rand * self.population.num_loci )
-        new_genome = old_genome[0:mut_index] + np.random.choice(
-            list(self.population.possible_alleles[mut_index])
-            ) + old_genome[mut_index+1:]
-        if new_genome not in self.pathogens:
-            self.acquirePathogen(new_genome)
+        if old_genome[mut_index] != '/':
+            new_genome = old_genome[0:mut_index] + np.random.choice(
+                list(self.population.possible_alleles[mut_index])
+                ) + old_genome[mut_index+1:]
+            if new_genome not in self.pathogens:
+                self.acquirePathogen(new_genome)
 
     def recombine(self,rand):
         """Recombine two random pathogen genomes at random locus.
@@ -273,8 +274,29 @@ class Host(object):
             rand,weights
             )
 
-        parents = [ genomes[index_genome], genomes[index_other_genome] ]
-        recom_index = int( rand * self.population.num_loci )
-        new_genome = parents[0][0:recom_index] + parents[1][recom_index:]
-        if new_genome not in self.pathogens:
-            self.acquirePathogen(new_genome)
+        num_evts = np.random.poisson( self.population.num_crossover_host )
+        loci = np.random.randint( 0, self.population.num_loci, num_evts )
+
+        children = [ genomes[index_genome], genomes[index_other_genome] ]
+
+        for l in loci:
+            children[0] = children[0][0:l] + children[1][l:]
+            children[1] = children[1][0:l] + children[0][l:]
+
+        children = [ genome.split('/') for genome in genomes ]
+        parent = np.random.randint( 0, 2, len( children[0] ) )
+
+        children = [
+            [
+                children[ parent[i] ][i]
+                for i in range( len( children[0] ) )
+                ].join('/'),
+            [
+                children[ not parent[i] ][i]
+                for i in range( len( children[1] ) )
+                ].join('/')
+            ]
+
+        for new_genome in children:
+            if new_genome not in self.pathogens:
+                self.acquirePathogen(new_genome)

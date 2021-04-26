@@ -242,6 +242,8 @@ class Population(object):
         self.recovery_rate_vector = setup.recovery_rate_vector
         self.recombine_in_host = setup.recombine_in_host
         self.recombine_in_vector = setup.recombine_in_vector
+        self.num_crossover_host = setup.num_crossover_host
+        self.num_crossover_vector = setup.num_crossover_vector
         self.mutate_in_host = setup.mutate_in_host
         self.mutate_in_vector = setup.mutate_in_vector
         self.death_rate_host = setup.death_rate_host
