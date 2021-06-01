@@ -459,7 +459,7 @@ setRandomSeed(seed)
 Set random seed for numpy random number generator.
 
 _Arguments:_
-seed -- int for the random seed to be passed to numpy (int)
+- seed -- int for the random seed to be passed to numpy (int)
 
 
 #### Model
@@ -581,125 +581,125 @@ protection_upon_recovery_vector = None
 ```
 
 _Arguments:_
-name -- name of setup to be used as a key in model setups dictionary
+- name -- name of setup to be used as a key in model setups dictionary
 
 _Keyword arguments:_
-preset -- preset setup to be used: "vector-borne" or "host-host", if
+- preset -- preset setup to be used: "vector-borne" or "host-host", if
     None, must define all other keyword arguments (default None; None or
     String)
-num_loci -- length of each pathogen genome string (int > 0)
-possible_alleles -- set of possible characters in all genome string, or
+- num_loci -- length of each pathogen genome string (int > 0)
+- possible_alleles -- set of possible characters in all genome string, or
     at each position in genome string (String or list of Strings with
     num_loci elements)
-fitnessHost -- function that evaluates relative fitness in head-to-head
+- fitnessHost -- function that evaluates relative fitness in head-to-head
     competition for different genomes within the same host
     (function object, takes a String argument and returns a number >= 0)
-contactHost -- function that returns coefficient modifying probability
+- contactHost -- function that returns coefficient modifying probability
     of a given host being chosen for a contact, based on genome sequence
     of pathogen
     (function object, takes a String argument and returns a number 0-1)
-lethalityHost -- function that returns coefficient modifying death rate
+- lethalityHost -- function that returns coefficient modifying death rate
     for a given host, based on genome sequence of pathogen
     (function object, takes a String argument and returns a number 0-1)
-natalityHost -- function that returns coefficient modifying birth rate
+- natalityHost -- function that returns coefficient modifying birth rate
     for a given host, based on genome sequence of pathogen
     (function object, takes a String argument and returns a number 0-1)
-recoveryHost -- function that returns coefficient modifying recovery
+- recoveryHost -- function that returns coefficient modifying recovery
     rate for a given host based on genome sequence of pathogen
     (function object, takes a String argument and returns a number 0-1)
-migrationHost -- function that returns coefficient modifying migration
+- migrationHost -- function that returns coefficient modifying migration
     rate for a given host based on genome sequence of pathogen
     (function object, takes a String argument and returns a number 0-1)
-populationContactHost -- function that returns coefficient modifying
+- populationContactHost -- function that returns coefficient modifying
     population contact rate for a given host based on genome sequence of
     pathogen
     (function object, takes a String argument and returns a number 0-1)
-mutationHost -- function that returns coefficient modifying mutation
+- mutationHost -- function that returns coefficient modifying mutation
     rate for a given host based on genome sequence of pathogen
     (function object, takes a String argument and returns a number 0-1)
-recombinationHost -- function that returns coefficient modifying
+- recombinationHost -- function that returns coefficient modifying
     recombination rate for a given host based on genome sequence of
     pathogen
     (function object, takes a String argument and returns a number 0-1)
-fitnessVector -- function that evaluates relative fitness in head-to-
+- fitnessVector -- function that evaluates relative fitness in head-to-
     head competition for different genomes within the same vector
     (function object, takes a String argument and returns a number >= 0)
-contactVector -- function that returns coefficient modifying probability
+- contactVector -- function that returns coefficient modifying probability
     of a given vector being chosen for a contact, based on genome
     sequence of pathogen
     (function object, takes a String argument and returns a number 0-1)
-lethalityVector -- function that returns coefficient modifying death
+- lethalityVector -- function that returns coefficient modifying death
     rate for a given vector, based on genome sequence of pathogen
     (function object, takes a String argument and returns a number 0-1)
-natalityVector -- function that returns coefficient modifying birth rate
+- natalityVector -- function that returns coefficient modifying birth rate
     for a given vector, based on genome sequence of pathogen
     (function object, takes a String argument and returns a number 0-1)
-recoveryVector -- function that returns coefficient modifying recovery
+- recoveryVector -- function that returns coefficient modifying recovery
     rate for a given vector based on genome sequence of pathogen
     (function object, takes a String argument and returns a number 0-1)
-migrationVector -- function that returns coefficient modifying migration
+- migrationVector -- function that returns coefficient modifying migration
     rate for a given vector based on genome sequence of pathogen
     (function object, takes a String argument and returns a number 0-1)
-populationContactVector -- function that returns coefficient modifying
+- populationContactVector -- function that returns coefficient modifying
     population contact rate for a given vector based on genome sequence
     of pathogen
     (function object, takes a String argument and returns a number 0-1)
-mutationVector -- function that returns coefficient modifying mutation
+- mutationVector -- function that returns coefficient modifying mutation
     rate for a given vector based on genome sequence of pathogen
     (function object, takes a String argument and returns a number 0-1)
-recombinationVector -- function that returns coefficient modifying
+- recombinationVector -- function that returns coefficient modifying
     recombination rate for a given vector based on genome sequence of
     pathogen
     (function object, takes a String argument and returns a number 0-1)
-contact_rate_host_vector -- rate of host-vector contact events, not
+- contact_rate_host_vector -- rate of host-vector contact events, not
     necessarily transmission, assumes constant population density;
     evts/time (number >= 0)
-contact_rate_host_host -- rate of host-host contact events, not
+- contact_rate_host_host -- rate of host-host contact events, not
     necessarily transmission, assumes constant population density;
     evts/time (number >= 0)
-mean_inoculum_host -- mean number of pathogens that are transmitted from
+- mean_inoculum_host -- mean number of pathogens that are transmitted from
     a vector or host into a new host during a contact event (int >= 0)
-mean_inoculum_vector -- mean number of pathogens that are transmitted
+- mean_inoculum_vector -- mean number of pathogens that are transmitted
     from a host to a vector during a contact event (int >= 0)
-recovery_rate_host -- rate at which hosts clear all pathogens;
+- recovery_rate_host -- rate at which hosts clear all pathogens;
     1/time (number >= 0)
-recovery_rate_vector -- rate at which vectors clear all pathogens
+- recovery_rate_vector -- rate at which vectors clear all pathogens
     1/time (number >= 0)
-recovery_rate_vector -- rate at which vectors clear all pathogens
+- recovery_rate_vector -- rate at which vectors clear all pathogens
     1/time (number >= 0)
-lethality_rate_host -- fraction of infected hosts that die from disease
+- lethality_rate_host -- fraction of infected hosts that die from disease
     (number 0-1)
-lethality_rate_vector -- fraction of infected vectors that die from
+- lethality_rate_vector -- fraction of infected vectors that die from
     disease (number 0-1)
-recombine_in_host -- rate at which recombination occurs in host;
+- recombine_in_host -- rate at which recombination occurs in host;
     evts/time (number >= 0)
-recombine_in_vector -- rate at which recombination occurs in vector;
+- recombine_in_vector -- rate at which recombination occurs in vector;
     evts/time (number >= 0)
-num_crossover_host -- mean of a Poisson distribution modeling the number
+- num_crossover_host -- mean of a Poisson distribution modeling the number
     of crossover events of host recombination events (number >= 0)
-num_crossover_vector -- mean of a Poisson distribution modeling the
+- num_crossover_vector -- mean of a Poisson distribution modeling the
     number of crossover events of vector recombination events
     (number >= 0)
-mutate_in_host -- rate at which mutation occurs in host; evts/time
+- mutate_in_host -- rate at which mutation occurs in host; evts/time
     (number >= 0)
-mutate_in_vector -- rate at which mutation occurs in vector; evts/time
+- mutate_in_vector -- rate at which mutation occurs in vector; evts/time
     (number >= 0)
-death_rate_host -- natural host death rate; 1/time (number >= 0)
-death_rate_vector -- natural vector death rate; 1/time (number >= 0)
-birth_rate_host -- infected host birth rate; 1/time (number >= 0)
-birth_rate_vector -- infected vector birth rate; 1/time (number >= 0)
-vertical_transmission_host -- probability that a host is infected by its
+- death_rate_host -- natural host death rate; 1/time (number >= 0)
+- death_rate_vector -- natural vector death rate; 1/time (number >= 0)
+- birth_rate_host -- infected host birth rate; 1/time (number >= 0)
+- birth_rate_vector -- infected vector birth rate; 1/time (number >= 0)
+- vertical_transmission_host -- probability that a host is infected by its
     parent at birth (number 0-1)
-vertical_transmission_vector -- probability that a vector is infected by
+- vertical_transmission_vector -- probability that a vector is infected by
     its parent at birth (number 0-1)
-inherit_protection_host -- probability that a host inherits all
+- inherit_protection_host -- probability that a host inherits all
     protection sequences from its parent (number 0-1)
-inherit_protection_vector -- probability that a vector inherits all
+- inherit_protection_vector -- probability that a vector inherits all
     protection sequences from its parent (number 0-1)
-protection_upon_recovery_host -- defines indexes in genome string that
+- protection_upon_recovery_host -- defines indexes in genome string that
     define substring to be added to host protection sequences after
     recovery (None or array-like of length 2 with int 0-num_loci)
-protection_upon_recovery_vector -- defines indexes in genome string that
+- protection_upon_recovery_vector -- defines indexes in genome string that
     define substring to be added to vector protection sequences after
     recovery (None or array-like of length 2 with int 0-num_loci)
 
@@ -738,9 +738,9 @@ _Arguments:_
 - time_sampling -- how many events to skip before saving a snapshot of the
     system state (saves all by default), if <0, saves only final state
     (int, default 0)
-host_sampling -- how many hosts to skip before saving one in a snapshot
+- host_sampling -- how many hosts to skip before saving one in a snapshot
     of the system state (saves all by default) (int, default 0)
-vector_sampling -- how many vectors to skip before saving one in a  
+- vector_sampling -- how many vectors to skip before saving one in a  
     snapshot of the system state (saves all by default) (int, default 0)
 
 #### run_replicates
@@ -759,14 +759,14 @@ values=Model objects with model snapshot. The time is the final
 timepoint.
 
 _Arguments:_
-t0 -- initial time point to start simulation at (number >= 0)
-tf -- initial time point to end simulation at (number >= 0)
-replicates -- how many replicates to simulate (int >= 1)
+- t0 -- initial time point to start simulation at (number >= 0)
+- tf -- initial time point to end simulation at (number >= 0)
+- replicates -- how many replicates to simulate (int >= 1)
 
 _Keyword arguments:_
-host_sampling -- how many hosts to skip before saving one in a snapshot
+- host_sampling -- how many hosts to skip before saving one in a snapshot
     of the system state (saves all by default) (int >= 0, default 0)
-vector_sampling -- how many vectors to skip before saving one in a
+- vector_sampling -- how many vectors to skip before saving one in a
     snapshot of the system state (saves all by default)
     (int >= 0, default 0)
 
@@ -1014,11 +1014,11 @@ legend_values=[], figsize=(10,10), dpi=200, color_map=DEF_CMAP):
 
 Create a heatmap and dendrogram for pathogen genomes in data passed.
 
-Arguments:
+_Arguments:_
 - file_name -- file path, name, and extension to save plot under (String)
 - data -- dataframe with model history as produced by saveToDf function
 
-Keyword arguments:
+_Keyword arguments:_
 - num_top_sequences -- how many sequences to include in matrix; if <0,
 includes all genomes in data passed (default -1; int)
 - track_specific_sequences -- contains specific sequences to include in
@@ -1059,28 +1059,28 @@ _Arguments:_
 data -- dataframe with model history as produced by saveToDf function
 
 _Keyword Arguments:_
-samples -- how many timepoints to uniformly sample from the total
+- samples -- how many timepoints to uniformly sample from the total
     timecourse; if <0, takes all timepoints (default -1; int)
-num_top_sequences -- how many sequences to include in matrix; if <0,
+- num_top_sequences -- how many sequences to include in matrix; if <0,
     includes all genomes in data passed (default -1; int)
-track_specific_sequences -- contains specific sequences to include in
+- track_specific_sequences -- contains specific sequences to include in
     matrixif not part of the top num_top_sequences sequences (default
     empty list; list of Strings)
-seq_names -- list with names to be used for sequence labels in matrix
+- seq_names -- list with names to be used for sequence labels in matrix
     must be of same length as number of sequences to be displayed; if
     empty, uses sequences themselves (default empty list; list of
     Strings)
-n_cores -- number of cores to parallelize distance compute across, if 0,
+- n_cores -- number of cores to parallelize distance compute across, if 0,
     all cores available are used (default 0; int)
-method -- clustering algorithm to use with seaborn clustermap (default
+- method -- clustering algorithm to use with seaborn clustermap (default
     'weighted'; String)
-metric -- distance metric to use with seaborn clustermap (default
+- metric -- distance metric to use with seaborn clustermap (default
     'euclidean'; String)
-save_data_to_file -- file path and name to save model data under, no
+- save_data_to_file -- file path and name to save model data under, no
     saving occurs if empty string (default ''; String)
 
 _Returns:_
-long-format Pandas dataframe with pairwise distances for pathogen
+- long-format Pandas dataframe with pairwise distances for pathogen
 genomes in data passed for different time points.
 
 #### getGenomeTimes
@@ -1095,18 +1095,18 @@ getGenomeTimes(
 Create DataFrame with times genomes first appeared during simulation.
 
 _Arguments:_
-data -- dataframe with model history as produced by saveToDf function
+- data -- dataframe with model history as produced by saveToDf function
 
 _Keyword arguments:_
-samples -- how many timepoints to uniformly sample from the total
+- samples -- how many timepoints to uniformly sample from the total
     timecourse; if <0, takes all timepoints (default 1; int)
-save_to_file -- file path and name to save model data under, no saving
+- save_to_file -- file path and name to save model data under, no saving
     occurs if empty string (default ''; String)
-n_cores -- number of cores to parallelize across, if 0, all cores
+- n_cores -- number of cores to parallelize across, if 0, all cores
     available are used (default 0; int)
 
 _Returns:_
-pandas dataframe with genomes and times as described above
+- pandas dataframe with genomes and times as described above
 
 #### newPopulation
 
@@ -1139,11 +1139,11 @@ linkPopulationsHostMigration(pop1_id, pop2_id, rate):
 Set host migration rate from one population towards another.
 
 _Arguments:_
-pop1_id -- origin population for which migration rate will be specified
+- pop1_id -- origin population for which migration rate will be specified
     (String)
-pop1_id -- destination population for which migration rate will be
+- pop1_id -- destination population for which migration rate will be
     specified (String)
-rate -- migration rate from one population to the neighbor; evts/time
+- rate -- migration rate from one population to the neighbor; evts/time
     (number >= 0)
 
 #### linkPopulationsVectorMigration
@@ -1156,11 +1156,11 @@ linkPopulationsVectorMigration(pop1_id, pop2_id, rate):
 Set vector migration rate from one population towards another.
 
 _Arguments:_
-pop1_id -- origin population for which migration rate will be specified
+- pop1_id -- origin population for which migration rate will be specified
     (String)
-pop1_id -- destination population for which migration rate will be
+- pop1_id -- destination population for which migration rate will be
     specified (String)
-rate -- migration rate from one population to the neighbor; evts/time
+- rate -- migration rate from one population to the neighbor; evts/time
     (number >= 0)
 
 #### linkPopulationsHostContact
@@ -1173,11 +1173,11 @@ linkPopulationsHostContact(pop1_id, pop2_id, rate):
 Set host inter-population contact rate from one population towards another.
 
 _Arguments:_
-pop1_id -- origin population for which migration rate will be specified
+- pop1_id -- origin population for which migration rate will be specified
     (String)
-pop1_id -- destination population for which migration rate will be
+- pop1_id -- destination population for which migration rate will be
     specified (String)
-rate -- migration rate from one population to the neighbor; evts/time
+- rate -- migration rate from one population to the neighbor; evts/time
     (number >= 0)
 
 #### linkPopulationsVectorContact
@@ -1190,11 +1190,11 @@ linkPopulationsVectorContact(pop1_id, pop2_id, rate):
 Set vector inter-population contact rate from one population towards another.
 
 _Arguments:_
-pop1_id -- origin population for which migration rate will be specified
+- pop1_id -- origin population for which migration rate will be specified
     (String)
-pop1_id -- destination population for which migration rate will be
+- pop1_id -- destination population for which migration rate will be
     specified (String)
-rate -- migration rate from one population to the neighbor; evts/time
+- rate -- migration rate from one population to the neighbor; evts/time
     (number >= 0)
 
 #### createInterconnectedPopulations
@@ -1214,23 +1214,23 @@ are numbered onto prefix given as 'id_prefix_0', 'id_prefix_1',
 'id_prefix_2', etc.
 
 _Arguments:_
-num_populations -- number of populations to be created (int)
-id_prefix -- prefix for IDs to be used for this population in the model,
+- num_populations -- number of populations to be created (int)
+- id_prefix -- prefix for IDs to be used for this population in the model,
     (String)
-setup_name -- setup object with parameters for all populations (Setup)
+- setup_name -- setup object with parameters for all populations (Setup)
 
 _Keyword arguments:_
-host_migration_rate -- host migration rate between populations;
+- host_migration_rate -- host migration rate between populations;
     evts/time (default 0; number >= 0)
-vector_migration_rate -- vector migration rate between populations;
+- vector_migration_rate -- vector migration rate between populations;
     evts/time (default 0; number >= 0)
-host_contact_rate -- host inter-population contact rate between
+- host_contact_rate -- host inter-population contact rate between
     populations; evts/time (default 0; number >= 0)
-vector_contact_rate -- vector inter-population contact rate between
+- vector_contact_rate -- vector inter-population contact rate between
     populations; evts/time (default 0; number >= 0)
-num_hosts -- number of hosts to initialize population with (default 100;
+- num_hosts -- number of hosts to initialize population with (default 100;
     int)
-num_vectors -- number of hosts to initialize population with (default
+- num_vectors -- number of hosts to initialize population with (default
     100; int)
 
 #### newHostGroup
@@ -1288,7 +1288,7 @@ _Arguments:_
 - num_hosts -- number of hosts to be added (int)
 
 _Returns:_
-list containing new hosts
+- list containing new hosts
 
 #### addVectors
 
@@ -1478,7 +1478,7 @@ wipeProtectionHosts(pop_id, group_id="")
 Removes all protection sequences from hosts.
 
 _Arguments:_
-pop_id -- ID of population to be modified (String)
+- pop_id -- ID of population to be modified (String)
 
 _Keyword Arguments:_
 - group_id -- ID of group to sample hosts to sample from, if empty, takes
@@ -1494,7 +1494,7 @@ wipeProtectionVectors(pop_id, group_id="")
 Removes all protection sequences from vectors.
 
 _Arguments:_
-pop_id -- ID of population to be modified (String)
+- pop_id -- ID of population to be modified (String)
 
 _Keyword Arguments:_
 - group_id -- ID of group to sample vectors to sample from, if empty, takes
