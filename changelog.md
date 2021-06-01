@@ -1,6 +1,10 @@
 
 # Opqua Changelog
 
+## v0.2.1
+## 1 June 2021
+- Update version tags
+
 ## v0.2.0
 ## 1 June 2021
 ### Simulation mechanics
