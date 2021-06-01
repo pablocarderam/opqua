@@ -16,26 +16,34 @@ _Taken from D. F. Gómez Aldana's
 - [Example Plots](#example-plots)
 - [Requirements and Installation](#requirements-and-installation)
 - [Usage](#usage)
-- [Model Methods List](#model-class-methods-list)
+- [How Does Opqua Work?](#how-does-opqua-work)
+- [Opqua Model Documentation](#opqua-model-documentation)
 
 ## About
 
 ### Opqua is an epidemiological modeling framework for pathogen population genetics and evolution.
 
 Opqua stochastically simulates pathogens with distinct, evolving genotypes that
-spread through populations of hosts that can have specific immune profiles.
+spread through populations of hosts which can have specific immune profiles.
 
-Opqua is a useful tool to test out scenarios, explore hypotheses, and make
-predictions about the relationship between pathogen evolution and epidemiology.
+Opqua is a useful tool to test out scenarios, explore hypotheses, make
+predictions, and teach about the relationship between pathogen evolution and
+epidemiology.
 
 Among other things, Opqua can model
-- host-host and vector-borne transmission,
-- host recovery and death
-- competition and evolution of pathogen strains across user-specified adaptive
-landscapes
-- metapopulations with complex structure
-- interventions altering demographic, ecological, or evolutionary parameters
+- host-host, vector-borne, and vertical transmission
+- pathogen evolution through mutation, recombination, and/or reassortment
+- host recovery, death, and birth
+- metapopulations with complex structure and demographic interactions
+- interventions and events altering demographic, ecological, or evolutionary
+parameters
 - treatment and immunization of hosts or vectors
+- influence of pathogen genome sequences on transmission and evolution, as well
+as host demographic dynamics
+- intra- and inter-host competition and evolution of pathogen strains across
+user-specified adaptive landscapes
+
+Check out the `changelog` file for information on recent updates.
 
 Opqua is developed by [Pablo Cárdenas](https://pablo-cardenas.com) and Mauricio
 Santos-Vega.
@@ -50,21 +58,43 @@ under an [MIT License](https://choosealicense.com/licenses/mit/).
 
 These are some of the plots Opqua is able to produce, but you can output the
 raw simulation data yourself to make your own analyses and plots. These are all
-taken from the examples in the `examples` folder.
+taken from the examples in the `examples/tutorials` folder—try them out
+yourself! See the
+[Requirements and Installation](#Requirements and Installation) and
+[Usage](#Usage) sections for more details.
 
 #### Population genetic composition plots for pathogens
-Here, an optimal pathogen genome arises and outcompetes all others.
-![Compartments](examples/img/Stabilizing_selection_composition.png "Stabilizing_selection composition")
+An optimal pathogen genome arises and outcompetes all others through intra-host
+competition. See `fitness_function_mutation_example.py` in the
+`examples/tutorials/evolution` folder.
+![Compartments](img/fitness_function_mutation_example_composition.png "fitness_function_mutation_example composition")
 
 #### Host/vector compartment plots
-Here "Recovered" denotes immunized, uninfected hosts.
-![Compartments](examples/img/Intervention_examples_compartments.png "Intervention_examples compartments")
+A population with natural birth and death dynamics shows the effects of a
+pathogen. "Dead" denotes deaths caused by pathogen infection. See
+`vector-borne_birth-death_example.py` in the `examples/tutorials/vital_dynamics`
+folder.
+![Compartments](img/vector-borne_birth-death_example.png "vector-borne_birth-death_example compartments")
 
 #### Plots of a host/vector compartment across different populations in a metapopulation
-![Compartments](examples/img/Metapopulations_example.png "Metapopulations_example populations")
+Pathogens spread through a network of interconnected populations of hosts. Lines
+denote infected pathogens. See
+`metapopulations_migration_example.py` in the
+`examples/tutorials/metapopulations` folder.
+![Compartments](img/metapopulations_migration_example.png "metapopulations_migration_example populations")
+
+#### Host/vector compartment plots
+A population undergoes different interventions, including changes in
+epidemiological parameters and vaccination. "Recovered" denotes immunized,
+uninfected hosts.
+See `intervention_examples.py` in the `examples/tutorials/interventions` folder.
+![Compartments](img/intervention_examples_compartments.png "intervention_examples compartments")
 
 #### Pathogen phylogenies
-![Compartments](examples/img/Stabilizing_selection_clustermap.png "Stabilizing_selection clustermap")
+Phylogenies can be computed for pathogen genomes that emerge throughout the
+simulation. See `fitness_function_mutation_example.py` in the
+`examples/tutorials/evolution` folder.
+![Compartments](img/fitness_function_mutation_example_clustermap.png "fitness_function_mutation_example clustermap")
 
 ## Requirements and Installation
 
@@ -80,7 +110,7 @@ curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
 python get-pip.py
 ```
 
-Install opqua by running
+Install Opqua by running
 
 ```bash
 pip install opqua
@@ -88,10 +118,226 @@ pip install opqua
 
 ## Usage
 
+To run any Opqua model (including the tutorials in the `examples/tutorials`
+folder), save the model as a `.py` file and execute from the console using
+`python my_model.py`.
+
+You may also run the models from a notebook environment
+such as [Jupyter](https://jupyter.org/) or an integrated development environment
+(IDE) such as [Spyder](https://www.spyder-ide.org/), both available through
+[Anaconda](https://www.anaconda.com/distribution/).
+
+### Minimal example
+
+The simplest model you can make using Opqua looks like this:
+
+```python
+# This simulates a pathogen with genome "AAAAAAAAAA" spreading in a single
+# population of 100 hosts, 20 of which are initially infected, under example
+# preset conditions for host-host transmission.
+
+from opqua.model import Model
+
+my_model = Model()
+my_model.newSetup('my_setup', preset='host-host')
+my_model.newPopulation('my_population', 'my_setup', num_hosts=100)
+my_model.addPathogensToHosts( 'my_population',{'AAAAAAAAAA':20} )
+my_model.run(0,100)
+data = my_model.saveToDataFrame('my_model.csv')
+graph = my_model.compartmentPlot('my_model.png', data)
+```
+
+For more example usage, have a look at the `examples` folder. For an overview
+of how Opqua models work, check out the
+[How Does Opqua Work?](#how-does-opqua-work) section.
+For more information on the details of each function, head over to the
+[Opqua Model Documentation](#opqua-model-documentation) section.
+
+## How Does Opqua Work?
+
+### Basic concepts
+
+Opqua models are composed of populations containing hosts and/or vectors, which
+themselves may be infected by a number of pathogens with different genomes.
+
+A genome is represented as a string of characters. All genomes must be of the
+same length (a set number of loci), and each position within the genome can have
+one of a number of different characters specified by the user (corresponding to
+different alleles). Different loci in the genome may have different possible
+alleles available to them. Genomes may be composed of separate chromosomes,
+separated by the "/" character, which is reserved for this purpose.
+
+Each population may have its own unique parameters dictating the events that  
+happen inside of it, including how pathogens are spread between its hosts and
+vectors.
+
+### Events
+
+There are different kinds of events that may occur to hosts and vectors in
+a population:
+
+- contact between an infectious host/vector and another host/vector in the same
+population (intra-population contact) or in a different population ("population
+contact")
+- migration of a host/vector from one population to another
+- recovery of an infected host/vector
+- birth of a new host/vector from an existing host/vector
+- death of a host/vector due to pathogen infection or by "natural" causes
+- mutation of a pathogen in an infected host/vector
+- recombination of two pathogens in an infected host/vector
+
+The likelihood of each event occurring is determined by the population's
+parameters (explained in the [newSetup](#newSetup) function documentation), by
+the number of infected and healthy hosts and/or vectors in the population(s)
+involved. Crucially, it is also determined by the genome sequences of the
+pathogens infecting those hosts and vectors. The user may specify arbitrary
+functions to evaluate how a genome sequence affects any of the above kinds of
+rates. This is once again done through arguments of the [newSetup](#newSetup)
+function. As an example, a specific genome sequence may result in increased
+transmission within populations but decreased migration of infected hosts, or
+increased mutation rates. These custom functions may be different across
+populations, resulting in different adaptive landscapes within different
+populations.
+
+Contacts within and between populations may happen by any combination of
+host-host, host-vector, and/or vector-host routes, depending on the populations'
+parameters. When a contact occurs, each pathogen genome present in the infecting
+host/vector may be transferred to the receiving host/vector as long as one
+"infectious unit" is inoculated. The number of infectious units inoculated is
+randomly distributed based on a Poisson probability distribution. The mean of
+this distribution is set by the receiving host/vector's population parameters,
+and is multiplied by the fraction of total intra-host fitness of each pathogen
+genome. For instance, consider the mean inoculum size for a host in a given
+population is 10 units and the infecting host/vector has two pathogens with a
+fitnesses of 0.3 and 0.7, respectively. This would make the means of the Poisson
+distributions used to generate random infections for each pathogen equal to 3
+and 7, respectively.
+
+Inter-population contacts occur via the same mechanism as intra-population
+contacts, with the distinction that the two populations must be linked in a
+compatible way. As an example, if a vector-borne model with two separate
+populations is to allow vectors from Population A to contact hosts in Population
+B, then the contact rate of vectors in Population A and the contact rate of
+hosts in Population B must both be greater than zero. Migration of hosts/vectors
+from one population to another depends on a single rate defining the frequency
+of vector/host transport events from a given population to another. Therefore,
+Population A would have a specific migration rate dictating transport to
+Population B, and Population B would have a separate rate governing transport
+towards A.
+
+Recovery of an infected host or vector results in all pathogens being removed
+from the host/vector. Additionally, the host/vector may optionally gain
+protection from pathogens that contain specific genome sequences present in the
+genomes of the pathogens it recovered from, representing immune memory. The user
+may specify a population parameter delimiting the contiguous loci in the genome
+that are saved on the recovered host/vector as "protection sequences". Pathogens
+containing any of the host/vector's protection sequences will not be able to
+infect the host/vector.
+
+Births result in a new host/vector that may optionally inherit its parent's
+protection sequences. Additionally, a parent may optionally infect its offspring
+at birth following a Poisson sampling process equivalent to the one described
+for other contact events above. Deaths of existing hosts/vectors can occur both
+naturally or due to infection lethality. Only deaths due to infection are
+tracked and recorded in the model's history.
+
+De novo mutation of a pathogen in a given host/vector results in a single locus
+within a pathogen's genome being randomly assigned a new allele from the
+possible alleles at that position. Recombination of two pathogens in a given
+host/vector creates two new genomes based on the independent segregation of
+chromosomes (or reassortment of genome segments, depending on the field) from
+the two parent genomes. In addition, there may be a Poisson-distributed random
+number of cross-over events between homologous parent chromosomes. Recombination
+by cross-over event will result in all the loci in the chromosome on one side of
+the cross-over event location being inherited from one of the parents, while the
+remainder of the chromosome is inherited from the other parent. The locations of
+cross-over events are distributed throughout the genome following a uniform
+random distribution.
+
+### Interventions
+
+Furthermore, the user may specify changes in model behavior at specific
+timepoints during the simulation. These changes are known as "interventions".
+Interventions can include any kind of manipulation to populations in the model,
+including:
+
+- adding new populations
+- changing a population's event parameters and adaptive landscape functions
+- linking and unlinking populations through migration or inter-population
+contact
+- adding and removing hosts and vectors to a population
+
+Interventions can also include actions that involve specific hosts or vectors in
+a given population, such as:
+
+- adding pathogens with specific genomes to a host/vector
+- removing all protection sequences from some hosts/vectors in a population
+- applying a "treatment" in a population that cures some of its hosts/vectors of
+pathogens
+- applying a "vaccine" in a population that protects some of its hosts/vectors
+from pathogens
+
+For these kinds of interventions involving specific pathogens in a population,
+the user may choose to apply them to a randomly-sampled fraction of
+hosts/vectors in a population, or to a specific group of individuals. This is
+useful when simulating consecutive interventions on the same specific group
+within a population. A single model may contain multiple groups of individuals
+and the same individual may be a member of multiple different groups.
+Individuals remain in the same group even if they migrate away from the
+population they were chosen in.
+
+When a host/vector is given a "treatment", it removes all pathogens within the
+host/vector that do not contain a collection of "resistance sequences". A
+treatment may have multiple resistance sequences. A pathogen must contain all
+of these within its genome in order to avoid being removed. On the other hand,
+applying a vaccine consists of adding a specific protection sequence to
+hosts/vectors, which behaves as explained above for recovered hosts/vectors when
+they acquire immune protection, if the model allows it.
+
+### Simulation
+
+Models are simulated using an implementation of the Gillespie algorithm in which
+the rates of different kinds of events across different populations are
+computed with each population's parameters and current state, and are then
+stored in a matrix. In addition, each population has host and vector matrices
+containing coefficients that represent the contribution of each host and vector,
+respectively, to the rates in the master model rate matrix. Each coefficient is
+dependent on the genomes of the pathogens infecting its corresponding vector or
+host. Whenever an event occurs, the corresponding entries in the population
+matrix are updated, and the master rate matrix is recomputed based on this
+information.
+
+The model's state at any given time is comprised of all populations, their hosts
+and vectors, and the pathogen genomes infecting each of these. A copy of the
+model's state is saved at every time point, or at intermittent intervals
+throughout the course of the simulation. A random sample of hosts and/or vectors
+may be saved instead of the entire model as a means of reducing memory
+footprint.
+
+### Output
+
+The output of a model can be saved in multiple ways. The model state at each
+saved timepoint may be output in a single raw [pandas](pandas.pydata.org/)
+DataFrame, and saved as a tabular file. Other data output
+types include counts of pathogen genomes or protection sequences for the
+model, as well as time of first emergence for each pathogen genome and genome
+distance matrices for every timepoint sampled. The user can also create
+different kinds of plots to visualize the results. These include:
+
+- plots of the number of hosts and/or vectors in different epidemiological
+compartments (naive, infected, recovered, and dead) across simulation time
+- plots of the number of individuals in a compartment for different populations
+- plots of the genomic composition of the pathogen population over time
+- phylogenies of pathogen genomes
+
+Users can also use the data output formats to make their own custom plots.
+
+## Opqua Model Documentation
+
 All usage is handled through the Opqua `Model` class.
-The Model class contains populations, setups, and interventions to be used
+The `Model` class contains populations, setups, and interventions to be used
 in simulation. It also contains groups of hosts/vectors for manipulations and
-stores model history as snapshots for each time point.
+stores model history as snapshots for specific time points.
 
 To use it, import the class as
 
@@ -99,9 +345,12 @@ To use it, import the class as
 from opqua.model import Model
 ```
 
-For example usage, have a look at the `examples` folder.
+You can find a detail account of everything `Model` does in the
+[Model attributes](#model-attributes) and
+[Model class methods list](#model-class-methods-list) sections.
 
-### Model attributes
+### Model class attributes
+
 - populations -- dictionary with keys=population IDs, values=Population
     objects
 - setups -- dictionary with keys=setup IDs, values=Setup objects
@@ -112,13 +361,17 @@ For example usage, have a look at the `examples` folder.
 
 ### Model class methods list
 
-#### Model Initialization and Simulation
+#### Model initialization and simulation
 
+- [setRandomSeed](#setRandomSeed) -- set random seed for numpy random number
+generator
 - [newSetup](#newsetup) -- creates a new Setup, save it in setups dict under
 given name
 - [newIntervention](#newintervention) -- creates a new intervention executed
 during simulation
 - [run](#run) -- simulates model for a specified length of time
+- [run_replicates](#run_replicates) -- simulate replicates of a model, save only
+end results
 
 #### Data Output and Plotting ###
 
@@ -138,22 +391,27 @@ resistance vs. time
 given data
 - [pathogenDistanceHistory](#pathogenDistanceHistory) -- calculates pairwise
 distances for pathogen genomes at different times
+- [getGenomeTimes](#getGenomeTimes) -- create DataFrame with times genomes first
+appeared during simulation
 
 #### Model interventions ###
 
-##### Make and connect populations ####
+Make and connect populations:
 - [newPopulation](#newpopulation) -- create a new Population object with
 setup parameters
-- [linkPopulations](#linkpopulations) -- set migration rate from one
-population towards another
+- [linkPopulationsHostMigration](#linkPopulationsHostMigration) -- set host
+migration rate from one population towards another
+- [linkPopulationsVectorMigration](#linkPopulationsVectorMigration) -- set
+vector migration rate from one population towards another
+- [linkPopulationsHostContact](#linkPopulationsHostContact) -- set host
+inter-population contact rate from one population towards another
+- [linkPopulationsVectorContact](#linkPopulationsVectorContact) -- set vector
+inter-population contact rate from one population towards another
 - [createInterconnectedPopulations](#createinterconnectedpopulations) --
-create new populations, link all of them to each other
+create new populations, link all of them to each other by migration and/or
+inter-population contact
 
-##### Modify population parameters ####
-- [setSetup](#setsetup) -- assigns a given set of parameters to this
-population
-
-##### Manipulate hosts and vectors in population ####
+Manipulate hosts and vectors in population:
 - [newHostGroup](#newhostgroup) -- returns a list of random (healthy or any)
 hosts
 - [newVectorGroup](#newvectorgroup) -- returns a list of random (healthy or
@@ -177,6 +435,9 @@ sequences from hosts
 - [wipeProtectionVectors](#wipeProtectionVectors) -- removes all protection
 sequences from vectors
 
+Modify population parameters:
+- [setSetup](#setsetup) -- assigns a given set of parameters to this
+population
 
 #### Preset fitness functions ###
 
@@ -188,11 +449,25 @@ increasing with distance from worst sequence
 
 ### Detailed Model method list
 
+#### setRandomSeed
+
+```python
+setRandomSeed(seed)
+```
+
+
+Set random seed for numpy random number generator.
+
+_Arguments:_
+seed -- int for the random seed to be passed to numpy (int)
+
+
 #### Model
 
 ```python
 Model()
 ```
+
 
 Class constructor; create a new Model object.
 
@@ -202,6 +477,7 @@ Class constructor; create a new Model object.
 newSetup()
 ```
 
+
 Create a new Setup, save it in setups dict under given name.
 
 Two preset setups exist: "vector-borne" and "host-host". You may select
@@ -209,105 +485,230 @@ one of the preset setups with the preset keyword argument and then
 modify individual parameters with additional keyword arguments, without
 having to specify all of them.
 
-Preset parameter setups:
 
-"vector-borne":
-
+"host-host":
 ```python
 num_loci = 10
 possible_alleles = 'ATCG'
 fitnessHost = (lambda g: 1)
+contactHost = (lambda g: 1)
+lethalityHost = (lambda g: 1)
+natalityHost = (lambda g: 1)
+recoveryHost = (lambda g: 1)
+migrationHost = (lambda g: 1)
+populationContactHost = (lambda g: 1)
+mutationHost = (lambda g: 1)
+recombinationHost = (lambda g: 1)
 fitnessVector = (lambda g: 1)
-contact_rate_host_vector = 1e1
-contact_rate_host_host = 0
-mean_inoculum_host = 1e2
-mean_inoculum_vector = 1e2
+contactVector = (lambda g: 1)
+lethalityVector = (lambda g: 1)
+natalityVector = (lambda g: 1)
+recoveryVector = (lambda g: 1)
+migrationVector = (lambda g: 1)
+populationContactVector = (lambda g: 1)
+mutationVector = (lambda g: 1)
+recombinationVector = (lambda g: 1)
+contact_rate_host_vector = 0
+contact_rate_host_host = 2e-1
+mean_inoculum_host = 1e1
+mean_inoculum_vector = 0
 recovery_rate_host = 1e-1
-recovery_rate_vector = 1e-2
-recombine_in_host = 0
-recombine_in_vector = 1e-2
+recovery_rate_vector = 0
+lethality_rate_host = 0
+lethality_rate_vector = 0
+recombine_in_host = 1e-4
+recombine_in_vector = 0
+num_crossover_host = 1
+num_crossover_vector = 0
 mutate_in_host = 1e-6
 mutate_in_vector = 0
 death_rate_host = 0
 death_rate_vector = 0
+birth_rate_host = 0
+birth_rate_vector = 0
+vertical_transmission_host = 0
+vertical_transmission_vector = 0
+inherit_protection_host = 0
+inherit_protection_vector = 0
 protection_upon_recovery_host = None
 protection_upon_recovery_vector = None
 ```
 
-"host-host":
-
+"vector-borne":
 ```python
 num_loci = 10
 possible_alleles = 'ATCG'
 fitnessHost = (lambda g: 1)
+contactHost = (lambda g: 1)
+lethalityHost = (lambda g: 1)
+natalityHost = (lambda g: 1)
+recoveryHost = (lambda g: 1)
+migrationHost = (lambda g: 1)
+populationContactHost = (lambda g: 1)
+mutationHost = (lambda g: 1)
+recombinationHost = (lambda g: 1)
 fitnessVector = (lambda g: 1)
-contact_rate_host_vector = 0
-contact_rate_host_host = 2e1
-mean_inoculum_host = 1e1
-mean_inoculum_vector = 0
+contactVector = (lambda g: 1)
+lethalityVector = (lambda g: 1)
+natalityVector = (lambda g: 1)
+recoveryVector = (lambda g: 1)
+migrationVector = (lambda g: 1)
+populationContactVector = (lambda g: 1)
+mutationVector = (lambda g: 1)
+recombinationVector = (lambda g: 1)
+contact_rate_host_vector = 2e-1
+contact_rate_host_host = 0
+mean_inoculum_host = 1e2
+mean_inoculum_vector = 1e2
 recovery_rate_host = 1e-1
-recovery_rate_vector = 1e1
-recombine_in_host = 1e-3
-recombine_in_vector = 0
+recovery_rate_vector = 1e-1
+recombine_in_host = 0
+recombine_in_vector = 1e-4
+num_crossover_host = 0
+num_crossover_vector = 1
 mutate_in_host = 1e-6
 mutate_in_vector = 0
 death_rate_host = 0
 death_rate_vector = 0
+birth_rate_host = 0
+birth_rate_vector = 0
+vertical_transmission_host = 0
+vertical_transmission_vector = 0
+inherit_protection_host = 0
+inherit_protection_vector = 0
 protection_upon_recovery_host = None
 protection_upon_recovery_vector = None
 ```
 
 _Arguments:_
-- name -- name of setup to be used as a key in model setups dictionary
+name -- name of setup to be used as a key in model setups dictionary
 
-_Keyword Arguments:_
-- preset -- preset setup to be used: "vector-borne" or "host-host", if
-None, must define all other keyword arguments (default None; None or
-String)
-- num_loci -- length of each pathogen genome string (int > 0)
+_Keyword arguments:_
+preset -- preset setup to be used: "vector-borne" or "host-host", if
+    None, must define all other keyword arguments (default None; None or
+    String)
+num_loci -- length of each pathogen genome string (int > 0)
 possible_alleles -- set of possible characters in all genome string, or
-at each position in genome string (String or list of Strings with
-- num_loci elements)
-- fitnessHost -- relative fitness in head-to-head competition within host
-(number >= 0)
-- fitnessVector -- relative fitness in head-to-head competition within
-vector (number >= 0)
-- contact_rate_host_vector -- rate of host-vector contact events, not
-necessarily transmission, assumes constant population density;
-evts/time (number >= 0)
-- contact_rate_host_host -- rate of host-host contact events, not
-necessarily transmission, assumes constant population density;
-evts/time (number >= 0)
-- mean_inoculum_host -- mean number of pathogens that are transmitted from
-a vector or host into a new host during a contact event (int >= 0)
-- mean_inoculum_vector -- mean number of pathogens that are transmitted
-from a host to a vector during a contact event (int >= 0)
-- recovery_rate_host -- rate at which hosts clear all pathogens;
-1/time (number >= 0)
-- recovery_rate_vector -- rate at which vectors clear all pathogens
-1/time (number >= 0)
-- recombine_in_host -- rate at which recombination occurs in host;
-evts/time (number >= 0)
-- recombine_in_vector -- rate at which recombination occurs in vector;
-evts/time (number >= 0)
-- mutate_in_host -- rate at which mutation occurs in host; evts/time
-(number >= 0)
-- mutate_in_vector -- rate at which mutation occurs in vector; evts/time
-(number >= 0)
-- death_rate_host -- infected host death rate; 1/time (number >= 0)
-- death_rate_vector -- infected vector death rate; 1/time (number >= 0)
-- protection_upon_recovery_host -- defines indexes in genome string that
-define substring to be added to host protection sequences after
-recovery (None or array-like of length 2 with int 0-num_loci)
-- protection_upon_recovery_vector -- defines indexes in genome string that
-define substring to be added to vector protection sequences after
-recovery (None or array-like of length 2 with int 0-num_loci)
+    at each position in genome string (String or list of Strings with
+    num_loci elements)
+fitnessHost -- function that evaluates relative fitness in head-to-head
+    competition for different genomes within the same host
+    (function object, takes a String argument and returns a number >= 0)
+contactHost -- function that returns coefficient modifying probability
+    of a given host being chosen for a contact, based on genome sequence
+    of pathogen
+    (function object, takes a String argument and returns a number 0-1)
+lethalityHost -- function that returns coefficient modifying death rate
+    for a given host, based on genome sequence of pathogen
+    (function object, takes a String argument and returns a number 0-1)
+natalityHost -- function that returns coefficient modifying birth rate
+    for a given host, based on genome sequence of pathogen
+    (function object, takes a String argument and returns a number 0-1)
+recoveryHost -- function that returns coefficient modifying recovery
+    rate for a given host based on genome sequence of pathogen
+    (function object, takes a String argument and returns a number 0-1)
+migrationHost -- function that returns coefficient modifying migration
+    rate for a given host based on genome sequence of pathogen
+    (function object, takes a String argument and returns a number 0-1)
+populationContactHost -- function that returns coefficient modifying
+    population contact rate for a given host based on genome sequence of
+    pathogen
+    (function object, takes a String argument and returns a number 0-1)
+mutationHost -- function that returns coefficient modifying mutation
+    rate for a given host based on genome sequence of pathogen
+    (function object, takes a String argument and returns a number 0-1)
+recombinationHost -- function that returns coefficient modifying
+    recombination rate for a given host based on genome sequence of
+    pathogen
+    (function object, takes a String argument and returns a number 0-1)
+fitnessVector -- function that evaluates relative fitness in head-to-
+    head competition for different genomes within the same vector
+    (function object, takes a String argument and returns a number >= 0)
+contactVector -- function that returns coefficient modifying probability
+    of a given vector being chosen for a contact, based on genome
+    sequence of pathogen
+    (function object, takes a String argument and returns a number 0-1)
+lethalityVector -- function that returns coefficient modifying death
+    rate for a given vector, based on genome sequence of pathogen
+    (function object, takes a String argument and returns a number 0-1)
+natalityVector -- function that returns coefficient modifying birth rate
+    for a given vector, based on genome sequence of pathogen
+    (function object, takes a String argument and returns a number 0-1)
+recoveryVector -- function that returns coefficient modifying recovery
+    rate for a given vector based on genome sequence of pathogen
+    (function object, takes a String argument and returns a number 0-1)
+migrationVector -- function that returns coefficient modifying migration
+    rate for a given vector based on genome sequence of pathogen
+    (function object, takes a String argument and returns a number 0-1)
+populationContactVector -- function that returns coefficient modifying
+    population contact rate for a given vector based on genome sequence
+    of pathogen
+    (function object, takes a String argument and returns a number 0-1)
+mutationVector -- function that returns coefficient modifying mutation
+    rate for a given vector based on genome sequence of pathogen
+    (function object, takes a String argument and returns a number 0-1)
+recombinationVector -- function that returns coefficient modifying
+    recombination rate for a given vector based on genome sequence of
+    pathogen
+    (function object, takes a String argument and returns a number 0-1)
+contact_rate_host_vector -- rate of host-vector contact events, not
+    necessarily transmission, assumes constant population density;
+    evts/time (number >= 0)
+contact_rate_host_host -- rate of host-host contact events, not
+    necessarily transmission, assumes constant population density;
+    evts/time (number >= 0)
+mean_inoculum_host -- mean number of pathogens that are transmitted from
+    a vector or host into a new host during a contact event (int >= 0)
+mean_inoculum_vector -- mean number of pathogens that are transmitted
+    from a host to a vector during a contact event (int >= 0)
+recovery_rate_host -- rate at which hosts clear all pathogens;
+    1/time (number >= 0)
+recovery_rate_vector -- rate at which vectors clear all pathogens
+    1/time (number >= 0)
+recovery_rate_vector -- rate at which vectors clear all pathogens
+    1/time (number >= 0)
+lethality_rate_host -- fraction of infected hosts that die from disease
+    (number 0-1)
+lethality_rate_vector -- fraction of infected vectors that die from
+    disease (number 0-1)
+recombine_in_host -- rate at which recombination occurs in host;
+    evts/time (number >= 0)
+recombine_in_vector -- rate at which recombination occurs in vector;
+    evts/time (number >= 0)
+num_crossover_host -- mean of a Poisson distribution modeling the number
+    of crossover events of host recombination events (number >= 0)
+num_crossover_vector -- mean of a Poisson distribution modeling the
+    number of crossover events of vector recombination events
+    (number >= 0)
+mutate_in_host -- rate at which mutation occurs in host; evts/time
+    (number >= 0)
+mutate_in_vector -- rate at which mutation occurs in vector; evts/time
+    (number >= 0)
+death_rate_host -- natural host death rate; 1/time (number >= 0)
+death_rate_vector -- natural vector death rate; 1/time (number >= 0)
+birth_rate_host -- infected host birth rate; 1/time (number >= 0)
+birth_rate_vector -- infected vector birth rate; 1/time (number >= 0)
+vertical_transmission_host -- probability that a host is infected by its
+    parent at birth (number 0-1)
+vertical_transmission_vector -- probability that a vector is infected by
+    its parent at birth (number 0-1)
+inherit_protection_host -- probability that a host inherits all
+    protection sequences from its parent (number 0-1)
+inherit_protection_vector -- probability that a vector inherits all
+    protection sequences from its parent (number 0-1)
+protection_upon_recovery_host -- defines indexes in genome string that
+    define substring to be added to host protection sequences after
+    recovery (None or array-like of length 2 with int 0-num_loci)
+protection_upon_recovery_vector -- defines indexes in genome string that
+    define substring to be added to vector protection sequences after
+    recovery (None or array-like of length 2 with int 0-num_loci)
 
 #### newIntervention
 
 ```python
 newIntervention(time, function, args)
 ```
+
 
 Create a new intervention to be carried out at a specific time.
 
@@ -321,6 +722,7 @@ _Arguments:_
 ```python
 run(t0,tf,sampling=0,host_sampling=0,vector_sampling=0)
 ```
+
 
 Simulate model for a specified time between two time points.
 
@@ -341,11 +743,39 @@ host_sampling -- how many hosts to skip before saving one in a snapshot
 vector_sampling -- how many vectors to skip before saving one in a  
     snapshot of the system state (saves all by default) (int, default 0)
 
+#### run_replicates
+
+```python
+run_replicates(t0,tf,replicates,host_sampling=0,vector_sampling=0):
+```
+
+
+Simulate replicates of a model, save only end results.
+
+Simulates replicates of a time series using the Gillespie algorithm.
+
+Saves a dictionary containing model end state state, with keys=times and
+values=Model objects with model snapshot. The time is the final
+timepoint.
+
+_Arguments:_
+t0 -- initial time point to start simulation at (number >= 0)
+tf -- initial time point to end simulation at (number >= 0)
+replicates -- how many replicates to simulate (int >= 1)
+
+_Keyword arguments:_
+host_sampling -- how many hosts to skip before saving one in a snapshot
+    of the system state (saves all by default) (int >= 0, default 0)
+vector_sampling -- how many vectors to skip before saving one in a
+    snapshot of the system state (saves all by default)
+    (int >= 0, default 0)
+
 #### saveToDataFrame
 
 ```python
 saveToDataFrame(save_to_file,n_cores=0)
 ```
+
 
 Save status of model to dataframe, write to file location given.
 
@@ -572,7 +1002,7 @@ _Returns:_
 - axis object for plot with model sequence composition dynamics as
 described
 
-### clustermap
+#### clustermap
 
 ```python
 clustermap(file_name, data, num_top_sequences=-1,
@@ -580,6 +1010,7 @@ track_specific_sequences=[], seq_names=[], n_cores=0, method='weighted',
 metric='euclidean',save_data_to_file="", legend_title='Distance',
 legend_values=[], figsize=(10,10), dpi=200, color_map=DEF_CMAP):
 ```
+
 
 Create a heatmap and dendrogram for pathogen genomes in data passed.
 
@@ -610,7 +1041,7 @@ saving occurs if empty string (default ''; String)
 - dpi -- figure resolution (default 200, int)
 - color_map -- color map to use for traces (default DEF_CMAP, cmap object)
 
-Returns:
+_Returns:_
 - figure object for plot with heatmap and dendrogram as described
 
 #### pathogenDistanceHistory
@@ -619,6 +1050,7 @@ Returns:
 pathogenDistanceHistory(data, samples=-1, num_top_sequences=-1,
 track_specific_sequences=[], seq_names=[], n_cores=0, save_to_file='')
 ```
+
 
 Create a long-format dataframe with pairwise distances for pathogen
 genomes in data passed for different time points.
@@ -651,6 +1083,31 @@ _Returns:_
 long-format Pandas dataframe with pairwise distances for pathogen
 genomes in data passed for different time points.
 
+#### getGenomeTimes
+
+```python
+getGenomeTimes(
+      data, samples=-1, num_top_sequences=-1, track_specific_sequences=[],
+      seq_names=[], n_cores=0, save_to_file=''):
+```
+
+
+Create DataFrame with times genomes first appeared during simulation.
+
+_Arguments:_
+data -- dataframe with model history as produced by saveToDf function
+
+_Keyword arguments:_
+samples -- how many timepoints to uniformly sample from the total
+    timecourse; if <0, takes all timepoints (default 1; int)
+save_to_file -- file path and name to save model data under, no saving
+    occurs if empty string (default ''; String)
+n_cores -- number of cores to parallelize across, if 0, all cores
+    available are used (default 0; int)
+
+_Returns:_
+pandas dataframe with genomes and times as described above
+
 #### newPopulation
 
 ```python
@@ -672,27 +1129,80 @@ int)
 - num_vectors -- number of hosts to initialize population with (default
 100; int)
 
-#### linkPopulations
+#### linkPopulationsHostMigration
 
 ```python
-linkPopulations(pop1_id, pop2_id, rate)
+linkPopulationsHostMigration(pop1_id, pop2_id, rate):
 ```
 
 
-Set migration rate from one population towards another.
+Set host migration rate from one population towards another.
 
 _Arguments:_
-- neighbor -- population towards which migration rate will be specified
-(Population)
-- rate -- migration rate from this population to the neighbor; evts/time
-(number)
+pop1_id -- origin population for which migration rate will be specified
+    (String)
+pop1_id -- destination population for which migration rate will be
+    specified (String)
+rate -- migration rate from one population to the neighbor; evts/time
+    (number >= 0)
+
+#### linkPopulationsVectorMigration
+
+```python
+linkPopulationsVectorMigration(pop1_id, pop2_id, rate):
+```
+
+
+Set vector migration rate from one population towards another.
+
+_Arguments:_
+pop1_id -- origin population for which migration rate will be specified
+    (String)
+pop1_id -- destination population for which migration rate will be
+    specified (String)
+rate -- migration rate from one population to the neighbor; evts/time
+    (number >= 0)
+
+#### linkPopulationsHostContact
+
+```python
+linkPopulationsHostContact(pop1_id, pop2_id, rate):
+```
+
+
+Set host inter-population contact rate from one population towards another.
+
+_Arguments:_
+pop1_id -- origin population for which migration rate will be specified
+    (String)
+pop1_id -- destination population for which migration rate will be
+    specified (String)
+rate -- migration rate from one population to the neighbor; evts/time
+    (number >= 0)
+
+#### linkPopulationsVectorContact
+
+```python
+linkPopulationsVectorContact(pop1_id, pop2_id, rate):
+```
+
+
+Set vector inter-population contact rate from one population towards another.
+
+_Arguments:_
+pop1_id -- origin population for which migration rate will be specified
+    (String)
+pop1_id -- destination population for which migration rate will be
+    specified (String)
+rate -- migration rate from one population to the neighbor; evts/time
+    (number >= 0)
 
 #### createInterconnectedPopulations
 
 ```python
 createInterconnectedPopulations(
-num_populations, migration_rate, id_prefix, setup_name,
-num_hosts=100, num_vectors=100)
+    num_populations, migration_rate, id_prefix, setup_name,
+    num_hosts=100, num_vectors=100)
 ```
 
 
@@ -704,17 +1214,24 @@ are numbered onto prefix given as 'id_prefix_0', 'id_prefix_1',
 'id_prefix_2', etc.
 
 _Arguments:_
-- num_populations -- number of populations to be created (int)
-- migration_rate -- migration rate between populations; evts/time (number)
-- id_prefix -- prefix for IDs to be used for this population in the model,
-(String)
-- setup_name -- setup object with parameters for all populations (Setup)
+num_populations -- number of populations to be created (int)
+id_prefix -- prefix for IDs to be used for this population in the model,
+    (String)
+setup_name -- setup object with parameters for all populations (Setup)
 
-_Keyword Arguments:_
-- num_hosts -- number of hosts to initialize population with (default 100;
-int)
-- num_vectors -- number of hosts to initialize population with (default
-100; int)
+_Keyword arguments:_
+host_migration_rate -- host migration rate between populations;
+    evts/time (default 0; number >= 0)
+vector_migration_rate -- vector migration rate between populations;
+    evts/time (default 0; number >= 0)
+host_contact_rate -- host inter-population contact rate between
+    populations; evts/time (default 0; number >= 0)
+vector_contact_rate -- vector inter-population contact rate between
+    populations; evts/time (default 0; number >= 0)
+num_hosts -- number of hosts to initialize population with (default 100;
+    int)
+num_vectors -- number of hosts to initialize population with (default
+    100; int)
 
 #### newHostGroup
 
@@ -954,7 +1471,7 @@ from whole population (default empty String; String)
 #### wipeProtectionHosts
 
 ```python
-wipeProtectionHosts(self, pop_id, group_id="")
+wipeProtectionHosts(pop_id, group_id="")
 ```
 
 
@@ -970,7 +1487,7 @@ whole population (default empty String; String)
 #### wipeProtectionVectors
 
 ```python
-wipeProtectionVectors(self, pop_id, group_id="")
+wipeProtectionVectors(pop_id, group_id="")
 ```
 
 
@@ -1019,7 +1536,7 @@ _Arguments:_
 - min_value -- minimum value at maximum distance from optimal
     genome (number > 0)
 
-Return:
+_Returns:_
 - value of genome (number)
 
 #### valleyLandscape
@@ -1045,5 +1562,5 @@ _Arguments:_
         value of min_value (String)
 - min_value -- fitness value of worst possible genome (number > 0)
 
-Return:
+_Returns:_
 - value of genome (number)

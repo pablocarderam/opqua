@@ -46,7 +46,7 @@ def populationsPlot(
         includes all populations in model (default 7; int)
     track_specific_populations -- contains IDs of specific populations to have
         as a separate column if not part of the top num_top_populations
-        populations (list of Strings)
+        populations (default empty list; list of Strings)
     save_data_to_file -- file path and name to save model plot data under, no
         saving occurs if empty string (default ''; String)
     x_label -- X axis title (default 'Time', String)
@@ -58,8 +58,8 @@ def populationsPlot(
     dpi -- figure resolution (default 200, int)
     palette -- color palette to use for traces (default CB_PALETTE, list of
         color Strings)
-    stacked -- whether to draw a regular line plot or a stacked one (default
-        False, Boolean)
+    stacked -- whether to draw a regular line plot instead of a stacked one
+        (default False, Boolean)
 
     Returns:
     axis object for plot with model population dynamics as described above
@@ -73,8 +73,8 @@ def populationsPlot(
         )
 
     if pops.shape[1] > 0:
-        plt.figure(figsize=figsize, dpi=dpi) # make new figure
-        ax = plt.subplot(1, 1, 1) # get axis
+        plt.figure(figsize=figsize, dpi=dpi)
+        ax = plt.subplot(1, 1, 1)
 
         if stacked:
             if len(legend_values) > 0:
@@ -97,19 +97,19 @@ def populationsPlot(
                     pops['Time'], pops[c], label=labs[i], color=palette[i]
                     )
 
-        plt.xlabel(x_label) # labels
+        plt.xlabel(x_label)
         plt.ylabel(y_label)
 
         box = ax.get_position()
         ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
 
-        handles, labels = ax.get_legend_handles_labels() # get legend
+        handles, labels = ax.get_legend_handles_labels()
         plt.legend(
             handles, labels, loc='center left', bbox_to_anchor=(1, 0.5),
             title=legend_title
-            ) # show it
+            )
 
-        plt.savefig(file_name, bbox_inches='tight') # save
+        plt.savefig(file_name, bbox_inches='tight')
     else:
         ax = None
         print('Nothing to plot! Check your data.')
@@ -149,8 +149,8 @@ def compartmentPlot(
     dpi -- figure resolution (default 200, int)
     palette -- color palette to use for traces (default CB_PALETTE, list of
         color Strings)
-    stacked -- whether to draw a regular line plot or a stacked one (default
-        False, Boolean)
+    stacked -- whether to draw a regular line plot instead of a stacked one
+        (default False, Boolean)
 
     Returns:
     axis object for plot with model compartment dynamics as described above
@@ -160,8 +160,8 @@ def compartmentPlot(
         vectors=vectors, save_to_file=save_data_to_file)
 
     if comp.shape[1] > 0:
-        plt.figure(figsize=figsize, dpi=dpi) # make new figure
-        ax = plt.subplot(1, 1, 1) # get axis
+        plt.figure(figsize=figsize, dpi=dpi)
+        ax = plt.subplot(1, 1, 1)
 
         if stacked:
             if len(legend_values) > 0:
@@ -184,19 +184,19 @@ def compartmentPlot(
                     comp['Time'], comp[c], label=labs[i], color=palette[i]
                     )
 
-        plt.xlabel(x_label) # labels
+        plt.xlabel(x_label)
         plt.ylabel(y_label)
 
         box = ax.get_position()
         ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
 
-        handles, labels = ax.get_legend_handles_labels() # get legend
+        handles, labels = ax.get_legend_handles_labels()
         plt.legend(
             handles, labels, loc='center left', bbox_to_anchor=(1, 0.5),
             title=legend_title
-            ) # show it
+            )
 
-        plt.savefig(file_name, bbox_inches='tight') # save
+        plt.savefig(file_name, bbox_inches='tight')
     else:
         ax = None
         print('Nothing to plot! Check your data.')
@@ -206,9 +206,11 @@ def compartmentPlot(
 def compositionPlot(
         file_name, data, populations=[], type_of_composition='Pathogens',
         hosts=True, vectors=False, num_top_sequences=7,
-        track_specific_sequences=[], save_data_to_file="", x_label='Time',
-        y_label='Infections', legend_title='Genotype', legend_values=[],
-        figsize=(8, 4), dpi=200, palette=CB_PALETTE, stacked=True):
+        track_specific_sequences=[], genomic_positions=[],
+        count_individuals_based_on_model=None, save_data_to_file="",
+        x_label='Time', y_label='Infections', legend_title='Genotype',
+        legend_values=[], figsize=(8, 4), dpi=200, palette=CB_PALETTE,
+        stacked=True, remove_legend=False):
     """Create plot with counts for pathogen genomes or resistance across time.
 
     Creates a line or stacked line plot with dynamics of the pathogen strains or
@@ -235,7 +237,16 @@ def compositionPlot(
         includes all genomes in model (default 7; int)
     track_specific_sequences -- contains specific sequences to have
         as a separate column if not part of the top num_top_sequences
-        sequences (list of Strings)
+        sequences (default empty list; list of Strings)
+    genomic_positions -- list in which each element is a list with loci
+        positions to extract (e.g. genomic_positions=[ [0,3], [5,6] ] extracts
+        positions 0, 1, 2, and 5 from each genome); if empty, takes full genomes
+        (default empty list; list of lists of int)
+    count_individuals_based_on_model -- Model object with populations and
+        fitness functions used to evaluate the most fit pathogen genome in each
+        host/vector in order to count only a single pathogen per host/vector, as
+        opposed to all pathogens within each host/vector; if None, counts all
+        pathogens (default None; None or Model)
     save_data_to_file -- file path and name to save model data under, no saving
         occurs if empty string (default ''; String)
     x_label -- X axis title (default 'Time', String)
@@ -247,25 +258,27 @@ def compositionPlot(
     dpi -- figure resolution (default 200, int)
     palette -- color palette to use for traces (default CB_PALETTE, list of
         color Strings)
-    stacked -- whether to draw a regular line plot or a stacked one (default
-        False, Boolean)
+    stacked -- whether to draw a regular line plot instead of a stacked one
+        (default False, Boolean).
+    remove_legend -- whether to print the sequences on the figure legend instead
+        of printing them on a separate csv file (default True; Boolean)
 
     Returns:
     axis object for plot with model sequence composition dynamics as described
     """
 
-    # TODO: make custom groupings, eg. "genomes containing sequence AAA"
-
     comp = compositionDf(
         data, populations=populations, type_of_composition=type_of_composition,
         hosts=hosts, vectors=vectors, num_top_sequences=num_top_sequences,
         track_specific_sequences=track_specific_sequences,
+        genomic_positions=genomic_positions,
+        count_individuals_based_on_model=count_individuals_based_on_model,
         save_to_file=save_data_to_file
         )
 
     if comp.shape[1] > 1:
-        plt.figure(figsize=figsize, dpi=dpi) # make new figure
-        ax = plt.subplot(1, 1, 1) # get axis
+        plt.figure(figsize=figsize, dpi=dpi)
+        ax = plt.subplot(1, 1, 1)
 
         if stacked:
             if len(legend_values) > 0:
@@ -288,19 +301,24 @@ def compositionPlot(
                     comp['Time'], comp[c], label=labs[i], color=palette[i]
                     )
 
-        plt.xlabel(x_label) # labels
+        plt.xlabel(x_label)
         plt.ylabel(y_label)
 
         box = ax.get_position()
         ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
 
-        handles, labels = ax.get_legend_handles_labels() # get legend
-        plt.legend(
-            handles, labels, loc='center left', bbox_to_anchor=(1, 0.5),
-            title=legend_title
-            ) # show it
+        if remove_legend:
+            pd.DataFrame(
+                labels, columns=['Groups']
+                ).to_csv(file_name.split('.')[0]+'_labels.csv')
+        else:
+            handles, labels = ax.get_legend_handles_labels()
+            plt.legend(
+                handles, labels, loc='center left', bbox_to_anchor=(1, 0.5),
+                title=legend_title
+                )
 
-        plt.savefig(file_name, bbox_inches='tight') # save
+        plt.savefig(file_name, bbox_inches='tight')
     else:
         ax = None
         print('Nothing to plot! Check your data.')
@@ -344,9 +362,6 @@ def clustermap(
     figure object for plot with heatmap and dendrogram as described
     """
 
-    # TODO: make labels optional, if no labels write a file with the genomes in
-    # the same order
-
     dis = pathogenDistanceDf(
         data, num_top_sequences=num_top_sequences,
         track_specific_sequences=track_specific_sequences, seq_names=seq_names,
@@ -361,7 +376,7 @@ def clustermap(
     g = sns.clustermap(
         dis, method=method, metric=metric, cbar_kws={'label': legend_title},
         cmap=color_map, figsize=figsize
-        ) # show it
+        )
 
     g.savefig(file_name, dpi=dpi, bbox_inches='tight')
 

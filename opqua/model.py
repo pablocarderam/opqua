@@ -1,25 +1,11 @@
-# TODO: pathogen genome influences transmission, death, recovery, migration, mutation probabilities. Done, test
-# TODO: independent recombination of alleles -> make chromosome separators!! make reassortment parameter option as related but separate to recombination. Done, test
 
-# TODO: migrate vectors. Done, test
-# TODO: contact between populations (without migration). Done, test
-# TODO: host/vector birth/death rates in populations -> make birth event
-
-# TODO: make genome labels optional, if no labels write a file with the genomes in
-#       the same order for compositionPlot
-# TODO: compositionPlot – make custom groupings, eg. "genomes containing
-#       sequence AAA". Make option to count only 1 fitness-dominant strain/host
-# TODO: arbitrary comparments (group_id) for compartment plot
-# TODO: genomes and dates output for TDA
-
-# TODO: parallelizeable simulations
-# TODO: Numba, Cython, and JAX
 """Contains class Model; main class user interacts with."""
 
 import numpy as np
 import pandas as pd
 import textdistance as td
 import seaborn as sns
+import joblib as jl
 
 from opqua.internal.host import Host
 from opqua.internal.vector import Vector
@@ -41,6 +27,11 @@ class Model(object):
     in simulation. Also contains groups of hosts/vectors for manipulations and
     stores model history as snapshots for each time point.
 
+    *** --- CONSTANTS: --- ***
+    ### Color scheme constants ###
+    CB_PALETTE -- a colorblind-friendly 8-color color scheme
+    DEF_CMAP -- a colormap object for Seaborn plots
+
     *** --- ATTRIBUTES: --- ***
     populations -- dictionary with keys=population IDs, values=Population
         objects
@@ -54,9 +45,11 @@ class Model(object):
 
     --- Model Initialization and Simulation: ---
 
+    setRandomSeed -- set random seed for numpy random number generator
     newSetup -- creates a new Setup, save it in setups dict under given name
     newIntervention -- creates a new intervention executed during simulation
     run -- simulates model for a specified length of time
+    run_replicates -- simulate replicates of a model, save only end results
     copyState -- returns a slimmed-down version of the current model state
 
     --- Data Output and Plotting: ---
@@ -67,17 +60,25 @@ class Model(object):
     populationsPlot -- plots aggregated totals per population across time
     compartmentPlot -- plots number of naive,inf,rec,dead hosts/vectors vs time
     compositionPlot -- plots counts for pathogen genomes or resistance vs. time
+    clustermap -- create a heatmap and dendrogram for pathogen genomes in data
+    pathogenDistanceHistory -- get pairwise distances for pathogen genomes
+    getGenomeTimes -- create DataFrame with times genomes first appeared during
+        simulation
 
     --- Model interventions: ---
 
     - Make and connect populations -
     newPopulation -- create a new Population object with setup parameters
-    linkPopulations -- set migration rate from one population towards another
+    linkPopulationsHostMigration -- set host migration rate from one population
+        towards another
+    linkPopulationsVectorMigration -- set vector migration rate from one
+        population towards another
+    linkPopulationsHostContact -- set host inter-population contact rate from
+        one population towards another
+    linkPopulationsVectorMigration -- set vector inter-population contact rate
+        from one population towards another
     createInterconnectedPopulations -- create new populations, link all of them
-        to each other
-
-    - Modify population parameters -
-    setSetup -- assigns a given set of parameters to this population
+        to each other by migration and/or inter-population contact
 
     - Manipulate hosts and vectors in population -
     newHostGroup -- returns a list of random (healthy or any) hosts
@@ -95,6 +96,8 @@ class Model(object):
     wipeProtectionHosts -- removes all protection sequences from hosts
     wipeProtectionVectors -- removes all protection sequences from vectors
 
+    - Modify population parameters -
+    setSetup -- assigns a given set of parameters to this population
 
     --- Preset fitness functions: ---
         * these are static methods
@@ -139,22 +142,40 @@ class Model(object):
 
     ### Model initialization and simulation: ###
 
+    def setRandomSeed(self, seed):
+        """Set random seed for numpy random number generator.
+
+        Arguments:
+        seed -- int for the random seed to be passed to numpy (int)
+        """
+
+        np.random.seed(seed)
+
     def newSetup(
             self, name, preset=None,
             num_loci=None, possible_alleles=None,
-            fitnessHost=None, contactHost=None, lethalityHost=None,
+            fitnessHost=None, contactHost=None, receiveContactHost=None,
+            lethalityHost=None, natalityHost=None,
             recoveryHost=None, migrationHost=None,
-            populationContactHost=None, mutationHost=None,
+            populationContactHost=None, receivePopulationContactHost=None,
+            mutationHost=None,
             recombinationHost=None, fitnessVector=None,
-            contactVector=None, lethalityVector=None, recoveryVector=None,
+            contactVector=None, receiveContactVector=None, lethalityVector=None,
+            natalityVector=None, recoveryVector=None,
             migrationVector=None, populationContactVector=None,
+            receivePopulationContactVector=None,
             mutationVector=None, recombinationVector=None,
             contact_rate_host_vector=None, contact_rate_host_host=None,
             mean_inoculum_host=None, mean_inoculum_vector=None,
             recovery_rate_host=None, recovery_rate_vector=None,
+            lethality_rate_host=None, lethality_rate_vector=None,
             recombine_in_host=None, recombine_in_vector=None,
+            num_crossover_host=None, num_crossover_vector=None,
             mutate_in_host=None, mutate_in_vector=None,
             death_rate_host=None, death_rate_vector=None,
+            birth_rate_host=None, birth_rate_vector=None,
+            vertical_transmission_host=None, vertical_transmission_vector=None,
+            inherit_protection_host=None, inherit_protection_vector=None,
             protection_upon_recovery_host=None,
             protection_upon_recovery_vector=None):
         """Create a new Setup, save it in setups dict under given name.
@@ -163,52 +184,6 @@ class Model(object):
         one of the preset setups with the preset keyword argument and then
         modify individual parameters with additional keyword arguments, without
         having to specify all of them.
-
-        Preset parameter setups:
-
-        "vector-borne":
-        num_loci = num_loci or 10
-        possible_alleles = possible_alleles or 'ATCG'
-        fitnessHost = fitnessHost or (lambda g: 1)
-        fitnessVector = fitnessVector or (lambda g: 1)
-        contact_rate_host_vector = contact_rate_host_vector or 1e1
-        contact_rate_host_host = contact_rate_host_host or 0
-        mean_inoculum_host = mean_inoculum_host or 1e2
-        mean_inoculum_vector = mean_inoculum_vector or 1e2
-        recovery_rate_host = recovery_rate_host or 1e-1
-        recovery_rate_vector = recovery_rate_vector or 1e-2
-        recombine_in_host = recombine_in_host or 0
-        recombine_in_vector = recombine_in_vector or 1e-2
-        mutate_in_host = mutate_in_host or 1e-6
-        mutate_in_vector = mutate_in_vector or 0
-        death_rate_host = death_rate_host or 0
-        death_rate_vector = death_rate_vector or 0
-        protection_upon_recovery_host = ( protection_upon_recovery_host
-            or None )
-        protection_upon_recovery_vector = ( protection_upon_recovery_vector
-            or None )
-
-        "host-host":
-        num_loci = num_loci or 10
-        possible_alleles = possible_alleles or 'ATCG'
-        fitnessHost = fitnessHost or (lambda g: 1)
-        fitnessVector = fitnessVector or (lambda g: 1)
-        contact_rate_host_vector = contact_rate_host_vector or 0
-        contact_rate_host_host = contact_rate_host_host or 2e1
-        mean_inoculum_host = mean_inoculum_host or 1e1
-        mean_inoculum_vector = mean_inoculum_vector or 0
-        recovery_rate_host = recovery_rate_host or 1e-1
-        recovery_rate_vector = recovery_rate_vector or 1e1
-        recombine_in_host = recombine_in_host or 1e-3
-        recombine_in_vector = recombine_in_vector or 0
-        mutate_in_host = mutate_in_host or 1e-6
-        mutate_in_vector = mutate_in_vector or 0
-        death_rate_host = death_rate_host or 0
-        death_rate_vector = death_rate_vector or 0
-        protection_upon_recovery_host = ( protection_upon_recovery_host
-            or None )
-        protection_upon_recovery_vector = ( protection_upon_recovery_vector
-            or None )
 
         Arguments:
         name -- name of setup to be used as a key in model setups dictionary
@@ -221,14 +196,66 @@ class Model(object):
         possible_alleles -- set of possible characters in all genome string, or
             at each position in genome string (String or list of Strings with
             num_loci elements)
-        fitnessHost -- relative fitness in head-to-head competition within host
-            (number >= 0)
-        fitnessVector -- relative fitness in head-to-head competition within
-            vector (number >= 0)
-        lethalityHost -- host lethality as a fraction of death rate
-            (number 0 – 1)
-        lethalityVector -- vector lethality as a fraction of death rate
-            (number 0 – 1)
+        fitnessHost -- function that evaluates relative fitness in head-to-head
+            competition for different genomes within the same host
+            (function object, takes a String argument and returns a number >= 0)
+        contactHost -- function that returns coefficient modifying probability
+            of a given host being chosen for a contact, based on genome sequence
+            of pathogen
+            (function object, takes a String argument and returns a number 0-1)
+        lethalityHost -- function that returns coefficient modifying death rate
+            for a given host, based on genome sequence of pathogen
+            (function object, takes a String argument and returns a number 0-1)
+        natalityHost -- function that returns coefficient modifying birth rate
+            for a given host, based on genome sequence of pathogen
+            (function object, takes a String argument and returns a number 0-1)
+        recoveryHost -- function that returns coefficient modifying recovery
+            rate for a given host based on genome sequence of pathogen
+            (function object, takes a String argument and returns a number 0-1)
+        migrationHost -- function that returns coefficient modifying migration
+            rate for a given host based on genome sequence of pathogen
+            (function object, takes a String argument and returns a number 0-1)
+        populationContactHost -- function that returns coefficient modifying
+            population contact rate for a given host based on genome sequence of
+            pathogen
+            (function object, takes a String argument and returns a number 0-1)
+        mutationHost -- function that returns coefficient modifying mutation
+            rate for a given host based on genome sequence of pathogen
+            (function object, takes a String argument and returns a number 0-1)
+        recombinationHost -- function that returns coefficient modifying
+            recombination rate for a given host based on genome sequence of
+            pathogen
+            (function object, takes a String argument and returns a number 0-1)
+        fitnessVector -- function that evaluates relative fitness in head-to-
+            head competition for different genomes within the same vector
+            (function object, takes a String argument and returns a number >= 0)
+        contactVector -- function that returns coefficient modifying probability
+            of a given vector being chosen for a contact, based on genome
+            sequence of pathogen
+            (function object, takes a String argument and returns a number 0-1)
+        lethalityVector -- function that returns coefficient modifying death
+            rate for a given vector, based on genome sequence of pathogen
+            (function object, takes a String argument and returns a number 0-1)
+        natalityVector -- function that returns coefficient modifying birth rate
+            for a given vector, based on genome sequence of pathogen
+            (function object, takes a String argument and returns a number 0-1)
+        recoveryVector -- function that returns coefficient modifying recovery
+            rate for a given vector based on genome sequence of pathogen
+            (function object, takes a String argument and returns a number 0-1)
+        migrationVector -- function that returns coefficient modifying migration
+            rate for a given vector based on genome sequence of pathogen
+            (function object, takes a String argument and returns a number 0-1)
+        populationContactVector -- function that returns coefficient modifying
+            population contact rate for a given vector based on genome sequence
+            of pathogen
+            (function object, takes a String argument and returns a number 0-1)
+        mutationVector -- function that returns coefficient modifying mutation
+            rate for a given vector based on genome sequence of pathogen
+            (function object, takes a String argument and returns a number 0-1)
+        recombinationVector -- function that returns coefficient modifying
+            recombination rate for a given vector based on genome sequence of
+            pathogen
+            (function object, takes a String argument and returns a number 0-1)
         contact_rate_host_vector -- rate of host-vector contact events, not
             necessarily transmission, assumes constant population density;
             evts/time (number >= 0)
@@ -243,20 +270,37 @@ class Model(object):
             1/time (number >= 0)
         recovery_rate_vector -- rate at which vectors clear all pathogens
             1/time (number >= 0)
+        recovery_rate_vector -- rate at which vectors clear all pathogens
+            1/time (number >= 0)
+        lethality_rate_host -- fraction of infected hosts that die from disease
+            (number 0-1)
+        lethality_rate_vector -- fraction of infected vectors that die from
+            disease (number 0-1)
         recombine_in_host -- rate at which recombination occurs in host;
             evts/time (number >= 0)
         recombine_in_vector -- rate at which recombination occurs in vector;
             evts/time (number >= 0)
-        num_crossover_host -- mean number of crossover locations per
-            recombination event in host
-        num_crossover_vector -- mean number of crossover locations per
-            recombination event in vector
+        num_crossover_host -- mean of a Poisson distribution modeling the number
+            of crossover events of host recombination events (number >= 0)
+        num_crossover_vector -- mean of a Poisson distribution modeling the
+            number of crossover events of vector recombination events
+            (number >= 0)
         mutate_in_host -- rate at which mutation occurs in host; evts/time
             (number >= 0)
         mutate_in_vector -- rate at which mutation occurs in vector; evts/time
             (number >= 0)
-        death_rate_host -- infected host death rate; 1/time (number >= 0)
-        death_rate_vector -- infected vector death rate; 1/time (number >= 0)
+        death_rate_host -- natural host death rate; 1/time (number >= 0)
+        death_rate_vector -- natural vector death rate; 1/time (number >= 0)
+        birth_rate_host -- infected host birth rate; 1/time (number >= 0)
+        birth_rate_vector -- infected vector birth rate; 1/time (number >= 0)
+        vertical_transmission_host -- probability that a host is infected by its
+            parent at birth (number 0-1)
+        vertical_transmission_vector -- probability that a vector is infected by
+            its parent at birth (number 0-1)
+        inherit_protection_host -- probability that a host inherits all
+            protection sequences from its parent (number 0-1)
+        inherit_protection_vector -- probability that a vector inherits all
+            protection sequences from its parent (number 0-1)
         protection_upon_recovery_host -- defines indexes in genome string that
             define substring to be added to host protection sequences after
             recovery (None or array-like of length 2 with int 0-num_loci)
@@ -271,14 +315,20 @@ class Model(object):
                 'ATCG' if possible_alleles is None else possible_alleles
             fitnessHost = (lambda g: 1) if fitnessHost is None else fitnessHost
             contactHost = (lambda g: 1) if contactHost is None else contactHost
+            receiveContactHost = \
+                (lambda g: 1) if receiveContactHost is None else receiveContactHost
             lethalityHost = \
                 (lambda g: 1) if lethalityHost is None else lethalityHost
+            natalityHost = \
+                (lambda g: 1) if natalityHost is None else natalityHost
             recoveryHost = \
                 (lambda g: 1) if recoveryHost is None else recoveryHost
             migrationHost = \
                 (lambda g: 1) if migrationHost is None else migrationHost
             populationContactHost = \
                 (lambda g: 1) if populationContactHost is None else populationContactHost
+            receivePopulationContactHost = \
+                (lambda g: 1) if receivePopulationContactHost is None else receivePopulationContactHost
             mutationHost = \
                 (lambda g: 1) if mutationHost is None else mutationHost
             recombinationHost = \
@@ -287,14 +337,20 @@ class Model(object):
                 (lambda g: 1) if fitnessVector is None else fitnessVector
             contactVector = \
                 (lambda g: 1) if contactVector is None else contactVector
+            receiveContactVector = \
+                (lambda g: 1) if receiveContactVector is None else receiveContactVector
             lethalityVector = \
                 (lambda g: 1) if lethalityVector is None else lethalityVector
+            natalityVector = \
+                (lambda g: 1) if natalityVector is None else natalityVector
             recoveryVector = \
                 (lambda g: 1) if recoveryVector is None else recoveryVector
             migrationVector = \
                 (lambda g: 1) if migrationVector is None else migrationVector
             populationContactVector = \
                 (lambda g: 1) if populationContactVector is None else populationContactVector
+            receivePopulationContactVector = \
+                (lambda g: 1) if receivePopulationContactVector is None else receivePopulationContactVector
             mutationVector = \
                 (lambda g: 1) if mutationVector is None else mutationVector
             recombinationVector = \
@@ -312,6 +368,10 @@ class Model(object):
                 1e-1 if recovery_rate_host is None else recovery_rate_host
             recovery_rate_vector = \
                 1e-1 if recovery_rate_vector is None else recovery_rate_vector
+            lethality_rate_host = \
+                0 if lethality_rate_host is None else lethality_rate_host
+            lethality_rate_vector = \
+                0 if lethality_rate_vector is None else lethality_rate_vector
             recombine_in_host = \
                 0 if recombine_in_host is None else recombine_in_host
             recombine_in_vector = \
@@ -326,6 +386,21 @@ class Model(object):
             death_rate_host = 0 if death_rate_host is None else death_rate_host
             death_rate_vector = \
                 0 if death_rate_vector is None else death_rate_vector
+            birth_rate_host = 0 if birth_rate_host is None else birth_rate_host
+            birth_rate_vector = \
+                0 if birth_rate_vector is None else birth_rate_vector
+            vertical_transmission_host = \
+                0 if vertical_transmission_host is None \
+                else vertical_transmission_host
+            vertical_transmission_vector = \
+                0 if vertical_transmission_vector is None \
+                else vertical_transmission_vector
+            inherit_protection_host = \
+                0 if inherit_protection_host is None \
+                else inherit_protection_host
+            inherit_protection_vector = \
+                0 if inherit_protection_vector is None \
+                else inherit_protection_vector
             protection_upon_recovery_host = protection_upon_recovery_host
             protection_upon_recovery_vector = protection_upon_recovery_vector
 
@@ -335,14 +410,22 @@ class Model(object):
                 'ATCG' if possible_alleles is None else possible_alleles
             fitnessHost = (lambda g: 1) if fitnessHost is None else fitnessHost
             contactHost = (lambda g: 1) if contactHost is None else contactHost
+            receiveContactHost = \
+                (lambda g: 1) if receiveContactHost is None else receiveContactHost
+            receiveContactHost = \
+                (lambda g: 1) if receiveContactHost is None else receiveContactHost
             lethalityHost = \
                 (lambda g: 1) if lethalityHost is None else lethalityHost
+            natalityHost = \
+                (lambda g: 1) if natalityHost is None else natalityHost
             recoveryHost = \
                 (lambda g: 1) if recoveryHost is None else recoveryHost
             migrationHost = \
                 (lambda g: 1) if migrationHost is None else migrationHost
             populationContactHost = \
                 (lambda g: 1) if populationContactHost is None else populationContactHost
+            receivePopulationContactHost = \
+                (lambda g: 1) if receivePopulationContactHost is None else receivePopulationContactHost
             mutationHost = \
                 (lambda g: 1) if mutationHost is None else mutationHost
             recombinationHost = \
@@ -351,14 +434,24 @@ class Model(object):
                 (lambda g: 1) if fitnessVector is None else fitnessVector
             contactVector = \
                 (lambda g: 1) if contactVector is None else contactVector
+            receiveContactVector = \
+                (lambda g: 1) if receiveContactVector is None else receiveContactVector
             lethalityVector = \
                 (lambda g: 1) if lethalityVector is None else lethalityVector
+            natalityVector = \
+                (lambda g: 1) if natalityVector is None else natalityVector
             recoveryVector = \
                 (lambda g: 1) if recoveryVector is None else recoveryVector
+            lethality_rate_host = \
+                0 if lethality_rate_host is None else lethality_rate_host
+            lethality_rate_vector = \
+                0 if lethality_rate_vector is None else lethality_rate_vector
             migrationVector = \
                 (lambda g: 1) if migrationVector is None else migrationVector
             populationContactVector = \
                 (lambda g: 1) if populationContactVector is None else populationContactVector
+            receivePopulationContactVector = \
+                (lambda g: 1) if receivePopulationContactVector is None else receivePopulationContactVector
             mutationVector = \
                 (lambda g: 1) if mutationVector is None else mutationVector
             recombinationVector = \
@@ -393,22 +486,44 @@ class Model(object):
                 0 if death_rate_host is None else death_rate_host
             death_rate_vector = \
                 0 if death_rate_vector is None else death_rate_vector
+            birth_rate_host = 0 if birth_rate_host is None else birth_rate_host
+            birth_rate_vector = \
+                0 if birth_rate_vector is None else birth_rate_vector
+            vertical_transmission_host = \
+                0 if vertical_transmission_host is None \
+                else vertical_transmission_host
+            vertical_transmission_vector = \
+                0 if vertical_transmission_vector is None \
+                else vertical_transmission_vector
+            inherit_protection_host = \
+                0 if inherit_protection_host is None \
+                else inherit_protection_host
+            inherit_protection_vector = \
+                0 if inherit_protection_vector is None \
+                else inherit_protection_vector
             protection_upon_recovery_host = protection_upon_recovery_host
             protection_upon_recovery_vector = protection_upon_recovery_vector
 
         self.setups[name] = Setup(
             num_loci, possible_alleles,
-            fitnessHost, contactHost, lethalityHost, recoveryHost, migrationHost,
-            populationContactHost, mutationHost, recombinationHost,
-            fitnessVector, contactVector, lethalityVector,
-            recoveryVector, migrationVector, populationContactVector,
+            fitnessHost, contactHost, receiveContactHost, lethalityHost,
+            natalityHost, recoveryHost, migrationHost,
+            populationContactHost, receivePopulationContactHost,
+            mutationHost, recombinationHost,
+            fitnessVector, contactVector, receiveContactVector, lethalityVector,
+            natalityVector,recoveryVector, migrationVector,
+            populationContactVector, receivePopulationContactVector,
             mutationVector, recombinationVector,
             contact_rate_host_vector, contact_rate_host_host,
             mean_inoculum_host, mean_inoculum_vector,
             recovery_rate_host, recovery_rate_vector,
+            lethality_rate_host,lethality_rate_vector,
             recombine_in_host, recombine_in_vector,
-            mutate_in_host, mutate_in_vector,
-            death_rate_host, death_rate_vector,
+            num_crossover_host, num_crossover_vector,
+            mutate_in_host, mutate_in_vector, death_rate_host,death_rate_vector,
+            birth_rate_host, birth_rate_vector,
+            vertical_transmission_host, vertical_transmission_vector,
+            inherit_protection_host, inherit_protection_vector,
             protection_upon_recovery_host, protection_upon_recovery_vector
             )
 
@@ -416,7 +531,7 @@ class Model(object):
         """Create a new intervention to be carried out at a specific time.
 
         Arguments:
-        time -- time at which intervention will take place (number)
+        time -- time at which intervention will take place (number >= 0)
         function -- intervention to be carried out (method of class Model)
         args -- contains arguments for function in positinal order (array-like)
         """
@@ -433,28 +548,69 @@ class Model(object):
         model's history attribute.
 
         Arguments:
-        t0 -- initial time point to start simulation at (number)
-        tf -- initial time point to end simulation at (number)
+        t0 -- initial time point to start simulation at (number >= 0)
+        tf -- initial time point to end simulation at (number >= 0)
+
+        Keyword arguments:
         time_sampling -- how many events to skip before saving a snapshot of the
             system state (saves all by default), if <0, saves only final state
             (int, default 0)
         host_sampling -- how many hosts to skip before saving one in a snapshot
-            of the system state (saves all by default) (int, default 0)
+            of the system state (saves all by default) (int >= 0, default 0)
         vector_sampling -- how many vectors to skip before saving one in a
-            snapshot of the system state (saves all by default) (int, default 0)
+            snapshot of the system state (saves all by default)
+            (int >= 0, default 0)
         """
 
         sim = Gillespie(self)
-        self.history = sim.run(t0,tf,time_sampling,host_sampling,vector_sampling)
+        self.history = sim.run(
+            t0, tf, time_sampling, host_sampling, vector_sampling
+            )
+
+    def run_replicates(self,t0,tf,replicates,host_sampling=0,vector_sampling=0):
+        """Simulate replicates of a model, save only end results.
+
+        Simulates replicates of a time series using the Gillespie algorithm.
+
+        Saves a dictionary containing model end state state, with keys=times and
+        values=Model objects with model snapshot. The time is the final
+        timepoint.
+
+        Arguments:
+        t0 -- initial time point to start simulation at (number >= 0)
+        tf -- initial time point to end simulation at (number >= 0)
+        replicates -- how many replicates to simulate (int >= 1)
+
+        Keyword arguments:
+        host_sampling -- how many hosts to skip before saving one in a snapshot
+            of the system state (saves all by default) (int >= 0, default 0)
+        vector_sampling -- how many vectors to skip before saving one in a
+            snapshot of the system state (saves all by default)
+            (int >= 0, default 0)
+        """
+
+        print('Starting parallel simulations...')
+
+        def run():
+            sim = Gillespie(self)
+            return sim.run(
+                t0,tf,time_sampling=-1,
+                host_sampling=host_sampling,vector_sampling=vector_sampling
+                )
+
+        return jl.Parallel(n_jobs=n_cores, verbose=10) (
+            jl.delayed( run ) (_) for _ in range(replicates)
+            )
 
     def copyState(self,host_sampling=0,vector_sampling=0):
         """Returns a slimmed-down representation of the current model state.
 
-        Arguments:
+        Keyword arguments:
         host_sampling -- how many hosts to skip before saving one in a snapshot
-            of the system state (saves all by default) (int, default 0)
+            of the system state (saves all by default) (int >= 0, default 0)
         vector_sampling -- how many vectors to skip before saving one in a
-            snapshot of the system state (saves all by default) (int, default 0)
+            snapshot of the system state (saves all by default)
+            (int >= 0, default 0)
 
         Returns:
         Model object with current population host and vector lists.
@@ -490,7 +646,7 @@ class Model(object):
 
         Keyword arguments:
         n_cores -- number of cores to parallelize file export across, if 0, all
-            cores available are used (default 0; int)
+            cores available are used (default 0; int >= 0)
 
         Returns:
         pandas dataframe with model history as described above
@@ -503,8 +659,8 @@ class Model(object):
     def getPathogens(self, dat, save_to_file=""):
         """Create Dataframe with counts for all pathogen genomes in data.
 
-        Returns sorted pandas Dataframe with counts for occurrences of all pathogen
-        genomes in data passed.
+        Returns sorted pandas Dataframe with counts for occurrences of all
+        pathogen genomes in data passed.
 
         Arguments:
         data -- dataframe with model history as produced by saveToDf function
@@ -559,16 +715,16 @@ class Model(object):
 
         Keyword arguments:
         compartment -- subset of hosts/vectors to count totals of, can be either
-            'Naive','Infected','Recovered', or 'Dead' (default 'Infected';
-            String)
+            'Naive','Infected','Recovered', or 'Dead'
+            (default 'Infected'; String)
         hosts -- whether to count hosts (default True, Boolean)
         vectors -- whether to count vectors (default False, Boolean)
         num_top_populations -- how many populations to count separately and
             include as columns, remainder will be counted under column "Other";
-             if <0, includes all populations in model (default 7; int)
+            if <0, includes all populations in model (default 7; int)
         track_specific_populations -- contains IDs of specific populations to
             have as a separate column if not part of the top num_top_populations
-            populations (list of Strings)
+            populations (default empty list; list of Strings)
         save_data_to_file -- file path and name to save model plot data under,
             no saving occurs if empty string (default ''; String)
         x_label -- X axis title (default 'Time', String)
@@ -580,8 +736,8 @@ class Model(object):
         dpi -- figure resolution (default 200, int)
         palette -- color palette to use for traces (default CB_PALETTE, list of
             color Strings)
-        stacked -- whether to draw a regular line plot or a stacked one (default
-            False, Boolean)
+        stacked -- whether to draw a regular line plot instead of a stacked one
+            (default False, Boolean)
 
         Returns:
         axis object for plot with model population dynamics as described above
@@ -630,8 +786,8 @@ class Model(object):
         dpi -- figure resolution (default 200, int)
         palette -- color palette to use for traces (default CB_PALETTE, list of
             color Strings)
-        stacked -- whether to draw a regular line plot or a stacked one (default
-            False, Boolean)
+        stacked -- whether to draw a regular line plot instead of a stacked one
+            (default False, Boolean)
 
         Returns:
         axis object for plot with model compartment dynamics as described above
@@ -649,7 +805,9 @@ class Model(object):
             type_of_composition='Pathogens', hosts=True, vectors=False,
             num_top_sequences=7, track_specific_sequences=[],
             save_data_to_file="", x_label='Time', y_label='Infections',
-            figsize=(8, 4), dpi=200, palette=CB_PALETTE, stacked=True):
+            figsize=(8, 4), dpi=200, palette=CB_PALETTE, stacked=True,
+            remove_legend=False, genomic_positions=[],
+            count_individuals_based_on_model=None):
         """Create plot with counts for pathogen genomes or resistance vs. time.
 
         Creates a line or stacked line plot with dynamics of the pathogen
@@ -662,6 +820,7 @@ class Model(object):
         multiple infections in the same host/vector are counted separately.
 
         Arguments:
+        file_name -- file path, name, and extension to save plot under (String)
         data -- dataframe with model history as produced by saveToDf function
 
         Keyword arguments:
@@ -676,7 +835,16 @@ class Model(object):
             includes all genomes in model (default 7; int)
         track_specific_sequences -- contains specific sequences to have
             as a separate column if not part of the top num_top_sequences
-            sequences (list of Strings)
+            sequences (default empty list; list of Strings)
+        genomic_positions -- list in which each element is a list with loci
+            positions to extract (e.g. genomic_positions=[ [0,3], [5,6] ]
+            extracts positions 0, 1, 2, and 5 from each genome); if empty, takes
+            full genomes (default empty list; list of lists of int)
+        count_individuals_based_on_model -- Model object with populations and
+            fitness functions used to evaluate the most fit pathogen genome in
+            each host/vector in order to count only a single pathogen per
+            host/vector, as opposed to all pathogens within each host/vector; if
+            None, counts all pathogens (default None; None or Model)
         save_data_to_file -- file path and name to save model data under, no
             saving occurs if empty string (default ''; String)
         x_label -- X axis title (default 'Time', String)
@@ -688,8 +856,11 @@ class Model(object):
         dpi -- figure resolution (default 200, int)
         palette -- color palette to use for traces (default CB_PALETTE, list of
             color Strings)
-        stacked -- whether to draw a regular line plot or a stacked one (default
-            False, Boolean)
+        stacked -- whether to draw a regular line plot instead of a stacked one
+            (default False, Boolean).
+        remove_legend -- whether to print the sequences on the figure legend
+            instead of printing them on a separate csv file
+            (default True; Boolean)
 
         Returns:
         axis object for plot with model sequence composition dynamics as
@@ -703,7 +874,9 @@ class Model(object):
             track_specific_sequences=track_specific_sequences,
             save_data_to_file=save_data_to_file,
             x_label=x_label, y_label=y_label, figsize=figsize, dpi=dpi,
-            palette=palette, stacked=stacked
+            palette=palette, stacked=stacked, remove_legend=remove_legend,
+            genomic_positions=genomic_positions,
+            count_individuals_based_on_model=count_individuals_based_on_model
             )
 
     def clustermap(
@@ -722,14 +895,14 @@ class Model(object):
         num_top_sequences -- how many sequences to include in matrix; if <0,
             includes all genomes in data passed (default -1; int)
         track_specific_sequences -- contains specific sequences to include in
-            matrixif not part of the top num_top_sequences sequences (default
+            matrix if not part of the top num_top_sequences sequences (default
             empty list; list of Strings)
         seq_names -- list with names to be used for sequence labels in matrix
             must be of same length as number of sequences to be displayed; if
             empty, uses sequences themselves (default empty list; list of
             Strings)
         n_cores -- number of cores to parallelize distance compute across, if 0,
-            all cores available are used (default 0; int)
+            all cores available are used (default 0; int >= 0)
         method -- clustering algorithm to use with seaborn clustermap (default
             'weighted'; String)
         metric -- distance metric to use with seaborn clustermap (default
@@ -754,50 +927,73 @@ class Model(object):
                 figsize=figsize, dpi=dpi, color_map=color_map
                 )
 
-
     def pathogenDistanceHistory(
         self,
         data, samples=-1, num_top_sequences=-1, track_specific_sequences=[],
         seq_names=[], n_cores=0, save_to_file=''):
-        """Create a long-format dataframe with pairwise distances for pathogen
-        genomes in data passed for different time points.
+        """Create DataFrame with pairwise Hamming distances for pathogen
+        sequences in data.
+
+        DataFrame has indexes and columns named according to genomes or argument
+        seq_names, if passed. Distance is measured as percent Hamming distance
+        from an optimal genome sequence.
 
         Arguments:
         data -- dataframe with model history as produced by saveToDf function
 
         Keyword arguments:
         samples -- how many timepoints to uniformly sample from the total
-            timecourse; if <0, takes all timepoints (default -1; int)
+            timecourse; if <0, takes all timepoints (default 1; int)
         num_top_sequences -- how many sequences to include in matrix; if <0,
             includes all genomes in data passed (default -1; int)
         track_specific_sequences -- contains specific sequences to include in
-            matrixif not part of the top num_top_sequences sequences (default
+            matrix if not part of the top num_top_sequences sequences (default
             empty list; list of Strings)
         seq_names -- list with names to be used for sequence labels in matrix
             must be of same length as number of sequences to be displayed; if
-            empty, uses sequences themselves (default empty list; list of
-            Strings)
+            empty, uses sequences themselves
+            (default empty list; list of Strings)
         n_cores -- number of cores to parallelize distance compute across, if 0,
-            all cores available are used (default 0; int)
-        method -- clustering algorithm to use with seaborn clustermap (default
-            'weighted'; String)
-        metric -- distance metric to use with seaborn clustermap (default
-            'euclidean'; String)
-        save_data_to_file -- file path and name to save model data under, no
-            saving occurs if empty string (default ''; String)
+            all cores available are used (default 0; int >= 0)
+        save_to_file -- file path and name to save model data under, no saving
+            occurs if empty string (default ''; String)
 
         Returns:
-        long-format Pandas dataframe with pairwise distances for pathogen
-        genomes in data passed for different time points.
+        pandas dataframe with distance matrix as described above
         """
         return getPathogenDistanceHistoryDf(data,
             samples=samples, num_top_sequences=num_top_sequences,
             track_specific_sequences=track_specific_sequences,
             seq_names=seq_names, n_cores=n_cores, save_to_file=save_to_file)
 
+    def getGenomeTimes(
+        self,
+        data, samples=-1, num_top_sequences=-1, track_specific_sequences=[],
+        seq_names=[], n_cores=0, save_to_file=''):
+        """Create DataFrame with times genomes first appeared during simulation.
+
+        Arguments:
+        data -- dataframe with model history as produced by saveToDf function
+
+        Keyword arguments:
+        samples -- how many timepoints to uniformly sample from the total
+            timecourse; if <0, takes all timepoints (default 1; int)
+        save_to_file -- file path and name to save model data under, no saving
+            occurs if empty string (default ''; String)
+        n_cores -- number of cores to parallelize across, if 0, all cores
+            available are used (default 0; int)
+
+        Returns:
+        pandas dataframe with genomes and times as described above
+        """
+        return getGenomeTimesDf(data,
+            samples=samples, num_top_sequences=num_top_sequences,
+            track_specific_sequences=track_specific_sequences,
+            seq_names=seq_names, n_cores=n_cores, save_to_file=save_to_file)
+
     ### Model interventions: ###
 
-    def newPopulation(self, id, setup_name, num_hosts=100, num_vectors=100):
+    def newPopulation(self, id, setup_name, num_hosts=0, num_vectors=0):
         """Create a new Population object with setup parameters.
 
         If population ID is already in use, appends _2 to it
@@ -808,9 +1004,9 @@ class Model(object):
 
         Keyword arguments:
         num_hosts -- number of hosts to initialize population with (default 100;
-            int)
+            int >= 0)
         num_vectors -- number of hosts to initialize population with (default
-            100; int)
+            100; int >= 0)
         """
 
         if id in self.populations.keys():
@@ -821,24 +1017,40 @@ class Model(object):
             )
 
         for p in self.populations:
-            self.populations[id].setHostMigrationNeighbor(p,0)
-            self.populations[id].setVectorMigrationNeighbor(p,0)
-            self.populations[id].setHostPopulationContactNeighbor(p,0)
-            self.populations[id].setVectorPopulationContactNeighbor(p,0)
+            self.populations[id].setHostMigrationNeighbor(self.populations[p],0)
+            self.populations[id].setVectorMigrationNeighbor(
+                self.populations[p],0
+                )
+            self.populations[id].setHostPopulationContactNeighbor(
+                self.populations[p],0
+                )
+            self.populations[id].setVectorPopulationContactNeighbor(
+                self.populations[p],0
+                )
 
-            self.populations[p].setHostMigrationNeighbor(id,0)
-            self.populations[p].setVectorMigrationNeighbor(id,0)
-            self.populations[p].setHostPopulationContactNeighbor(id,0)
-            self.populations[p].setVectorPopulationContactNeighbor(id,0)
+            self.populations[p].setHostMigrationNeighbor(
+                self.populations[id],0
+                )
+            self.populations[p].setVectorMigrationNeighbor(
+                self.populations[id],0
+                )
+            self.populations[p].setHostPopulationContactNeighbor(
+                self.populations[id],0
+                )
+            self.populations[p].setVectorPopulationContactNeighbor(
+                self.populations[id],0
+                )
 
     def linkPopulationsHostMigration(self, pop1_id, pop2_id, rate):
         """Set host migration rate from one population towards another.
 
         Arguments:
-        neighbor -- population towards which migration rate will be specified
-            (Population)
-        rate -- migration rate from this population to the neighbor; evts/time
-            (number)
+        pop1_id -- origin population for which migration rate will be specified
+            (String)
+        pop1_id -- destination population for which migration rate will be
+            specified (String)
+        rate -- migration rate from one population to the neighbor; evts/time
+            (number >= 0)
         """
 
         self.populations[pop1_id].setHostMigrationNeighbor(
@@ -849,10 +1061,12 @@ class Model(object):
         """Set vector migration rate from one population towards another.
 
         Arguments:
-        neighbor -- population towards which migration rate will be specified
-            (Population)
-        rate -- migration rate from this population to the neighbor; evts/time
-            (number)
+        pop1_id -- origin population for which migration rate will be specified
+            (String)
+        pop1_id -- destination population for which migration rate will be
+            specified (String)
+        rate -- migration rate from one population to the neighbor; evts/time
+            (number >= 0)
         """
 
         self.populations[pop1_id].setVectorMigrationNeighbor(
@@ -860,13 +1074,15 @@ class Model(object):
             )
 
     def linkPopulationsHostContact(self, pop1_id, pop2_id, rate):
-        """Set host migration rate from one population towards another.
+        """Set host contact rate from one population towards another.
 
         Arguments:
-        neighbor -- population towards which migration rate will be specified
-            (Population)
-        rate -- migration rate from this population to the neighbor; evts/time
-            (number)
+        pop1_id -- origin population for which inter-population contact rate
+            will be specified (String)
+        pop1_id -- destination population for which inter-population contact
+            rate will be specified (String)
+        rate -- inter-population contact rate from one population to the
+            neighbor; evts/time (number >= 0)
         """
 
         self.populations[pop1_id].setHostPopulationContactNeighbor(
@@ -874,13 +1090,15 @@ class Model(object):
             )
 
     def linkPopulationsVectorContact(self, pop1_id, pop2_id, rate):
-        """Set vector migration rate from one population towards another.
+        """Set vector contact rate from one population towards another.
 
         Arguments:
-        neighbor -- population towards which migration rate will be specified
-            (Population)
-        rate -- migration rate from this population to the neighbor; evts/time
-            (number)
+        pop1_id -- origin population for which inter-population contact rate
+            will be specified (String)
+        pop1_id -- destination population for which inter-population contact
+            rate will be specified (String)
+        rate -- inter-population contact rate from one population to the
+            neighbor; evts/time (number >= 0)
         """
 
         self.populations[pop1_id].setVectorPopulationContactNeighbor(
@@ -901,12 +1119,19 @@ class Model(object):
 
         Arguments:
         num_populations -- number of populations to be created (int)
-        migration_rate -- migration rate between populations; evts/time (number)
         id_prefix -- prefix for IDs to be used for this population in the model,
             (String)
         setup_name -- setup object with parameters for all populations (Setup)
 
         Keyword arguments:
+        host_migration_rate -- host migration rate between populations;
+            evts/time (default 0; number >= 0)
+        vector_migration_rate -- vector migration rate between populations;
+            evts/time (default 0; number >= 0)
+        host_contact_rate -- host inter-population contact rate between
+            populations; evts/time (default 0; number >= 0)
+        vector_contact_rate -- vector inter-population contact rate between
+            populations; evts/time (default 0; number >= 0)
         num_hosts -- number of hosts to initialize population with (default 100;
             int)
         num_vectors -- number of hosts to initialize population with (default
@@ -928,15 +1153,15 @@ class Model(object):
             new_pop_ids.append(pop.id)
 
             for p in self.populations:
-                self.populations[pop.id].setHostMigrationNeighbor(p,0)
-                self.populations[pop.id].setVectorMigrationNeighbor(p,0)
-                self.populations[pop.id].setHostPopulationContactNeighbor(p,0)
-                self.populations[pop.id].setVectorPopulationContactNeighbor(p,0)
+                pop.setHostMigrationNeighbor(self.populations[p],0)
+                pop.setVectorMigrationNeighbor(self.populations[p],0)
+                pop.setHostPopulationContactNeighbor(self.populations[p],0)
+                pop.setVectorPopulationContactNeighbor(self.populations[p],0)
 
-                self.populations[p].setHostMigrationNeighbor(pop.id,0)
-                self.populations[p].setVectorMigrationNeighbor(pop.id,0)
-                self.populations[p].setHostPopulationContactNeighbor(pop.id,0)
-                self.populations[p].setVectorPopulationContactNeighbor(pop.id,0)
+                self.populations[p].setHostMigrationNeighbor(pop,0)
+                self.populations[p].setVectorMigrationNeighbor(pop,0)
+                self.populations[p].setHostPopulationContactNeighbor(pop,0)
+                self.populations[p].setVectorPopulationContactNeighbor(pop,0)
 
         for p1_id in new_pop_ids:
             for p2_id in new_pop_ids:
@@ -947,22 +1172,23 @@ class Model(object):
                     p1_id,p2_id,vector_migration_rate
                     )
                 self.linkPopulationsHostContact(
-                    p1_id,p2_id,host_migration_rate
+                    p1_id,p2_id,host_contact_rate
                     )
                 self.linkPopulationsVectorContact(
-                    p1_id,p2_id,vector_migration_rate
+                    p1_id,p2_id,vector_contact_rate
                     )
 
     def newHostGroup(self, pop_id, group_id, hosts=-1, type='any'):
         """Return a list of random hosts in population.
 
         Arguments:
-        pop_id -- ID of population to be modified (String)
+        pop_id -- ID of population to be sampled from (String)
+        group_id -- ID to name group with (String)
+
+        Keyword arguments:
         hosts -- number of hosts to be sampled randomly: if <0, samples from
             whole population; if <1, takes that fraction of population; if >=1,
             samples that integer number of hosts (default -1, number)
-
-        Keyword arguments:
         type -- whether to sample healthy hosts only, infected hosts only, or
             any hosts (default 'any'; String = {'healthy', 'infected', 'any'})
 
@@ -979,11 +1205,13 @@ class Model(object):
 
         Arguments:
         pop_id -- ID of population to be modified (String)
+        pop_id -- ID of population to be sampled from (String)
+        group_id -- ID to name group with (String)
+
+        Keyword arguments:
         vectors -- number of vectors to be sampled randomly: if <0, samples from
             whole population; if <1, takes that fraction of population; if >=1,
             samples that integer number of vectors (default -1, number)
-
-        Keyword arguments:
         type -- whether to sample healthy vectors only, infected vectors
             only, or any vectors (default 'any'; String = {'healthy',
             'infected', 'any'})
@@ -1235,6 +1463,8 @@ class Model(object):
 
         self.populations[pop_id].wipeProtectionVectors(vectors)
 
+    ### Modify population parameters: ###
+
     def setSetup(self, pop_id, setup_id):
         """Assign parameters stored in Setup object to this population.
 
@@ -1244,7 +1474,6 @@ class Model(object):
         """
 
         self.populations[pop_id].setSetup( self.setups[setup_id] )
-
 
     ### Preset fitness functions: ###
 
@@ -1261,7 +1490,7 @@ class Model(object):
         peak_genome -- the genome sequence to measure distance against, has
             value of 1 (String)
         min_value -- minimum value at maximum distance from optimal
-            genome (number > 0)
+            genome (number 0-1)
 
         Return:
         value of genome (number)
@@ -1285,7 +1514,7 @@ class Model(object):
         genome -- the genome to be evaluated (String)
         valley_genome -- the genome sequence to measure distance against, has
             value of min_value (String)
-        min_value -- fitness value of worst possible genome (number > 0)
+        min_value -- fitness value of worst possible genome (number 0-1)
 
         Return:
         value of genome (number)

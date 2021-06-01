@@ -282,7 +282,8 @@ def compartmentDf(
 def compositionDf(
         data, populations=[], type_of_composition='Pathogens', hosts=True,
         vectors=False, num_top_sequences=-1, track_specific_sequences=[],
-        save_to_file=""):
+        genomic_positions=[], count_individuals_based_on_model=None,
+        save_to_file="", n_cores=0):
     """Create dataframe with counts for pathogen genomes or resistance.
 
     Creates a pandas Dataframe with dynamics of the pathogen strains or
@@ -310,8 +311,19 @@ def compositionDf(
     track_specific_sequences -- contains specific sequences to have
         as a separate column if not part of the top num_top_sequences
         sequences (default empty list; list of Strings)
+    genomic_positions -- list in which each element is a list with loci
+        positions to extract (e.g. genomic_positions=[ [0,3], [5,6] ] extracts
+        positions 0, 1, 2, and 5 from each genome); if empty, takes full genomes
+        (default empty list; list of lists of int)
+    count_individuals_based_on_model -- Model object with populations and
+        fitness functions used to evaluate the most fit pathogen genome in each
+        host/vector in order to count only a single pathogen per host/vector, as
+        opposed to all pathogens within each host/vector; if None, counts all
+        pathogens (default None; None or Model)
     save_to_file -- file path and name to save model data under, no saving
         occurs if empty string (default ''; String)
+    n_cores -- number of cores to parallelize processing across, if 0, all
+        cores available are used (default 0; int)
 
     Returns:
     pandas dataframe with model sequence composition dynamics as described above
@@ -322,23 +334,62 @@ def compositionDf(
     else:
         dat = cp.deepcopy( data )
 
+    dat = dat[ dat['Pathogens'] != "" ]
+
+    if len(genomic_positions) > 0:
+        print('Extracting genomic locations...')
+        def extractSeq(ind):
+            seqs = [ p[ genomic_positions[0]:genomic_positions[1] ]
+                for p in ind['Pathogens'].split(';') ]
+
+            return ';'.join(seqs)
+
+        pathogens = np.array( jl.Parallel(n_jobs=n_cores, verbose=1) (
+            jl.delayed( extractSeq ) (ind) for ind in dat
+            ) )
+        dat['Pathogens'] = pathogens
+
+    if count_individuals_based_on_model is not None:
+        print('Collapsing infections to individuals...')
+        model = count_individuals_based_on_model
+        if type_of_composition != 'Pathogens':
+            raise ValueError("Computing count_individuals_based_on_model=True is only allowed for type_of_composition='Pathogens'.")
+
+        def chooseSeq(ind):
+            if ind['Organism'] == "Host":
+                values = np.array( [
+                    model.populations[ind['Population']].fitnessHost(p)
+                    for p in ind['Pathogens'].split(';') ] )
+            elif ind['Organism'] == "Vector":
+                values = np.array( [
+                    model.populations[ind['Population']].fitnessVector(p)
+                    for p in ind['Pathogens'].split(';') ] )
+
+            dominant_pathogen = ind['Pathogens'].split(';')[ values.argmax() ]
+            return dominant_pathogen
+
+        dominant_pathogens = np.array( jl.Parallel(n_jobs=n_cores, verbose=1) (
+            jl.delayed( chooseSeq ) (ind) for ind in dat
+            ) )
+        dat['Pathogens'] = dominant_pathogens
+
     if not hosts:
         dat = dat[ dat['Organism'] != 'Host' ]
     if not vectors:
         dat = dat[ dat['Organism'] != 'Vector' ]
 
-    if num_top_sequences < 0:
-        num_top_sequences = len( pd.unique( dat[type_of_composition] ) )
-
-    all_genomes = pd.Series(
+    all_sequences = pd.Series(
         ';'.join( dat[type_of_composition].dropna() ).split(';')
         ).str.strip()
-    top_genomes = all_genomes.value_counts(ascending=False)
+    top_sequences = all_sequences.value_counts(ascending=False)
 
-    if len(top_genomes) < num_top_sequences:
-        num_top_sequences = len(top_genomes)
+    if num_top_sequences < 0:
+        num_top_sequences = len( top_sequences )
 
-    genomes_to_track = list(top_genomes[0:num_top_sequences].index)
+    if len(top_sequences) < num_top_sequences:
+        num_top_sequences = len(top_sequences)
+
+    genomes_to_track = list(top_sequences[0:num_top_sequences].index)
     for genome in track_specific_sequences:
         if genome not in genomes_to_track:
             genomes_to_track.append(genome)
@@ -351,8 +402,8 @@ def compositionDf(
         )
     c = 0
 
-    if len( ''.join(top_genomes.index) ) > 0:
-        for genome in top_genomes.index:
+    if len( ''.join(top_sequences.index) ) > 0:
+        for genome in top_sequences.index:
             dat_genome = dat[ dat[type_of_composition].str.contains(
                 genome, na=False
                 ) ]
@@ -371,7 +422,7 @@ def compositionDf(
 
             c += 1
             print(
-                str(c) + ' / ' + str( len(top_genomes.index) )
+                str(c) + ' / ' + str( len(top_sequences.index) )
                 + ' genotypes processed.'
                 )
 
@@ -519,8 +570,8 @@ def pathogenDistanceDf(
     return dis_df
 
 def getPathogenDistanceHistoryDf(
-        data, samples=1, num_top_sequences=-1, track_specific_sequences=[], seq_names=[],
-        save_to_file="", n_cores=0):
+        data, samples=1, num_top_sequences=-1, track_specific_sequences=[],
+        seq_names=[], save_to_file="", n_cores=0):
     """Create DataFrame with pairwise Hamming distances for pathogen sequences
     in data.
 
@@ -578,3 +629,48 @@ def getPathogenDistanceHistoryDf(
         dis_df.to_csv(save_to_file, index=False)
 
     return dis_df
+
+def getGenomeTimesDf(
+        data, samples=1, save_to_file="", n_cores=0):
+    """Create DataFrame with times genomes first appeared during simulation.
+
+    Arguments:
+    data -- dataframe with model history as produced by saveToDf function
+
+    Keyword arguments:
+    samples -- how many timepoints to uniformly sample from the total
+        timecourse; if <0, takes all timepoints (default 1; int)
+    save_to_file -- file path and name to save model data under, no saving
+        occurs if empty string (default ''; String)
+    n_cores -- number of cores to parallelize across, if 0, all cores available
+        are used (default 0; int)
+
+    Returns:
+    pandas dataframe with genomes and times as described above
+    """
+
+    if samples > 0:
+        samples = np.linspace(
+            0, len(pd.unique(data['Time']))-1, samples
+            ).astype(int)
+        sampled_times = pd.unique(data['Time'])[samples]
+        data = data[ data['Time'].isin(sampled_times) ]
+
+    his_dat = pd.DataFrame()
+
+    his_dat['Sequence'] = pd.Series(
+        ';'.join( dat['Pathogens'].dropna() ).split(';')
+        ).str.strip()
+
+    def getTime(seq):
+        t = his_dat['Sequence'].searchsorted(seq, side='left')
+        return t
+
+    his_dat['Time_emergence'] = jl.Parallel(n_jobs=n_cores, verbose=1) (
+        jl.delayed( getTime ) (seq) for seq in his_dat['Sequence']
+        )
+
+    if len(save_to_file) > 0:
+        dis_df.to_csv(save_to_file, index=False)
+
+    return his_dat

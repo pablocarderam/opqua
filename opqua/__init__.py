@@ -4,7 +4,7 @@ Opqua.
 An epidemiological modeling framework for population genetics and evolution.
 """
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __author__ = 'Pablo Cardenas'
 __credits__ = 'Massachusetts Institute of Technology'
 

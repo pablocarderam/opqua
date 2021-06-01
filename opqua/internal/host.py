@@ -9,12 +9,18 @@ class Host(object):
 
     Methods:
     copyState -- returns a slimmed-down version of the current host state
-    infectVector -- infects given vector with a sample of this host's pathogens
+    acquirePathogen -- adds given genome to this host's pathogens
     infectHost -- infects given host with a sample of this host's pathogens
+    infectVector -- infects given vector with a sample of this host's pathogens
     recover -- removes all infections
     die -- kills this host
+    birth -- add a new host to population based on this host
     applyTreatment -- removes all infections with genotypes susceptible to given
         treatment
+    mutate -- mutate a single, random locus in a random pathogen
+    recombine -- recombine two random pathogen genomes at random locus
+    getWeightedRandomGenome -- returns index of element chosen from weights and
+        given random number
     """
 
     def __init__(self, population, id, slim=False):
@@ -40,13 +46,12 @@ class Host(object):
             self.population = population
             self.sum_fitness = 0
                 # sum of all pathogen fitnesses within this host
-            self.coefficient_index = population.coefficients_hosts.shape[0] \
-                if population.coefficients_hosts.ndim > 1 else 1
+            self.coefficient_index = population.coefficients_hosts.shape[0]
                 # index in population's coefficient array, not same as id
 
             population.coefficients_hosts = np.vstack( (
                 population.coefficients_hosts,
-                np.zeros( population.NUM_COEFFICIENTS )
+                population.healthyCoefficientRow()
                 ) ) # adds a row to coefficient array
 
     def copyState(self):
@@ -80,11 +85,14 @@ class Host(object):
             * old_sum_fitness / self.sum_fitness ) + ( np.array([
                     # positions dependent on class constants
                 0,
-                1-self.population.contactHost(genome),
+                self.population.contactHost(genome),
+                self.population.receiveContactHost(genome),
                 self.population.lethalityHost(genome),
+                self.population.natalityHost(genome),
                 self.population.recoveryHost(genome),
                 self.population.migrationHost(genome),
-                1-self.population.populationContactHost(genome),
+                self.population.populationContactHost(genome),
+                self.population.receivePopulationContactHost(genome),
                 self.population.mutationHost(genome),
                 self.population.recombinationHost(genome)
             ]) * self.pathogens[genome] / self.sum_fitness )
@@ -174,8 +182,10 @@ class Host(object):
         if self in self.population.infected_hosts:
             if self.population.protection_upon_recovery_host:
                 for genome in self.pathogens:
-                    seq = genome[self.protection_upon_recovery_host[0]
-                        :self.protection_upon_recovery_host[1]]
+                    seq = genome[
+                        self.population.protection_upon_recovery_host[0]
+                        :self.population.protection_upon_recovery_host[1]
+                        ]
                     if seq not in self.protection_sequences:
                         self.protection_sequences.append(seq)
 
@@ -183,7 +193,7 @@ class Host(object):
             self.sum_fitness = 0
             self.population.coefficients_hosts[
                 self.coefficient_index,:
-                ] = np.zeros( self.population.NUM_COEFFICIENTS )
+                ] = self.population.healthyCoefficientRow()
 
             self.population.infected_hosts.remove(self)
             self.population.healthy_hosts.append(self)
@@ -191,16 +201,30 @@ class Host(object):
     def die(self):
         """Add host to population's dead list, remove it from alive ones."""
 
-        self.population.dead_hosts.append(self)
         if self in self.population.infected_hosts:
-            self.population.infected_hosts.remove(host)
-            self.population.coefficients_hosts[
-                self.coefficient_index,:
-                ] = np.zeros( self.population.NUM_COEFFICIENTS )
+            self.population.infected_hosts.remove(self)
         else:
             self.population.healthy_hosts.remove(self)
 
+        for h in self.population.hosts[self.coefficient_index:]:
+            h.coefficient_index -= 1
+
+        self.population.coefficients_hosts = np.delete(
+            self.population.coefficients_hosts, self.coefficient_index, 0
+            )
         self.population.hosts.remove(self)
+
+    def birth(self, rand):
+        """Add a new host to population based on this host."""
+
+        host_list = self.population.addHosts(1)
+        host = host_list[0]
+
+        if self.population.vertical_transmission_host > rand:
+            self.infectHost(host)
+
+        if self.population.inherit_protection_host > np.random.random():
+            host.protection_sequences = self.protection_sequences.copy()
 
     def applyTreatment(self, resistance_seqs):
         """Remove all infections with genotypes susceptible to given treatment.
@@ -228,7 +252,7 @@ class Host(object):
             self.sum_fitness = 0
             self.population.coefficients_hosts[
                 self.coefficient_index,:
-                ] = np.zeros( self.population.NUM_COEFFICIENTS )
+                ] = self.population.healthyCoefficientRow()
             for genome in genomes_remaining:
                 self.acquirePathogen(genome)
 
@@ -243,13 +267,11 @@ class Host(object):
             self.population.mutationHost(g)
             * self.population.fitnessHost(g) for g in genomes
             ]
-        index_genome,rand = self.population.getWeightedRandom(
-            rand,weights
-            )
+        index_genome,rand = self.getWeightedRandomGenome( rand,weights )
 
         old_genome = genomes[index_genome]
         mut_index = int( rand * self.population.num_loci )
-        if old_genome[mut_index] != '/':
+        if old_genome[mut_index] != self.population.CHROMOSOME_SEPARATOR:
             new_genome = old_genome[0:mut_index] + np.random.choice(
                 list(self.population.possible_alleles[mut_index])
                 ) + old_genome[mut_index+1:]
@@ -267,12 +289,8 @@ class Host(object):
             self.population.recombinationHost(g)
             * self.population.fitnessHost(g) for g in genomes
             ]
-        index_genome,rand = self.population.getWeightedRandom(
-            rand,weights
-            )
-        index_other_genome,rand = self.population.getWeightedRandom(
-            rand,weights
-            )
+        index_genome,rand = self.getWeightedRandomGenome( rand,weights )
+        index_other_genome,rand = self.getWeightedRandomGenome( rand,weights )
 
         num_evts = np.random.poisson( self.population.num_crossover_host )
         loci = np.random.randint( 0, self.population.num_loci, num_evts )
@@ -283,20 +301,42 @@ class Host(object):
             children[0] = children[0][0:l] + children[1][l:]
             children[1] = children[1][0:l] + children[0][l:]
 
-        children = [ genome.split('/') for genome in genomes ]
+        children = [
+            genome.split(self.population.CHROMOSOME_SEPARATOR)
+            for genome in children
+            ]
         parent = np.random.randint( 0, 2, len( children[0] ) )
 
         children = [
-            [
+            self.population.CHROMOSOME_SEPARATOR.join([
                 children[ parent[i] ][i]
                 for i in range( len( children[0] ) )
-                ].join('/'),
-            [
+                ]),
+            self.population.CHROMOSOME_SEPARATOR.join([
                 children[ not parent[i] ][i]
                 for i in range( len( children[1] ) )
-                ].join('/')
+                ])
             ]
 
         for new_genome in children:
             if new_genome not in self.pathogens:
                 self.acquirePathogen(new_genome)
+
+    def getWeightedRandomGenome(self, rand, r):
+        """Returns index of element chosen from weights and given random number.
+
+        Arguments:
+        rand -- 0-1 random number (number)
+        r -- array with weights (numpy vector)
+
+        Returns:
+        new 0-1 random number (number)
+        """
+
+        r_tot = np.sum( r )
+        u = rand * r_tot # random uniform number between 0 and total rate
+        r_cum = 0
+        for i,e in enumerate(r): # for every possible event,
+            r_cum += e # add this event's rate to cumulative rate
+            if u < r_cum: # if random number is under cumulative rate
+                return i, ( ( u - r_cum + e ) / e )

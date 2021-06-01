@@ -12,14 +12,33 @@ class Population(object):
     """Class defines a population with hosts, vectors, and specific parameters.
 
     Constants:
-    CONTACT -- position of fitness inside array associated with each
-        pathogen genome
-    LETHALITY -- position of fitness inside array associated with each
-        pathogen genome
+    # These all denote positions in coefficients_hosts and coefficients_vectors
+    INFECTED -- position of "infected" Boolean values for each individual inside
+        coefficients array
+    CONTACT -- position of intra-population aggregated contact rate for each
+        individual inside coefficients array
+    LETHALITY -- position of aggregated death rate for each individual inside
+        coefficients array
+    NATALITY -- position of aggregated birth rate for each individual inside
+        coefficients array
+    RECOVERY -- position of aggregated recovery rate for each individual inside
+        coefficients array
+    MIGRATION -- position of aggregated inter-population migration rate for each
+        individual inside coefficients array
+    POPULATION_CONTACT -- position of inter-population aggregated contact rate
+        for each individual inside coefficients array
+    MUTATION -- position of aggregated mutation rate for each individual inside
+        coefficients array
+    RECOMBINATION -- position of aggregated recovery rate for each individual
+        inside coefficients array
+    NUM_COEFFICIENTS -- total number of types of coefficients (columns) in
+        coefficient arrays
+    CHROMOSOME_SEPARATOR -- character reserved to denote separate chromosomes in
+        genomes
 
     Methods:
-    setSetup -- assigns a given set of parameters to this population
     copyState -- returns a slimmed-down version of the current population state
+    setSetup -- assigns a given set of parameters to this population
     addHosts -- adds hosts to the population
     addVectors -- adds vectors to the population
     newHostGroup -- returns a list of random (healthy or any) hosts
@@ -28,40 +47,64 @@ class Population(object):
     removeVectors -- removes vectors from the population
     addPathogensToHosts -- adds pathogens with specified genomes to hosts
     addPathogensToVectors -- adds pathogens with specified genomes to vectors
-    recoverHost --removes all infections from given host
-    recoverVector -- removes all infections from given vector
     treatHosts -- removes infections susceptible to given treatment from hosts
     treatVectors -- removes infections susceptible to treatment from vectors
     protectHosts -- adds protection sequence to hosts
     protectVectors -- adds protection sequence to vectors
     wipeProtectionHosts -- removes all protection sequences from hosts
     wipeProtectionVectors -- removes all protection sequences from hosts
-    setNeighbor -- sets migration rate from this population towards another
+    setHostMigrationNeighbor -- sets migration rate of hosts from this
+        population towards another
+    setVectorMigrationNeighbor -- sets migration rate of vectors from this
+        population towards another
     migrate -- transfers hosts and/or vectors from this population to a neighbor
-    contactInfectedHostAnyHost -- carries out a contact event between a random
-        infected host and any random host in population
-    contactInfectedHostAnyVector -- carries out a contact event between a random
-        infected host and any random vector in population
-    contactHealthyHostInfectedVector -- carries out a contact event between a
-        random healthy host and a random infected vector in population
+    setHostPopulationContactNeighbor -- set host contact rate from this
+        population towards another one
+    setVectorPopulationContactNeighbor -- set vector contact rate from this
+        population towards another one
+    populationContact -- contacts hosts and/or vectors from this population to
+        another
+    contactHostHost -- contact any two (weighted) random hosts in population
+    contactHostVector -- contact a (weighted) random host and vector in
+        population
+    contactVectorHost -- contact a (weighted) random vector and host in
+        population
+    recoverHost --removes all infections from given host
+    recoverVector -- removes all infections from given vector
+    killHost -- add host at this index to dead list, remove it from alive ones
+    killVector -- add vector at this index to dead list, remove it from alive
+        ones
+    dieHost -- remove host at this index from alive lists
+    dieVector -- remove vector at this index from alive lists
+    birthHost -- add host at this index to population, remove it from alive ones
+    birthVector -- add vector at this index to population, remove it from alive
+        ones
     mutateHost -- mutates a single locus in a random pathogen in a host
     mutateVector -- mutates a single locus in a random pathogen in a vector
     recombineHost -- recombines two random pathogens in a host
     recombineVector -- recombines two random pathogens in a host
-    updateHostFitness -- updates fitness of pathogens in population's hosts
-    updateVectorFitness -- updates fitness of pathogens in population's vectors
+    updateHostCoefficients -- updates event coefficients in population's hosts
+    updateVectorCoefficients -- updates event coefficients in population's
+        vectors
+    getWeightedRandom -- returns index of element chosen using weights from
+        coefficient array and a given random number
     """
 
     INFECTED = 0
     CONTACT = 1
-    LETHALITY = 2
-    RECOVERY = 3
-    MIGRATION = 4
-    POPULATION_CONTACT = 5
-    MUTATION = 6
-    RECOMBINATION = 7
+    RECEIVE_CONTACT = 2
+    LETHALITY = 3
+    NATALITY = 4
+    RECOVERY = 5
+    MIGRATION = 6
+    POPULATION_CONTACT = 7
+    RECEIVE_POPULATION_CONTACT = 8
+    MUTATION = 9
+    RECOMBINATION = 10
 
-    NUM_COEFFICIENTS = 8
+    NUM_COEFFICIENTS = 11
+
+    CHROMOSOME_SEPARATOR = '/'
 
     def __init__(self, id, setup, num_hosts, num_vectors, slim=False):
         """Create a new Population.
@@ -71,6 +114,8 @@ class Population(object):
         setup -- setup object with parameters for this population (Setup)
         num_hosts -- number of hosts to initialize population with (int)
         num_vectors -- number of hosts to initialize population with (int)
+
+        Keyword arguments:
         slim -- whether to create a slimmed-down representation of the
             population for data storage (only ID, host and vector lists)
             (Boolean, default False)
@@ -87,12 +132,12 @@ class Population(object):
                 # and normalized to sum_fitness to obtain coefficient that
                 # modifies the respective population-wide rate. Order given by
                 # constants in Population class. Each host is one row.
-            self.coefficients_hosts = np.zeros(self.NUM_COEFFICIENTS)
+            self.coefficients_hosts = np.zeros((1,self.NUM_COEFFICIENTS))
                 # all weighted event rate coefficient modifiers for hosts
-                # in population
-            self.coefficients_vectors = np.zeros(self.NUM_COEFFICIENTS)
+                # in population, first row is a dummy placeholder row
+            self.coefficients_vectors = np.zeros((1,self.NUM_COEFFICIENTS))
                 # all weighted event rate coefficient modifiers for vectors
-                # in population
+                # in population, first row is a dummy placeholder row
 
             self.hosts = [
                 Host(
@@ -108,12 +153,16 @@ class Population(object):
                 # contains all live vectors
 
             # delete dummy first row, correct indexes of hosts afterwards
-            self.coefficients_hosts = np.delete( self.coefficients_hosts, 0, 0 )
-            self.coefficients_vectors = np.delete( self.coefficients_vectors, 0, 0 )
-            for h in self.hosts:
-                h.coefficient_index -= 1
-            for v in self.vectors:
-                v.coefficient_index -= 1
+            # self.coefficients_hosts = np.delete(
+            #     self.coefficients_hosts, 0, 0
+            #     ) if num_hosts > 0 else self.coefficients_hosts
+            # self.coefficients_vectors = np.delete(
+            #     self.coefficients_vectors, 0, 0
+            #     ) if num_vectors > 0 else self.coefficients_vectors
+            # for h in self.hosts:
+            #     h.coefficient_index -= 1
+            # for v in self.vectors:
+            #     v.coefficient_index -= 1
 
             self.infected_hosts = []
                 # contains live, infected hosts (also in hosts list)
@@ -141,20 +190,17 @@ class Population(object):
             self.neighbors_contact_vectors = {} # dictionary with neighbor
                 # populations, keys=Population, values=population contact rate
                 # from this population to neighboring population, for vectors only
-            self.total_population_contact_rate_host_host = 0 # sum of all population
-                # contact rates from this population to neighbors
-            self.total_population_contact_rate_host_vector = 0 # sum of all population
-                # contact rates from this population to neighbors
-            self.total_population_contact_rate_vector_host = 0 # sum of all
-                # population contact rates from this population to neighbors,
-                # vectors only
+            self.population_contact_rate_host = 0 # weighted sum of all host
+                # population contact rates from this population to neighbors
+            self.population_contact_rate_vector = 0 # weighted sum of all vector
+                # population contact rates from this population to neighbors
 
             self.setSetup(setup)
 
-            self.setHostMigrationNeighbor(id,0)
-            self.setVectorMigrationNeighbor(id,0)
-            self.setHostPopulationContactNeighbor(id,0)
-            self.setVectorPopulationContactNeighbor(id,0)
+            self.setHostMigrationNeighbor(self,0)
+            self.setVectorMigrationNeighbor(self,0)
+            self.setHostPopulationContactNeighbor(self,0)
+            self.setVectorPopulationContactNeighbor(self,0)
 
     def copyState(self,host_sampling=0,vector_sampling=0):
         """Returns a slimmed-down version of the current population state.
@@ -212,20 +258,26 @@ class Population(object):
 
         self.fitnessHost = setup.fitnessHost
         self.contactHost = setup.contactHost
+        self.receiveContactHost = setup.receiveContactHost
         self.lethalityHost = setup.lethalityHost
+        self.natalityHost = setup.natalityHost
         self.recoveryHost = setup.recoveryHost
         self.migrationHost = setup.migrationHost
         self.populationContactHost = setup.populationContactHost
+        self.receivePopulationContactHost = setup.receivePopulationContactHost
         self.mutationHost = setup.mutationHost
         self.recombinationHost = setup.recombinationHost
         self.updateHostCoefficients()
 
         self.fitnessVector = setup.fitnessVector
         self.contactVector = setup.contactVector
+        self.receiveContactVector = setup.receiveContactVector
         self.lethalityVector = setup.lethalityVector
+        self.natalityVector = setup.natalityVector
         self.recoveryVector = setup.recoveryVector
         self.migrationVector = setup.migrationVector
         self.populationContactVector = setup.populationContactVector
+        self.receivePopulationContactVector = setup.receivePopulationContactVector
         self.mutationVector = setup.mutationVector
         self.recombinationVector = setup.recombinationVector
         self.updateVectorCoefficients()
@@ -240,6 +292,8 @@ class Population(object):
         self.mean_inoculum_vector = setup.mean_inoculum_vector
         self.recovery_rate_host = setup.recovery_rate_host
         self.recovery_rate_vector = setup.recovery_rate_vector
+        self.lethality_rate_host = setup.lethality_rate_host
+        self.lethality_rate_vector = setup.lethality_rate_vector
         self.recombine_in_host = setup.recombine_in_host
         self.recombine_in_vector = setup.recombine_in_vector
         self.num_crossover_host = setup.num_crossover_host
@@ -248,6 +302,12 @@ class Population(object):
         self.mutate_in_vector = setup.mutate_in_vector
         self.death_rate_host = setup.death_rate_host
         self.death_rate_vector = setup.death_rate_vector
+        self.birth_rate_host = setup.birth_rate_host
+        self.birth_rate_vector = setup.birth_rate_vector
+        self.vertical_transmission_host = setup.vertical_transmission_host
+        self.vertical_transmission_vector = setup.vertical_transmission_vector
+        self.inherit_protection_host = setup.inherit_protection_host
+        self.inherit_protection_vector = setup.inherit_protection_vector
         self.protection_upon_recovery_host \
             = setup.protection_upon_recovery_host
         self.protection_upon_recovery_vector \
@@ -451,11 +511,11 @@ class Population(object):
 
                     self.vectors.remove( vector_removed )
                     for v in self.vectors:
-                        if v.coefficient_index > vector_removed.coefficient_index:
+                        if v.coefficient_index>vector_removed.coefficient_index:
                             v.coefficient_index -= 1
 
-                    self.coefficients_hosts = np.delete(
-                        self.coefficients_hosts,
+                    self.coefficients_vectors = np.delete(
+                        self.coefficients_vectors,
                         vector_removed.coefficient_index, 0
                         )
         else:
@@ -469,8 +529,8 @@ class Population(object):
                     if v.coefficient_index > vector_removed.coefficient_index:
                         v.coefficient_index -= 1
 
-                self.coefficients_hosts = np.delete(
-                    self.coefficients_hosts,
+                self.coefficients_vectors = np.delete(
+                    self.coefficients_vectors,
                     vector_removed.coefficient_index, 0
                     )
 
@@ -492,7 +552,7 @@ class Population(object):
 
         for genome in genomes_numbers:
             if len(genome) == self.num_loci and all( [
-                allele in self.possible_alleles[i]
+                allele in self.possible_alleles[i] + self.CHROMOSOME_SEPARATOR
                     for i,allele in enumerate(genome)
                 ] ):
                 rand_hosts = np.random.choice(
@@ -506,7 +566,9 @@ class Population(object):
                 raise ValueError('Genome ' + genome + ' must be of length '
                     + str(self.num_loci)
                     + ' and contain only the following characters at each '
-                    + 'position: ' + self.possible_alleles + ' .')
+                    + 'position: ' + str(self.possible_alleles)
+                    + ', or the chromosome separator character "'
+                    + self.CHROMOSOME_SEPARATOR + '" .')
 
     def addPathogensToVectors(self, genomes_numbers, vectors=[]):
         """Add specified pathogens to random vectors, optionally from a list.
@@ -526,7 +588,7 @@ class Population(object):
 
         for genome in genomes_numbers:
             if len(genome) == self.num_loci and all( [
-                allele in self.possible_alleles[i]
+                allele in self.possible_alleles[i] + self.CHROMOSOME_SEPARATOR
                     for i,allele in enumerate(genome)
                 ] ):
                 rand_vectors = np.random.choice(
@@ -540,7 +602,8 @@ class Population(object):
                 raise ValueError('Genome ' + genome + ' must be of length '
                     + str(self.num_loci)
                     + ' and contain only the following characters at each '
-                    + 'position: ' + self.possible_alleles + ' .')
+                    + 'position: ' + self.possible_alleles
+                    + self.CHROMOSOME_SEPARATOR + ' .')
 
     def treatHosts(self, frac_hosts, resistance_seqs, hosts=[]):
         """Treat random fraction of infected hosts against some infection.
@@ -734,6 +797,13 @@ class Population(object):
         target_pop -- population towards which migration will occur (Population)
         num_hosts -- number of hosts to transfer (int)
         num_vectors -- number of vectors to transfer (int)
+
+        Keyword arguments:
+        rand -- uniform random number from 0 to 1 to use when choosing
+            individuals to migrate; if None, generates new random number to
+            choose (through numpy), otherwise, assumes event is happening
+            through Gillespie class call and migrates a single host or vector
+            (default None; 0-1 number)
         """
 
         if rand is None:
@@ -795,11 +865,16 @@ class Population(object):
 
         self.neighbors_contact_vectors[neighbor] = rate
 
-    def populationContact(self, target_pop, rand, host_origin=True, host_target=True):
+    def populationContact(
+        self, target_pop, rand, host_origin=True, host_target=True):
         """Contacts hosts and/or vectors from this population to another.
 
         Arguments:
         target_pop -- population towards which migration will occur (Population)
+        rand -- uniform random number from 0 to 1 to use when choosing
+            individuals to contact
+
+        Keyword arguments:
         host_origin -- whether to draw from hosts in the origin population
             (as opposed to vectors) (Boolean)
         host_target -- whether to draw from hosts in the target population
@@ -826,24 +901,29 @@ class Population(object):
         if host_target:
             index_host,rand = target_pop.getWeightedRandom(
                 rand,
-                target_pop.coefficients_hosts[:,target_pop.POPULATION_CONTACT]
+                target_pop.coefficients_hosts[
+                    :,target_pop.RECEIVE_POPULATION_CONTACT
+                    ]
                 )
             origin.infectHost(target_pop.hosts[index_host])
         else:
             index_vector,rand = target_pop.getWeightedRandom(
                 rand,
-                target_pop.coefficients_vectors[:,target_pop.POPULATION_CONTACT]
+                target_pop.coefficients_vectors[
+                    :,target_pop.RECEIVE_POPULATION_CONTACT
+                    ]
                 )
             origin.infectVector(target_pop.vectors[index_vector])
 
     def contactHostHost(self, rand):
         """Contact any two (weighted) random hosts in population.
 
-        Carries out possible infection events from each organism into the other.
+        Carries out possible infection events from the first organism into the
+        second.
 
         Arguments:
-        index_infected_host -- index of infected host in infected_hosts (int)
-        index_other_host -- index of second host in hosts (int)
+        rand -- uniform random number from 0 to 1 to use when choosing
+            individuals to contact
 
         Returns:
         whether or not the model has changed state (Boolean)
@@ -851,12 +931,12 @@ class Population(object):
 
         index_host,rand = self.getWeightedRandom(
             rand, np.multiply(
-                1-self.coefficients_hosts[:,self.CONTACT],
+                self.coefficients_hosts[:,self.CONTACT],
                 self.coefficients_hosts[:,self.INFECTED]
                 )
             )
         index_other_host,rand = self.getWeightedRandom(
-            rand, 1-self.coefficients_hosts[:,self.CONTACT]
+            rand, self.coefficients_hosts[:,self.RECEIVE_CONTACT]
             )
 
         changed = self.hosts[index_host].infectHost(
@@ -868,11 +948,12 @@ class Population(object):
     def contactHostVector(self, rand):
         """Contact a (weighted) random host and vector in population.
 
-        Carries out possible infection events from each organism into the other.
+        Carries out possible infection events from the first organism into the
+        second.
 
         Arguments:
-        index_host -- index of infected host in infected_hosts (int)
-        index_vector -- index of vector in vectors (int)
+        rand -- uniform random number from 0 to 1 to use when choosing
+            individuals to contact
 
         Returns:
         whether or not the model has changed state (Boolean)
@@ -880,12 +961,12 @@ class Population(object):
 
         index_host,rand = self.getWeightedRandom(
             rand, np.multiply(
-                1-self.coefficients_hosts[:,self.CONTACT],
+                self.coefficients_hosts[:,self.CONTACT],
                 self.coefficients_hosts[:,self.INFECTED]
                 )
             )
         index_vector,rand = self.getWeightedRandom(
-            rand, 1-self.coefficients_vectors[:,self.CONTACT]
+            rand, self.coefficients_vectors[:,self.RECEIVE_CONTACT]
             )
         changed = self.hosts[index_host].infectVector(
             self.vectors[index_vector]
@@ -894,13 +975,14 @@ class Population(object):
         return changed
 
     def contactVectorHost(self, rand):
-        """Contact a (weighted) random host and vector in population.
+        """Contact a (weighted) random vector and host in population.
 
-        Carries out possible infection events from each organism into the other.
+        Carries out possible infection events from the first organism into the
+        second.
 
         Arguments:
-        index_host -- index of infected host in infected_hosts (int)
-        index_vector -- index of vector in vectors (int)
+        rand -- uniform random number from 0 to 1 to use when choosing
+            individuals to contact
 
         Returns:
         whether or not the model has changed state (Boolean)
@@ -908,12 +990,12 @@ class Population(object):
 
         index_vector,rand = self.getWeightedRandom(
             rand, np.multiply(
-                1-self.coefficients_vectors[:,self.CONTACT],
+                self.coefficients_vectors[:,self.CONTACT],
                 self.coefficients_vectors[:,self.INFECTED]
                 )
             )
         index_host,rand = self.getWeightedRandom(
-            rand,1-self.coefficients_hosts[:,self.CONTACT]
+            rand,self.coefficients_hosts[:,self.RECEIVE_CONTACT]
             )
 
         changed = self.vectors[index_vector].infectHost(
@@ -930,7 +1012,8 @@ class Population(object):
         population infected list and add to healthy list.
 
         Arguments:
-        index_host -- index of host in infected_hosts (int)
+        rand -- uniform random number from 0 to 1 to use when choosing
+            individual to recover
         """
 
         index_host,rand = self.getWeightedRandom(
@@ -947,7 +1030,8 @@ class Population(object):
         population infected list and add to healthy list.
 
         Arguments:
-        index_vector -- index of vector in infected_vectors (int)
+        rand -- uniform random number from 0 to 1 to use when choosing
+            individual to recover
         """
 
         index_vector,rand = self.getWeightedRandom(
@@ -960,29 +1044,89 @@ class Population(object):
         """Add host at this index to dead list, remove it from alive ones.
 
         Arguments:
-        index_host -- index of host in infected_hosts (int)
-        rand -- a random number between 0 and 1 used to determine death
+        rand -- uniform random number from 0 to 1 to use when choosing
+            individual to kill
         """
 
-        index_vector,rand = self.getWeightedRandom(
-            rand,self.coefficients_hosts[:,self.LETHALITY]
+        index_host,rand = self.getWeightedRandom(
+            rand, self.lethality_rate_host * self.recovery_rate_host
+                * self.coefficients_hosts[:,self.LETHALITY]
             )
 
+        self.dead_hosts.append(self.hosts[index_host])
         self.hosts[index_host].die()
 
     def killVector(self, rand):
         """Add host at this index to dead list, remove it from alive ones.
 
         Arguments:
-        index_vector -- index of vector in infected_vectors (int)
-        rand -- a random number between 0 and 1 used to determine death
+        rand -- uniform random number from 0 to 1 to use when choosing
+            individual to kill
         """
 
         index_vector,rand = self.getWeightedRandom(
-            rand,self.coefficients_vectors[:,self.LETHALITY]
+            rand, self.lethality_rate_vector * self.recovery_rate_vector
+                * self.coefficients_vectors[:,self.LETHALITY]
+            )
+
+        self.dead_vectors.append(self.vectors[index_vector])
+        self.vectors[index_vector].die()
+
+    def dieHost(self, rand):
+        """Remove host at this index from alive lists.
+
+        Arguments:
+        rand -- uniform random number from 0 to 1 to use when choosing
+            individual to kill
+        """
+
+        index_host,rand = self.getWeightedRandom(
+            rand, np.ones( self.coefficients_hosts.shape[0] )
+            )
+
+        self.hosts[index_host].die()
+
+    def dieVector(self, rand):
+        """Remove vector at this index from alive lists.
+
+        Arguments:
+        rand -- uniform random number from 0 to 1 to use when choosing
+            individual to kill
+        """
+
+        index_vector,rand = self.getWeightedRandom(
+            rand, np.ones( self.coefficients_vectors.shape[0] )
             )
 
         self.vectors[index_vector].die()
+
+    def birthHost(self, rand):
+        """Add host at this index to population, remove it from alive ones.
+
+        Arguments:
+        rand -- uniform random number from 0 to 1 to use when choosing
+            individual to make parent
+        """
+
+        index_host,rand = self.getWeightedRandom(
+            rand,self.coefficients_hosts[:,self.NATALITY]
+            )
+
+        self.hosts[index_host].birth(rand)
+
+    def birthVector(self, rand):
+        """Add host at this index to population, remove it from alive ones.
+
+        Arguments:
+        rand -- uniform random number from 0 to 1 to use when choosing
+            individual to make parent
+        """
+
+        index_vector,rand = self.getWeightedRandom(
+            rand,self.coefficients_vectors[:,self.NATALITY]
+            )
+
+        self.vectors[index_vector].birth(rand)
 
     def mutateHost(self, rand):
         """Mutate a single, random locus in a random pathogen in the given host.
@@ -990,7 +1134,8 @@ class Population(object):
         Creates a new genotype from a de novo mutation event in the host given.
 
         Arguments:
-        index_host -- index of host in infected_hosts (int)
+        rand -- uniform random number from 0 to 1 to use when choosing
+            individual in which to choose a pathogen to mutate
         """
 
         index_host,rand = self.getWeightedRandom(
@@ -1007,7 +1152,8 @@ class Population(object):
         given.
 
         Arguments:
-        index_vector -- index of vector in infected_vectors (int)
+        rand -- uniform random number from 0 to 1 to use when choosing
+            individual in which to choose a pathogen to mutate
         """
 
         index_vector,rand = self.getWeightedRandom(
@@ -1024,7 +1170,8 @@ class Population(object):
         given.
 
         Arguments:
-        index_host -- index of host in infected_hosts (int)
+        rand -- uniform random number from 0 to 1 to use when choosing
+            individual in which to choose pathogens to recombine
         """
 
         index_host,rand = self.getWeightedRandom(
@@ -1041,7 +1188,8 @@ class Population(object):
         given.
 
         Arguments:
-        index_vector -- index of vector in infected_vectors (int)
+        rand -- uniform random number from 0 to 1 to use when choosing
+            individual in which to choose pathogens to recombine
         """
 
         index_vector,rand = self.getWeightedRandom(
@@ -1052,12 +1200,13 @@ class Population(object):
         vector.recombine(rand)
 
     def updateHostCoefficients(self):
-        """Updates fitness and event coefficient values in population's hosts.
+        """Updates event coefficient values in population's hosts."""
+        self.coefficients_hosts = np.zeros( self.coefficients_hosts.shape )
+        self.coefficients_hosts[ 1:, self.RECEIVE_CONTACT ] = 1
+        self.coefficients_hosts[ 1:, self.RECEIVE_POPULATION_CONTACT ] = 1
+        self.coefficients_hosts[ 1:, self.NATALITY ] = 1
+        self.coefficients_hosts[ 1:, self.MIGRATION ] = 1
 
-        """
-        self.coefficients_hosts = np.zeros(
-            self.coefficients_hosts.shape
-            )
         for h in self.hosts:
             genomes = h.pathogens.keys()
             h.pathogens = {}
@@ -1066,12 +1215,13 @@ class Population(object):
                 h.acquirePathogen(g)
 
     def updateVectorCoefficients(self):
-        """Updates fitness and event coefficient values in population's vectors.
+        """Updates event coefficient values in population's vectors."""
+        self.coefficients_vectors = np.zeros( self.coefficients_vectors.shape )
+        self.coefficients_vectors[ 1:, self.RECEIVE_CONTACT ] = 1
+        self.coefficients_vectors[ 1:, self.RECEIVE_POPULATION_CONTACT ] = 1
+        self.coefficients_hosts[ 1:, self.NATALITY ] = 1
+        self.coefficients_hosts[ 1:, self.MIGRATION ] = 1
 
-        """
-        self.coefficients_vectors = np.zeros(
-            self.coefficients_vectors.shape
-            )
         for v in self.vectors:
             genomes = v.pathogens.keys()
             v.pathogens = {}
@@ -1079,12 +1229,26 @@ class Population(object):
             for g in genomes:
                 v.acquirePathogen(g)
 
+    def healthyCoefficientRow(self):
+        """Returns coefficient values corresponding to a healthy host/vector."""
+
+        v = np.zeros((1,self.NUM_COEFFICIENTS))
+        v[ 0, self.RECEIVE_CONTACT ] = 1
+        v[ 0, self.RECEIVE_POPULATION_CONTACT ] = 1
+        v[ 0, self.NATALITY ] = 1
+        v[ 0, self.MIGRATION ] = 1
+
+        return v
+
     def getWeightedRandom(self, rand, r):
-        """Returns index of element chosen using weights and the given rand.
+        """Returns index of element chosen from weights and given random number.
+
+        Since sampling from coefficient arrays which contain a dummy first row,
+        index is decreased by 1.
 
         Arguments:
         rand -- 0-1 random number (number)
-        arr -- array with weights (numpy 1-D vector)
+        r -- array with weights (numpy vector)
 
         Returns:
         new 0-1 random number (number)
@@ -1096,7 +1260,7 @@ class Population(object):
         for i,e in enumerate(r): # for every possible event,
             r_cum += e # add this event's rate to cumulative rate
             if u < r_cum: # if random number is under cumulative rate
-                return i, ( ( u - r_cum + e ) / e )
+                return i-1, ( ( u - r_cum + e ) / e )
         # sum_arr = np.cumsum( arr )
         # if sum_arr[-1] > 0:
         #     print(sum_arr)
