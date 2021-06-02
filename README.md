@@ -349,7 +349,7 @@ To use it, import the class as
 from opqua.model import Model
 ```
 
-You can find a detail account of everything `Model` does in the
+You can find a detailed account of everything `Model` does in the
 [Model attributes](#model-attributes) and
 [Model class methods list](#model-class-methods-list) sections.
 
