@@ -1,4 +1,4 @@
-Opqua
+Opqua <img align="right" src="img/circle-header.png" width="400px" title="circle header">
 =====
 
 **opqua** (opkua, upkua)
