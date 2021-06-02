@@ -167,7 +167,7 @@ different alleles). Different loci in the genome may have different possible
 alleles available to them. Genomes may be composed of separate chromosomes,
 separated by the "/" character, which is reserved for this purpose.
 
-Each population may have its own unique parameters dictating the events that  
+Each population may have its own unique parameters dictating the events that
 happen inside of it, including how pathogens are spread between its hosts and
 vectors.
 
@@ -185,6 +185,8 @@ contact")
 - death of a host/vector due to pathogen infection or by "natural" causes
 - mutation of a pathogen in an infected host/vector
 - recombination of two pathogens in an infected host/vector
+
+![Events](img/events.png "events illustration")
 
 The likelihood of each event occurring is determined by the population's
 parameters (explained in the [newSetup](#newSetup) function documentation), by
@@ -306,6 +308,8 @@ dependent on the genomes of the pathogens infecting its corresponding vector or
 host. Whenever an event occurs, the corresponding entries in the population
 matrix are updated, and the master rate matrix is recomputed based on this
 information.
+
+![Simulation](img/simulation.png "simulation illustration")
 
 The model's state at any given time is comprised of all populations, their hosts
 and vectors, and the pathogen genomes infecting each of these. A copy of the
