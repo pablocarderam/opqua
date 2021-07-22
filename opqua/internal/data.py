@@ -560,7 +560,8 @@ def pathogenDistanceDf(
 
     names = sequences
     if len(seq_names) > 0:
-        names = seq_names
+        new_names = seq_names * int( np.ceil( len(names) / len(seq_names) ) )
+        names = new_names[0:len(names)]
 
     dis_df = pd.DataFrame( dis_mat, index=names, columns=names )
 

@@ -309,7 +309,7 @@ def compositionPlot(
 
         if remove_legend:
             pd.DataFrame(
-                labels, columns=['Groups']
+                labs, columns=['Groups']
                 ).to_csv(file_name.split('.')[0]+'_labels.csv')
         else:
             handles, labels = ax.get_legend_handles_labels()

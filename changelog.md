@@ -1,9 +1,19 @@
 
 # Opqua Changelog
 
+## v0.2.2
+## 21 July 2021
+- change compositionPLot remove_legend behavior to fix bug
+- change pathogenDistanceDf seq_names behavior to fix bug
+- reduce mean inoculum from hosts into vectors to reflect malaria cycle
+- modify infectHost and infectVector inoculation behavior so that mean_inoculum
+does not affect overall transmission rate; each infection now results in at
+least 1 pathogen transfer (if not containing and not immune to the pathogen
+genome sampled)
+
 ## v0.2.1
 ## 1 June 2021
-- Update version tags
+- update version tags
 
 ## v0.2.0
 ## 1 June 2021
@@ -44,3 +54,5 @@
 - update tutorials. Done, tested
 
 ### TODO:
+- correctly update arguments in function documentation and README for
+compositionPlot family functions

@@ -363,7 +363,7 @@ class Model(object):
             mean_inoculum_host = \
                 1e2 if mean_inoculum_host is None else mean_inoculum_host
             mean_inoculum_vector = \
-                1e2 if mean_inoculum_vector is None else mean_inoculum_vector
+                1 if mean_inoculum_vector is None else mean_inoculum_vector
             recovery_rate_host = \
                 1e-1 if recovery_rate_host is None else recovery_rate_host
             recovery_rate_vector = \

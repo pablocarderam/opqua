@@ -110,17 +110,17 @@ class Vector(object):
             self.population.infected_vectors.append(self)
 
     def infectHost(self, host):
-        """Infect given host with a sample of this host's pathogens.
+        """Infect given host with a sample of this vector's pathogens.
 
         Each pathogen in the infector is sampled as present or absent in the
         inoculum by drawing from a Poisson distribution with a mean equal to the
         mean inoculum size of the organism being infected weighted by each
         genome's fitness as a fraction of the total in the infector as the
-        probability of each trial. Each pathogen present in the inoculum will be
-        added to the infected organism, if it does not have protection from the
-        pathogen's genome. Fitnesses are computed for the pathogens' genomes in
-        the infected organism, and the organism is included in the poplation's
-        infected list if appropriate.
+        probability of each trial (minimum 1 pathogen transfered). Each pathogen
+        present in the inoculum will be added to the infected organism, if it
+        does not have protection from the pathogen's genome. Fitnesses are
+        computed for the pathogens' genomes in the infected organism, and the
+        organism is included in the poplation's infected list if appropriate.
 
         Arguments:
         vector -- the vector to be infected (Vector)
@@ -130,13 +130,19 @@ class Vector(object):
         """
 
         changed = False
-        for genome,fitness in self.pathogens.items():
+
+        genomes = list( self.pathogens.keys() )
+        fitness_weights = [
+            self.pathogens[g] / self.sum_fitness for g in genomes
+            ]
+
+        for _ in range( max( np.random.poisson(
+                self.population.mean_inoculum_host
+                ), 1 ) ):
+            genome = np.random.choice( genomes, p=fitness_weights )
             if genome not in host.pathogens.keys() and not any(
                     [ p in genome for p in host.protection_sequences ]
-                    ) and ( np.random.poisson(
-                    self.population.mean_inoculum_host
-                    * fitness / self.sum_fitness, 1
-                    ) > 0 ):
+                    ):
                 host.acquirePathogen(genome)
                 changed = True
 
@@ -149,11 +155,11 @@ class Vector(object):
         inoculum by drawing from a Poisson distribution with a mean equal to the
         mean inoculum size of the organism being infected weighted by each
         genome's fitness as a fraction of the total in the infector as the
-        probability of each trial. Each pathogen present in the inoculum will be
-        added to the infected organism, if it does not have protection from the
-        pathogen's genome. Fitnesses are computed for the pathogens' genomes in
-        the infected organism, and the organism is included in the poplation's
-        infected list if appropriate.
+        probability of each trial (minimum 1 pathogen transfered). Each pathogen
+        present in the inoculum will be added to the infected organism, if it
+        does not have protection from the pathogen's genome. Fitnesses are
+        computed for the pathogens' genomes in the infected organism, and the
+        organism is included in the poplation's infected list if appropriate.
 
         Arguments:
         vector -- the vector to be infected (Vector)
@@ -163,13 +169,19 @@ class Vector(object):
         """
 
         changed = False
-        for genome,fitness in self.pathogens.items():
+
+        genomes = list( self.pathogens.keys() )
+        fitness_weights = [
+            self.pathogens[g] / self.sum_fitness for g in genomes
+            ]
+
+        for _ in range( max( np.random.poisson(
+                self.population.mean_inoculum_vector
+                ), 1 ) ):
+            genome = np.random.choice( genomes, p=fitness_weights )
             if genome not in vector.pathogens.keys() and not any(
                     [ p in genome for p in vector.protection_sequences ]
-                    ) and ( np.random.poisson(
-                    self.population.mean_inoculum_vector
-                    * fitness / self.sum_fitness, 1
-                    ) > 0 ):
+                    ):
                 vector.acquirePathogen(genome)
                 changed = True
 
