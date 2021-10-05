@@ -754,7 +754,7 @@ _Arguments:_
 #### runReplicates
 
 ```python
-runReplicates(t0,tf,replicates,host_sampling=0,vector_sampling=0):
+runReplicates(t0,tf,replicates,host_sampling=0,vector_sampling=0,**kwargs):
 ```
 
 
@@ -777,6 +777,7 @@ _Keyword arguments:_
 - vector_sampling -- how many vectors to skip before saving one in a
     snapshot of the system state (saves all by default)
     (int >= 0, default 0)
+- **kwargs -- additional arguents for joblib multiprocessing
 
 Returns:
 List of Model objects with the final snapshots
@@ -786,7 +787,7 @@ List of Model objects with the final snapshots
 ```python
 runParamSweep(
 t0,tf,setup_id,param_sweep_dic,
-replicates=1,host_sampling=0,vector_sampling=0,n_cores=0):
+replicates=1,host_sampling=0,vector_sampling=0,n_cores=0,**kwargs):
 ```
 
 
@@ -828,6 +829,7 @@ _Keyword Arguments:_
     (int >= 0, default 0)
 - n_cores -- number of cores to parallelize file export across, if 0, all
     cores available are used (default 0; int >= 0)
+- **kwargs -- additional arguents for joblib multiprocessing
 
 _Returns:_
 - List of Model objects with the final snapshots
@@ -835,7 +837,7 @@ _Returns:_
 #### saveToDataFrame
 
 ```python
-saveToDataFrame(save_to_file,n_cores=0)
+saveToDataFrame(save_to_file,n_cores=0,**kwargs)
 ```
 
 
@@ -857,6 +859,7 @@ _Arguments:_
 _Keyword Arguments:_
 - n_cores -- number of cores to parallelize file export across, if 0, all
     cores available are used (default 0; int)
+- **kwargs -- additional arguents for joblib multiprocessing
 
 _Returns:_
 - pandas dataframe with model history as described above
@@ -868,7 +871,8 @@ getCompositionData(
     data=None, populations=[], type_of_composition='Pathogens',
     hosts=True, vectors=False, num_top_sequences=-1,
     track_specific_sequences=[], genomic_positions=[],
-    count_individuals_based_on_model=None, save_data_to_file="", n_cores=0):
+    count_individuals_based_on_model=None, save_data_to_file="", n_cores=0,
+    **kwargs):
 ```
 Create dataframe with counts for pathogen genomes or resistance.
 
@@ -910,6 +914,7 @@ _Keyword Arguments:_
     saving occurs if empty string (default ''; String)
 - n_cores -- number of cores to parallelize processing across, if 0, all
     cores available are used (default 0; int)
+- **kwargs -- additional arguents for joblib multiprocessing
 
 _Returns:_
 - pandas dataframe with model sequence composition dynamics as described
@@ -1068,7 +1073,7 @@ file_name, data, compositionDataFrame=None, populations=[],
 type_of_composition='Pathogens', hosts=True, vectors=False,
 num_top_sequences=7, track_specific_sequences=[],
 save_data_to_file="", x_label='Time', y_label='Infections',
-figsize=(8, 4), dpi=200, palette=CB_PALETTE, stacked=True)
+figsize=(8, 4), dpi=200, palette=CB_PALETTE, stacked=True, **kwargs)
 ```
 
 
@@ -1115,6 +1120,7 @@ IDs (default empty list, list of Strings)
 color Strings)
 - stacked -- whether to draw a regular line plot or a stacked one (default
 False, Boolean)
+- **kwargs -- additional arguents for joblib multiprocessing
 
 _Returns:_
 - axis object for plot with model sequence composition dynamics as

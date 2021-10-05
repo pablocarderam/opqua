@@ -574,7 +574,8 @@ class Model(object):
             )
 
     def runReplicates(
-            self,t0,tf,replicates,host_sampling=0,vector_sampling=0,n_cores=0):
+            self,t0,tf,replicates,host_sampling=0,vector_sampling=0,n_cores=0,
+            **kwargs):
         """Simulate replicates of a model, save only end results.
 
         Simulates replicates of a time series using the Gillespie algorithm.
@@ -596,6 +597,7 @@ class Model(object):
             (int >= 0, default 0)
         n_cores -- number of cores to parallelize file export across, if 0, all
             cores available are used (default 0; int >= 0)
+        **kwargs -- additional arguents for joblib multiprocessing
 
         Returns:
         List of Model objects with the final snapshots
@@ -615,7 +617,7 @@ class Model(object):
             mod.history = { tf:mod }
             return mod
 
-        return jl.Parallel(n_jobs=n_cores, verbose=10) (
+        return jl.Parallel(n_jobs=n_cores, verbose=10, **kwargs) (
             jl.delayed( run ) (_) for _ in range(replicates)
             )
 
@@ -625,7 +627,8 @@ class Model(object):
             host_migration_sweep_dic={}, vector_migration_sweep_dic={},
             host_population_contact_sweep_dic={},
             vector_population_contact_sweep_dic={},
-            replicates=1,host_sampling=0,vector_sampling=0,n_cores=0):
+            replicates=1,host_sampling=0,vector_sampling=0,n_cores=0,
+            **kwargs):
         """Simulate a parameter sweep with a model, save only end results.
 
         Simulates variations of a time series using the Gillespie algorithm.
@@ -664,6 +667,7 @@ class Model(object):
             (int >= 0, default 0)
         n_cores -- number of cores to parallelize file export across, if 0, all
             cores available are used (default 0; int >= 0)
+        **kwargs -- additional arguents for joblib multiprocessing
 
         Returns:
         List of Model objects with the final snapshots
@@ -738,7 +742,7 @@ class Model(object):
 
         return (
             param_df,
-            jl.Parallel(n_jobs=n_cores, verbose=10) (
+            jl.Parallel(n_jobs=n_cores, verbose=10, **kwargs) (
                 jl.delayed( run ) (param_values)
                     for param_values in combinations
                 )
@@ -770,7 +774,7 @@ class Model(object):
 
     ### Output and Plots: ###
 
-    def saveToDataFrame(self,save_to_file,n_cores=0,verbose=10):
+    def saveToDataFrame(self,save_to_file,n_cores=0,**kwargs):
         """Save status of model to dataframe, write to file location given.
 
         Creates a pandas Dataframe in long format with the given model history,
@@ -789,12 +793,15 @@ class Model(object):
         Keyword arguments:
         n_cores -- number of cores to parallelize file export across, if 0, all
             cores available are used (default 0; int >= 0)
+        **kwargs -- additional arguents for joblib multiprocessing
 
         Returns:
         pandas dataframe with model history as described above
         """
 
-        data = saveToDf(self.history,save_to_file,n_cores,verbose=verbose)
+        data = saveToDf(
+            self.history,save_to_file,n_cores,**kwargs
+            )
 
         return data
 
@@ -949,7 +956,7 @@ class Model(object):
             save_data_to_file="", x_label='Time', y_label='Infections',
             figsize=(8, 4), dpi=200, palette=CB_PALETTE, stacked=True,
             remove_legend=False, genomic_positions=[],
-            count_individuals_based_on_model=None):
+            count_individuals_based_on_model=None, **kwargs):
         """Create plot with counts for pathogen genomes or resistance vs. time.
 
         Creates a line or stacked line plot with dynamics of the pathogen
@@ -1005,6 +1012,7 @@ class Model(object):
         remove_legend -- whether to print the sequences on the figure legend
             instead of printing them on a separate csv file
             (default True; Boolean)
+        **kwargs -- additional arguents for joblib multiprocessing
 
         Returns:
         axis object for plot with model sequence composition dynamics as
@@ -1021,7 +1029,8 @@ class Model(object):
             x_label=x_label, y_label=y_label, figsize=figsize, dpi=dpi,
             palette=palette, stacked=stacked, remove_legend=remove_legend,
             genomic_positions=genomic_positions,
-            count_individuals_based_on_model=count_individuals_based_on_model
+            count_individuals_based_on_model=count_individuals_based_on_model,
+            **kwargs
             )
 
     def clustermap(
@@ -1141,7 +1150,8 @@ class Model(object):
             self, data=None, populations=[], type_of_composition='Pathogens',
             hosts=True, vectors=False, num_top_sequences=-1,
             track_specific_sequences=[], genomic_positions=[],
-            count_individuals_based_on_model=None, save_data_to_file="", n_cores=0):
+            count_individuals_based_on_model=None, save_data_to_file="",
+            n_cores=0, **kwargs):
         """Create dataframe with counts for pathogen genomes or resistance.
 
         Creates a pandas Dataframe with dynamics of the pathogen strains or
@@ -1182,6 +1192,7 @@ class Model(object):
             saving occurs if empty string (default ''; String)
         n_cores -- number of cores to parallelize processing across, if 0, all
             cores available are used (default 0; int)
+        **kwargs -- additional arguents for joblib multiprocessing
 
         Returns:
         pandas dataframe with model sequence composition dynamics as described
@@ -1190,7 +1201,8 @@ class Model(object):
 
         if data is None:
             data = saveToDf(
-                self.history,'raw_data_'+save_to_file,n_cores,verbose=verbose
+                self.history,'raw_data_'+save_to_file,n_cores,verbose=verbose,
+                **kwargs
                 )
 
         return compositionDf(
@@ -1200,7 +1212,7 @@ class Model(object):
             track_specific_sequences=track_specific_sequences,
             genomic_positions=genomic_positions,
             count_individuals_based_on_model=count_individuals_based_on_model,
-            save_to_file=save_data_to_file
+            save_to_file=save_data_to_file, n_cores=n_cores, **kwargs
             )
 
     ### Model interventions: ###

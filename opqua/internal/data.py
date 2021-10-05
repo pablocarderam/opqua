@@ -8,7 +8,7 @@ import joblib as jl
 import textdistance as td
 import scipy.spatial.distance as sp_dist
 
-def saveToDf(history,save_to_file,n_cores=0,verbose=10):
+def saveToDf(history,save_to_file,n_cores=0,verbose=10, **kwargs):
     """Save status of model to dataframe, write to file location given.
 
     Creates a pandas Dataframe in long format with the given model history, with
@@ -32,6 +32,7 @@ def saveToDf(history,save_to_file,n_cores=0,verbose=10):
     Keyword arguments:
     n_cores -- number of cores to parallelize file export across, if 0, all
         cores available are used (default 0; int)
+    **kwargs -- additional arguents for joblib multiprocessing
 
     Returns:
     pandas dataframe with model history as described above
@@ -44,7 +45,8 @@ def saveToDf(history,save_to_file,n_cores=0,verbose=10):
 
     new_df = ','.join(
         ['Time','Population','Organism','ID','Pathogens','Protection','Alive']
-        ) + '\n' + '\n'.join( jl.Parallel(n_jobs=n_cores, verbose=verbose) (
+        ) + '\n' + '\n'.join( jl.Parallel(
+            n_jobs=n_cores, verbose=verbose, **kwargs) (
             jl.delayed( lambda d: ''.join(d) ) (
                 '\n'.join( [
                     '\n'.join( [ ','.join( [
@@ -283,7 +285,7 @@ def compositionDf(
         data, populations=[], type_of_composition='Pathogens', hosts=True,
         vectors=False, num_top_sequences=-1, track_specific_sequences=[],
         genomic_positions=[], count_individuals_based_on_model=None,
-        save_to_file="", n_cores=0):
+        save_to_file="", n_cores=0, **kwargs):
     """Create dataframe with counts for pathogen genomes or resistance.
 
     Creates a pandas Dataframe with dynamics of the pathogen strains or
@@ -324,6 +326,7 @@ def compositionDf(
         occurs if empty string (default ''; String)
     n_cores -- number of cores to parallelize processing across, if 0, all
         cores available are used (default 0; int)
+    **kwargs -- additional arguents for joblib multiprocessing
 
     Returns:
     pandas dataframe with model sequence composition dynamics as described above
@@ -344,7 +347,7 @@ def compositionDf(
 
             return ';'.join(seqs)
 
-        pathogens = np.array( jl.Parallel(n_jobs=n_cores, verbose=1) (
+        pathogens = np.array( jl.Parallel(n_jobs=n_cores, verbose=1, **kwargs) (
             jl.delayed( extractSeq ) (ind) for ind in dat
             ) )
         dat['Pathogens'] = pathogens
@@ -368,9 +371,11 @@ def compositionDf(
             dominant_pathogen = ind['Pathogens'].split(';')[ values.argmax() ]
             return dominant_pathogen
 
-        dominant_pathogens = np.array( jl.Parallel(n_jobs=n_cores, verbose=1) (
-            jl.delayed( chooseSeq ) (ind) for ind in dat
-            ) )
+        dominant_pathogens = np.array(
+            jl.Parallel(n_jobs=n_cores, verbose=1, **kwargs) (
+                jl.delayed( chooseSeq ) (ind) for ind in dat
+                )
+            )
         dat['Pathogens'] = dominant_pathogens
 
     if not hosts:
@@ -405,7 +410,7 @@ def compositionDf(
     if len( ''.join(top_sequences.index) ) > 0:
         for genome in top_sequences.index:
             dat_genome = dat[ dat[type_of_composition].str.contains(
-                genome, na=False
+                genome, na=False, regex=False
                 ) ]
             grouped = dat_genome.groupby('Time').size().reset_index(name=genome)
             grouped = grouped.set_index('Time')
@@ -632,7 +637,7 @@ def getPathogenDistanceHistoryDf(
     return dis_df
 
 def getGenomeTimesDf(
-        data, samples=1, save_to_file="", n_cores=0):
+        data, samples=1, save_to_file="", n_cores=0, **kwargs):
     """Create DataFrame with times genomes first appeared during simulation.
 
     Arguments:
@@ -645,6 +650,7 @@ def getGenomeTimesDf(
         occurs if empty string (default ''; String)
     n_cores -- number of cores to parallelize across, if 0, all cores available
         are used (default 0; int)
+    **kwargs -- additional arguents for joblib multiprocessing
 
     Returns:
     pandas dataframe with genomes and times as described above
@@ -667,9 +673,11 @@ def getGenomeTimesDf(
         t = his_dat['Sequence'].searchsorted(seq, side='left')
         return t
 
-    his_dat['Time_emergence'] = jl.Parallel(n_jobs=n_cores, verbose=1) (
-        jl.delayed( getTime ) (seq) for seq in his_dat['Sequence']
-        )
+    his_dat['Time_emergence'] = jl.Parallel(
+        n_jobs=n_cores, verbose=1, **kwargs
+        ) (
+            jl.delayed( getTime ) (seq) for seq in his_dat['Sequence']
+            )
 
     if len(save_to_file) > 0:
         dis_df.to_csv(save_to_file, index=False)

@@ -1,6 +1,14 @@
 
 # Opqua Changelog
 
+## v0.2.4
+## 5 Oct 2021
+- fixed regex processing bug in compositionDf()
+- added **kwargs argument passing to joblib functions to allow user to change
+backend and stuff
+
+Trying to deploy on cluster so bear with me on the updates here
+
 ## v0.2.3
 ## 5 Oct 2021
 - added parameter sweep function runParamSweep()
