@@ -8,7 +8,7 @@ import joblib as jl
 import textdistance as td
 import scipy.spatial.distance as sp_dist
 
-def saveToDf(history,save_to_file,n_cores=0):
+def saveToDf(history,save_to_file,n_cores=0,verbose=10):
     """Save status of model to dataframe, write to file location given.
 
     Creates a pandas Dataframe in long format with the given model history, with
@@ -44,7 +44,7 @@ def saveToDf(history,save_to_file,n_cores=0):
 
     new_df = ','.join(
         ['Time','Population','Organism','ID','Pathogens','Protection','Alive']
-        ) + '\n' + '\n'.join( jl.Parallel(n_jobs=n_cores, verbose=10) (
+        ) + '\n' + '\n'.join( jl.Parallel(n_jobs=n_cores, verbose=verbose) (
             jl.delayed( lambda d: ''.join(d) ) (
                 '\n'.join( [
                     '\n'.join( [ ','.join( [

@@ -204,7 +204,8 @@ def compartmentPlot(
     return ax
 
 def compositionPlot(
-        file_name, data, populations=[], type_of_composition='Pathogens',
+        file_name, data, composition_dataframe=None,
+        populations=[], type_of_composition='Pathogens',
         hosts=True, vectors=False, num_top_sequences=7,
         track_specific_sequences=[], genomic_positions=[],
         count_individuals_based_on_model=None, save_data_to_file="",
@@ -226,6 +227,8 @@ def compositionPlot(
     data -- dataframe with model history as produced by saveToDf function
 
     Keyword arguments:
+    composition_dataframe -- output of compositionDf() if already computed
+        (Pandas DataFrame, None by default)
     populations -- IDs of populations to include in analysis; if empty, uses all
         populations in model (default empty list; list of Strings)
     type_of_composition -- field of data to count totals of, can be either
@@ -267,14 +270,18 @@ def compositionPlot(
     axis object for plot with model sequence composition dynamics as described
     """
 
-    comp = compositionDf(
-        data, populations=populations, type_of_composition=type_of_composition,
-        hosts=hosts, vectors=vectors, num_top_sequences=num_top_sequences,
-        track_specific_sequences=track_specific_sequences,
-        genomic_positions=genomic_positions,
-        count_individuals_based_on_model=count_individuals_based_on_model,
-        save_to_file=save_data_to_file
-        )
+    if compositionDataFrame is None:
+        comp = compositionDf(
+            data, populations=populations,
+            type_of_composition=type_of_composition,
+            hosts=hosts, vectors=vectors, num_top_sequences=num_top_sequences,
+            track_specific_sequences=track_specific_sequences,
+            genomic_positions=genomic_positions,
+            count_individuals_based_on_model=count_individuals_based_on_model,
+            save_to_file=save_data_to_file
+            )
+    else:
+        comp = compositionDataFrame
 
     if comp.shape[1] > 1:
         plt.figure(figsize=figsize, dpi=dpi)

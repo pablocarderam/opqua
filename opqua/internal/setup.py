@@ -6,6 +6,7 @@ class Setup(object):
 
     def __init__(
             self,
+            id,
             num_loci, possible_alleles,
             fitnessHost, contactHost, receiveContactHost, lethalityHost,
             natalityHost, recoveryHost, migrationHost,
@@ -29,6 +30,7 @@ class Setup(object):
         """Create a new Setup.
 
         Arguments:
+        id -- key of the Setup inside model dictionary (String)
         num_loci -- length of each pathogen genome string (int > 0)
         possible_alleles -- set of possible characters in all genome string, or
             at each position in genome string (String or list of Strings with
@@ -147,6 +149,9 @@ class Setup(object):
         """
 
         super(Setup, self).__init__()
+
+        self.id = id
+
         self.num_loci = num_loci
         if isinstance(possible_alleles, list):
             self.possible_alleles = possible_alleles

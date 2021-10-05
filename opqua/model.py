@@ -4,6 +4,8 @@
 import numpy as np
 import pandas as pd
 import textdistance as td
+import itertools as it
+import copy as cp
 import seaborn as sns
 import joblib as jl
 
@@ -49,7 +51,8 @@ class Model(object):
     newSetup -- creates a new Setup, save it in setups dict under given name
     newIntervention -- creates a new intervention executed during simulation
     run -- simulates model for a specified length of time
-    run_replicates -- simulate replicates of a model, save only end results
+    runReplicates -- simulate replicates of a model, save only end results
+    runParamSweep -- simulate parameter sweep with a model, save only end results
     copyState -- returns a slimmed-down version of the current model state
 
     --- Data Output and Plotting: ---
@@ -64,6 +67,8 @@ class Model(object):
     pathogenDistanceHistory -- get pairwise distances for pathogen genomes
     getGenomeTimes -- create DataFrame with times genomes first appeared during
         simulation
+    getCompositionData -- create dataframe with counts for pathogen genomes or
+        resistance
 
     --- Model interventions: ---
 
@@ -505,6 +510,7 @@ class Model(object):
             protection_upon_recovery_vector = protection_upon_recovery_vector
 
         self.setups[name] = Setup(
+            name,
             num_loci, possible_alleles,
             fitnessHost, contactHost, receiveContactHost, lethalityHost,
             natalityHost, recoveryHost, migrationHost,
@@ -567,7 +573,8 @@ class Model(object):
             t0, tf, time_sampling, host_sampling, vector_sampling
             )
 
-    def run_replicates(self,t0,tf,replicates,host_sampling=0,vector_sampling=0):
+    def runReplicates(
+            self,t0,tf,replicates,host_sampling=0,vector_sampling=0,n_cores=0):
         """Simulate replicates of a model, save only end results.
 
         Simulates replicates of a time series using the Gillespie algorithm.
@@ -587,19 +594,154 @@ class Model(object):
         vector_sampling -- how many vectors to skip before saving one in a
             snapshot of the system state (saves all by default)
             (int >= 0, default 0)
+        n_cores -- number of cores to parallelize file export across, if 0, all
+            cores available are used (default 0; int >= 0)
+
+        Returns:
+        List of Model objects with the final snapshots
         """
+
+        if not n_cores:
+            n_cores = jl.cpu_count()
 
         print('Starting parallel simulations...')
 
-        def run():
+        def run(sim_num):
             sim = Gillespie(self)
-            return sim.run(
+            mod = sim.run(
                 t0,tf,time_sampling=-1,
                 host_sampling=host_sampling,vector_sampling=vector_sampling
-                )
+                )[tf]
+            mod.history = { tf:mod }
+            return mod
 
         return jl.Parallel(n_jobs=n_cores, verbose=10) (
             jl.delayed( run ) (_) for _ in range(replicates)
+            )
+
+    def runParamSweep(
+            self,t0,tf,setup_id,
+            param_sweep_dic={},
+            host_migration_sweep_dic={}, vector_migration_sweep_dic={},
+            host_population_contact_sweep_dic={},
+            vector_population_contact_sweep_dic={},
+            replicates=1,host_sampling=0,vector_sampling=0,n_cores=0):
+        """Simulate a parameter sweep with a model, save only end results.
+
+        Simulates variations of a time series using the Gillespie algorithm.
+
+        Saves a dictionary containing model end state state, with keys=times and
+        values=Model objects with model snapshot. The time is the final
+        timepoint.
+
+        Arguments:
+        t0 -- initial time point to start simulation at (number >= 0)
+        tf -- initial time point to end simulation at (number >= 0)
+        pop_id -- ID of population to be modified (String)
+        setup_id -- ID of setup to be assigned (String)
+        param_sweep_dic -- dictionary with keys=parameter names (attributes of
+            Setup), values=list of values for parameter (list, class of elements
+            depends on parameter)
+        host_migration_sweep_dic -- dictionary with keys=population IDs of
+            origin and destination, separated by a colon ';' (Strings),
+            values=list of values (list of numbers)
+        vector_migration_sweep_dic -- dictionary with keys=population IDs of
+            origin and destination, separated by a colon ';' (Strings),
+            values=list of values (list of numbers)
+        host_population_contact_sweep_dic -- dictionary with keys=population IDs
+            of origin and destination, separated by a colon ';' (Strings),
+            values=list of values (list of numbers)
+        vector_population_contact_sweep_dic -- dictionary with keys=population
+            IDs of origin and destination, separated by a colon ';' (Strings),
+            values=list of values (list of numbers)
+
+        Keyword arguments:
+        replicates -- how many replicates to simulate (int >= 1)
+        host_sampling -- how many hosts to skip before saving one in a snapshot
+            of the system state (saves all by default) (int >= 0, default 0)
+        vector_sampling -- how many vectors to skip before saving one in a
+            snapshot of the system state (saves all by default)
+            (int >= 0, default 0)
+        n_cores -- number of cores to parallelize file export across, if 0, all
+            cores available are used (default 0; int >= 0)
+
+        Returns:
+        List of Model objects with the final snapshots
+        """
+
+        if not n_cores:
+            n_cores = jl.cpu_count()
+
+        for p in host_migration_sweep_dic:
+            param_sweep_dic['migrate_host:'+p] = migration_sweep_dic[p]
+
+        for p in vector_migration_sweep_dic:
+            param_sweep_dic['migrate_vector:'+p] = migration_sweep_dic[p]
+
+        for p in host_population_contact_sweep_dic:
+            param_sweep_dic['population_contact_host:'+p] \
+                = host_contact_sweep_dic[p]
+
+        for p in vector_population_contact_sweep_dic:
+            param_sweep_dic['population_contact_vector:'+p] \
+                = vector_contact_sweep_dic[p]
+
+        if len(param_sweep_dic) == 0:
+            raise ValueError(
+                'param_sweep_dic, host_migration_sweep_dic, vector_migration_sweep_dic, host_population_contact_sweep_dic, and vector_population_contact_sweep_dic cannot all be empty in runParamSweep()'
+                )
+
+        params = param_sweep_dic.keys()
+        value_lists = [ param_sweep_dic[param] for param in params ]
+        combinations = list( it.product( *value_lists ) ) * replicates
+
+        param_df = pd.DataFrame(combinations)
+        param_df.columns = params
+        results = {}
+
+        print('Starting parallel simulations...')
+
+        def run(param_values):
+            model = cp.deepcopy(self)
+            for i,param_name in enumerate(params):
+                if ':' in param_name:
+                    pops = param_name.split(':')[1].split(';')
+                    if 'migrate_host:' in param_name:
+                        model.linkPopulationsHostMigration(
+                            pops[0],pops[1],params[param_name]
+                            )
+                    elif 'migrate_vector:' in param_name:
+                        model.linkPopulationsVectorMigration(
+                            pops[0],pops[1],params[param_name]
+                            )
+                    elif 'population_contact_host:' in param_name:
+                        model.linkPopulationsHostContact(
+                            pops[0],pops[1],params[param_name]
+                            )
+                    elif 'population_contact_vector:' in param_name:
+                        model.linkPopulationsVectorContact(
+                            pops[0],pops[1],params[param_name]
+                            )
+                else:
+                    setattr(model.setups[setup_id],param_name,param_values[i])
+
+            for name,pop in model.populations.items():
+                pop.setSetup( model.setups[pop.setup.id] )
+
+            sim = Gillespie(model)
+            mod = sim.run(
+                t0,tf,time_sampling=-1,
+                host_sampling=host_sampling,vector_sampling=vector_sampling
+                )[tf]
+            mod.history = { tf:mod }
+            return mod
+
+        return (
+            param_df,
+            jl.Parallel(n_jobs=n_cores, verbose=10) (
+                jl.delayed( run ) (param_values)
+                    for param_values in combinations
+                )
             )
 
     def copyState(self,host_sampling=0,vector_sampling=0):
@@ -628,7 +770,7 @@ class Model(object):
 
     ### Output and Plots: ###
 
-    def saveToDataFrame(self,save_to_file,n_cores=0):
+    def saveToDataFrame(self,save_to_file,n_cores=0,verbose=10):
         """Save status of model to dataframe, write to file location given.
 
         Creates a pandas Dataframe in long format with the given model history,
@@ -652,7 +794,7 @@ class Model(object):
         pandas dataframe with model history as described above
         """
 
-        data = saveToDf(self.history,save_to_file,n_cores)
+        data = saveToDf(self.history,save_to_file,n_cores,verbose=verbose)
 
         return data
 
@@ -801,7 +943,7 @@ class Model(object):
             )
 
     def compositionPlot(
-            self, file_name, data, populations=[],
+            self, file_name, data, composition_dataframe=None, populations=[],
             type_of_composition='Pathogens', hosts=True, vectors=False,
             num_top_sequences=7, track_specific_sequences=[],
             save_data_to_file="", x_label='Time', y_label='Infections',
@@ -824,6 +966,8 @@ class Model(object):
         data -- dataframe with model history as produced by saveToDf function
 
         Keyword arguments:
+        composition_dataframe -- output of compositionDf() if already computed
+            (Pandas DataFrame, None by default)
         populations -- IDs of populations to include in analysis; if empty, uses
             all populations in model (default empty list; list of Strings)
         type_of_composition -- field of data to count totals of, can be either
@@ -868,7 +1012,8 @@ class Model(object):
         """
 
         return compositionPlot(
-            file_name, data, populations=populations,
+            file_name, data,
+            composition_dataframe=composition_dataframe,populations=populations,
             type_of_composition=type_of_composition, hosts=hosts,
             vectors=vectors, num_top_sequences=num_top_sequences,
             track_specific_sequences=track_specific_sequences,
@@ -990,6 +1135,73 @@ class Model(object):
             samples=samples, num_top_sequences=num_top_sequences,
             track_specific_sequences=track_specific_sequences,
             seq_names=seq_names, n_cores=n_cores, save_to_file=save_to_file)
+
+
+    def getCompositionData(
+            self, data=None, populations=[], type_of_composition='Pathogens',
+            hosts=True, vectors=False, num_top_sequences=-1,
+            track_specific_sequences=[], genomic_positions=[],
+            count_individuals_based_on_model=None, save_data_to_file="", n_cores=0):
+        """Create dataframe with counts for pathogen genomes or resistance.
+
+        Creates a pandas Dataframe with dynamics of the pathogen strains or
+        protection sequences across selected populations in the model,
+        with one time point in each row and columns for pathogen genomes or
+        protection sequences.
+
+        Of note: sum of totals for all sequences in one time point does not
+        necessarily equal the number of infected hosts and/or vectors, given
+        multiple infections in the same host/vector are counted separately.
+
+        Keyword arguments:
+        data -- dataframe with model history as produced by saveToDf function;
+            if None, computes this dataframe and saves it under
+            'raw_data_'+save_data_to_file (DataFrame, default None)
+        populations -- IDs of populations to include in analysis; if empty, uses
+            all populations in model (default empty list; list of Strings)
+        type_of_composition -- field of data to count totals of, can be either
+            'Pathogens' or 'Protection' (default 'Pathogens'; String)
+        hosts -- whether to count hosts (default True, Boolean)
+        vectors -- whether to count vectors (default False, Boolean)
+        num_top_sequences -- how many sequences to count separately and include
+            as columns, remainder will be counted under column "Other"; if <0,
+            includes all genomes in model (default -1; int)
+        track_specific_sequences -- contains specific sequences to have
+            as a separate column if not part of the top num_top_sequences
+            sequences (default empty list; list of Strings)
+        genomic_positions -- list in which each element is a list with loci
+            positions to extract (e.g. genomic_positions=[ [0,3], [5,6] ]
+            extracts positions 0, 1, 2, and 5 from each genome); if empty, takes
+            full genomes(default empty list; list of lists of int)
+        count_individuals_based_on_model -- Model object with populations and
+            fitness functions used to evaluate the most fit pathogen genome in
+            each host/vector in order to count only a single pathogen per
+            host/vector, asopposed to all pathogens within each host/vector; if
+            None, counts all pathogens (default None; None or Model)
+        save_data_to_file -- file path and name to save model data under, no
+            saving occurs if empty string (default ''; String)
+        n_cores -- number of cores to parallelize processing across, if 0, all
+            cores available are used (default 0; int)
+
+        Returns:
+        pandas dataframe with model sequence composition dynamics as described
+            above
+        """
+
+        if data is None:
+            data = saveToDf(
+                self.history,'raw_data_'+save_to_file,n_cores,verbose=verbose
+                )
+
+        return compositionDf(
+            data, populations=populations,
+            type_of_composition=type_of_composition,
+            hosts=hosts, vectors=vectors, num_top_sequences=num_top_sequences,
+            track_specific_sequences=track_specific_sequences,
+            genomic_positions=genomic_positions,
+            count_individuals_based_on_model=count_individuals_based_on_model,
+            save_to_file=save_data_to_file
+            )
 
     ### Model interventions: ###
 
@@ -1204,7 +1416,6 @@ class Model(object):
         """Return a list of random vectors in population.
 
         Arguments:
-        pop_id -- ID of population to be modified (String)
         pop_id -- ID of population to be sampled from (String)
         group_id -- ID to name group with (String)
 

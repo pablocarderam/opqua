@@ -1,6 +1,18 @@
 
 # Opqua Changelog
 
+## v0.2.3
+## 5 Oct 2021
+- added parameter sweep function runParamSweep()
+- added id property and argument to Setup() in order to associate a Setup to its
+ID in a Model, so that runParamSweep() can edit the setups
+- added getCompositionData() function to Model class to allow user output
+composition data without plotting compartments
+- fixed bug in how runReplicates() computed and return output
+- added verbose optional argument to saveToDf() to reduce console output
+- added composition_dataframe optional argument to allow for pre-computed data
+- added setup.cfg as per [Joel Barmettler](https://medium.com/@joel.barmettler/how-to-upload-your-python-package-to-pypi-65edc5fe9c56) I guess?
+
 ## v0.2.2
 ## 21 July 2021
 - change compositionPLot remove_legend behavior to fix bug

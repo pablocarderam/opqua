@@ -17,7 +17,7 @@ _Taken from D. F. Gómez Aldana's
 - [Requirements and Installation](#requirements-and-installation)
 - [Usage](#usage)
 - [How Does Opqua Work?](#how-does-opqua-work)
-- [Opqua Model Documentation](#opqua-model-documentation)
+- [Model Documentation](#opqua-model-documentation)
 
 ## About
 
@@ -151,7 +151,7 @@ For more example usage, have a look at the `examples` folder. For an overview
 of how Opqua models work, check out the
 [How Does Opqua Work?](#how-does-opqua-work) section.
 For more information on the details of each function, head over to the
-[Opqua Model Documentation](#opqua-model-documentation) section.
+[Model Documentation](#opqua-model-documentation) section.
 
 ## How Does Opqua Work?
 
@@ -336,7 +336,7 @@ compartments (naive, infected, recovered, and dead) across simulation time
 
 Users can also use the data output formats to make their own custom plots.
 
-## Opqua Model Documentation
+## Model Documentation
 
 All usage is handled through the Opqua `Model` class.
 The `Model` class contains populations, setups, and interventions to be used
@@ -374,8 +374,10 @@ given name
 - [newIntervention](#newintervention) -- creates a new intervention executed
 during simulation
 - [run](#run) -- simulates model for a specified length of time
-- [run_replicates](#run_replicates) -- simulate replicates of a model, save only
+- [runReplicates](#runReplicates) -- simulate replicates of a model, save only
 end results
+- [runParamSweep](#runParamSweep) -- simulate parameter sweep with a model, save
+only end results
 
 #### Data Output and Plotting ###
 
@@ -397,6 +399,8 @@ given data
 distances for pathogen genomes at different times
 - [getGenomeTimes](#getGenomeTimes) -- create DataFrame with times genomes first
 appeared during simulation
+- [getCompositionData](#getCompositionData) -- create dataframe with counts for
+      pathogen genomes or resistance
 
 #### Model interventions ###
 
@@ -747,10 +751,10 @@ _Arguments:_
 - vector_sampling -- how many vectors to skip before saving one in a  
     snapshot of the system state (saves all by default) (int, default 0)
 
-#### run_replicates
+#### runReplicates
 
 ```python
-run_replicates(t0,tf,replicates,host_sampling=0,vector_sampling=0):
+runReplicates(t0,tf,replicates,host_sampling=0,vector_sampling=0):
 ```
 
 
@@ -773,6 +777,60 @@ _Keyword arguments:_
 - vector_sampling -- how many vectors to skip before saving one in a
     snapshot of the system state (saves all by default)
     (int >= 0, default 0)
+
+Returns:
+List of Model objects with the final snapshots
+
+#### runParamSweep
+
+```python
+runParamSweep(
+t0,tf,setup_id,param_sweep_dic,
+replicates=1,host_sampling=0,vector_sampling=0,n_cores=0):
+```
+
+
+Simulate a parameter sweep with a model, save only end results.
+
+Simulates variations of a time series using the Gillespie algorithm.
+
+Saves a dictionary containing model end state state, with keys=times and
+values=Model objects with model snapshot. The time is the final
+timepoint.
+
+_Arguments:_
+- t0 -- initial time point to start simulation at (number >= 0)
+- tf -- initial time point to end simulation at (number >= 0)
+- pop_id -- ID of population to be modified (String)
+- setup_id -- ID of setup to be assigned (String)
+- param_sweep_dic -- dictionary with keys=parameter names (attributes of
+    Setup), values=list of values for parameter (list, class of elements
+    depends on parameter)
+- host_migration_sweep_dic -- dictionary with keys=population IDs of
+    origin and destination, separated by a colon ';' (Strings),
+    values=list of values (list of numbers)
+- vector_migration_sweep_dic -- dictionary with keys=population IDs of
+    origin and destination, separated by a colon ';' (Strings),
+    values=list of values (list of numbers)
+- host_population_contact_sweep_dic -- dictionary with keys=population IDs
+    of origin and destination, separated by a colon ';' (Strings),
+    values=list of values (list of numbers)
+- vector_population_contact_sweep_dic -- dictionary with keys=population
+    IDs of origin and destination, separated by a colon ';' (Strings),
+    values=list of values (list of numbers)
+
+_Keyword Arguments:_
+- replicates -- how many replicates to simulate (int >= 1)
+- host_sampling -- how many hosts to skip before saving one in a snapshot
+    of the system state (saves all by default) (int >= 0, default 0)
+- vector_sampling -- how many vectors to skip before saving one in a
+    snapshot of the system state (saves all by default)
+    (int >= 0, default 0)
+- n_cores -- number of cores to parallelize file export across, if 0, all
+    cores available are used (default 0; int >= 0)
+
+_Returns:_
+- List of Model objects with the final snapshots
 
 #### saveToDataFrame
 
@@ -802,6 +860,60 @@ _Keyword Arguments:_
 
 _Returns:_
 - pandas dataframe with model history as described above
+
+#### getCompositionData
+
+```python
+getCompositionData(
+    data=None, populations=[], type_of_composition='Pathogens',
+    hosts=True, vectors=False, num_top_sequences=-1,
+    track_specific_sequences=[], genomic_positions=[],
+    count_individuals_based_on_model=None, save_data_to_file="", n_cores=0):
+```
+Create dataframe with counts for pathogen genomes or resistance.
+
+Creates a pandas Dataframe with dynamics of the pathogen strains or
+protection sequences across selected populations in the model,
+with one time point in each row and columns for pathogen genomes or
+protection sequences.
+
+Of note: sum of totals for all sequences in one time point does not
+necessarily equal the number of infected hosts and/or vectors, given
+multiple infections in the same host/vector are counted separately.
+
+_Keyword Arguments:_
+- data -- dataframe with model history as produced by saveToDf function;
+    if None, computes this dataframe and saves it under
+    'raw_data_'+save_data_to_file (DataFrame, default None)
+- populations -- IDs of populations to include in analysis; if empty, uses
+    all populations in model (default empty list; list of Strings)
+- type_of_composition -- field of data to count totals of, can be either
+    'Pathogens' or 'Protection' (default 'Pathogens'; String)
+- hosts -- whether to count hosts (default True, Boolean)
+- vectors -- whether to count vectors (default False, Boolean)
+- num_top_sequences -- how many sequences to count separately and include
+    as columns, remainder will be counted under column "Other"; if <0,
+    includes all genomes in model (default -1; int)
+- track_specific_sequences -- contains specific sequences to have
+    as a separate column if not part of the top num_top_sequences
+    sequences (default empty list; list of Strings)
+- genomic_positions -- list in which each element is a list with loci
+    positions to extract (e.g. genomic_positions=[ [0,3], [5,6] ]
+    extracts positions 0, 1, 2, and 5 from each genome); if empty, takes
+    full genomes(default empty list; list of lists of int)
+- count_individuals_based_on_model -- Model object with populations and
+    fitness functions used to evaluate the most fit pathogen genome in
+    each host/vector in order to count only a single pathogen per
+    host/vector, asopposed to all pathogens within each host/vector; if
+    None, counts all pathogens (default None; None or Model)
+- save_data_to_file -- file path and name to save model data under, no
+    saving occurs if empty string (default ''; String)
+- n_cores -- number of cores to parallelize processing across, if 0, all
+    cores available are used (default 0; int)
+
+_Returns:_
+- pandas dataframe with model sequence composition dynamics as described
+    above
 
 #### getPathogens
 
@@ -952,7 +1064,7 @@ _Returns:_
 
 ```python
 compositionPlot(
-file_name, data, populations=[],
+file_name, data, compositionDataFrame=None, populations=[],
 type_of_composition='Pathogens', hosts=True, vectors=False,
 num_top_sequences=7, track_specific_sequences=[],
 save_data_to_file="", x_label='Time', y_label='Infections',
@@ -976,6 +1088,8 @@ _Arguments:_
 - data -- dataframe with model history as produced by saveToDf function
 
 _Keyword Arguments:_
+- compositionDataFrame -- output of compositionDf() if already computed
+      (Pandas DataFrame, None by default)
 - populations -- IDs of populations to include in analysis; if empty, uses
 - all populations in model (default empty list; list of Strings)
 - type_of_composition -- field of data to count totals of, can be either
