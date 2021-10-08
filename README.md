@@ -362,6 +362,45 @@ You can find a detailed account of everything `Model` does in the
 - groups -- dictionary with keys=group IDs, values=lists of hosts/vectors
 - history -- dictionary with keys=time values, values=Model objects that
     are snapshots of Model at that timepoint
+- global_trackers -- dictionary keeping track of some global indicators over all
+    the course of the simulation
+- custom_condition_trackers -- dictionary with keys=ID of custom condition,
+    values=functions that take a Model object as argument and return True or
+    False; every time True is returned by a function in
+    custom_condition_trackers, the simulation time will be stored under the
+    corresponding ID inside global_trackers['custom_condition']
+
+The dictionary global_trackers contains the following keys:
+- num_events: dictionary with the number of each kind of event in the simulation
+- last_event_time: time point at which the last event in the simulation happened
+- genomes_seen: list of all unique genomes that have appeared in the
+    simulation
+- custom_conditions: dictionary with keys=ID of custom condition, values=lists
+    of times; every time True is returned by a function in
+    custom_condition_trackers, the simulation time will be stored under the
+    corresponding ID inside global_trackers['custom_condition']
+
+The dictionary num_events inside of global_trackers contains the following keys:
+- MIGRATE_HOST
+- MIGRATE_VECTOR
+- POPULATION_CONTACT_HOST_HOST
+- POPULATION_CONTACT_HOST_VECTOR
+- POPULATION_CONTACT_VECTOR_HOST
+- CONTACT_HOST_HOST
+- CONTACT_HOST_VECTOR
+- CONTACT_VECTOR_HOST
+- RECOVER_HOST
+- RECOVER_VECTOR
+- MUTATE_HOST
+- MUTATE_VECTOR
+- RECOMBINE_HOST
+- RECOMBINE_VECTOR
+- KILL_HOST
+- KILL_VECTOR
+- DIE_HOST
+- DIE_VECTOR
+- BIRTH_HOST
+- BIRTH_VECTOR
 
 ### Model class methods list
 
@@ -725,6 +764,25 @@ _Arguments:_
 - function -- intervention to be carried out (method of class Model)
 - args -- contains arguments for function in positinal order (array-like)
 
+#### addCustomConditionTracker
+```python
+addCustomConditionTracker(condition_id, trackerFunction):
+```
+
+
+Add a function to track occurrences of custom events in simulation.
+
+Adds function trackerFunction to dictionary custom_condition_trackers
+under key condition_id. Function trackerFunction will be executed at
+every event in the simulation. Every time True is returned,
+the simulation time will be stored under the corresponding condition_id
+key inside global_trackers['custom_condition']
+
+_Arguments:_
+- condition_id -- ID of this specific condition (String)
+- trackerFunction -- function that take a Model object as argument and
+    returns True or False; (Function)
+
 #### run
 
 ```python
@@ -1069,7 +1127,7 @@ _Returns:_
 
 ```python
 compositionPlot(
-file_name, data, compositionDataFrame=None, populations=[],
+file_name, data, composition_dataframe=None, populations=[],
 type_of_composition='Pathogens', hosts=True, vectors=False,
 num_top_sequences=7, track_specific_sequences=[],
 save_data_to_file="", x_label='Time', y_label='Infections',
@@ -1093,7 +1151,7 @@ _Arguments:_
 - data -- dataframe with model history as produced by saveToDf function
 
 _Keyword Arguments:_
-- compositionDataFrame -- output of compositionDf() if already computed
+- composition_dataframe -- output of compositionDf() if already computed
       (Pandas DataFrame, None by default)
 - populations -- IDs of populations to include in analysis; if empty, uses
 - all populations in model (default empty list; list of Strings)

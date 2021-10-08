@@ -106,10 +106,11 @@ class Population(object):
 
     CHROMOSOME_SEPARATOR = '/'
 
-    def __init__(self, id, setup, num_hosts, num_vectors, slim=False):
+    def __init__(self, model, id, setup, num_hosts, num_vectors, slim=False):
         """Create a new Population.
 
         Arguments:
+        model -- parent model this population is a part of (Model)
         id -- unique identifier for this population in the model (String)
         setup -- setup object with parameters for this population (Setup)
         num_hosts -- number of hosts to initialize population with (int)
@@ -122,6 +123,7 @@ class Population(object):
         """
         super(Population, self).__init__()
 
+        self.model = model
         self.id = id
 
         if not slim:
@@ -215,13 +217,13 @@ class Population(object):
         Population object with current host and vector lists.
         """
 
-        copy = Population(self.id, None, 0, 0, slim=True)
+        copy = Population(self.model, self.id, None, 0, 0, slim=True)
         if host_sampling > 0:
             host_sample = random.sample(
-                self.hosts, int( len(self.hosts) / host_sampling )
+                self.hosts, int( len(self.hosts) / (host_sampling+1) )
                 )
             dead_host_sample = random.sample(
-                self.dead_hosts, int( len(self.dead_hosts) / host_sampling )
+                self.dead_hosts, int( len(self.dead_hosts) / (host_sampling+1) )
                 )
             copy.hosts = [ h.copyState() for h in host_sample ]
             copy.dead_hosts = [ h.copyState() for h in dead_host_sample ]
@@ -231,10 +233,10 @@ class Population(object):
 
         if vector_sampling > 0:
             vector_sample = random.sample(
-                self.vectors, int( len(self.vectors) / vector_sampling )
+                self.vectors, int( len(self.vectors) / (vector_sampling+1) )
                 )
             dead_vector_sample = random.sample(
-                self.dead_vectors, int( len(self.dead_vectors)/vector_sampling )
+                self.dead_vectors,int(len(self.dead_vectors)/(vector_sampling+1))
                 )
             copy.vectors = [ v.copyState() for v in vector_sample ]
             copy.dead_vectors = [ v.copyState() for v in dead_vector_sample ]
@@ -551,7 +553,7 @@ class Population(object):
             hosts = self.hosts
 
         for genome in genomes_numbers:
-            if len(genome) == self.num_loci and all( [
+            if len(genome) == self.num_loci and genomes_numbers[genome]>0 and all( [
                 allele in self.possible_alleles[i] + self.CHROMOSOME_SEPARATOR
                     for i,allele in enumerate(genome)
                 ] ):
@@ -561,6 +563,9 @@ class Population(object):
 
                 for host in rand_hosts:
                     host.acquirePathogen(genome)
+
+                if genome not in self.model.global_trackers['genomes_seen']:
+                    self.model.global_trackers['genomes_seen'].append(genome)
 
             else:
                 raise ValueError('Genome ' + genome + ' must be of length '
@@ -587,7 +592,7 @@ class Population(object):
             vectors = self.vectors
 
         for genome in genomes_numbers:
-            if len(genome) == self.num_loci and all( [
+            if len(genome) == self.num_loci and genomes_numbers[genome]>0 and all( [
                 allele in self.possible_alleles[i] + self.CHROMOSOME_SEPARATOR
                     for i,allele in enumerate(genome)
                 ] ):
@@ -597,6 +602,9 @@ class Population(object):
 
                 for vector in rand_vectors:
                     vector.acquirePathogen(genome)
+
+                if genome not in self.model.global_trackers['genomes_seen']:
+                    self.model.global_trackers['genomes_seen'].append(genome)
 
             else:
                 raise ValueError('Genome ' + genome + ' must be of length '

@@ -82,12 +82,13 @@ class Vector(object):
 
         self.pathogens[genome] = self.population.fitnessVector(genome)
         old_sum_fitness = self.sum_fitness
+        sum_fitness_denom = self.sum_fitness if self.sum_fitness > 0 else 1
         self.sum_fitness += self.pathogens[genome]
         self.population.coefficients_vectors[self.coefficient_index,:] = (
             self.population.coefficients_vectors[
                 self.coefficient_index,:
                 ]
-            * old_sum_fitness / self.sum_fitness ) + ( np.array([
+            * old_sum_fitness / sum_fitness_denom ) + ( np.array([
                     # positions dependent on class constants
                 0,
                 self.population.contactVector(genome),
@@ -100,7 +101,7 @@ class Vector(object):
                 self.population.receivePopulationContactVector(genome),
                 self.population.mutationVector(genome),
                 self.population.recombinationVector(genome)
-            ]) * self.pathogens[genome] / self.sum_fitness )
+            ]) * self.pathogens[genome] / sum_fitness_denom )
 
         self.population.coefficients_vectors[
             self.coefficient_index,self.population.INFECTED
@@ -291,6 +292,9 @@ class Vector(object):
             if new_genome not in self.pathogens:
                 self.acquirePathogen(new_genome)
 
+            if new_genome not in self.population.model.global_trackers['genomes_seen']:
+                self.population.model.global_trackers['genomes_seen'].append(new_genome)
+
     def recombine(self,rand):
         """Recombine two random pathogen genomes at random locus.
 
@@ -334,6 +338,9 @@ class Vector(object):
         for new_genome in children:
             if new_genome not in self.pathogens:
                 self.acquirePathogen(new_genome)
+
+            if new_genome not in self.population.model.global_trackers['genomes_seen']:
+                self.population.model.global_trackers['genomes_seen'].append(new_genome)
 
     def getWeightedRandomGenome(self, rand, r):
         """Returns index of element chosen from weights and given random number.

@@ -45,6 +45,29 @@ class Gillespie(object):
     BIRTH_HOST = 18
     BIRTH_VECTOR = 19
 
+    EVENT_IDS = { # must match above
+        0:'MIGRATE_HOST',
+        1:'MIGRATE_VECTOR',
+        2:'POPULATION_CONTACT_HOST_HOST',
+        3:'POPULATION_CONTACT_HOST_VECTOR',
+        4:'POPULATION_CONTACT_VECTOR_HOST',
+        5:'CONTACT_HOST_HOST',
+        6:'CONTACT_HOST_VECTOR',
+        7:'CONTACT_VECTOR_HOST',
+        8:'RECOVER_HOST',
+        9:'RECOVER_VECTOR',
+        10:'MUTATE_HOST',
+        11:'MUTATE_VECTOR',
+        12:'RECOMBINE_HOST',
+        13:'RECOMBINE_VECTOR',
+        14:'KILL_HOST',
+        15:'KILL_VECTOR',
+        16:'DIE_HOST',
+        17:'DIE_VECTOR',
+        18:'BIRTH_HOST',
+        19:'BIRTH_VECTOR'
+        }
+
     def __init__(self, model):
         """Create a new Gillespie simulation object.
 
@@ -511,6 +534,8 @@ class Gillespie(object):
             pop.birthVector(rand)
             changed = True
 
+        self.model.global_trackers['num_events'][self.EVENT_IDS[act]] += 1
+
         return changed
 
     def run(self,t0,tf,time_sampling=0,host_sampling=0,vector_sampling=0,
@@ -539,7 +564,10 @@ class Gillespie(object):
 
         # Simulation variables
         t_var = t0 # keeps track of time
-        history = { 0: cp.deepcopy(self.model) }
+        history = { 0: self.model.copyState(
+            host_sampling=host_sampling,
+            vector_sampling=vector_sampling
+            ) }
         intervention_tracker = 0
             # keeps track of what the next intervention should be
         self.model.interventions = sorted(
@@ -623,13 +651,23 @@ class Gillespie(object):
                                         ], ( u - r_cum + r[e,p] ) / r[e,p]
                                     ) # do corresponding action,
                                       # feed in renormalized random number
-                                if changed and time_sampling >= 0:
-                                        # if state changed and saving history,
-                                        # saves history at correct intervals
-                                    sampling_counter += 1
-                                    if sampling_counter > time_sampling:
-                                        sampling_counter = 0
-                                        history[t_var] = self.model.copyState()
+
+                                if changed: # if model state changed
+                                    # update custom condition trackers
+                                    for condition in self.model.custom_condition_trackers:
+                                        if self.model.custom_condition_trackers[condition](self.model):
+                                            self.model.global_trackers['custom_conditions'][condition].append(t_var)
+
+                                    if time_sampling >= 0:
+                                            # if state changed and saving history,
+                                            # saves history at correct intervals
+                                        sampling_counter += 1
+                                        if sampling_counter > time_sampling:
+                                            sampling_counter = 0
+                                            history[t_var] = self.model.copyState(
+                                                host_sampling=host_sampling,
+                                                vector_sampling=vector_sampling
+                                                )
 
                                 break # exit event loop
 
@@ -655,7 +693,10 @@ class Gillespie(object):
                     t_var = tf
 
         print( 'Simulating time: ' + str(t_var), 'END')
-        history[tf] = cp.deepcopy(self.model)
+        history[tf] = self.model.copyState(
+            host_sampling=host_sampling,
+            vector_sampling=vector_sampling
+            )
         history[tf].history = None
 
         return history

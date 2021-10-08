@@ -271,7 +271,7 @@ def compositionPlot(
     axis object for plot with model sequence composition dynamics as described
     """
 
-    if compositionDataFrame is None:
+    if composition_dataframe is None:
         comp = compositionDf(
             data, populations=populations,
             type_of_composition=type_of_composition,
@@ -282,7 +282,7 @@ def compositionPlot(
             save_to_file=save_data_to_file, **kwargs
             )
     else:
-        comp = compositionDataFrame
+        comp = composition_dataframe
 
     if comp.shape[1] > 1:
         plt.figure(figsize=figsize, dpi=dpi)

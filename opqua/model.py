@@ -141,6 +141,29 @@ class Model(object):
         self.history = {}
             # dictionary with keys=time values, values=Model objects that are
             # snapshots of Model at that timepoint
+        self.global_trackers = {
+                # dictionary keeping track of some global indicators over all
+                # the course of the simulation
+            'num_events' : { id:0 for id in Gillespie.EVENT_IDS.values() },
+                # tracks the number of each kind of event in the simulation
+            'last_event_time' : 0,
+                # time point at which the last event in the simulation happened
+            'genomes_seen' : [],
+                # list of all unique genomes that have appeared in the
+                # simulation
+            'custom_conditions' : {}
+                # dictionary with keys=ID of custom condition, values=lists of
+                # times; every time True is returned by a function in
+                # custom_condition_trackers, the simulation time will be stored
+                # under the corresponding ID inside
+                # global_trackers['custom_condition']
+            }
+        self.custom_condition_trackers = {}
+            # dictionary with keys=ID of custom condition, values=functions that
+            # take a Model object as argument and return True or False; every
+            # time True is returned by a function in custom_condition_trackers,
+            # the simulation time will be stored under the corresponding ID
+            # inside global_trackers['custom_condition']
 
 
     ### MODEL METHODS ###
@@ -543,6 +566,24 @@ class Model(object):
         """
 
         self.interventions.append( Intervention(time, function, args) )
+
+    def addCustomConditionTracker(self, condition_id, trackerFunction):
+        """Add a function to track occurrences of custom events in simulation.
+
+        Adds function trackerFunction to dictionary custom_condition_trackers
+        under key condition_id. Function trackerFunction will be executed at
+        every event in the simulation. Every time True is returned,
+        the simulation time will be stored under the corresponding condition_id
+        key inside global_trackers['custom_condition']
+
+        Arguments:
+        condition_id -- ID of this specific condition (String)
+        trackerFunction -- function that take a Model object as argument and
+            returns True or False; (Function)
+        """
+
+        self.custom_condition_trackers['condition_id'] = trackerFunction
+        self.global_trackers['custom_conditions']['condition_id'] = []
 
     def run(self,t0,tf,time_sampling=0,host_sampling=0,vector_sampling=0):
         """Simulate model for a specified time between two time points.
@@ -1237,7 +1278,7 @@ class Model(object):
             id = id+'_2'
 
         self.populations[id] = Population(
-            id, self.setups[setup_name], num_hosts, num_vectors
+            self, id, self.setups[setup_name], num_hosts, num_vectors
             )
 
         for p in self.populations:
@@ -1364,7 +1405,7 @@ class Model(object):
 
         new_pops = [
             Population(
-                str(id_prefix) + str(i), self.setups[setup_name],
+                self, str(id_prefix) + str(i), self.setups[setup_name],
                 num_hosts, num_vectors
                 ) for i in range(num_populations)
             ]

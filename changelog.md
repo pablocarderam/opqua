@@ -1,11 +1,29 @@
 
 # Opqua Changelog
 
+## v0.2.5
+## 8 Oct 2021
+- added global_trackers dictionary to Model in order to track and return some
+      global indicators when running replicates or parameter sweeps
+- added addCustomConditionTracker() function to Model class in order to allow
+      users to track custom events in model
+- modified mutation() and recombination() in Vector and Host classes as well as
+      addPathogensToHosts() and addPathogensToVectors() in Population class in
+      order to track genomes seed for global_trackers
+- added model attribute to Population class for the above reason as well
+- fix way host and vector sampling is handled (apparently I forgot to actually
+      implement it in Gillespie and Population classes after I added the
+      arguments, haha)
+- minor bug fix: modify acquirePathogen in Vector and Host classes to avoid
+      division by zero errors when recalculating sum_fitness after it was zero
+- corrected name of compositionDataframe argument in compositionPlot() to
+      composition_dataframe
+
 ## v0.2.4
 ## 5 Oct 2021
 - fixed regex processing bug in compositionDf()
 - added **kwargs argument passing to joblib functions to allow user to change
-backend and stuff
+      backend and stuff
 
 Trying to deploy on cluster so bear with me on the updates here
 
@@ -13,13 +31,14 @@ Trying to deploy on cluster so bear with me on the updates here
 ## 5 Oct 2021
 - added parameter sweep function runParamSweep()
 - added id property and argument to Setup() in order to associate a Setup to its
-ID in a Model, so that runParamSweep() can edit the setups
+      ID in a Model, so that runParamSweep() can edit the setups
 - added getCompositionData() function to Model class to allow user output
-composition data without plotting compartments
+      composition data without plotting compartments
 - fixed bug in how runReplicates() computed and return output
 - added verbose optional argument to saveToDf() to reduce console output
 - added composition_dataframe optional argument to allow for pre-computed data
-- added setup.cfg as per [Joel Barmettler](https://medium.com/@joel.barmettler/how-to-upload-your-python-package-to-pypi-65edc5fe9c56) I guess?
+- added setup.cfg as per [Joel Barmettler](https://medium.com/@joel.barmettler/how-to-upload-your-python-package-to-pypi-65edc5fe9c56)
+      I guess?
 
 ## v0.2.2
 ## 21 July 2021
@@ -27,9 +46,9 @@ composition data without plotting compartments
 - change pathogenDistanceDf seq_names behavior to fix bug
 - reduce mean inoculum from hosts into vectors to reflect malaria cycle
 - modify infectHost and infectVector inoculation behavior so that mean_inoculum
-does not affect overall transmission rate; each infection now results in at
-least 1 pathogen transfer (if not containing and not immune to the pathogen
-genome sampled)
+      does not affect overall transmission rate; each infection now results in
+      at least 1 pathogen transfer (if not containing and not immune to the
+      pathogen genome sampled)
 
 ## v0.2.1
 ## 1 June 2021
