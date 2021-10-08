@@ -116,6 +116,10 @@ Install Opqua by running
 pip install opqua
 ```
 
+The pip installer should take care of installing the necessary packages.
+However, for reference, the versions of the packages used for opqua's
+development are saved in `requirements.txt`
+
 ## Usage
 
 To run any Opqua model (including the tutorials in the `examples/tutorials`

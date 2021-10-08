@@ -1,6 +1,16 @@
 
 # Opqua Changelog
 
+## v0.2.6
+## 8 Oct 2021
+v0.2.5 created a major bug that escaped my attention with the division by zero
+error fix.
+
+- corrected Host and Vector acquirePathogen() functions to restore correct
+      behavior
+- added a requirements.txt file purely for reference purposes in case a future
+      dependency update breaks opqua
+
 ## v0.2.5
 ## 8 Oct 2021
 - added global_trackers dictionary to Model in order to track and return some

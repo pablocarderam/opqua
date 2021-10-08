@@ -77,8 +77,8 @@ class Host(object):
         """
         self.pathogens[genome] = self.population.fitnessHost(genome)
         old_sum_fitness = self.sum_fitness
-        sum_fitness_denom = self.sum_fitness if self.sum_fitness > 0 else 1
         self.sum_fitness += self.pathogens[genome]
+        sum_fitness_denom = self.sum_fitness if self.sum_fitness > 0 else 1
         self.population.coefficients_hosts[self.coefficient_index,:] = (
             self.population.coefficients_hosts[
                 self.coefficient_index,:
