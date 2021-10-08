@@ -402,6 +402,9 @@ The dictionary num_events inside of global_trackers contains the following keys:
 - BIRTH_HOST
 - BIRTH_VECTOR
 
+KILL_HOST and KILL_VECTOR denote death due to infection, whereas DIE_HOST and
+DIE_VECTOR denote death by natural means.
+
 ### Model class methods list
 
 #### Model initialization and simulation
