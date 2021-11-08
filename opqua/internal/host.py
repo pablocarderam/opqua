@@ -99,6 +99,12 @@ class Host(object):
             ]) * self.pathogens[genome] / sum_fitness_denom )
 
         self.population.coefficients_hosts[
+            self.coefficient_index,self.population.RECOMBINATION
+            ] = self.population.coefficients_hosts[
+                self.coefficient_index,self.population.RECOMBINATION
+                ] * ( len(self.pathogens) > 1 )
+
+        self.population.coefficients_hosts[
             self.coefficient_index,self.population.INFECTED
             ] = 1
 
@@ -133,10 +139,13 @@ class Host(object):
             self.pathogens[g] / self.sum_fitness for g in genomes
             ]
 
-        for _ in range( max( np.random.poisson(
-                self.population.mean_inoculum_host
-                ), 1 ) ):
-            genome = np.random.choice( genomes, p=fitness_weights )
+        genomes_inoculated = np.unique( np.random.choice(
+            genomes, p=fitness_weights,
+            size=max(
+                np.random.poisson( self.population.mean_inoculum_host ), 1
+                )
+            ) )
+        for genome in genomes_inoculated:
             if genome not in host.pathogens.keys() and not any(
                     [ p in genome for p in host.protection_sequences ]
                     ):
@@ -172,10 +181,13 @@ class Host(object):
             self.pathogens[g] / self.sum_fitness for g in genomes
             ]
 
-        for _ in range( max( np.random.poisson(
-                self.population.mean_inoculum_vector
-                ), 1 ) ):
-            genome = np.random.choice( genomes, p=fitness_weights )
+        genomes_inoculated = np.unique( np.random.choice(
+            genomes, p=fitness_weights,
+            size=max(
+                np.random.poisson( self.population.mean_inoculum_vector ), 1
+                )
+            ) )
+        for genome in genomes_inoculated:
             if genome not in vector.pathogens.keys() and not any(
                     [ p in genome for p in vector.protection_sequences ]
                     ):
@@ -308,38 +320,39 @@ class Host(object):
         index_genome,rand = self.getWeightedRandomGenome( rand,weights )
         index_other_genome,rand = self.getWeightedRandomGenome( rand,weights )
 
-        num_evts = np.random.poisson( self.population.num_crossover_host )
-        loci = np.random.randint( 0, self.population.num_loci, num_evts )
+        if index_genome != index_other_genome:
+            num_evts = np.random.poisson( self.population.num_crossover_host )
+            loci = np.random.randint( 0, self.population.num_loci, num_evts )
 
-        children = [ genomes[index_genome], genomes[index_other_genome] ]
+            children = [ genomes[index_genome], genomes[index_other_genome] ]
 
-        for l in loci:
-            children[0] = children[0][0:l] + children[1][l:]
-            children[1] = children[1][0:l] + children[0][l:]
+            for l in loci:
+                children[0] = children[0][0:l] + children[1][l:]
+                children[1] = children[1][0:l] + children[0][l:]
 
-        children = [
-            genome.split(self.population.CHROMOSOME_SEPARATOR)
-            for genome in children
-            ]
-        parent = np.random.randint( 0, 2, len( children[0] ) )
+            children = [
+                genome.split(self.population.CHROMOSOME_SEPARATOR)
+                for genome in children
+                ]
+            parent = np.random.randint( 0, 2, len( children[0] ) )
 
-        children = [
-            self.population.CHROMOSOME_SEPARATOR.join([
-                children[ parent[i] ][i]
-                for i in range( len( children[0] ) )
-                ]),
-            self.population.CHROMOSOME_SEPARATOR.join([
-                children[ not parent[i] ][i]
-                for i in range( len( children[1] ) )
-                ])
-            ]
+            children = [
+                self.population.CHROMOSOME_SEPARATOR.join([
+                    children[ parent[i] ][i]
+                    for i in range( len( children[0] ) )
+                    ]),
+                self.population.CHROMOSOME_SEPARATOR.join([
+                    children[ not parent[i] ][i]
+                    for i in range( len( children[1] ) )
+                    ])
+                ]
 
-        for new_genome in children:
-            if new_genome not in self.pathogens:
-                self.acquirePathogen(new_genome)
+            for new_genome in children:
+                if new_genome not in self.pathogens:
+                    self.acquirePathogen(new_genome)
 
-            if new_genome not in self.population.model.global_trackers['genomes_seen']:
-                self.population.model.global_trackers['genomes_seen'].append(new_genome)
+                if new_genome not in self.population.model.global_trackers['genomes_seen']:
+                    self.population.model.global_trackers['genomes_seen'].append(new_genome)
 
     def getWeightedRandomGenome(self, rand, r):
         """Returns index of element chosen from weights and given random number.

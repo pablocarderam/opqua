@@ -290,6 +290,9 @@ class Population(object):
             # populations, so contact scales linearly with both host and vector
             # populations. If you don't want this to happen, modify the
             # population's contact rate accordingly.
+        self.transmission_efficiency_host_vector = setup.transmission_efficiency_host_vector
+        self.transmission_efficiency_vector_host = setup.transmission_efficiency_vector_host
+        self.transmission_efficiency_host_host = setup.transmission_efficiency_host_host
         self.mean_inoculum_host = setup.mean_inoculum_host
         self.mean_inoculum_vector = setup.mean_inoculum_vector
         self.recovery_rate_host = setup.recovery_rate_host
@@ -567,7 +570,7 @@ class Population(object):
                 if genome not in self.model.global_trackers['genomes_seen']:
                     self.model.global_trackers['genomes_seen'].append(genome)
 
-            else:
+            elif genomes_numbers[genome]>0:
                 raise ValueError('Genome ' + genome + ' must be of length '
                     + str(self.num_loci)
                     + ' and contain only the following characters at each '
@@ -606,7 +609,7 @@ class Population(object):
                 if genome not in self.model.global_trackers['genomes_seen']:
                     self.model.global_trackers['genomes_seen'].append(genome)
 
-            else:
+            elif genomes_numbers[genome]>0:
                 raise ValueError('Genome ' + genome + ' must be of length '
                     + str(self.num_loci)
                     + ' and contain only the following characters at each '
@@ -1269,16 +1272,3 @@ class Population(object):
             r_cum += e # add this event's rate to cumulative rate
             if u < r_cum: # if random number is under cumulative rate
                 return i-1, ( ( u - r_cum + e ) / e )
-        # sum_arr = np.cumsum( arr )
-        # if sum_arr[-1] > 0:
-        #     print(sum_arr)
-        #     rand = rand * sum_arr[-1]
-        #     print(rand)
-        #     print(rand - sum_arr)
-        #     print(np.floor(rand - sum_arr)+1)
-        #     print(np.abs( np.floor(rand - sum_arr)+1 ))
-        #     print(np.abs( np.floor(rand - sum_arr)+1 ).argmin())
-        #     idx = int( np.abs( np.floor(rand - sum_arr)+1 ).argmin() )
-        #     return idx, rand-idx
-        # else:
-        #     ERROOOOOR

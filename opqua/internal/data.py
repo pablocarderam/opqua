@@ -337,7 +337,7 @@ def compositionDf(
     else:
         dat = cp.deepcopy( data )
 
-    dat = dat[ dat['Pathogens'] != "" ]
+    dat = dat[ (dat['Pathogens'] != "") & (~dat['Pathogens'].isna()) ]
 
     if len(genomic_positions) > 0:
         print('Extracting genomic locations...')
@@ -358,25 +358,25 @@ def compositionDf(
         if type_of_composition != 'Pathogens':
             raise ValueError("Computing count_individuals_based_on_model=True is only allowed for type_of_composition='Pathogens'.")
 
-        def chooseSeq(ind):
-            if ind['Organism'] == "Host":
-                values = np.array( [
-                    model.populations[ind['Population']].fitnessHost(p)
-                    for p in ind['Pathogens'].split(';') ] )
-            elif ind['Organism'] == "Vector":
-                values = np.array( [
-                    model.populations[ind['Population']].fitnessVector(p)
-                    for p in ind['Pathogens'].split(';') ] )
+        dat['patpop'] = dat['Pathogens'].fillna('') + ':::' + dat['Population']
+        unique_patpop = dat['patpop'].unique()
 
-            dominant_pathogen = ind['Pathogens'].split(';')[ values.argmax() ]
-            return dominant_pathogen
+        for i,combination in enumerate(unique_patpop):
+            print( str(i) + ' / ' + str(len(unique_patpop)) + ' combinations' )
+            gen_str,pop = combination.split(':::')
+            if gen_str != '':
+                genomes = gen_str.split(';')
+                values = np.array( [
+                    model.populations[pop].fitnessHost(p)
+                    for p in genomes ] )
+                dominant_pathogen = genomes[ np.argmax(values) ]
+                dat['patpop'] = dat['patpop'].replace(
+                    combination, dominant_pathogen
+                    )
+            else:
+                dat['patpop'] = dat['patpop'].replace( combination, '' )
 
-        dominant_pathogens = np.array(
-            jl.Parallel(n_jobs=n_cores, verbose=1, **kwargs) (
-                jl.delayed( chooseSeq ) (ind) for ind in dat
-                )
-            )
-        dat['Pathogens'] = dominant_pathogens
+        dat['Pathogens'] = dat['patpop']
 
     if not hosts:
         dat = dat[ dat['Organism'] != 'Host' ]
@@ -394,11 +394,11 @@ def compositionDf(
     if len(top_sequences) < num_top_sequences:
         num_top_sequences = len(top_sequences)
 
-    genomes_to_track = list(top_sequences[0:num_top_sequences].index)
-    for genome in track_specific_sequences:
+    # genomes_to_track = list(top_sequences[0:num_top_sequences].index)
+    genomes_to_track = track_specific_sequences
+    for genome in list(top_sequences[0:num_top_sequences].index):
         if genome not in genomes_to_track:
             genomes_to_track.append(genome)
-
 
     genome_split_data = []
     other_genome_data = pd.DataFrame(
@@ -443,6 +443,19 @@ def compositionDf(
         )
     composition = times.join( genome_split_data, how='outer' )
     composition = composition.drop(columns=['*None*']).fillna(0)
+
+    new_order = []
+    for seq in track_specific_sequences:
+        new_order.append(seq)
+        if seq not in composition.columns:
+            composition[seq] = 0
+
+    for seq in composition.columns:
+        if seq not in new_order:
+            new_order.append(seq)
+
+    composition = composition[new_order]
+
     composition = composition.reset_index()
     composition.columns = ['Time'] + list( composition.columns )[1:]
 

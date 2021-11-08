@@ -32,17 +32,17 @@ model.newIntervention( 50, model.addVectors, [ 'my_population', 10 ] )
     # At time 50, adds 10 healthy vectors to population.
 model.newIntervention(
     50, model.newVectorGroup,
-    [ 'my_population', '10_healthy_vectors', 10, 'healthy' ]
+    [ 'my_population', '10_new_vectors', 10, 'healthy' ]
     )
-    # At time 50, selects 10 healthy hosts from population 'my_population'
-    # and stores them under the group ID '10_healthy_hosts'.
+    # At time 50, selects 10 healthy vectors from population 'my_population'
+    # and stores them under the group ID '10_new_vectors'.
 model.newIntervention(
     50, model.addPathogensToVectors,
-    [ 'my_population', {'GGGGGGGGGG':10}, '10_healthy_vectors' ]
+    [ 'my_population', {'GGGGGGGGGG':10}, '10_new_vectors' ]
     )
     # At time 50, adds pathogens of genomes GGGGGGGGGG to 10
     # random hosts in the '10_new_vectors' group (so, all 10 of them).
-    # The last '10_healthy_vectors' argument specifies which group to sample
+    # The last '10_new_vectors' argument specifies which group to sample
     # from (if not specified, sampling occurs from whole population).
 
 model.newIntervention( 100, model.setSetup, [ 'my_population', 'my_setup_2' ] )

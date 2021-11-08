@@ -16,7 +16,11 @@ class Setup(object):
             natalityVector,recoveryVector, migrationVector,
             populationContactVector, receivePopulationContactVector,
             mutationVector, recombinationVector,
-            contact_rate_host_vector, contact_rate_host_host,
+            contact_rate_host_vector,
+            transmission_efficiency_host_vector,
+            transmission_efficiency_vector_host,
+            contact_rate_host_host,
+            transmission_efficiency_host_host,
             mean_inoculum_host, mean_inoculum_vector,
             recovery_rate_host, recovery_rate_vector,
             lethality_rate_host,lethality_rate_vector,
@@ -39,8 +43,12 @@ class Setup(object):
             competition for different genomes within the same host
             (function object, takes a String argument and returns a number >= 0)
         contactHost -- function that returns coefficient modifying probability
-            of a given host being chosen for a contact, based on genome sequence
-            of pathogen
+            of a given host being chosen to be the infector in a contact event,
+            based on genome sequence of pathogen
+            (function object, takes a String argument and returns a number 0-1)
+        receiveContactHost -- function that returns coefficient modifying
+            probability of a given host being chosen to be the infected in
+            a contact event, based on genome sequence of pathogen
             (function object, takes a String argument and returns a number 0-1)
         lethalityHost -- function that returns coefficient modifying death rate
             for a given host, based on genome sequence of pathogen
@@ -69,8 +77,12 @@ class Setup(object):
             head competition for different genomes within the same vector
             (function object, takes a String argument and returns a number >= 0)
         contactVector -- function that returns coefficient modifying probability
-            of a given vector being chosen for a contact, based on genome
-            sequence of pathogen
+            of a given vector being chosen to be the infector in a contact
+            event, based on genome sequence of pathogen
+            (function object, takes a String argument and returns a number 0-1)
+        receiveContactVector -- function that returns coefficient modifying
+            probability of a given vector being chosen to be the infected in
+            a contact event, based on genome sequence of pathogen
             (function object, takes a String argument and returns a number 0-1)
         lethalityVector -- function that returns coefficient modifying death
             rate for a given vector, based on genome sequence of pathogen
@@ -98,9 +110,15 @@ class Setup(object):
         contact_rate_host_vector -- rate of host-vector contact events, not
             necessarily transmission, assumes constant population density;
             evts/time (number >= 0)
+        transmission_efficiency_host_vector -- fraction of host-vector contacts
+            that result in successful transmission
+        transmission_efficiency_vector_host -- fraction of vector-host contacts
+            that result in successful transmission
         contact_rate_host_host -- rate of host-host contact events, not
             necessarily transmission, assumes constant population density;
             evts/time (number >= 0)
+        transmission_efficiency_host_host -- fraction of host-host contacts
+                that result in successful transmission
         mean_inoculum_host -- mean number of pathogens that are transmitted from
             a vector or host into a new host during a contact event (int >= 0)
         mean_inoculum_vector -- mean number of pathogens that are transmitted
@@ -191,6 +209,9 @@ class Setup(object):
             # vector populations. If you don't want this to happen, modify the
             # population's contact rate accordingly.
             # Examines contacts between infected hosts and all hosts
+        self.transmission_efficiency_host_vector = transmission_efficiency_host_vector
+        self.transmission_efficiency_vector_host = transmission_efficiency_vector_host
+        self.transmission_efficiency_host_host = transmission_efficiency_host_host
         self.mean_inoculum_host = mean_inoculum_host
         self.mean_inoculum_vector = mean_inoculum_vector
         self.recovery_rate_host = recovery_rate_host

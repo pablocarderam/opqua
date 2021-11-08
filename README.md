@@ -546,6 +546,7 @@ num_loci = 10
 possible_alleles = 'ATCG'
 fitnessHost = (lambda g: 1)
 contactHost = (lambda g: 1)
+receiveContactHost = (lambda g: 1)
 lethalityHost = (lambda g: 1)
 natalityHost = (lambda g: 1)
 recoveryHost = (lambda g: 1)
@@ -555,6 +556,7 @@ mutationHost = (lambda g: 1)
 recombinationHost = (lambda g: 1)
 fitnessVector = (lambda g: 1)
 contactVector = (lambda g: 1)
+receiveContactVector = (lambda g: 1)
 lethalityVector = (lambda g: 1)
 natalityVector = (lambda g: 1)
 recoveryVector = (lambda g: 1)
@@ -563,7 +565,10 @@ populationContactVector = (lambda g: 1)
 mutationVector = (lambda g: 1)
 recombinationVector = (lambda g: 1)
 contact_rate_host_vector = 0
+transmission_efficiency_host_vector = 0
+transmission_efficiency_vector_host = 0
 contact_rate_host_host = 2e-1
+transmission_efficiency_host_host = 1
 mean_inoculum_host = 1e1
 mean_inoculum_vector = 0
 recovery_rate_host = 1e-1
@@ -594,6 +599,7 @@ num_loci = 10
 possible_alleles = 'ATCG'
 fitnessHost = (lambda g: 1)
 contactHost = (lambda g: 1)
+receiveContactHost = (lambda g: 1)
 lethalityHost = (lambda g: 1)
 natalityHost = (lambda g: 1)
 recoveryHost = (lambda g: 1)
@@ -603,6 +609,7 @@ mutationHost = (lambda g: 1)
 recombinationHost = (lambda g: 1)
 fitnessVector = (lambda g: 1)
 contactVector = (lambda g: 1)
+receiveContactVector = (lambda g: 1)
 lethalityVector = (lambda g: 1)
 natalityVector = (lambda g: 1)
 recoveryVector = (lambda g: 1)
@@ -611,7 +618,10 @@ populationContactVector = (lambda g: 1)
 mutationVector = (lambda g: 1)
 recombinationVector = (lambda g: 1)
 contact_rate_host_vector = 2e-1
+transmission_efficiency_host_vector = 1
+transmission_efficiency_vector_host = 1
 contact_rate_host_host = 0
+transmission_efficiency_host_host = 0
 mean_inoculum_host = 1e2
 mean_inoculum_vector = 1e2
 recovery_rate_host = 1e-1
@@ -649,9 +659,12 @@ _Keyword arguments:_
     competition for different genomes within the same host
     (function object, takes a String argument and returns a number >= 0)
 - contactHost -- function that returns coefficient modifying probability
-    of a given host being chosen for a contact, based on genome sequence
-    of pathogen
+    of a given host being chosen to be the infector in a contact event,
+    based on genome sequence of pathogen
     (function object, takes a String argument and returns a number 0-1)
+- receiveContactHost -- function that returns coefficient modifying
+    probability of a given host being chosen to be the infected in
+    a contact event, based on genome sequence of pathogen
 - lethalityHost -- function that returns coefficient modifying death rate
     for a given host, based on genome sequence of pathogen
     (function object, takes a String argument and returns a number 0-1)
@@ -679,8 +692,12 @@ _Keyword arguments:_
     head competition for different genomes within the same vector
     (function object, takes a String argument and returns a number >= 0)
 - contactVector -- function that returns coefficient modifying probability
-    of a given vector being chosen for a contact, based on genome
-    sequence of pathogen
+    of a given vector being chosen to be the infector in a contact
+    event, based on genome sequence of pathogen
+    (function object, takes a String argument and returns a number 0-1)
+- receiveContactVector -- function that returns coefficient modifying
+    probability of a given vector being chosen to be the infected in
+    a contact event, based on genome sequence of pathogen
     (function object, takes a String argument and returns a number 0-1)
 - lethalityVector -- function that returns coefficient modifying death
     rate for a given vector, based on genome sequence of pathogen
@@ -708,9 +725,15 @@ _Keyword arguments:_
 - contact_rate_host_vector -- rate of host-vector contact events, not
     necessarily transmission, assumes constant population density;
     evts/time (number >= 0)
+- transmission_efficiency_host_vector -- fraction of host-vector contacts
+        that result in successful transmission
+- transmission_efficiency_vector_host -- fraction of vector-host contacts
+        that result in successful transmission
 - contact_rate_host_host -- rate of host-host contact events, not
     necessarily transmission, assumes constant population density;
     evts/time (number >= 0)
+- transmission_efficiency_host_host -- fraction of host-host contacts
+        that result in successful transmission
 - mean_inoculum_host -- mean number of pathogens that are transmitted from
     a vector or host into a new host during a contact event (int >= 0)
 - mean_inoculum_vector -- mean number of pathogens that are transmitted
@@ -851,8 +874,14 @@ List of Model objects with the final snapshots
 
 ```python
 runParamSweep(
-t0,tf,setup_id,param_sweep_dic,
-replicates=1,host_sampling=0,vector_sampling=0,n_cores=0,**kwargs):
+t0,tf,setup_id,
+param_sweep_dic={},pop_ids_param_sweep=[],
+host_population_size_sweep={}, vector_population_size_sweep={},
+host_migration_sweep_dic={}, vector_migration_sweep_dic={},
+host_population_contact_sweep_dic={},
+vector_population_contact_sweep_dic={},
+replicates=1,host_sampling=0,vector_sampling=0,n_cores=0,
+**kwargs):
 ```
 
 
@@ -867,11 +896,20 @@ timepoint.
 _Arguments:_
 - t0 -- initial time point to start simulation at (number >= 0)
 - tf -- initial time point to end simulation at (number >= 0)
-- pop_id -- ID of population to be modified (String)
 - setup_id -- ID of setup to be assigned (String)
+
+_Keyword Arguments:_
 - param_sweep_dic -- dictionary with keys=parameter names (attributes of
     Setup), values=list of values for parameter (list, class of elements
     depends on parameter)
+- host_population_size_sweep -- dictionary with keys=population IDs
+    (Strings), values=list of values with host population sizes
+    (must be greater than original size set for each population, list of
+    numbers)
+- vector_population_size_sweep -- dictionary with keys=population IDs
+    (Strings), values=list of values with vector population sizes
+    (must be greater than original size set for each population, list of
+    numbers)
 - host_migration_sweep_dic -- dictionary with keys=population IDs of
     origin and destination, separated by a colon ';' (Strings),
     values=list of values (list of numbers)
@@ -884,8 +922,6 @@ _Arguments:_
 - vector_population_contact_sweep_dic -- dictionary with keys=population
     IDs of origin and destination, separated by a colon ';' (Strings),
     values=list of values (list of numbers)
-
-_Keyword Arguments:_
 - replicates -- how many replicates to simulate (int >= 1)
 - host_sampling -- how many hosts to skip before saving one in a snapshot
     of the system state (saves all by default) (int >= 0, default 0)
@@ -897,7 +933,8 @@ _Keyword Arguments:_
 - **kwargs -- additional arguents for joblib multiprocessing
 
 _Returns:_
-- List of Model objects with the final snapshots
+- DataFrame with parameter combinations, list of Model objects with the
+    final snapshots
 
 #### saveToDataFrame
 

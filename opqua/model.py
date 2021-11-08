@@ -193,7 +193,11 @@ class Model(object):
             migrationVector=None, populationContactVector=None,
             receivePopulationContactVector=None,
             mutationVector=None, recombinationVector=None,
-            contact_rate_host_vector=None, contact_rate_host_host=None,
+            contact_rate_host_vector=None,
+            transmission_efficiency_host_vector=None,
+            transmission_efficiency_vector_host=None,
+            contact_rate_host_host=None,
+            transmission_efficiency_host_host=None,
             mean_inoculum_host=None, mean_inoculum_vector=None,
             recovery_rate_host=None, recovery_rate_vector=None,
             lethality_rate_host=None, lethality_rate_vector=None,
@@ -228,9 +232,12 @@ class Model(object):
             competition for different genomes within the same host
             (function object, takes a String argument and returns a number >= 0)
         contactHost -- function that returns coefficient modifying probability
-            of a given host being chosen for a contact, based on genome sequence
-            of pathogen
+            of a given host being chosen to be the infector in a contact event,
+            based on genome sequence of pathogen
             (function object, takes a String argument and returns a number 0-1)
+        receiveContactHost -- function that returns coefficient modifying
+            probability of a given host being chosen to be the infected in
+            a contact event, based on genome sequence of pathogen
         lethalityHost -- function that returns coefficient modifying death rate
             for a given host, based on genome sequence of pathogen
             (function object, takes a String argument and returns a number 0-1)
@@ -258,8 +265,12 @@ class Model(object):
             head competition for different genomes within the same vector
             (function object, takes a String argument and returns a number >= 0)
         contactVector -- function that returns coefficient modifying probability
-            of a given vector being chosen for a contact, based on genome
-            sequence of pathogen
+            of a given vector being chosen to be the infector in a contact
+            event, based on genome sequence of pathogen
+            (function object, takes a String argument and returns a number 0-1)
+        receiveContactVector -- function that returns coefficient modifying
+            probability of a given vector being chosen to be the infected in
+            a contact event, based on genome sequence of pathogen
             (function object, takes a String argument and returns a number 0-1)
         lethalityVector -- function that returns coefficient modifying death
             rate for a given vector, based on genome sequence of pathogen
@@ -287,9 +298,15 @@ class Model(object):
         contact_rate_host_vector -- rate of host-vector contact events, not
             necessarily transmission, assumes constant population density;
             evts/time (number >= 0)
+        transmission_efficiency_host_vector -- fraction of host-vector contacts
+            that result in successful transmission
+        transmission_efficiency_vector_host -- fraction of vector-host contacts
+            that result in successful transmission
         contact_rate_host_host -- rate of host-host contact events, not
             necessarily transmission, assumes constant population density;
             evts/time (number >= 0)
+        transmission_efficiency_host_host -- fraction of host-host contacts
+                that result in successful transmission
         mean_inoculum_host -- mean number of pathogens that are transmitted from
             a vector or host into a new host during a contact event (int >= 0)
         mean_inoculum_vector -- mean number of pathogens that are transmitted
@@ -386,8 +403,17 @@ class Model(object):
             contact_rate_host_vector = \
                 2e-1 if contact_rate_host_vector is None \
                 else contact_rate_host_vector
+            transmission_efficiency_host_vector = \
+                1 if transmission_efficiency_host_vector is None \
+                else transmission_efficiency_host_vector
+            transmission_efficiency_vector_host = \
+                1 if transmission_efficiency_vector_host is None \
+                else transmission_efficiency_vector_host
             contact_rate_host_host = \
                 0 if contact_rate_host_host is None else contact_rate_host_host
+            transmission_efficiency_host_host = \
+                0 if transmission_efficiency_host_host is None \
+                else transmission_efficiency_host_host
             mean_inoculum_host = \
                 1e2 if mean_inoculum_host is None else mean_inoculum_host
             mean_inoculum_vector = \
@@ -440,8 +466,6 @@ class Model(object):
             contactHost = (lambda g: 1) if contactHost is None else contactHost
             receiveContactHost = \
                 (lambda g: 1) if receiveContactHost is None else receiveContactHost
-            receiveContactHost = \
-                (lambda g: 1) if receiveContactHost is None else receiveContactHost
             lethalityHost = \
                 (lambda g: 1) if lethalityHost is None else lethalityHost
             natalityHost = \
@@ -487,9 +511,18 @@ class Model(object):
             contact_rate_host_vector = \
                 0 if contact_rate_host_vector is None \
                 else contact_rate_host_vector
+            transmission_efficiency_host_vector = \
+                0 if transmission_efficiency_host_vector is None \
+                else transmission_efficiency_host_vector
+            transmission_efficiency_vector_host = \
+                0 if transmission_efficiency_vector_host is None \
+                else transmission_efficiency_vector_host
             contact_rate_host_host = \
                 2e-1 if contact_rate_host_host is None \
                 else contact_rate_host_host
+            transmission_efficiency_host_host = \
+                1 if transmission_efficiency_host_host is None \
+                else transmission_efficiency_host_host
             mean_inoculum_host = \
                 1e1 if mean_inoculum_host is None else mean_inoculum_host
             mean_inoculum_vector = \
@@ -543,7 +576,11 @@ class Model(object):
             natalityVector,recoveryVector, migrationVector,
             populationContactVector, receivePopulationContactVector,
             mutationVector, recombinationVector,
-            contact_rate_host_vector, contact_rate_host_host,
+            contact_rate_host_vector,
+            transmission_efficiency_host_vector,
+            transmission_efficiency_vector_host,
+            contact_rate_host_host,
+            transmission_efficiency_host_host,
             mean_inoculum_host, mean_inoculum_vector,
             recovery_rate_host, recovery_rate_vector,
             lethality_rate_host,lethality_rate_vector,
@@ -665,6 +702,7 @@ class Model(object):
     def runParamSweep(
             self,t0,tf,setup_id,
             param_sweep_dic={},
+            host_population_size_sweep={}, vector_population_size_sweep={},
             host_migration_sweep_dic={}, vector_migration_sweep_dic={},
             host_population_contact_sweep_dic={},
             vector_population_contact_sweep_dic={},
@@ -681,11 +719,20 @@ class Model(object):
         Arguments:
         t0 -- initial time point to start simulation at (number >= 0)
         tf -- initial time point to end simulation at (number >= 0)
-        pop_id -- ID of population to be modified (String)
         setup_id -- ID of setup to be assigned (String)
+
+        Keyword arguments:
         param_sweep_dic -- dictionary with keys=parameter names (attributes of
             Setup), values=list of values for parameter (list, class of elements
             depends on parameter)
+        host_population_size_sweep -- dictionary with keys=population IDs
+            (Strings), values=list of values with host population sizes
+            (must be greater than original size set for each population, list of
+            numbers)
+        vector_population_size_sweep -- dictionary with keys=population IDs
+            (Strings), values=list of values with vector population sizes
+            (must be greater than original size set for each population, list of
+            numbers)
         host_migration_sweep_dic -- dictionary with keys=population IDs of
             origin and destination, separated by a colon ';' (Strings),
             values=list of values (list of numbers)
@@ -698,8 +745,6 @@ class Model(object):
         vector_population_contact_sweep_dic -- dictionary with keys=population
             IDs of origin and destination, separated by a colon ';' (Strings),
             values=list of values (list of numbers)
-
-        Keyword arguments:
         replicates -- how many replicates to simulate (int >= 1)
         host_sampling -- how many hosts to skip before saving one in a snapshot
             of the system state (saves all by default) (int >= 0, default 0)
@@ -711,25 +756,32 @@ class Model(object):
         **kwargs -- additional arguents for joblib multiprocessing
 
         Returns:
-        List of Model objects with the final snapshots
+        DataFrame with parameter combinations, list of Model objects with the
+            final snapshots
         """
 
         if not n_cores:
             n_cores = jl.cpu_count()
 
+        for p in host_population_size_sweep:
+            param_sweep_dic['pop_size_host:'+p] = host_population_size_sweep[p]
+
+        for p in vector_population_size_sweep:
+            param_sweep_dic['pop_size_vector:'+p] = vector_population_size_sweep[p]
+
         for p in host_migration_sweep_dic:
-            param_sweep_dic['migrate_host:'+p] = migration_sweep_dic[p]
+            param_sweep_dic['migrate_host:'+p] = host_migration_sweep_dic[p]
 
         for p in vector_migration_sweep_dic:
-            param_sweep_dic['migrate_vector:'+p] = migration_sweep_dic[p]
+            param_sweep_dic['migrate_vector:'+p] = vector_migration_sweep_dic[p]
 
         for p in host_population_contact_sweep_dic:
             param_sweep_dic['population_contact_host:'+p] \
-                = host_contact_sweep_dic[p]
+                = host_population_contact_sweep_dic[p]
 
         for p in vector_population_contact_sweep_dic:
             param_sweep_dic['population_contact_vector:'+p] \
-                = vector_contact_sweep_dic[p]
+                = vector_population_contact_sweep_dic[p]
 
         if len(param_sweep_dic) == 0:
             raise ValueError(
@@ -751,21 +803,83 @@ class Model(object):
             for i,param_name in enumerate(params):
                 if ':' in param_name:
                     pops = param_name.split(':')[1].split(';')
-                    if 'migrate_host:' in param_name:
+                    if 'pop_size_host:' in param_name:
+                        pop = cp.deepcopy( model.populations[pops[0]] )
+                        add_hosts = param_values[i] - len(pop.hosts)
+                        if add_hosts < 0:
+                            raise ValueError(
+                                'Value ' + str(param_values[i]) + ' assigned to ' + pops[0] + ' in host_population_size_sweep must be greater or equal to the population\'s original number of hosts.'
+                                )
+                        else:
+                            pop.addHosts(add_hosts)
+                            model.populations[pops[0]] = pop
+                            pop.model = model
+
+                    elif 'pop_size_vector:' in param_name:
+                        pop = cp.deepcopy( model.populations[pops[0]] )
+                        add_vectors = param_values[i] - len(pop.vectors)
+                        if add_vectors < 0:
+                            raise ValueError(
+                                'Values ' + str(param_values[i]) + ' assigned to ' + pops[0] + ' in vector_population_size_sweep must be greater or equal to the population\'s original number of vectors.'
+                                )
+                        else:
+                            pop.addVectors(add_vectors)
+                            model.populations[pops[0]] = pop
+                            pop.model = model
+
+                    elif 'migrate_host:' in param_name:
+                        new_pops = [
+                            cp.deepcopy( model.populations[pops[0]] ),
+                            cp.deepcopy( model.populations[pops[1]] )
+                            ]
+                        new_pops[0].model = model
+                        new_pops[1].model = model
+                        model.populations[pops[0]] = new_pops[0]
+                        model.populations[pops[1]] = new_pops[1]
                         model.linkPopulationsHostMigration(
-                            pops[0],pops[1],params[param_name]
+                            new_pops[0],new_pops[1],param_values[i]
                             )
                     elif 'migrate_vector:' in param_name:
+                        new_pops = [
+                            cp.deepcopy( model.populations[pops[0]] ),
+                            cp.deepcopy( model.populations[pops[1]] )
+                            ]
+                        new_pops[0].model = model
+                        new_pops[1].model = model
+                        model.populations[pops[0]] = new_pops[0]
+                        model.populations[pops[1]] = new_pops[1]
                         model.linkPopulationsVectorMigration(
-                            pops[0],pops[1],params[param_name]
+                            pops[0],pops[1],param_values[i]
                             )
                     elif 'population_contact_host:' in param_name:
+                        new_pops = [
+                            cp.deepcopy( model.populations[pops[0]] ),
+                            cp.deepcopy( model.populations[pops[1]] )
+                            ]
+                        new_pops[0].model = model
+                        new_pops[1].model = model
+                        model.populations[pops[0]] = new_pops[0]
+                        model.populations[pops[1]] = new_pops[1]
                         model.linkPopulationsHostContact(
-                            pops[0],pops[1],params[param_name]
+                            pops[0],pops[1],param_values[i]
+                            )
+                        model.linkPopulationsHostContact(
+                            pops[1],pops[0],param_values[i]
                             )
                     elif 'population_contact_vector:' in param_name:
+                        new_pops = [
+                            cp.deepcopy( model.populations[pops[0]] ),
+                            cp.deepcopy( model.populations[pops[1]] )
+                            ]
+                        new_pops[0].model = model
+                        new_pops[1].model = model
+                        model.populations[pops[0]] = new_pops[0]
+                        model.populations[pops[1]] = new_pops[1]
                         model.linkPopulationsVectorContact(
-                            pops[0],pops[1],params[param_name]
+                            pops[0],pops[1],param_values[i]
+                            )
+                        model.linkPopulationsVectorContact(
+                            pops[1],pops[0],param_values[i]
                             )
                 else:
                     setattr(model.setups[setup_id],param_name,param_values[i])
@@ -1537,7 +1651,6 @@ class Model(object):
         """
 
         self.populations[pop_id].removeVectors(num_vectors_or_list)
-
 
     def addPathogensToHosts(self, pop_id, genomes_numbers, group_id=""):
         """Add specified pathogens to random hosts, optionally from a list.

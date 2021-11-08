@@ -1,6 +1,34 @@
 
 # Opqua Changelog
 
+## v0.9.0
+## 8 Nov 2021
+All graphs in publication (title pending) generated with this stable version.
+
+General model structure changes:
+- added transmission_efficiency_host_host, transmission_efficiency_host_vector,
+  transmission_efficiency_vector_host as additional parameters
+- made global_trackers copy into history object of a model
+- adjusted computation of recombination probabilities for hosts and vectors
+- skip recombining when parental genomes are the same
+- changed genome sampling during inoculation of hosts and vectors
+- added more flexibility, changed structure, and debugged migration/population
+  contact options in runParamSweep()
+
+In compositionDf():
+- remove missing data
+- change algorithm to replace combinations of genomes (more efficient when
+  combinations are limiting factor)
+- allow user to specify genome plotting order
+
+Miscellaneous:
+- add option to plot population fractions instead of absolute counts in
+  compositionPlot()
+- Gillespie algorithm now prints out event name rather than ID number
+- changed error handling when adding pathogens to hosts and vectors
+- removed a duplicate definition in Model newSetup()
+- changed a group name in intervention_example.py
+
 ## v0.2.6
 ## 8 Oct 2021
 v0.2.5 created a major bug that escaped my attention with the division by zero

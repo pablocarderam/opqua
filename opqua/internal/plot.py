@@ -211,7 +211,7 @@ def compositionPlot(
         count_individuals_based_on_model=None, save_data_to_file="",
         x_label='Time', y_label='Infections', legend_title='Genotype',
         legend_values=[], figsize=(8, 4), dpi=200, palette=CB_PALETTE,
-        stacked=True, remove_legend=False, **kwargs):
+        stacked=True, remove_legend=False, population_fraction=False, **kwargs):
     """Create plot with counts for pathogen genomes or resistance across time.
 
     Creates a line or stacked line plot with dynamics of the pathogen strains or
@@ -265,6 +265,8 @@ def compositionPlot(
         (default False, Boolean).
     remove_legend -- whether to print the sequences on the figure legend instead
         of printing them on a separate csv file (default True; Boolean)
+    population_fraction -- whether to graph fractions of pathogen population
+        instead of pathogen counts (default False, Boolean)
     **kwargs -- additional arguents for joblib multiprocessing
 
     Returns:
@@ -283,6 +285,12 @@ def compositionPlot(
             )
     else:
         comp = composition_dataframe
+
+    if population_fraction:
+        total_infections = comp.drop(columns=['Time']).sum(axis=1)
+        for col in comp.columns[1:]:
+            print('corrected '+col)
+            comp[col] = comp[col] / total_infections
 
     if comp.shape[1] > 1:
         plt.figure(figsize=figsize, dpi=dpi)

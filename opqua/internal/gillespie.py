@@ -236,6 +236,7 @@ class Gillespie(object):
                         :, self.model.populations[id].INFECTED
                         ]
                     ).sum()
+                * self.model.populations[id].transmission_efficiency_host_host
                 * np.sum( self.model.populations[id].coefficients_hosts[
                     :, self.model.populations[id].RECEIVE_CONTACT
                     ] )
@@ -252,6 +253,7 @@ class Gillespie(object):
                         :, self.model.populations[id].INFECTED
                         ]
                     ).sum()
+                * self.model.populations[id].transmission_efficiency_host_vector
                 * np.sum( self.model.populations[id].coefficients_vectors[
                     :, self.model.populations[id].RECEIVE_CONTACT
                     ] )
@@ -268,6 +270,7 @@ class Gillespie(object):
                         :, self.model.populations[id].INFECTED
                         ]
                     ).sum()
+                * self.model.populations[id].transmission_efficiency_vector_host
                 * np.sum( self.model.populations[id].coefficients_hosts[
                     :, self.model.populations[id].RECEIVE_CONTACT
                     ])
@@ -642,7 +645,8 @@ class Gillespie(object):
                                     print_counter = 0
                                     print(
                                         'Simulating time: '
-                                        + str(t_var) + ', event ID: ' + str(e)
+                                        + str(t_var) + ', event: '
+                                        + self.EVENT_IDS[e]
                                         )
 
                                 changed = self.doAction(
@@ -680,7 +684,7 @@ class Gillespie(object):
                         # if still not done with interventions,
                     while (intervention_tracker < len(self.model.interventions)
                         and t_var
-                        >= self.model.interventions[intervention_tracker].time):
+                        <= self.model.interventions[intervention_tracker].time):
                             # carry out all interventions at this time point
                         self.model.interventions[
                             intervention_tracker
@@ -698,5 +702,6 @@ class Gillespie(object):
             vector_sampling=vector_sampling
             )
         history[tf].history = None
+        history[tf].global_trackers = cp.deepcopy( self.model.global_trackers )
 
         return history
