@@ -45,6 +45,9 @@ user-specified adaptive landscapes
 
 Check out the `changelog` file for information on recent updates.
 
+Opqua has been used in-depth to study [pathogen evolution across fitness valleys](https://github.com/pablocarderam/fitness-valleys-opqua)
+(preprint forthcoming).
+
 Opqua is developed by [Pablo Cárdenas](https://pablo-cardenas.com) and Mauricio
 Santos-Vega.
 Follow their science antics on Twitter at
@@ -95,6 +98,10 @@ Phylogenies can be computed for pathogen genomes that emerge throughout the
 simulation. See `fitness_function_mutation_example.py` in the
 `examples/tutorials/evolution` folder.
 ![Compartments](img/fitness_function_mutation_example_clustermap.png "fitness_function_mutation_example clustermap")
+
+For advanced examples (including multiple parameter sweeps), check out
+[this separate repository](https://github.com/pablocarderam/fitness-valleys-opqua)
+(preprint forthcoming).
 
 ## Requirements and Installation
 
