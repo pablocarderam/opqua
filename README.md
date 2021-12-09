@@ -200,7 +200,7 @@ contact")
 ![Events](img/events.png "events illustration")
 
 The likelihood of each event occurring is determined by the population's
-parameters (explained in the [newSetup](#newSetup) function documentation), by
+parameters (explained in the [newSetup](#newSetup) function documentation) and
 the number of infected and healthy hosts and/or vectors in the population(s)
 involved. Crucially, it is also determined by the genome sequences of the
 pathogens infecting those hosts and vectors. The user may specify arbitrary
@@ -221,7 +221,7 @@ randomly distributed based on a Poisson probability distribution. The mean of
 this distribution is set by the receiving host/vector's population parameters,
 and is multiplied by the fraction of total intra-host fitness of each pathogen
 genome. For instance, consider the mean inoculum size for a host in a given
-population is 10 units and the infecting host/vector has two pathogens with a
+population is 10 units and the infecting host/vector has two pathogens with
 fitnesses of 0.3 and 0.7, respectively. This would make the means of the Poisson
 distributions used to generate random infections for each pathogen equal to 3
 and 7, respectively.
@@ -260,11 +260,11 @@ possible alleles at that position. Recombination of two pathogens in a given
 host/vector creates two new genomes based on the independent segregation of
 chromosomes (or reassortment of genome segments, depending on the field) from
 the two parent genomes. In addition, there may be a Poisson-distributed random
-number of cross-over events between homologous parent chromosomes. Recombination
-by cross-over event will result in all the loci in the chromosome on one side of
-the cross-over event location being inherited from one of the parents, while the
+number of crossover events between homologous parent chromosomes. Recombination
+by crossover event will result in all the loci in the chromosome on one side of
+the crossover event location being inherited from one of the parents, while the
 remainder of the chromosome is inherited from the other parent. The locations of
-cross-over events are distributed throughout the genome following a uniform
+crossover events are distributed throughout the genome following a uniform
 random distribution.
 
 ### Interventions
@@ -322,7 +322,7 @@ information.
 
 ![Simulation](img/simulation.png "simulation illustration")
 
-The model's state at any given time is comprised of all populations, their hosts
+The model's state at any given time comprises all populations, their hosts
 and vectors, and the pathogen genomes infecting each of these. A copy of the
 model's state is saved at every time point, or at intermittent intervals
 throughout the course of the simulation. A random sample of hosts and/or vectors
@@ -332,7 +332,7 @@ footprint.
 ### Output
 
 The output of a model can be saved in multiple ways. The model state at each
-saved timepoint may be output in a single raw [pandas](pandas.pydata.org/)
+saved timepoint may be output in a single, raw [pandas](pandas.pydata.org/)
 DataFrame, and saved as a tabular file. Other data output
 types include counts of pathogen genomes or protection sequences for the
 model, as well as time of first emergence for each pathogen genome and genome
@@ -380,6 +380,7 @@ You can find a detailed account of everything `Model` does in the
     False; every time True is returned by a function in
     custom_condition_trackers, the simulation time will be stored under the
     corresponding ID inside global_trackers['custom_condition']
+- t_var -- variable that tracks time in simulations
 
 The dictionary global_trackers contains the following keys:
 - num_events: dictionary with the number of each kind of event in the simulation
@@ -431,6 +432,8 @@ during simulation
 end results
 - [runParamSweep](#runParamSweep) -- simulate parameter sweep with a model, save
 only end results
+- [copyState](#copyState) -- copies a slimmed-down representation of model state
+- [deepCopy](#deepCopy) -- copies current model with inner references
 
 #### Data Output and Plotting ###
 
@@ -500,6 +503,10 @@ Modify population parameters:
 - [setSetup](#setsetup) -- assigns a given set of parameters to this
 population
 
+Utility:
+- [customModelFunction](#customModelFunction) -- returns output of given
+function run on model
+
 #### Preset fitness functions ###
 
 - [peakLandscape](#peakLandscape) -- evaluates genome numeric phenotype by
@@ -559,6 +566,7 @@ natalityHost = (lambda g: 1)
 recoveryHost = (lambda g: 1)
 migrationHost = (lambda g: 1)
 populationContactHost = (lambda g: 1)
+receivePopulationContactHost = (lambda g: 1)
 mutationHost = (lambda g: 1)
 recombinationHost = (lambda g: 1)
 fitnessVector = (lambda g: 1)
@@ -569,6 +577,7 @@ natalityVector = (lambda g: 1)
 recoveryVector = (lambda g: 1)
 migrationVector = (lambda g: 1)
 populationContactVector = (lambda g: 1)
+receivePopulationContactVector = (lambda g: 1)
 mutationVector = (lambda g: 1)
 recombinationVector = (lambda g: 1)
 contact_rate_host_vector = 0
@@ -612,6 +621,7 @@ natalityHost = (lambda g: 1)
 recoveryHost = (lambda g: 1)
 migrationHost = (lambda g: 1)
 populationContactHost = (lambda g: 1)
+receivePopulationContactHost = (lambda g: 1)
 mutationHost = (lambda g: 1)
 recombinationHost = (lambda g: 1)
 fitnessVector = (lambda g: 1)
@@ -622,6 +632,7 @@ natalityVector = (lambda g: 1)
 recoveryVector = (lambda g: 1)
 migrationVector = (lambda g: 1)
 populationContactVector = (lambda g: 1)
+receivePopulationContactVector = (lambda g: 1)
 mutationVector = (lambda g: 1)
 recombinationVector = (lambda g: 1)
 contact_rate_host_vector = 2e-1
@@ -630,9 +641,11 @@ transmission_efficiency_vector_host = 1
 contact_rate_host_host = 0
 transmission_efficiency_host_host = 0
 mean_inoculum_host = 1e2
-mean_inoculum_vector = 1e2
+mean_inoculum_vector = 1e0
 recovery_rate_host = 1e-1
 recovery_rate_vector = 1e-1
+lethality_rate_host = 0
+lethality_rate_vector = 0
 recombine_in_host = 0
 recombine_in_vector = 1e-4
 num_crossover_host = 0
@@ -688,6 +701,10 @@ _Keyword arguments:_
     population contact rate for a given host based on genome sequence of
     pathogen
     (function object, takes a String argument and returns a number 0-1)
+- receivePopulationContactHost -- function that returns coefficient modifying
+    probability of a given host being chosen to be the infected in
+    a population contact event, based on genome sequence of pathogen
+    (function object, takes a String argument and returns a number 0-1)
 - mutationHost -- function that returns coefficient modifying mutation
     rate for a given host based on genome sequence of pathogen
     (function object, takes a String argument and returns a number 0-1)
@@ -722,6 +739,10 @@ _Keyword arguments:_
     population contact rate for a given vector based on genome sequence
     of pathogen
     (function object, takes a String argument and returns a number 0-1)
+- receivePopulationContactVector -- function that returns coefficient modifying
+    probability of a given vector being chosen to be the infected in
+    a population contact event, based on genome sequence of pathogen
+    (function object, takes a String argument and returns a number 0-1)
 - mutationVector -- function that returns coefficient modifying mutation
     rate for a given vector based on genome sequence of pathogen
     (function object, takes a String argument and returns a number 0-1)
@@ -729,16 +750,16 @@ _Keyword arguments:_
     recombination rate for a given vector based on genome sequence of
     pathogen
     (function object, takes a String argument and returns a number 0-1)
-- contact_rate_host_vector -- rate of host-vector contact events, not
+- contact_rate_host_vector -- ("biting") rate of host-vector contact events, not
     necessarily transmission, assumes constant population density;
-    evts/time (number >= 0)
+    events/(vector*time) (number >= 0)
 - transmission_efficiency_host_vector -- fraction of host-vector contacts
         that result in successful transmission
 - transmission_efficiency_vector_host -- fraction of vector-host contacts
         that result in successful transmission
 - contact_rate_host_host -- rate of host-host contact events, not
     necessarily transmission, assumes constant population density;
-    evts/time (number >= 0)
+    events/time (number >= 0)
 - transmission_efficiency_host_host -- fraction of host-host contacts
         that result in successful transmission
 - mean_inoculum_host -- mean number of pathogens that are transmitted from
@@ -756,17 +777,17 @@ _Keyword arguments:_
 - lethality_rate_vector -- fraction of infected vectors that die from
     disease (number 0-1)
 - recombine_in_host -- rate at which recombination occurs in host;
-    evts/time (number >= 0)
+    events/time (number >= 0)
 - recombine_in_vector -- rate at which recombination occurs in vector;
-    evts/time (number >= 0)
+    events/time (number >= 0)
 - num_crossover_host -- mean of a Poisson distribution modeling the number
     of crossover events of host recombination events (number >= 0)
 - num_crossover_vector -- mean of a Poisson distribution modeling the
     number of crossover events of vector recombination events
     (number >= 0)
-- mutate_in_host -- rate at which mutation occurs in host; evts/time
+- mutate_in_host -- rate at which mutation occurs in host; events/time
     (number >= 0)
-- mutate_in_vector -- rate at which mutation occurs in vector; evts/time
+- mutate_in_vector -- rate at which mutation occurs in vector; events/time
     (number >= 0)
 - death_rate_host -- natural host death rate; 1/time (number >= 0)
 - death_rate_vector -- natural vector death rate; 1/time (number >= 0)
@@ -790,7 +811,7 @@ _Keyword arguments:_
 #### newIntervention
 
 ```python
-newIntervention(time, function, args)
+newIntervention(time, method_name, args)
 ```
 
 
@@ -798,12 +819,13 @@ Create a new intervention to be carried out at a specific time.
 
 _Arguments:_
 - time -- time at which intervention will take place (number)
-- function -- intervention to be carried out (method of class Model)
+- method_name -- intervention to be carried out, must correspond to the name
+        of a method of the Model object (String)
 - args -- contains arguments for function in positinal order (array-like)
 
 #### addCustomConditionTracker
 ```python
-addCustomConditionTracker(condition_id, trackerFunction):
+addCustomConditionTracker(condition_id, trackerFunction)
 ```
 
 
@@ -849,7 +871,7 @@ _Arguments:_
 #### runReplicates
 
 ```python
-runReplicates(t0,tf,replicates,host_sampling=0,vector_sampling=0,**kwargs):
+runReplicates(t0,tf,replicates,host_sampling=0,vector_sampling=0,**kwargs)
 ```
 
 
@@ -888,7 +910,7 @@ host_migration_sweep_dic={}, vector_migration_sweep_dic={},
 host_population_contact_sweep_dic={},
 vector_population_contact_sweep_dic={},
 replicates=1,host_sampling=0,vector_sampling=0,n_cores=0,
-**kwargs):
+**kwargs)
 ```
 
 
@@ -943,6 +965,37 @@ _Returns:_
 - DataFrame with parameter combinations, list of Model objects with the
     final snapshots
 
+#### copyState
+
+```python
+copyState(host_sampling=0,vector_sampling=0)
+```
+
+
+Returns a slimmed-down representation of the current model state.
+
+_Keyword arguments:_
+- host_sampling -- how many hosts to skip before saving one in a snapshot
+    of the system state (saves all by default) (int >= 0, default 0)
+- vector_sampling -- how many vectors to skip before saving one in a
+    snapshot of the system state (saves all by default)
+    (int >= 0, default 0)
+
+_Returns:_
+Model object with current population host and vector lists.
+
+#### deepCopy
+
+```python
+deepCopy()
+```
+
+
+Returns a full copy of the current model with inner references.
+
+_Returns:_
+copied Model object
+
 #### saveToDataFrame
 
 ```python
@@ -981,7 +1034,7 @@ getCompositionData(
     hosts=True, vectors=False, num_top_sequences=-1,
     track_specific_sequences=[], genomic_positions=[],
     count_individuals_based_on_model=None, save_data_to_file="", n_cores=0,
-    **kwargs):
+    **kwargs)
 ```
 Create dataframe with counts for pathogen genomes or resistance.
 
@@ -1241,7 +1294,7 @@ described
 clustermap(file_name, data, num_top_sequences=-1,
 track_specific_sequences=[], seq_names=[], n_cores=0, method='weighted',
 metric='euclidean',save_data_to_file="", legend_title='Distance',
-legend_values=[], figsize=(10,10), dpi=200, color_map=DEF_CMAP):
+legend_values=[], figsize=(10,10), dpi=200, color_map=DEF_CMAP)
 ```
 
 
@@ -1321,7 +1374,7 @@ genomes in data passed for different time points.
 ```python
 getGenomeTimes(
       data, samples=-1, num_top_sequences=-1, track_specific_sequences=[],
-      seq_names=[], n_cores=0, save_to_file=''):
+      seq_names=[], n_cores=0, save_to_file='')
 ```
 
 
@@ -1365,7 +1418,7 @@ int)
 #### linkPopulationsHostMigration
 
 ```python
-linkPopulationsHostMigration(pop1_id, pop2_id, rate):
+linkPopulationsHostMigration(pop1_id, pop2_id, rate)
 ```
 
 
@@ -1376,13 +1429,13 @@ _Arguments:_
     (String)
 - pop1_id -- destination population for which migration rate will be
     specified (String)
-- rate -- migration rate from one population to the neighbor; evts/time
+- rate -- migration rate from one population to the neighbor; events/time
     (number >= 0)
 
 #### linkPopulationsVectorMigration
 
 ```python
-linkPopulationsVectorMigration(pop1_id, pop2_id, rate):
+linkPopulationsVectorMigration(pop1_id, pop2_id, rate)
 ```
 
 
@@ -1393,13 +1446,13 @@ _Arguments:_
     (String)
 - pop1_id -- destination population for which migration rate will be
     specified (String)
-- rate -- migration rate from one population to the neighbor; evts/time
+- rate -- migration rate from one population to the neighbor; events/time
     (number >= 0)
 
 #### linkPopulationsHostContact
 
 ```python
-linkPopulationsHostContact(pop1_id, pop2_id, rate):
+linkPopulationsHostContact(pop1_id, pop2_id, rate)
 ```
 
 
@@ -1410,13 +1463,13 @@ _Arguments:_
     (String)
 - pop1_id -- destination population for which migration rate will be
     specified (String)
-- rate -- migration rate from one population to the neighbor; evts/time
+- rate -- migration rate from one population to the neighbor; events/time
     (number >= 0)
 
 #### linkPopulationsVectorContact
 
 ```python
-linkPopulationsVectorContact(pop1_id, pop2_id, rate):
+linkPopulationsVectorContact(pop1_id, pop2_id, rate)
 ```
 
 
@@ -1427,7 +1480,7 @@ _Arguments:_
     (String)
 - pop1_id -- destination population for which migration rate will be
     specified (String)
-- rate -- migration rate from one population to the neighbor; evts/time
+- rate -- migration rate from one population to the neighbor; events/time
     (number >= 0)
 
 #### createInterconnectedPopulations
@@ -1454,13 +1507,13 @@ _Arguments:_
 
 _Keyword arguments:_
 - host_migration_rate -- host migration rate between populations;
-    evts/time (default 0; number >= 0)
+    events/time (default 0; number >= 0)
 - vector_migration_rate -- vector migration rate between populations;
-    evts/time (default 0; number >= 0)
+    events/time (default 0; number >= 0)
 - host_contact_rate -- host inter-population contact rate between
-    populations; evts/time (default 0; number >= 0)
+    populations; events/time (default 0; number >= 0)
 - vector_contact_rate -- vector inter-population contact rate between
-    populations; evts/time (default 0; number >= 0)
+    populations; events/time (default 0; number >= 0)
 - num_hosts -- number of hosts to initialize population with (default 100;
     int)
 - num_vectors -- number of hosts to initialize population with (default
@@ -1745,6 +1798,21 @@ Assign parameters stored in Setup object to this population.
 _Arguments:_
 - pop_id -- ID of population to be modified (String)
 - setup_id -- ID of setup to be assigned (String)
+
+#### customModelFunction
+```python
+customModelFunction(function)
+```
+
+
+Returns output of given function, passing this model as a parameter.
+
+_Arguments:_
+- function -- function to be evaluated; must take a Model object as the
+            only parameter (function)
+
+_Returns:_
+- Output of function passed as parameter
 
 #### peakLandscape
 

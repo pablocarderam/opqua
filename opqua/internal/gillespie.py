@@ -257,7 +257,7 @@ class Gillespie(object):
                 * np.sum( self.model.populations[id].coefficients_vectors[
                     :, self.model.populations[id].RECEIVE_CONTACT
                     ] )
-                / max( len( self.model.populations[id].vectors ), 1)
+                / max( len( self.model.populations[id].hosts ), 1)
                 )
 
             rates[self.CONTACT_VECTOR_HOST,i] = (
@@ -566,7 +566,7 @@ class Gillespie(object):
         """
 
         # Simulation variables
-        t_var = t0 # keeps track of time
+        self.model.t_var = t0 # keeps track of time
         history = { 0: self.model.copyState(
             host_sampling=host_sampling,
             vector_sampling=vector_sampling
@@ -580,7 +580,7 @@ class Gillespie(object):
         print_counter = 0 # only used to track when to print
         sampling_counter = 0 # used to track when to save a snapshot
 
-        while t_var < tf: # repeat until t reaches end of timecourse
+        while self.model.t_var < tf: # repeat until t reaches end of timecourse
             population_ids = list( self.model.populations.keys() )
             r = self.getRates(population_ids) # get event rates in this state
             r_tot = np.sum(r) # sum of all rates
@@ -588,15 +588,15 @@ class Gillespie(object):
             # Time handling
             if r_tot > 0:
                 dt = np.random.exponential( 1/r_tot ) # time until next event
-                t_var += dt # add time step to main timer
+                self.model.t_var += dt # add time step to main timer
 
                 if (intervention_tracker < len(self.model.interventions)
-                    and t_var
+                    and self.model.t_var
                     >= self.model.interventions[intervention_tracker].time):
                     # if there are any interventions left and if it is time
                     # to make one,
                     while ( intervention_tracker < len(self.model.interventions)
-                        and (t_var
+                        and (self.model.t_var
                         >= self.model.interventions[intervention_tracker].time
                         or r_tot == 0) ):
                             # carry out all interventions at this time point,
@@ -604,14 +604,14 @@ class Gillespie(object):
                         self.model.interventions[
                             intervention_tracker
                             ].doIntervention()
-                        t_var = self.model.interventions[
+                        self.model.t_var = self.model.interventions[
                             intervention_tracker
                             ].time
                         intervention_tracker += 1 # advance the tracker
 
                         # save snapshot at this timepoint
                         sampling_counter = 0
-                        history[t_var] = self.model.copyState()
+                        history[self.model.t_var] = self.model.copyState()
 
                         # now recalculate rates
                         population_ids = list( self.model.populations.keys() )
@@ -622,12 +622,12 @@ class Gillespie(object):
                     if r_tot > 0: # if no more events happening,
                         dt = np.random.exponential( 1/r_tot )
                             # time until next event
-                        t_var += dt # add time step to main timer
+                        self.model.t_var += dt # add time step to main timer
                     else:
-                        t_var = tf # go to end
+                        self.model.t_var = tf # go to end
 
                 # Event handling
-                if t_var < tf: # if still within max time
+                if self.model.t_var < tf: # if still within max time
                     u = np.random.random() * r_tot
                         # random uniform number between 0 and total rate
                     r_cum = 0 # cumulative rate
@@ -645,7 +645,7 @@ class Gillespie(object):
                                     print_counter = 0
                                     print(
                                         'Simulating time: '
-                                        + str(t_var) + ', event: '
+                                        + str(self.model.t_var) + ', event: '
                                         + self.EVENT_IDS[e]
                                         )
 
@@ -660,7 +660,7 @@ class Gillespie(object):
                                     # update custom condition trackers
                                     for condition in self.model.custom_condition_trackers:
                                         if self.model.custom_condition_trackers[condition](self.model):
-                                            self.model.global_trackers['custom_conditions'][condition].append(t_var)
+                                            self.model.global_trackers['custom_conditions'][condition].append(self.model.t_var)
 
                                     if time_sampling >= 0:
                                             # if state changed and saving history,
@@ -668,7 +668,7 @@ class Gillespie(object):
                                         sampling_counter += 1
                                         if sampling_counter > time_sampling:
                                             sampling_counter = 0
-                                            history[t_var] = self.model.copyState(
+                                            history[self.model.t_var] = self.model.copyState(
                                                 host_sampling=host_sampling,
                                                 vector_sampling=vector_sampling
                                                 )
@@ -683,20 +683,20 @@ class Gillespie(object):
                 if intervention_tracker < len(self.model.interventions):
                         # if still not done with interventions,
                     while (intervention_tracker < len(self.model.interventions)
-                        and t_var
+                        and self.model.t_var
                         <= self.model.interventions[intervention_tracker].time):
                             # carry out all interventions at this time point
                         self.model.interventions[
                             intervention_tracker
                             ].doIntervention()
-                        t_var = self.model.interventions[
+                        self.model.t_var = self.model.interventions[
                             intervention_tracker
                             ].time
                         intervention_tracker += 1 # advance the tracker
                 else:
-                    t_var = tf
+                    self.model.t_var = tf
 
-        print( 'Simulating time: ' + str(t_var), 'END')
+        print( 'Simulating time: ' + str(self.model.t_var), 'END')
         history[tf] = self.model.copyState(
             host_sampling=host_sampling,
             vector_sampling=vector_sampling

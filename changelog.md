@@ -1,9 +1,40 @@
 
 # Opqua Changelog
 
+## v0.9.1
+## 8 Dec 2021
+
+General simulation structure changes:
+- changed handling of intra-population contact rate between hosts and vectors
+  within the Gillespie function to fit a biting rate definition for the contact
+  rate (i.e. constant per vector contact rate). Does not affect behavior of
+  simulations if total number of hosts and vectors is equal (or if models have
+  no vector-borne pathogens)
+- made time variable t_var a property of Model objects instead of internal to
+  Gillespie object, allowing users to modify simulation time (e.g. for
+  killswitches); does not affect simulation results
+
+Opqua structure changes:
+- changed way interventions are executed to guarantee that the Model object
+  being simulated carries the intervention upon itself
+- changed runReplicates() to create independent copies of model object and run
+  simulations on each (should not affect simulation results due to
+  parallelization through joblib)
+- added deepCopy() to reassign all internal model and population references in
+  copied model objects
+- changed runReplicates() and runParamSweep() to use deepCopy() (should not
+  affect simulation results due to parallelization through joblib)
+- added customModelFunction() function to allow users to add custom methods to
+  specific Model instances (e.g. for killswitches and conditional interventions)
+
+Opqua syntax changes:
+- changed syntax of interventions to force all functions used to be methods of
+  the Model object being intervened
+
 ## v0.9.0
 ## 8 Nov 2021
 All graphs in publication (title pending) generated with this stable version.
+[RETROACTIVE EDIT: first draft only]
 
 General model structure changes:
 - added transmission_efficiency_host_host, transmission_efficiency_host_vector,

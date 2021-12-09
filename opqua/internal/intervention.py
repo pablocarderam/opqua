@@ -8,20 +8,23 @@ class Intervention(object):
     doIntervention -- executes intervention function with specified arguments
     """
 
-    def __init__(self, time, function, args):
+    def __init__(self, time, method_name, args, model):
         """Create a new Intervention.
 
         Arguments:
         time -- time at which intervention will take place (number)
-        function -- intervention to be carried out (method of class Model)
+        method_name -- intervention to be carried out, must correspond to the
+            name of a method of the Model object (String)
         args -- contains arguments for function in positinal order (array-like)
+        model -- Model object this intervention is associated to (Model)
         """
         super(Intervention, self).__init__()
         self.time = time
-        self.intervention = function
+        self.intervention = method_name
         self.args = args
+        self.model = model
 
     def doIntervention(self):
         """Execute intervention function with specified arguments."""
 
-        self.intervention(*self.args)
+        getattr(self.model, self.intervention)(*self.args)

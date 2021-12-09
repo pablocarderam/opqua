@@ -40,8 +40,9 @@ class Model(object):
     setups -- dictionary with keys=setup IDs, values=Setup objects
     interventions -- contains model interventions in the order they will occur
     groups -- dictionary with keys=group IDs, values=lists of hosts/vectors
-    self.history -- dictionary with keys=time values, values=Model objects that
+    history -- dictionary with keys=time values, values=Model objects that
         are snapshots of Model at that timepoint
+    t_var -- variable that tracks time in simulations
 
     *** --- METHODS: --- ***
 
@@ -104,6 +105,9 @@ class Model(object):
     - Modify population parameters -
     setSetup -- assigns a given set of parameters to this population
 
+    - Utility -
+    customModelFunction -- returns output of given function run on model
+
     --- Preset fitness functions: ---
         * these are static methods
 
@@ -165,6 +169,7 @@ class Model(object):
             # the simulation time will be stored under the corresponding ID
             # inside global_trackers['custom_condition']
 
+        self.t_var = 0 # used as time variable during simulation
 
     ### MODEL METHODS ###
 
@@ -593,16 +598,17 @@ class Model(object):
             protection_upon_recovery_host, protection_upon_recovery_vector
             )
 
-    def newIntervention(self, time, function, args):
+    def newIntervention(self, time, method_name, args):
         """Create a new intervention to be carried out at a specific time.
 
         Arguments:
         time -- time at which intervention will take place (number >= 0)
-        function -- intervention to be carried out (method of class Model)
+        method_name -- intervention to be carried out, must correspond to the
+            name of a method of the Model object (String)
         args -- contains arguments for function in positinal order (array-like)
         """
 
-        self.interventions.append( Intervention(time, function, args) )
+        self.interventions.append( Intervention(time, method_name, args, self) )
 
     def addCustomConditionTracker(self, condition_id, trackerFunction):
         """Add a function to track occurrences of custom events in simulation.
@@ -687,7 +693,8 @@ class Model(object):
         print('Starting parallel simulations...')
 
         def run(sim_num):
-            sim = Gillespie(self)
+            model = self.deepCopy()
+            sim = Gillespie(model)
             mod = sim.run(
                 t0,tf,time_sampling=-1,
                 host_sampling=host_sampling,vector_sampling=vector_sampling
@@ -799,7 +806,7 @@ class Model(object):
         print('Starting parallel simulations...')
 
         def run(param_values):
-            model = cp.deepcopy(self)
+            model = self.deepCopy()
             for i,param_name in enumerate(params):
                 if ':' in param_name:
                     pops = param_name.split(':')[1].split(';')
@@ -925,6 +932,25 @@ class Model(object):
             }
 
         return copy
+
+    def deepCopy(self):
+        """Returns a full copy of the current model with inner references.
+
+        Returns:
+        copied Model object
+        """
+
+        model = cp.deepcopy(self)
+        for intervention in model.interventions:
+            intervention.model = model
+        for pop in model.populations:
+            model.populations[pop].model = model
+            for h in model.populations[pop].hosts:
+                h.population = model.populations[pop]
+            for v in model.populations[pop].vectors:
+                v.population = model.populations[pop]
+
+        return model
 
 
     ### Output and Plots: ###
@@ -1851,6 +1877,21 @@ class Model(object):
         """
 
         self.populations[pop_id].setSetup( self.setups[setup_id] )
+
+    ### Utility: ###
+
+    def customModelFunction(self, function):
+        """Returns output of given function, passing this model as a parameter.
+
+        Arguments:
+        function -- function to be evaluated; must take a Model object as the
+                    only parameter (function)
+
+        Returns:
+        Output of function passed as parameter
+        """
+
+        return function(self)
 
     ### Preset fitness functions: ###
 
