@@ -601,12 +601,12 @@ class Gillespie(object):
                         or r_tot == 0) ):
                             # carry out all interventions at this time point,
                             # and additional timepoints if no events will happen
-                        self.model.interventions[
-                            intervention_tracker
-                            ].doIntervention()
                         self.model.t_var = self.model.interventions[
                             intervention_tracker
                             ].time
+                        self.model.interventions[
+                            intervention_tracker
+                            ].doIntervention()
                         intervention_tracker += 1 # advance the tracker
 
                         # save snapshot at this timepoint
