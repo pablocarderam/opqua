@@ -1,9 +1,13 @@
 
 # Opqua Changelog
 
+## v0.9.3
+## 8 Dec 2021
+Same bug as below, the fix was incomplete.
+
 ## v0.9.2
 ## 8 Dec 2021
-there was a bug in the last release regarding interventions! in order to
+There was a bug in the last release regarding interventions! in order to
 correctly impplement custom user killswitches, it is important to update the
 time variable t_var immediately *before* an intervention takes place, not after
 it. Fixed in Gillespie method now, does not change behavior of any previous
