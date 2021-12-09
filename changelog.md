@@ -1,6 +1,14 @@
 
 # Opqua Changelog
 
+## v0.9.4
+## 9 Dec 2021
+Another small change to the Gillespie algorithm, this time to avoid rare
+infinite loops when tampering with t_var.
+- changed order in which time delta was added to t_var to be after interventions
+  occur
+- do not carry out interventions if t_var is past simulation end time
+
 ## v0.9.3
 ## 8 Dec 2021
 Same bug as below, the fix was incomplete.

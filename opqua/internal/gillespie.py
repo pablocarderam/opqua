@@ -588,17 +588,16 @@ class Gillespie(object):
             # Time handling
             if r_tot > 0:
                 dt = np.random.exponential( 1/r_tot ) # time until next event
-                self.model.t_var += dt # add time step to main timer
 
                 if (intervention_tracker < len(self.model.interventions)
-                    and self.model.t_var
+                    and self.model.t_var + dt
                     >= self.model.interventions[intervention_tracker].time):
                     # if there are any interventions left and if it is time
                     # to make one,
                     while ( intervention_tracker < len(self.model.interventions)
-                        and (self.model.t_var
+                        and (self.model.t_var + dt
                         >= self.model.interventions[intervention_tracker].time
-                        or r_tot == 0) ):
+                        or r_tot == 0) ) and self.model.t_var < tf:
                             # carry out all interventions at this time point,
                             # and additional timepoints if no events will happen
                         self.model.t_var = self.model.interventions[
@@ -622,9 +621,10 @@ class Gillespie(object):
                     if r_tot > 0: # if no more events happening,
                         dt = np.random.exponential( 1/r_tot )
                             # time until next event
-                        self.model.t_var += dt # add time step to main timer
                     else:
                         self.model.t_var = tf # go to end
+
+                self.model.t_var += dt # add time step to main timer
 
                 # Event handling
                 if self.model.t_var < tf: # if still within max time
@@ -684,7 +684,8 @@ class Gillespie(object):
                         # if still not done with interventions,
                     while (intervention_tracker < len(self.model.interventions)
                         and self.model.t_var
-                        <= self.model.interventions[intervention_tracker].time):
+                        <= self.model.interventions[intervention_tracker].time)
+                        and self.model.t_var < tf:
                             # carry out all interventions at this time point
                         self.model.t_var = self.model.interventions[
                             intervention_tracker
