@@ -1,6 +1,10 @@
 
 # Opqua Changelog
 
+## v0.9.5
+## 9 Dec 2021
+Parenthesis error.
+
 ## v0.9.4
 ## 9 Dec 2021
 Another small change to the Gillespie algorithm, this time to avoid rare

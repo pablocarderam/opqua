@@ -597,7 +597,7 @@ class Gillespie(object):
                     while ( intervention_tracker < len(self.model.interventions)
                         and (self.model.t_var + dt
                         >= self.model.interventions[intervention_tracker].time
-                        or r_tot == 0) ) and self.model.t_var < tf:
+                        or r_tot == 0) and self.model.t_var < tf ):
                             # carry out all interventions at this time point,
                             # and additional timepoints if no events will happen
                         self.model.t_var = self.model.interventions[
@@ -684,8 +684,8 @@ class Gillespie(object):
                         # if still not done with interventions,
                     while (intervention_tracker < len(self.model.interventions)
                         and self.model.t_var
-                        <= self.model.interventions[intervention_tracker].time)
-                        and self.model.t_var < tf:
+                        <= self.model.interventions[intervention_tracker].time
+                        and self.model.t_var < tf):
                             # carry out all interventions at this time point
                         self.model.t_var = self.model.interventions[
                             intervention_tracker
