@@ -79,10 +79,12 @@ class Model(object):
         towards another
     linkPopulationsVectorMigration -- set vector migration rate from one
         population towards another
-    linkPopulationsHostContact -- set host inter-population contact rate from
-        one population towards another
-    linkPopulationsVectorMigration -- set vector inter-population contact rate
-        from one population towards another
+    linkPopulationsHostHostContact -- set host-host inter-population contact
+        rate from one population towards another
+    linkPopulationsHostVectorMigration -- set host-vector inter-population
+        contact rate from one population towards another
+    linkPopulationsVectorHostMigration -- set vector-host inter-population
+        contact rate from one population towards another
     createInterconnectedPopulations -- create new populations, link all of them
         to each other by migration and/or inter-population contact
 
@@ -711,8 +713,9 @@ class Model(object):
             param_sweep_dic={},
             host_population_size_sweep={}, vector_population_size_sweep={},
             host_migration_sweep_dic={}, vector_migration_sweep_dic={},
-            host_population_contact_sweep_dic={},
-            vector_population_contact_sweep_dic={},
+            host_host_population_contact_sweep_dic={},
+            host_vector_population_contact_sweep_dic={},
+            vector_host_population_contact_sweep_dic={},
             replicates=1,host_sampling=0,vector_sampling=0,n_cores=0,
             **kwargs):
         """Simulate a parameter sweep with a model, save only end results.
@@ -746,12 +749,15 @@ class Model(object):
         vector_migration_sweep_dic -- dictionary with keys=population IDs of
             origin and destination, separated by a colon ';' (Strings),
             values=list of values (list of numbers)
-        host_population_contact_sweep_dic -- dictionary with keys=population IDs
-            of origin and destination, separated by a colon ';' (Strings),
-            values=list of values (list of numbers)
-        vector_population_contact_sweep_dic -- dictionary with keys=population
-            IDs of origin and destination, separated by a colon ';' (Strings),
-            values=list of values (list of numbers)
+        host_host_population_contact_sweep_dic -- dictionary with
+            keys=population IDs of origin and destination, separated by a colon
+            ';' (Strings), values=list of values (list of numbers)
+        host_vector_population_contact_sweep_dic -- dictionary with
+            keys=population IDs of origin and destination, separated by a colon
+            ';' (Strings), values=list of values (list of numbers)
+        vector_host_population_contact_sweep_dic -- dictionary with
+            keys=population IDs of origin and destination, separated by a colon
+            ';' (Strings), values=list of values (list of numbers)
         replicates -- how many replicates to simulate (int >= 1)
         host_sampling -- how many hosts to skip before saving one in a snapshot
             of the system state (saves all by default) (int >= 0, default 0)
@@ -782,17 +788,21 @@ class Model(object):
         for p in vector_migration_sweep_dic:
             param_sweep_dic['migrate_vector:'+p] = vector_migration_sweep_dic[p]
 
-        for p in host_population_contact_sweep_dic:
-            param_sweep_dic['population_contact_host:'+p] \
-                = host_population_contact_sweep_dic[p]
+        for p in host_host_population_contact_sweep_dic:
+            param_sweep_dic['population_contact_host_host:'+p] \
+                = host_host_population_contact_sweep_dic[p]
 
-        for p in vector_population_contact_sweep_dic:
-            param_sweep_dic['population_contact_vector:'+p] \
-                = vector_population_contact_sweep_dic[p]
+        for p in host_vector_population_contact_sweep_dic:
+            param_sweep_dic['population_contact_host_vector:'+p] \
+                = host_vector_population_contact_sweep_dic[p]
+
+        for p in vector_host_population_contact_sweep_dic:
+            param_sweep_dic['population_contact_vector_host:'+p] \
+                = vector_host_population_contact_sweep_dic[p]
 
         if len(param_sweep_dic) == 0:
             raise ValueError(
-                'param_sweep_dic, host_migration_sweep_dic, vector_migration_sweep_dic, host_population_contact_sweep_dic, and vector_population_contact_sweep_dic cannot all be empty in runParamSweep()'
+                'param_sweep_dic, host_migration_sweep_dic, vector_migration_sweep_dic, host_host_population_contact_sweep_dic, host_vector_population_contact_sweep_dic, and vector_host_population_contact_sweep_dic cannot all be empty in runParamSweep()'
                 )
 
         params = param_sweep_dic.keys()
@@ -858,7 +868,7 @@ class Model(object):
                         model.linkPopulationsVectorMigration(
                             pops[0],pops[1],param_values[i]
                             )
-                    elif 'population_contact_host:' in param_name:
+                    elif 'population_contact_host_host:' in param_name:
                         new_pops = [
                             cp.deepcopy( model.populations[pops[0]] ),
                             cp.deepcopy( model.populations[pops[1]] )
@@ -867,13 +877,13 @@ class Model(object):
                         new_pops[1].model = model
                         model.populations[pops[0]] = new_pops[0]
                         model.populations[pops[1]] = new_pops[1]
-                        model.linkPopulationsHostContact(
+                        model.linkPopulationsHostHostContact(
                             pops[0],pops[1],param_values[i]
                             )
-                        model.linkPopulationsHostContact(
+                        model.linkPopulationsHostHostContact(
                             pops[1],pops[0],param_values[i]
                             )
-                    elif 'population_contact_vector:' in param_name:
+                    elif 'population_contact_host_vector:' in param_name:
                         new_pops = [
                             cp.deepcopy( model.populations[pops[0]] ),
                             cp.deepcopy( model.populations[pops[1]] )
@@ -882,10 +892,25 @@ class Model(object):
                         new_pops[1].model = model
                         model.populations[pops[0]] = new_pops[0]
                         model.populations[pops[1]] = new_pops[1]
-                        model.linkPopulationsVectorContact(
+                        model.linkPopulationsHostVectorContact(
                             pops[0],pops[1],param_values[i]
                             )
-                        model.linkPopulationsVectorContact(
+                        model.linkPopulationsHostVectorContact(
+                            pops[1],pops[0],param_values[i]
+                            )
+                    elif 'population_contact_vector_host:' in param_name:
+                        new_pops = [
+                            cp.deepcopy( model.populations[pops[0]] ),
+                            cp.deepcopy( model.populations[pops[1]] )
+                            ]
+                        new_pops[0].model = model
+                        new_pops[1].model = model
+                        model.populations[pops[0]] = new_pops[0]
+                        model.populations[pops[1]] = new_pops[1]
+                        model.linkPopulationsVectorHostContact(
+                            pops[0],pops[1],param_values[i]
+                            )
+                        model.linkPopulationsVectorHostContact(
                             pops[1],pops[0],param_values[i]
                             )
                 else:
@@ -1426,10 +1451,13 @@ class Model(object):
             self.populations[id].setVectorMigrationNeighbor(
                 self.populations[p],0
                 )
-            self.populations[id].setHostPopulationContactNeighbor(
+            self.populations[id].setHostHostPopulationContactNeighbor(
                 self.populations[p],0
                 )
-            self.populations[id].setVectorPopulationContactNeighbor(
+            self.populations[id].setVectorHostPopulationContactNeighbor(
+                self.populations[p],0
+                )
+            self.populations[id].setHostVectorPopulationContactNeighbor(
                 self.populations[p],0
                 )
 
@@ -1439,10 +1467,13 @@ class Model(object):
             self.populations[p].setVectorMigrationNeighbor(
                 self.populations[id],0
                 )
-            self.populations[p].setHostPopulationContactNeighbor(
+            self.populations[p].setHostHostPopulationContactNeighbor(
                 self.populations[id],0
                 )
-            self.populations[p].setVectorPopulationContactNeighbor(
+            self.populations[p].setVectorHostPopulationContactNeighbor(
+                self.populations[id],0
+                )
+            self.populations[p].setHostVectorPopulationContactNeighbor(
                 self.populations[id],0
                 )
 
@@ -1478,8 +1509,8 @@ class Model(object):
             self.populations[pop2_id], rate
             )
 
-    def linkPopulationsHostContact(self, pop1_id, pop2_id, rate):
-        """Set host contact rate from one population towards another.
+    def linkPopulationsHostHostContact(self, pop1_id, pop2_id, rate):
+        """Set host-host contact rate from one population towards another.
 
         Arguments:
         pop1_id -- origin population for which inter-population contact rate
@@ -1490,12 +1521,12 @@ class Model(object):
             neighbor; evts/time (number >= 0)
         """
 
-        self.populations[pop1_id].setHostPopulationContactNeighbor(
+        self.populations[pop1_id].setHostHostPopulationContactNeighbor(
             self.populations[pop2_id], rate
             )
 
-    def linkPopulationsVectorContact(self, pop1_id, pop2_id, rate):
-        """Set vector contact rate from one population towards another.
+    def linkPopulationsHostVectorContact(self, pop1_id, pop2_id, rate):
+        """Set host-vector contact rate from one population towards another.
 
         Arguments:
         pop1_id -- origin population for which inter-population contact rate
@@ -1506,14 +1537,31 @@ class Model(object):
             neighbor; evts/time (number >= 0)
         """
 
-        self.populations[pop1_id].setVectorPopulationContactNeighbor(
+        self.populations[pop1_id].setHostVectorPopulationContactNeighbor(
+            self.populations[pop2_id], rate
+            )
+
+    def linkPopulationsVectorHostContact(self, pop1_id, pop2_id, rate):
+        """Set vector-host contact rate from one population towards another.
+
+        Arguments:
+        pop1_id -- origin population for which inter-population contact rate
+            will be specified (String)
+        pop1_id -- destination population for which inter-population contact
+            rate will be specified (String)
+        rate -- inter-population contact rate from one population to the
+            neighbor; evts/time (number >= 0)
+        """
+
+        self.populations[pop1_id].setVectorHostPopulationContactNeighbor(
             self.populations[pop2_id], rate
             )
 
     def createInterconnectedPopulations(
             self, num_populations, id_prefix, setup_name,
             host_migration_rate=0, vector_migration_rate=0,
-            host_contact_rate=0, vector_contact_rate=0,
+            host_host_contact_rate=0,
+            host_vector_contact_rate=0, vector_host_contact_rate=0,
             num_hosts=100, num_vectors=100):
         """Create new populations, link all of them to each other.
 
@@ -1533,10 +1581,12 @@ class Model(object):
             evts/time (default 0; number >= 0)
         vector_migration_rate -- vector migration rate between populations;
             evts/time (default 0; number >= 0)
-        host_contact_rate -- host inter-population contact rate between
-            populations; evts/time (default 0; number >= 0)
-        vector_contact_rate -- vector inter-population contact rate between
-            populations; evts/time (default 0; number >= 0)
+        host_host_contact_rate -- host-host inter-population contact rate
+            between populations; evts/time (default 0; number >= 0)
+        host_vector_contact_rate -- host-vector inter-population contact rate
+            between populations; evts/time (default 0; number >= 0)
+        vector_host_contact_rate -- vector-host inter-population contact rate
+            between populations; evts/time (default 0; number >= 0)
         num_hosts -- number of hosts to initialize population with (default 100;
             int)
         num_vectors -- number of hosts to initialize population with (default
@@ -1560,13 +1610,15 @@ class Model(object):
             for p in self.populations:
                 pop.setHostMigrationNeighbor(self.populations[p],0)
                 pop.setVectorMigrationNeighbor(self.populations[p],0)
-                pop.setHostPopulationContactNeighbor(self.populations[p],0)
-                pop.setVectorPopulationContactNeighbor(self.populations[p],0)
+                pop.setHostHostPopulationContactNeighbor(self.populations[p],0)
+                pop.setHostVectorPopulationContactNeighbor(self.populations[p],0)
+                pop.setVectorHostPopulationContactNeighbor(self.populations[p],0)
 
                 self.populations[p].setHostMigrationNeighbor(pop,0)
                 self.populations[p].setVectorMigrationNeighbor(pop,0)
-                self.populations[p].setHostPopulationContactNeighbor(pop,0)
-                self.populations[p].setVectorPopulationContactNeighbor(pop,0)
+                self.populations[p].setHostHostPopulationContactNeighbor(pop,0)
+                self.populations[p].setHostVectorPopulationContactNeighbor(pop,0)
+                self.populations[p].setVectorHostPopulationContactNeighbor(pop,0)
 
         for p1_id in new_pop_ids:
             for p2_id in new_pop_ids:
@@ -1576,11 +1628,14 @@ class Model(object):
                 self.linkPopulationsVectorMigration(
                     p1_id,p2_id,vector_migration_rate
                     )
-                self.linkPopulationsHostContact(
-                    p1_id,p2_id,host_contact_rate
+                self.linkPopulationsHostHostContact(
+                    p1_id,p2_id,host_host_contact_rate
                     )
-                self.linkPopulationsVectorContact(
-                    p1_id,p2_id,vector_contact_rate
+                self.linkPopulationsHostVectorContact(
+                    p1_id,p2_id,host_vector_contact_rate
+                    )
+                self.linkPopulationsVectorHostContact(
+                    p1_id,p2_id,vector_host_contact_rate
                     )
 
     def newHostGroup(self, pop_id, group_id, hosts=-1, type='any'):

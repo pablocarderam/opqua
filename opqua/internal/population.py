@@ -17,6 +17,8 @@ class Population(object):
         coefficients array
     CONTACT -- position of intra-population aggregated contact rate for each
         individual inside coefficients array
+    RECEIVE_CONTACT -- position of intra-population aggregated receiving contact
+        rate for each individual inside coefficients array
     LETHALITY -- position of aggregated death rate for each individual inside
         coefficients array
     NATALITY -- position of aggregated birth rate for each individual inside
@@ -27,6 +29,8 @@ class Population(object):
         individual inside coefficients array
     POPULATION_CONTACT -- position of inter-population aggregated contact rate
         for each individual inside coefficients array
+    RECEIVE_POPULATION_CONTACT -- position of inter-population aggregated
+        receiving contact rate for each individual inside coefficients array
     MUTATION -- position of aggregated mutation rate for each individual inside
         coefficients array
     RECOMBINATION -- position of aggregated recovery rate for each individual
@@ -58,10 +62,12 @@ class Population(object):
     setVectorMigrationNeighbor -- sets migration rate of vectors from this
         population towards another
     migrate -- transfers hosts and/or vectors from this population to a neighbor
-    setHostPopulationContactNeighbor -- set host contact rate from this
+    setHostHostPopulationContactNeighbor -- set host-host contact rate from this
         population towards another one
-    setVectorPopulationContactNeighbor -- set vector contact rate from this
-        population towards another one
+    setHostVectorPopulationContactNeighbor -- set host-vector contact rate from
+        this population towards another one
+    setVectorHostPopulationContactNeighbor -- set vector-host contact rate from
+        this population towards another one
     populationContact -- contacts hosts and/or vectors from this population to
         another
     contactHostHost -- contact any two (weighted) random hosts in population
@@ -186,12 +192,18 @@ class Population(object):
             self.total_migration_rate_vectors = 0 # sum of all migration rates
                 # from this population to neighbors, vectors only
 
-            self.neighbors_contact_hosts = {} # dictionary with neighboring
+            self.neighbors_contact_hosts_hosts = {} # dictionary with
+                # neighboring populations, keys=Population, values=population
+                # contact rate from this population to neighboring population,
+                # for hosts towards hosts only
+            self.neighbors_contact_hosts_vectors = {} # dictionary with
+                # neighboring populations, keys=Population, values=population
+                # contact rate from this population to neighboring population,
+                # for hosts towards vectors only
+            self.neighbors_contact_vectors_hosts = {} # dictionary with neighbor
                 # populations, keys=Population, values=population contact rate
-                # from this population to neighboring population, for hosts only
-            self.neighbors_contact_vectors = {} # dictionary with neighbor
-                # populations, keys=Population, values=population contact rate
-                # from this population to neighboring population, for vectors only
+                # from this population to neighboring population, for vectors
+                # for vectors towards hosts only
             self.population_contact_rate_host = 0 # weighted sum of all host
                 # population contact rates from this population to neighbors
             self.population_contact_rate_vector = 0 # weighted sum of all vector
@@ -201,8 +213,9 @@ class Population(object):
 
             self.setHostMigrationNeighbor(self,0)
             self.setVectorMigrationNeighbor(self,0)
-            self.setHostPopulationContactNeighbor(self,0)
-            self.setVectorPopulationContactNeighbor(self,0)
+            self.setHostHostPopulationContactNeighbor(self,0)
+            self.setHostVectorPopulationContactNeighbor(self,0)
+            self.setVectorHostPopulationContactNeighbor(self,0)
 
     def copyState(self,host_sampling=0,vector_sampling=0):
         """Returns a slimmed-down version of the current population state.
@@ -854,8 +867,8 @@ class Population(object):
             target_pop.addPathogensToVectors(genomes,vectors=new_vector_list)
             vector = None
 
-    def setHostPopulationContactNeighbor(self, neighbor, rate):
-        """Set host contact rate from this population towards another one.
+    def setHostHostPopulationContactNeighbor(self, neighbor, rate):
+        """Set host-host contact rate from this population towards another one.
 
          Arguments:
          neighbor -- population towards which migration rate will be specified
@@ -863,10 +876,10 @@ class Population(object):
          rate -- migration rate from this population to the neighbor (number)
          """
 
-        self.neighbors_contact_hosts[neighbor] = rate
+        self.neighbors_contact_hosts_hosts[neighbor] = rate
 
-    def setVectorPopulationContactNeighbor(self, neighbor, rate):
-        """Set vector contact rate from this population towards another one.
+    def setHostVectorPopulationContactNeighbor(self, neighbor, rate):
+        """Set host-vector contact rate from this population to another one.
 
          Arguments:
          neighbor -- population towards which migration rate will be specified
@@ -874,7 +887,18 @@ class Population(object):
          rate -- migration rate from this population to the neighbor (number)
          """
 
-        self.neighbors_contact_vectors[neighbor] = rate
+        self.neighbors_contact_hosts_vectors[neighbor] = rate
+
+    def setVectorHostPopulationContactNeighbor(self, neighbor, rate):
+        """Set vector-host contact rate from this population to another one.
+
+         Arguments:
+         neighbor -- population towards which migration rate will be specified
+            (Population)
+         rate -- migration rate from this population to the neighbor (number)
+         """
+
+        self.neighbors_contact_vectors_hosts[neighbor] = rate
 
     def populationContact(
         self, target_pop, rand, host_origin=True, host_target=True):

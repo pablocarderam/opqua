@@ -119,51 +119,9 @@ class Gillespie(object):
         # vector populations. If you don't want this to happen, modify each
         # population's base contact rate accordingly.
 
-        # First calculate the total one-sided population contact rates for model
-        self.total_population_contact_rate_host = np.sum([
-            np.sum([ list(
-                self.model.populations[id].neighbors_contact_hosts.values()
-                ) ])
-                * self.model.populations[id].coefficients_hosts[
-                    :, self.model.populations[id].RECEIVE_POPULATION_CONTACT
-                    ].sum()
-                / max( len( self.model.populations[id].hosts ), 1)
-                for id in self.model.populations ])
-
-        self.total_population_contact_rate_vector = np.sum([
-            np.sum([ list(
-                self.model.populations[id].neighbors_contact_vectors.values()
-                ) ])
-                * self.model.populations[id].coefficients_vectors[
-                    :, self.model.populations[id].RECEIVE_POPULATION_CONTACT
-                    ].sum()
-                / max( len( self.model.populations[id].vectors ), 1)
-                for id in self.model.populations ])
-
         # Now for each population...
         for i,id in enumerate(population_ids):
-            # Calculate the population's one-sided population contact rate
-            self.model.populations[id].population_contact_rate_host = (
-                np.sum([ list(
-                    self.model.populations[id].neighbors_contact_hosts.values()
-                    ) ])
-                * self.model.populations[id].coefficients_hosts[
-                    :, self.model.populations[id].RECEIVE_POPULATION_CONTACT
-                ].sum()
-                / max( len( self.model.populations[id].hosts ), 1)
-                )
-
-            self.model.populations[id].population_contact_rate_vector = (
-                np.sum([ list(
-                    self.model.populations[id].neighbors_contact_vectors.values()
-                    ) ])
-                * self.model.populations[id].coefficients_vectors[
-                    :, self.model.populations[id].RECEIVE_POPULATION_CONTACT
-                ].sum()
-                / max( len( self.model.populations[id].vectors ), 1)
-                )
-
-            # Now the actual rates:
+            # Calculate the rates:
             rates[self.MIGRATE_HOST,i] = (
                 self.model.populations[id].total_migration_rate_hosts
                 * self.model.populations[id].coefficients_hosts[
@@ -180,7 +138,7 @@ class Gillespie(object):
 
             rates[self.POPULATION_CONTACT_HOST_HOST,i] = (
                 np.sum([ list(
-                    self.model.populations[id].neighbors_contact_hosts.values()
+                    self.model.populations[id].neighbors_contact_hosts_hosts.values()
                     ) ])
                 * np.multiply(
                     self.model.populations[id].coefficients_hosts[
@@ -189,14 +147,19 @@ class Gillespie(object):
                     self.model.populations[id].coefficients_hosts[
                         :, self.model.populations[id].INFECTED
                         ]
-                    ).sum()
-                * ( self.total_population_contact_rate_host
-                    -  self.model.populations[id].population_contact_rate_host )
+                    ).sum() / max( len( self.model.populations[id].hosts ), 1)
+                * np.sum([
+                    neighbor.neighbors_contact_hosts_hosts[self.model.populations[id]]
+                    * neighbor.coefficients_hosts[
+                        :, neighbor.RECEIVE_POPULATION_CONTACT
+                        ].sum()
+                    for neighbor in self.model.populations[id].neighbors_contact_hosts_hosts
+                    ])
                 )
 
             rates[self.POPULATION_CONTACT_HOST_VECTOR,i] = (
                 np.sum([ list(
-                    self.model.populations[id].neighbors_contact_hosts.values()
+                    self.model.populations[id].neighbors_contact_hosts_vectors.values()
                     ) ])
                 * np.multiply(
                     self.model.populations[id].coefficients_hosts[
@@ -205,14 +168,19 @@ class Gillespie(object):
                     self.model.populations[id].coefficients_hosts[
                         :, self.model.populations[id].INFECTED
                         ]
-                    ).sum()
-                * ( self.total_population_contact_rate_vector
-                    -self.model.populations[id].population_contact_rate_vector )
+                    ).sum() / max( len( self.model.populations[id].hosts ), 1)
+                * np.sum([
+                    neighbor.neighbors_contact_vectors_hosts[self.model.populations[id]]
+                    * neighbor.coefficients_vectors[
+                        :, neighbor.RECEIVE_POPULATION_CONTACT
+                        ].sum()
+                    for neighbor in self.model.populations[id].neighbors_contact_hosts_vectors
+                    ])
                 )
 
             rates[self.POPULATION_CONTACT_VECTOR_HOST,i] = (
                 np.sum([ list(
-                    self.model.populations[id].neighbors_contact_vectors.values()
+                    self.model.populations[id].neighbors_contact_vectors_hosts.values()
                     ) ])
                 * np.multiply(
                     self.model.populations[id].coefficients_vectors[
@@ -222,8 +190,13 @@ class Gillespie(object):
                         :, self.model.populations[id].INFECTED
                         ]
                     ).sum()
-                * ( self.total_population_contact_rate_host
-                    - self.model.populations[id].population_contact_rate_host )
+                * np.sum([
+                    neighbor.neighbors_contact_hosts_vectors[self.model.populations[id]]
+                    * neighbor.coefficients_hosts[
+                        :, neighbor.RECEIVE_POPULATION_CONTACT
+                        ].sum() / max( len( neighbor.hosts ), 1)
+                    for neighbor in self.model.populations[id].neighbors_contact_vectors_hosts
+                    ])
                 )
 
             rates[self.CONTACT_HOST_HOST,i] = (
@@ -400,82 +373,70 @@ class Gillespie(object):
                     break
 
         elif act == self.POPULATION_CONTACT_HOST_HOST:
-            rand = rand * np.sum([
-                pop.neighbors_contact_hosts[neighbor]
-                * neighbor.neighbors_contact_hosts[pop]
+            neighbors = list( pop.neighbors_contact_hosts_hosts.keys() )
+            neighbor_rates = [
+                pop.neighbors_contact_hosts_hosts[neighbor]
+                * neighbor.neighbors_contact_hosts_hosts[pop]
                 * neighbor.coefficients_hosts[
                     :, neighbor.RECEIVE_POPULATION_CONTACT
                     ].sum()
-                / max( len( neighbor.hosts ), 1)
-                for neighbor in pop.neighbors_contact_hosts ])
+                / max( len( pop.hosts ), 1) # technically unnecessary
+                for neighbor in neighbors
+                ]
+            rand = rand * np.sum(neighbor_rates)
             r_cum = 0
-            for neighbor in pop.neighbors_contact_hosts:
-                neighbor_r = (
-                    pop.neighbors_contact_hosts[neighbor]
-                    * neighbor.neighbors_contact_hosts[pop]
-                    * neighbor.coefficients_hosts[
-                        :, neighbor.RECEIVE_POPULATION_CONTACT
-                        ].sum()
-                    / max( len( neighbor.hosts ), 1)
-                    )
+            for neighbor_i,neighbor_r in enumerate(neighbor_rates):
                 r_cum += neighbor_r
                 if r_cum > rand:
                     changed = pop.populationContact(
-                        neighbor, ( rand - r_cum + neighbor_r ) / neighbor_r,
+                        neighbors[neighbor_i],
+                        ( rand - r_cum + neighbor_r ) / neighbor_r,
                         host_origin=True, host_target=True
                         )
                     break
 
         elif act == self.POPULATION_CONTACT_HOST_VECTOR:
-            rand = rand * np.sum([
-                pop.neighbors_contact_hosts[neighbor]
-                * neighbor.neighbors_contact_vectors[pop]
+            neighbors = list( pop.neighbors_contact_hosts_vectors.keys() )
+            neighbor_rates = [
+                pop.neighbors_contact_hosts_vectors[neighbor]
+                * neighbor.neighbors_contact_vectors_hosts[pop]
                 * neighbor.coefficients_vectors[
                     :, neighbor.RECEIVE_POPULATION_CONTACT
                     ].sum()
-                / max( len( neighbor.vectors ), 1)
-                for neighbor in pop.neighbors_contact_hosts ])
+                / max( len( pop.hosts ), 1) # technically unnecessary
+                for neighbor in neighbors
+                ]
+            rand = rand * np.sum(neighbor_rates)
             r_cum = 0
-            for neighbor in pop.neighbors_contact_hosts:
-                neighbor_r = (
-                    pop.neighbors_contact_hosts[neighbor]
-                    * neighbor.neighbors_contact_vectors[pop]
-                    * neighbor.coefficients_vectors[
-                        :, neighbor.RECEIVE_POPULATION_CONTACT
-                        ].sum()
-                    / max( len( neighbor.vectors ), 1)
-                    )
+            for neighbor_i,neighbor_r in enumerate(neighbor_rates):
                 r_cum += neighbor_r
                 if r_cum > rand:
                     changed = pop.populationContact(
-                        neighbor, ( rand - r_cum + neighbor_r ) / neighbor_r,
+                        neighbors[neighbor_i],
+                        ( rand - r_cum + neighbor_r ) / neighbor_r,
                         host_origin=True, host_target=False
                         )
                     break
 
         elif act == self.POPULATION_CONTACT_VECTOR_HOST:
-            rand = rand * np.sum([
-                pop.neighbors_contact_vectors[neighbor]
-                * neighbor.neighbors_contact_hosts[pop]
+            neighbors = list( pop.neighbors_contact_vectors_hosts.keys() )
+            neighbor_rates = [
+                pop.neighbors_contact_vectors_hosts[neighbor]
+                * neighbor.neighbors_contact_hosts_vectors[pop]
                 * neighbor.coefficients_hosts[
                     :, neighbor.RECEIVE_POPULATION_CONTACT
                     ].sum()
-                / max( len( neighbor.hosts ), 1)
-                for neighbor in pop.neighbors_contact_vectors ])
+                / max( len( neighbor.hosts ), 1) # necessary!
+                for neighbor in neighbors
+                ]
+            rand = rand * np.sum(neighbor_rates)
             r_cum = 0
-            for neighbor in pop.neighbors_contact_vectors:
-                neighbor_r = (
-                    pop.neighbors_contact_vectors[neighbor]
-                    * neighbor.neighbors_contact_hosts[pop]
-                    * neighbor.coefficients_hosts[
-                        :, neighbor.POPULATION_CONTACT
-                        ].sum()
-                    / max( len( neighbor.hosts ), 1)
-                    )
+            for neighbor_i,neighbor_r in enumerate(neighbor_rates):
                 r_cum += neighbor_r
                 if r_cum > rand:
                     changed = pop.populationContact(
-                        neighbor, ( rand - r_cum + neighbor_r ) / neighbor_r,
+                        neighbors[neighbor_i],
+                        ( rand - r_cum + neighbor_r ) / neighbor_r,
                         host_origin=False, host_target=True
                         )
                     break

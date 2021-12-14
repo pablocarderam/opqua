@@ -1,6 +1,12 @@
 
 # Opqua Changelog
 
+## v0.9.6
+## 14 Dec 2021
+Changed computation of inter-population contact rates to match logic of
+intra-population contact rates. Does not affect outcome of simulations not using
+inter-population contact.
+
 ## v0.9.5
 ## 9 Dec 2021
 Parenthesis error.

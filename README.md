@@ -45,7 +45,7 @@ user-specified adaptive landscapes
 
 Check out the `changelog` file for information on recent updates.
 
-Opqua has been used in-depth to study [pathogen evolution across fitness valleys](https://github.com/pablocarderam/fitness-valleys-opqua)
+Opqua has been used in-depth to study [pathogen evolution across fitness valleys](https://github.com/pablocarderam/fitness_valleys_opqua)
 (preprint forthcoming).
 
 Opqua is developed by [Pablo Cárdenas](https://pablo-cardenas.com) and Mauricio
@@ -467,10 +467,12 @@ setup parameters
 migration rate from one population towards another
 - [linkPopulationsVectorMigration](#linkPopulationsVectorMigration) -- set
 vector migration rate from one population towards another
-- [linkPopulationsHostContact](#linkPopulationsHostContact) -- set host
-inter-population contact rate from one population towards another
-- [linkPopulationsVectorContact](#linkPopulationsVectorContact) -- set vector
-inter-population contact rate from one population towards another
+- [linkPopulationsHostHostContact](#linkPopulationsHostHostContact) -- set
+host-host inter-population contact rate from one population towards another
+- [linkPopulationsHostVectorContact](#linkPopulationsHostVectorContact) -- set
+host-vector inter-population contact rate from one population towards another
+- [linkPopulationsVectorHostContact](#linkPopulationsVectorHostContact) -- set
+vector-host inter-population contact rate from one population towards another
 - [createInterconnectedPopulations](#createinterconnectedpopulations) --
 create new populations, link all of them to each other by migration and/or
 inter-population contact
@@ -907,8 +909,9 @@ t0,tf,setup_id,
 param_sweep_dic={},pop_ids_param_sweep=[],
 host_population_size_sweep={}, vector_population_size_sweep={},
 host_migration_sweep_dic={}, vector_migration_sweep_dic={},
-host_population_contact_sweep_dic={},
-vector_population_contact_sweep_dic={},
+host_host_population_contact_sweep_dic={},
+host_vector_population_contact_sweep_dic={},
+vector_host_population_contact_sweep_dic={},
 replicates=1,host_sampling=0,vector_sampling=0,n_cores=0,
 **kwargs)
 ```
@@ -945,10 +948,13 @@ _Keyword Arguments:_
 - vector_migration_sweep_dic -- dictionary with keys=population IDs of
     origin and destination, separated by a colon ';' (Strings),
     values=list of values (list of numbers)
-- host_population_contact_sweep_dic -- dictionary with keys=population IDs
+- host_host_population_contact_sweep_dic -- dictionary with keys=population IDs
     of origin and destination, separated by a colon ';' (Strings),
     values=list of values (list of numbers)
-- vector_population_contact_sweep_dic -- dictionary with keys=population
+- host_vector_population_contact_sweep_dic -- dictionary with keys=population
+    IDs of origin and destination, separated by a colon ';' (Strings),
+    values=list of values (list of numbers)
+- vector_host_population_contact_sweep_dic -- dictionary with keys=population
     IDs of origin and destination, separated by a colon ';' (Strings),
     values=list of values (list of numbers)
 - replicates -- how many replicates to simulate (int >= 1)
@@ -1449,14 +1455,14 @@ _Arguments:_
 - rate -- migration rate from one population to the neighbor; events/time
     (number >= 0)
 
-#### linkPopulationsHostContact
+#### linkPopulationsHostHostContact
 
 ```python
-linkPopulationsHostContact(pop1_id, pop2_id, rate)
+linkPopulationsHostHostContact(pop1_id, pop2_id, rate)
 ```
 
 
-Set host inter-population contact rate from one population towards another.
+Set host-host inter-population contact rate from one population towards another.
 
 _Arguments:_
 - pop1_id -- origin population for which migration rate will be specified
@@ -1466,14 +1472,31 @@ _Arguments:_
 - rate -- migration rate from one population to the neighbor; events/time
     (number >= 0)
 
-#### linkPopulationsVectorContact
+#### linkPopulationsHostVectorContact
 
 ```python
-linkPopulationsVectorContact(pop1_id, pop2_id, rate)
+linkPopulationsHostVectorContact(pop1_id, pop2_id, rate)
 ```
 
 
-Set vector inter-population contact rate from one population towards another.
+Set host-vector inter-population contact rate from one population to another.
+
+_Arguments:_
+- pop1_id -- origin population for which migration rate will be specified
+    (String)
+- pop1_id -- destination population for which migration rate will be
+    specified (String)
+- rate -- migration rate from one population to the neighbor; events/time
+    (number >= 0)
+
+#### linkPopulationsVectorHostContact
+
+```python
+linkPopulationsVectorHostContact(pop1_id, pop2_id, rate)
+```
+
+
+Set vector-host inter-population contact rate from one population to another.
 
 _Arguments:_
 - pop1_id -- origin population for which migration rate will be specified
@@ -1487,8 +1510,11 @@ _Arguments:_
 
 ```python
 createInterconnectedPopulations(
-    num_populations, migration_rate, id_prefix, setup_name,
-    num_hosts=100, num_vectors=100)
+      num_populations, id_prefix, setup_name,
+      host_migration_rate=0, vector_migration_rate=0,
+      host_host_contact_rate=0,
+      host_vector_contact_rate=0, vector_host_contact_rate=0,
+      num_hosts=100, num_vectors=100)
 ```
 
 
@@ -1510,9 +1536,11 @@ _Keyword arguments:_
     events/time (default 0; number >= 0)
 - vector_migration_rate -- vector migration rate between populations;
     events/time (default 0; number >= 0)
-- host_contact_rate -- host inter-population contact rate between
+- host_host_contact_rate -- host-host inter-population contact rate between
     populations; events/time (default 0; number >= 0)
-- vector_contact_rate -- vector inter-population contact rate between
+- host_vector_contact_rate -- host-vector inter-population contact rate between
+    populations; events/time (default 0; number >= 0)
+- vector_host_contact_rate -- vector-host inter-population contact rate between
     populations; events/time (default 0; number >= 0)
 - num_hosts -- number of hosts to initialize population with (default 100;
     int)
