@@ -45,8 +45,8 @@ user-specified adaptive landscapes
 
 Check out the `changelog` file for information on recent updates.
 
-Opqua has been used in-depth to study [pathogen evolution across fitness valleys](https://github.com/pablocarderam/fitness_valleys_opqua)
-(preprint forthcoming).
+Opqua has been used in-depth to study [pathogen evolution across fitness valleys](https://github.com/pablocarderam/fitness_valleys_opqua).
+Check out the preprint on [biorXiv](https://doi.org/10.1101/2021.12.16.473045).
 
 Opqua is developed by [Pablo Cárdenas](https://pablo-cardenas.com) and Mauricio
 Santos-Vega.
@@ -159,7 +159,10 @@ graph = my_model.compartmentPlot('my_model.png', data)
 ```
 
 For more example usage, have a look at the `examples` folder. For an overview
-of how Opqua models work, check out the
+of how Opqua models work, check out the Materials and Methods section on the
+manuscript
+[here](https://www.biorxiv.org/content/10.1101/2021.12.16.473045v1.full). A
+summarized description is shown below in the
 [How Does Opqua Work?](#how-does-opqua-work) section.
 For more information on the details of each function, head over to the
 [Model Documentation](#opqua-model-documentation) section.

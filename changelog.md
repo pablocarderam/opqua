@@ -1,6 +1,9 @@
 
 # Opqua Changelog
 
+## 21 Dec 2021
+Added biorXiv links.
+
 ## v0.9.6
 ## 14 Dec 2021
 Changed computation of inter-population contact rates to match logic of
