@@ -1,6 +1,10 @@
 
 # Opqua Changelog
 
+## v0.9.6
+## 18 Jan 2022
+Update Pillow to 9.0.0.
+
 ## 21 Dec 2021
 Added biorXiv links.
 
