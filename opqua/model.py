@@ -1161,8 +1161,9 @@ class Model(object):
             num_top_sequences=7, track_specific_sequences=[],
             save_data_to_file="", x_label='Time', y_label='Infections',
             figsize=(8, 4), dpi=200, palette=CB_PALETTE, stacked=True,
-            remove_legend=False, genomic_positions=[],
-            count_individuals_based_on_model=None, **kwargs):
+            remove_legend=False, genomic_positions=[],population_fraction=False,
+            count_individuals_based_on_model=None,
+            legend_title='Genotype', legend_values=[], **kwargs):
         """Create plot with counts for pathogen genomes or resistance vs. time.
 
         Creates a line or stacked line plot with dynamics of the pathogen
@@ -1236,6 +1237,8 @@ class Model(object):
             palette=palette, stacked=stacked, remove_legend=remove_legend,
             genomic_positions=genomic_positions,
             count_individuals_based_on_model=count_individuals_based_on_model,
+            population_fraction=population_fraction, legend_title=legend_title,
+            legend_values=legend_values,
             **kwargs
             )
 
