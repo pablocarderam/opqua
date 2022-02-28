@@ -1243,8 +1243,12 @@ compositionPlot(
 file_name, data, composition_dataframe=None, populations=[],
 type_of_composition='Pathogens', hosts=True, vectors=False,
 num_top_sequences=7, track_specific_sequences=[],
+genomic_positions=[], count_individuals_based_on_model=None,
+remove_legend=False, population_fraction=False,
 save_data_to_file="", x_label='Time', y_label='Infections',
-figsize=(8, 4), dpi=200, palette=CB_PALETTE, stacked=True, **kwargs)
+legend_title='Genotype', legend_values=[],
+figsize=(8, 4), dpi=200, palette=CB_PALETTE, stacked=True,
+**kwargs)
 ```
 
 
@@ -1267,7 +1271,7 @@ _Keyword Arguments:_
 - composition_dataframe -- output of compositionDf() if already computed
       (Pandas DataFrame, None by default)
 - populations -- IDs of populations to include in analysis; if empty, uses
-- all populations in model (default empty list; list of Strings)
+all populations in model (default empty list; list of Strings)
 - type_of_composition -- field of data to count totals of, can be either
 'Pathogens' or 'Protection' (default 'Pathogens'; String)
 - hosts -- whether to count hosts (default True, Boolean)
@@ -1278,6 +1282,15 @@ includes all genomes in model (default 7; int)
 - track_specific_sequences -- contains specific sequences to have
 as a separate column if not part of the top num_top_sequences
 sequences (list of Strings)
+- genomic_positions -- list in which each element is a list with loci
+positions to extract (e.g. genomic_positions=[ [0,3], [5,6] ] extracts
+positions 0, 1, 2, and 5 from each genome); if empty, takes full genomes
+(default empty list; list of lists of int)
+- count_individuals_based_on_model -- Model object with populations and
+fitness functions used to evaluate the most fit pathogen genome in each
+host/vector in order to count only a single pathogen per host/vector, as
+opposed to all pathogens within each host/vector; if None, counts all
+pathogens (default None; None or Model)
 - save_data_to_file -- file path and name to save model data under, no saving
 occurs if empty string (default ''; String)
 - x_label -- X axis title (default 'Time', String)
@@ -1289,8 +1302,12 @@ IDs (default empty list, list of Strings)
 - dpi -- figure resolution (default 200, int)
 - palette -- color palette to use for traces (default CB_PALETTE, list of
 color Strings)
-- stacked -- whether to draw a regular line plot or a stacked one (default
-False, Boolean)
+- stacked -- whether to draw a regular line plot instead of a stacked one
+(default False, Boolean).
+- remove_legend -- whether to print the sequences on the figure legend instead
+of printing them on a separate csv file (default True; Boolean)
+- population_fraction -- whether to graph fractions of pathogen population
+instead of pathogen counts (default False, Boolean)
 - **kwargs -- additional arguents for joblib multiprocessing
 
 _Returns:_

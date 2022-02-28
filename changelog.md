@@ -1,7 +1,11 @@
 
 # Opqua Changelog
 
-## v0.9.6
+## v0.9.8
+## 18 Jan 2022
+Update compositionPlot additional arguments.
+
+## v0.9.7
 ## 18 Jan 2022
 Update Pillow to 9.0.0.
 
