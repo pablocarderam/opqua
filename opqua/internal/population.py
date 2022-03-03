@@ -53,10 +53,10 @@ class Population(object):
     addPathogensToVectors -- adds pathogens with specified genomes to vectors
     treatHosts -- removes infections susceptible to given treatment from hosts
     treatVectors -- removes infections susceptible to treatment from vectors
-    protectHosts -- adds protection sequence to hosts
-    protectVectors -- adds protection sequence to vectors
-    wipeProtectionHosts -- removes all protection sequences from hosts
-    wipeProtectionVectors -- removes all protection sequences from hosts
+    immunizeHosts -- adds immunity sequence to hosts
+    immunizeVectors -- adds immunity sequence to vectors
+    wipeImmunityHosts -- removes all immunity sequences from hosts
+    wipeImmunityVectors -- removes all immunity sequences from hosts
     setHostMigrationNeighbor -- sets migration rate of hosts from this
         population towards another
     setVectorMigrationNeighbor -- sets migration rate of vectors from this
@@ -324,12 +324,12 @@ class Population(object):
         self.birth_rate_vector = setup.birth_rate_vector
         self.vertical_transmission_host = setup.vertical_transmission_host
         self.vertical_transmission_vector = setup.vertical_transmission_vector
-        self.inherit_protection_host = setup.inherit_protection_host
-        self.inherit_protection_vector = setup.inherit_protection_vector
-        self.protection_upon_recovery_host \
-            = setup.protection_upon_recovery_host
-        self.protection_upon_recovery_vector \
-            = setup.protection_upon_recovery_vector
+        self.inherit_immunity_host = setup.inherit_immunity_host
+        self.inherit_immunity_vector = setup.inherit_immunity_vector
+        self.immunity_upon_recovery_host \
+            = setup.immunity_upon_recovery_host
+        self.immunity_upon_recovery_vector \
+            = setup.immunity_upon_recovery_vector
 
     def addHosts(self, num_hosts):
         """Add a number of healthy hosts to population, return list with them.
@@ -700,16 +700,16 @@ class Population(object):
         for vector in treat_vectors:
             vector.applyTreatment(resistance_seqs)
 
-    def protectHosts(self, frac_hosts, protection_sequence, hosts=[]):
-        """Protect a random fraction of infected hosts against some infection.
+    def immunizeHosts(self, frac_hosts, immunity_sequence, hosts=[]):
+        """Immunize a random fraction of infected hosts against some infection.
 
-        Adds protection sequence specified to a random fraction of the hosts
+        Adds immunity sequence specified to a random fraction of the hosts
         specified. Does not cure them if they are already infected.
 
         Arguments:
         frac_hosts -- fraction of hosts considered to be randomly selected
             (number between 0 and 1)
-        protection_sequence -- sequence against which to protect (String)
+        immunity_sequence -- sequence against which to immunize (String)
 
         Keyword arguments:
         hosts -- list of specific hosts to sample from, if empty, samples from
@@ -720,23 +720,23 @@ class Population(object):
         if len(hosts) > 0:
             hosts_to_consider = hosts
 
-        protect_hosts = np.random.choice(
+        immunize_hosts = np.random.choice(
             self.hosts, int( frac_hosts * len( hosts_to_consider ) ),
             replace=False
             )
-        for host in protect_hosts:
-            host.protection_sequences.append(protection_sequence)
+        for host in immunize_hosts:
+            host.immunity_sequences.append(immunity_sequence)
 
-    def protectVectors(self, frac_vectors, protection_sequence, vectors=[]):
-        """Protect a random fraction of infected vectors against some infection.
+    def immunizeVectors(self, frac_vectors, immunity_sequence, vectors=[]):
+        """Immunize a random fraction of infected vectors against some infection.
 
-        Adds protection sequence specified to a random fraction of the vectors
+        Adds immunity sequence specified to a random fraction of the vectors
         specified. Does not cure them if they are already infected.
 
         Arguments:
         frac_vectors -- fraction of vectors considered to be randomly selected
             (number between 0 and 1)
-        protection_sequence -- sequence against which to protect (String)
+        immunity_sequence -- sequence against which to immunize (String)
 
         Keyword arguments:
         vectors -- list of specific vectors to sample from, if empty, samples
@@ -747,15 +747,15 @@ class Population(object):
         if len(vectors) > 0:
             vectors_to_consider = vectors
 
-        protect_vectors = np.random.choice(
+        immunize_vectors = np.random.choice(
             self.vectors, int( frac_vectors * len( vectors_to_consider ) ),
             replace=False
             )
-        for vector in protect_vectors:
-            vector.protection_sequences.append(protection_sequence)
+        for vector in immunize_vectors:
+            vector.immunity_sequences.append(immunity_sequence)
 
-    def wipeProtectionHosts(self, hosts=[]):
-        """Removes all protection sequences from hosts.
+    def wipeImmunityHosts(self, hosts=[]):
+        """Removes all immunity sequences from hosts.
 
         Keyword arguments:
         hosts -- list of specific hosts to sample from, if empty, samples from
@@ -767,14 +767,14 @@ class Population(object):
             hosts_to_consider = hosts
 
         for host in hosts_to_consider:
-            host.protection_sequences = []
+            host.immunity_sequences = []
 
-    def wipeProtectionVectors(self, vectors=[]):
-        """Removes all protection sequences from vectors.
+    def wipeImmunityVectors(self, vectors=[]):
+        """Removes all immunity sequences from vectors.
 
         Keyword arguments:
-        vectors -- list of specific vectors to sample from, if empty, samples from
-            whole population (default empty list; empty)
+        vectors -- list of specific vectors to sample from, if empty, samples
+            from whole population (default empty list; empty)
         """
 
         vectors_to_consider = self.vectors
@@ -782,7 +782,7 @@ class Population(object):
             vectors_to_consider = vectors
 
         for vector in vectors_to_consider:
-            vector.protection_sequences = []
+            vector.immunity_sequences = []
 
     def setHostMigrationNeighbor(self, neighbor, rate):
         """Set host migration rate from this population towards another one.
@@ -809,7 +809,7 @@ class Population(object):
          """
 
         if neighbor in self.neighbors_vectors:
-            self.total_migration_rate_vectors -= self.neighbors_vectors[neighbor]
+            self.total_migration_rate_vectors -=self.neighbors_vectors[neighbor]
 
         self.neighbors_vectors[neighbor] = rate
         self.total_migration_rate_vectors += rate
@@ -1042,7 +1042,7 @@ class Population(object):
     def recoverHost(self, rand):
         """Remove all infections from host at this index.
 
-        If model is protecting upon recovery, add protecion sequence as defined
+        If model is immunizing upon recovery, add protecion sequence as defined
         by the indexes in the corresponding model parameter. Remove from
         population infected list and add to healthy list.
 
@@ -1060,7 +1060,7 @@ class Population(object):
     def recoverVector(self, rand):
         """Remove all infections from vector at this index.
 
-        If model is protecting upon recovery, add protecion sequence as defined
+        If model is immunizing upon recovery, add protecion sequence as defined
         by the indexes in the corresponding model parameter. Remove from
         population infected list and add to healthy list.
 

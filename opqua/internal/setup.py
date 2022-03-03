@@ -29,8 +29,8 @@ class Setup(object):
             mutate_in_host, mutate_in_vector, death_rate_host,death_rate_vector,
             birth_rate_host, birth_rate_vector,
             vertical_transmission_host, vertical_transmission_vector,
-            inherit_protection_host, inherit_protection_vector,
-            protection_upon_recovery_host, protection_upon_recovery_vector):
+            inherit_immunity_host, inherit_immunity_vector,
+            immunity_upon_recovery_host, immunity_upon_recovery_vector):
         """Create a new Setup.
 
         Arguments:
@@ -154,15 +154,15 @@ class Setup(object):
             parent at birth (number 0-1)
         vertical_transmission_vector -- probability that a vector is infected by
             its parent at birth (number 0-1)
-        inherit_protection_host -- probability that a host inherits all
-            protection sequences from its parent (number 0-1)
-        inherit_protection_vector -- probability that a vector inherits all
-            protection sequences from its parent (number 0-1)
-        protection_upon_recovery_host -- defines indexes in genome string that
-            define substring to be added to host protection sequences after
+        inherit_immunity_host -- probability that a host inherits all
+            immunity sequences from its parent (number 0-1)
+        inherit_immunity_vector -- probability that a vector inherits all
+            immunity sequences from its parent (number 0-1)
+        immunity_upon_recovery_host -- defines indexes in genome string that
+            define substring to be added to host immunity sequences after
             recovery (None or array-like of length 2 with int 0-num_loci)
-        protection_upon_recovery_vector -- defines indexes in genome string that
-            define substring to be added to vector protection sequences after
+        immunity_upon_recovery_vector -- defines indexes in genome string that
+            define substring to be added to vector immunity sequences after
             recovery (None or array-like of length 2 with int 0-num_loci)
         """
 
@@ -233,8 +233,8 @@ class Setup(object):
 
         self.vertical_transmission_host = vertical_transmission_host
         self.vertical_transmission_vector = vertical_transmission_vector
-        self.inherit_protection_host = inherit_protection_host
-        self.inherit_protection_vector = inherit_protection_vector
+        self.inherit_immunity_host = inherit_immunity_host
+        self.inherit_immunity_vector = inherit_immunity_vector
 
-        self.protection_upon_recovery_host = protection_upon_recovery_host
-        self.protection_upon_recovery_vector = protection_upon_recovery_vector
+        self.immunity_upon_recovery_host = immunity_upon_recovery_host
+        self.immunity_upon_recovery_vector = immunity_upon_recovery_vector

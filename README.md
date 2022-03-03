@@ -243,15 +243,15 @@ towards A.
 
 Recovery of an infected host or vector results in all pathogens being removed
 from the host/vector. Additionally, the host/vector may optionally gain
-protection from pathogens that contain specific genome sequences present in the
+immunity from pathogens that contain specific genome sequences present in the
 genomes of the pathogens it recovered from, representing immune memory. The user
 may specify a population parameter delimiting the contiguous loci in the genome
-that are saved on the recovered host/vector as "protection sequences". Pathogens
-containing any of the host/vector's protection sequences will not be able to
+that are saved on the recovered host/vector as "immunity sequences". Pathogens
+containing any of the host/vector's immunity sequences will not be able to
 infect the host/vector.
 
 Births result in a new host/vector that may optionally inherit its parent's
-protection sequences. Additionally, a parent may optionally infect its offspring
+immunity sequences. Additionally, a parent may optionally infect its offspring
 at birth following a Poisson sampling process equivalent to the one described
 for other contact events above. Deaths of existing hosts/vectors can occur both
 naturally or due to infection lethality. Only deaths due to infection are
@@ -287,10 +287,10 @@ Interventions can also include actions that involve specific hosts or vectors in
 a given population, such as:
 
 - adding pathogens with specific genomes to a host/vector
-- removing all protection sequences from some hosts/vectors in a population
+- removing all immunity sequences from some hosts/vectors in a population
 - applying a "treatment" in a population that cures some of its hosts/vectors of
 pathogens
-- applying a "vaccine" in a population that protects some of its hosts/vectors
+- applying a "vaccine" in a population that immunizes some of its hosts/vectors
 from pathogens
 
 For these kinds of interventions involving specific pathogens in a population,
@@ -306,9 +306,9 @@ When a host/vector is given a "treatment", it removes all pathogens within the
 host/vector that do not contain a collection of "resistance sequences". A
 treatment may have multiple resistance sequences. A pathogen must contain all
 of these within its genome in order to avoid being removed. On the other hand,
-applying a vaccine consists of adding a specific protection sequence to
+applying a vaccine consists of adding a specific immunity sequence to
 hosts/vectors, which behaves as explained above for recovered hosts/vectors when
-they acquire immune protection, if the model allows it.
+they acquire immune immunity, if the model allows it.
 
 ### Simulation
 
@@ -337,7 +337,7 @@ footprint.
 The output of a model can be saved in multiple ways. The model state at each
 saved timepoint may be output in a single, raw [pandas](pandas.pydata.org/)
 DataFrame, and saved as a tabular file. Other data output
-types include counts of pathogen genomes or protection sequences for the
+types include counts of pathogen genomes or immunity sequences for the
 model, as well as time of first emergence for each pathogen genome and genome
 distance matrices for every timepoint sampled. The user can also create
 different kinds of plots to visualize the results. These include:
@@ -444,8 +444,8 @@ only end results
 writes to file
 - [getPathogens](#getpathogens) -- creates data frame with counts for all
 pathogen genomes
-- [getProtections](#getprotections) -- creates data frame with counts for all
-protection sequences
+- [getImmunitys](#getimmunitys) -- creates data frame with counts for all
+immunity sequences
 - [populationsPlot](#populationsplot) -- plots aggregated totals per
 population across time
 - [compartmentPlot](#compartmentplot) -- plots number of naive, infected,
@@ -497,11 +497,11 @@ specified genomes to vectors
 treatment from hosts
 - [treatVectors](#treatvectors) -- removes infections susceptible to
 treatment from vectors
-- [protectHosts](#protecthosts) -- adds protection sequence to hosts
-- [protectVectors](#protectvectors) -- adds protection sequence to vectors
-- [wipeProtectionHosts](#wipeProtectionHosts) -- removes all protection
+- [immunizeHosts](#immunizehosts) -- adds immunity sequence to hosts
+- [immunizeVectors](#immunizevectors) -- adds immunity sequence to vectors
+- [wipeImmunityHosts](#wipeImmunityHosts) -- removes all immunity
 sequences from hosts
-- [wipeProtectionVectors](#wipeProtectionVectors) -- removes all protection
+- [wipeImmunityVectors](#wipeImmunityVectors) -- removes all immunity
 sequences from vectors
 
 Modify population parameters:
@@ -608,10 +608,10 @@ birth_rate_host = 0
 birth_rate_vector = 0
 vertical_transmission_host = 0
 vertical_transmission_vector = 0
-inherit_protection_host = 0
-inherit_protection_vector = 0
-protection_upon_recovery_host = None
-protection_upon_recovery_vector = None
+inherit_immunity_host = 0
+inherit_immunity_vector = 0
+immunity_upon_recovery_host = None
+immunity_upon_recovery_vector = None
 ```
 
 "vector-borne":
@@ -663,10 +663,10 @@ birth_rate_host = 0
 birth_rate_vector = 0
 vertical_transmission_host = 0
 vertical_transmission_vector = 0
-inherit_protection_host = 0
-inherit_protection_vector = 0
-protection_upon_recovery_host = None
-protection_upon_recovery_vector = None
+inherit_immunity_host = 0
+inherit_immunity_vector = 0
+immunity_upon_recovery_host = None
+immunity_upon_recovery_vector = None
 ```
 
 _Arguments:_
@@ -802,15 +802,15 @@ _Keyword arguments:_
     parent at birth (number 0-1)
 - vertical_transmission_vector -- probability that a vector is infected by
     its parent at birth (number 0-1)
-- inherit_protection_host -- probability that a host inherits all
-    protection sequences from its parent (number 0-1)
-- inherit_protection_vector -- probability that a vector inherits all
-    protection sequences from its parent (number 0-1)
-- protection_upon_recovery_host -- defines indexes in genome string that
-    define substring to be added to host protection sequences after
+- inherit_immunity_host -- probability that a host inherits all
+    immunity sequences from its parent (number 0-1)
+- inherit_immunity_vector -- probability that a vector inherits all
+    immunity sequences from its parent (number 0-1)
+- immunity_upon_recovery_host -- defines indexes in genome string that
+    define substring to be added to host immunity sequences after
     recovery (None or array-like of length 2 with int 0-num_loci)
-- protection_upon_recovery_vector -- defines indexes in genome string that
-    define substring to be added to vector protection sequences after
+- immunity_upon_recovery_vector -- defines indexes in genome string that
+    define substring to be added to vector immunity sequences after
     recovery (None or array-like of length 2 with int 0-num_loci)
 
 #### newIntervention
@@ -1021,7 +1021,7 @@ with one host or vector per simulation time in each row, and columns:
 - Organism - host/vector
 - ID - ID of host/vector
 - Pathogens - all genomes present in this host/vector separated by ;
-- Protection - all genomes present in this host/vector separated by ;
+- Immunity - all genomes present in this host/vector separated by ;
 - Alive - whether host/vector is alive at this time, True/False
 
 _Arguments:_
@@ -1048,9 +1048,9 @@ getCompositionData(
 Create dataframe with counts for pathogen genomes or resistance.
 
 Creates a pandas Dataframe with dynamics of the pathogen strains or
-protection sequences across selected populations in the model,
+immunity sequences across selected populations in the model,
 with one time point in each row and columns for pathogen genomes or
-protection sequences.
+immunity sequences.
 
 Of note: sum of totals for all sequences in one time point does not
 necessarily equal the number of infected hosts and/or vectors, given
@@ -1063,7 +1063,7 @@ _Keyword Arguments:_
 - populations -- IDs of populations to include in analysis; if empty, uses
     all populations in model (default empty list; list of Strings)
 - type_of_composition -- field of data to count totals of, can be either
-    'Pathogens' or 'Protection' (default 'Pathogens'; String)
+    'Pathogens' or 'Immunity' (default 'Pathogens'; String)
 - hosts -- whether to count hosts (default True, Boolean)
 - vectors -- whether to count vectors (default False, Boolean)
 - num_top_sequences -- how many sequences to count separately and include
@@ -1113,17 +1113,17 @@ _Keyword Arguments:_
 _Returns:_
 - pandas dataframe with Series as described above
 
-#### getProtections
+#### getImmunitys
 
 ```python
-getProtections(dat, save_to_file="")
+getImmunitys(dat, save_to_file="")
 ```
 
 
-Create Dataframe with counts for all protection sequences in data.
+Create Dataframe with counts for all immunity sequences in data.
 
 Returns sorted pandas Dataframe with counts for occurrences of all
-protection sequences in data passed.
+immunity sequences in data passed.
 
 _Arguments:_
 - data -- dataframe with model history as produced by saveToDf function
@@ -1153,7 +1153,7 @@ Creates a line or stacked line plot with dynamics of a compartment
 across populations in the model, with one line for each population.
 
 A host or vector is considered part of the recovered compartment
-if it has protection sequences of any kind and is not infected.
+if it has immunity sequences of any kind and is not infected.
 
 _Arguments:_
 - file_name -- file path, name, and extension to save plot under (String)
@@ -1206,7 +1206,7 @@ Creates a line or stacked line plot with dynamics of all compartments
 (naive, infected, recovered, dead) across selected populations in the
 model, with one line for each compartment.
 
-A host or vector is considered recovered if it has protection sequences of any
+A host or vector is considered recovered if it has immunity sequences of any
 kind and is not infected.
 
 _Arguments:_
@@ -1255,8 +1255,8 @@ figsize=(8, 4), dpi=200, palette=CB_PALETTE, stacked=True,
 Create plot with counts for pathogen genomes or resistance vs. time.
 
 Creates a line or stacked line plot with dynamics of the pathogen
-strains or protection sequences across selected populations in the
-model, with one line for each pathogen genome or protection sequence
+strains or immunity sequences across selected populations in the
+model, with one line for each pathogen genome or immunity sequence
 being shown.s
 
 Of note: sum of totals for all sequences in one time point does not
@@ -1273,7 +1273,7 @@ _Keyword Arguments:_
 - populations -- IDs of populations to include in analysis; if empty, uses
 all populations in model (default empty list; list of Strings)
 - type_of_composition -- field of data to count totals of, can be either
-'Pathogens' or 'Protection' (default 'Pathogens'; String)
+'Pathogens' or 'Immunity' (default 'Pathogens'; String)
 - hosts -- whether to count hosts (default True, Boolean)
 - vectors -- whether to count vectors (default False, Boolean)
 - num_top_sequences -- how many sequences to count separately and include
@@ -1758,58 +1758,58 @@ _Keyword Arguments:_
 - group_id -- ID of group to sample vectors to sample from, if empty, samples
 from whole population (default empty String; String)
 
-#### protectHosts
+#### immunizeHosts
 
 ```python
-protectHosts(pop_id, frac_hosts, protection_sequence, group_id="")
+immunizeHosts(pop_id, frac_hosts, immunity_sequence, group_id="")
 ```
 
 
-Protect a random fraction of infected hosts against some infection.
+Immunize a random fraction of infected hosts against some infection.
 
-Adds protection sequence specified to a random fraction of the hosts
+Adds immunity sequence specified to a random fraction of the hosts
 specified. Does not cure them if they are already infected.
 
 _Arguments:_
 - pop_id -- ID of population to be modified (String)
 - frac_hosts -- fraction of hosts considered to be randomly selected
 (number between 0 and 1)
-- protection_sequence -- sequence against which to protect (String)
+- immunity_sequence -- sequence against which to immunize (String)
 
 _Keyword Arguments:_
 - group_id -- ID of group to sample hosts to sample from, if empty, samples from
 whole population (default empty String; String)
 
-#### protectVectors
+#### immunizeVectors
 
 ```python
-protectVectors(pop_id, frac_vectors, protection_sequence, group_id="")
+immunizeVectors(pop_id, frac_vectors, immunity_sequence, group_id="")
 ```
 
 
-Protect a random fraction of infected vectors against some infection.
+Immunize a random fraction of infected vectors against some infection.
 
-Adds protection sequence specified to a random fraction of the vectors
+Adds immunity sequence specified to a random fraction of the vectors
 specified. Does not cure them if they are already infected.
 
 _Arguments:_
 - pop_id -- ID of population to be modified (String)
 - frac_vectors -- fraction of vectors considered to be randomly selected
 (number between 0 and 1)
-- protection_sequence -- sequence against which to protect (String)
+- immunity_sequence -- sequence against which to immunize (String)
 
 _Keyword Arguments:_
 - group_id -- ID of group to sample vectors to sample from, if empty, samples
 from whole population (default empty String; String)
 
-#### wipeProtectionHosts
+#### wipeImmunityHosts
 
 ```python
-wipeProtectionHosts(pop_id, group_id="")
+wipeImmunityHosts(pop_id, group_id="")
 ```
 
 
-Removes all protection sequences from hosts.
+Removes all immunity sequences from hosts.
 
 _Arguments:_
 - pop_id -- ID of population to be modified (String)
@@ -1818,14 +1818,14 @@ _Keyword Arguments:_
 - group_id -- ID of group to sample hosts to sample from, if empty, takes
 whole population (default empty String; String)
 
-#### wipeProtectionVectors
+#### wipeImmunityVectors
 
 ```python
-wipeProtectionVectors(pop_id, group_id="")
+wipeImmunityVectors(pop_id, group_id="")
 ```
 
 
-Removes all protection sequences from vectors.
+Removes all immunity sequences from vectors.
 
 _Arguments:_
 - pop_id -- ID of population to be modified (String)

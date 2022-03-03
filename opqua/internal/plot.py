@@ -215,8 +215,8 @@ def compositionPlot(
     """Create plot with counts for pathogen genomes or resistance across time.
 
     Creates a line or stacked line plot with dynamics of the pathogen strains or
-    protection sequences across selected populations in the model,
-    with one line for each pathogen genome or protection sequence being shown.
+    immunity sequences across selected populations in the model,
+    with one line for each pathogen genome or immunity sequence being shown.
 
     Of note: sum of totals for all sequences in one time point does not
     necessarily equal the number of infected hosts and/or vectors, given
@@ -232,7 +232,7 @@ def compositionPlot(
     populations -- IDs of populations to include in analysis; if empty, uses all
         populations in model (default empty list; list of Strings)
     type_of_composition -- field of data to count totals of, can be either
-        'Pathogens' or 'Protection' (default 'Pathogens'; String)
+        'Pathogens' or 'Immunity' (default 'Pathogens'; String)
     hosts -- whether to count hosts (default True, Boolean)
     vectors -- whether to count vectors (default False, Boolean)
     num_top_sequences -- how many sequences to count separately and include

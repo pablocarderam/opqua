@@ -40,7 +40,7 @@ class Host(object):
                 # if not slimmed down for data storage, save other attributes
             self.pathogens = {} # Dictionary with all current infections in this
                 # host, with keys=genome strings, values=fitness numbers
-            self.protection_sequences = [] # A list of strings this host is
+            self.immunity_sequences = [] # A list of strings this host is
                 # immune to. If a pathogen's genome contains one of these
                 # values, it cannot infect this host.
             self.population = population
@@ -58,12 +58,12 @@ class Host(object):
         """Returns a slimmed-down representation of the current host state.
 
         Returns:
-        Host object with current pathogens and protection_sequences.
+        Host object with current pathogens and immunity sequences.
         """
 
         copy = Host(None, self.id, slim=True)
         copy.pathogens = self.pathogens.copy()
-        copy.protection_sequences = self.protection_sequences.copy()
+        copy.immunity_sequences = self.immunity_sequences.copy()
 
         return copy
 
@@ -121,7 +121,7 @@ class Host(object):
         genome's fitness as a fraction of the total in the infector as the
         probability of each trial (minimum 1 pathogen transfered). Each pathogen
         present in the inoculum will be added to the infected organism, if it
-        does not have protection from the pathogen's genome. Fitnesses are
+        does not have immunity from the pathogen's genome. Fitnesses are
         computed for the pathogens' genomes in the infected organism, and the
         organism is included in the poplation's infected list if appropriate.
 
@@ -147,7 +147,7 @@ class Host(object):
             ) )
         for genome in genomes_inoculated:
             if genome not in host.pathogens.keys() and not any(
-                    [ p in genome for p in host.protection_sequences ]
+                    [ p in genome for p in host.immunity_sequences ]
                     ):
                 host.acquirePathogen(genome)
                 changed = True
@@ -163,7 +163,7 @@ class Host(object):
         genome's fitness as a fraction of the total in the infector as the
         probability of each trial (minimum 1 pathogen transfered). Each pathogen
         present in the inoculum will be added to the infected organism, if it
-        does not have protection from the pathogen's genome. Fitnesses are
+        does not have immunity from the pathogen's genome. Fitnesses are
         computed for the pathogens' genomes in the infected organism, and the
         organism is included in the poplation's infected list if appropriate.
 
@@ -189,7 +189,7 @@ class Host(object):
             ) )
         for genome in genomes_inoculated:
             if genome not in vector.pathogens.keys() and not any(
-                    [ p in genome for p in vector.protection_sequences ]
+                    [ p in genome for p in vector.immunity_sequences ]
                     ):
                 vector.acquirePathogen(genome)
                 changed = True
@@ -199,20 +199,20 @@ class Host(object):
     def recover(self):
         """Remove all infections from this host.
 
-        If model is protecting upon recovery, add protecion sequence as defined
+        If model is immunizing upon recovery, add protecion sequence as defined
         by the indexes in the corresponding model parameter. Remove from
         population infected list and add to healthy list.
         """
 
         if self in self.population.infected_hosts:
-            if self.population.protection_upon_recovery_host:
+            if self.population.immunity_upon_recovery_host:
                 for genome in self.pathogens:
                     seq = genome[
-                        self.population.protection_upon_recovery_host[0]
-                        :self.population.protection_upon_recovery_host[1]
+                        self.population.immunity_upon_recovery_host[0]
+                        :self.population.immunity_upon_recovery_host[1]
                         ]
-                    if seq not in self.protection_sequences:
-                        self.protection_sequences.append(seq)
+                    if seq not in self.immunity_sequences:
+                        self.immunity_sequences.append(seq)
 
             self.pathogens = {}
             self.sum_fitness = 0
@@ -248,8 +248,8 @@ class Host(object):
         if self.population.vertical_transmission_host > rand:
             self.infectHost(host)
 
-        if self.population.inherit_protection_host > np.random.random():
-            host.protection_sequences = self.protection_sequences.copy()
+        if self.population.inherit_immunity_host > np.random.random():
+            host.immunity_sequences = self.immunity_sequences.copy()
 
     def applyTreatment(self, resistance_seqs):
         """Remove all infections with genotypes susceptible to given treatment.

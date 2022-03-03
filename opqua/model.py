@@ -15,7 +15,7 @@ from opqua.internal.population import Population
 from opqua.internal.setup import Setup
 from opqua.internal.intervention import Intervention
 from opqua.internal.gillespie import Gillespie
-from opqua.internal.data import saveToDf, getPathogens, getProtections, \
+from opqua.internal.data import saveToDf, getPathogens, getImmunitySequences, \
     getPathogenDistanceHistoryDf
 from opqua.internal.plot import populationsPlot, compartmentPlot, \
     compositionPlot, clustermap
@@ -60,7 +60,7 @@ class Model(object):
 
     saveToDataFrame -- saves status of model to dataframe, writes to file
     getPathogens -- creates Dataframe with counts for all pathogen genomes
-    getProtections -- creates Dataframe with counts for all protection sequences
+    getImmunitySequences -- creates Dataframe with counts for all immunity seqs
     populationsPlot -- plots aggregated totals per population across time
     compartmentPlot -- plots number of naive,inf,rec,dead hosts/vectors vs time
     compositionPlot -- plots counts for pathogen genomes or resistance vs. time
@@ -99,10 +99,10 @@ class Model(object):
     addPathogensToVectors -- adds pathogens with specified genomes to vectors
     treatHosts -- removes infections susceptible to given treatment from hosts
     treatVectors -- removes infections susceptible to treatment from vectors
-    protectHosts -- adds protection sequence to hosts
-    protectVectors -- adds protection sequence to vectors
-    wipeProtectionHosts -- removes all protection sequences from hosts
-    wipeProtectionVectors -- removes all protection sequences from vectors
+    immunizeHosts -- adds immunity sequence to hosts
+    immunizeVectors -- adds immunity sequence to vectors
+    wipeImmunityHosts -- removes all immunity sequences from hosts
+    wipeImmunityVectors -- removes all immunity sequences from vectors
 
     - Modify population parameters -
     setSetup -- assigns a given set of parameters to this population
@@ -214,9 +214,9 @@ class Model(object):
             death_rate_host=None, death_rate_vector=None,
             birth_rate_host=None, birth_rate_vector=None,
             vertical_transmission_host=None, vertical_transmission_vector=None,
-            inherit_protection_host=None, inherit_protection_vector=None,
-            protection_upon_recovery_host=None,
-            protection_upon_recovery_vector=None):
+            inherit_immunity_host=None, inherit_immunity_vector=None,
+            immunity_upon_recovery_host=None,
+            immunity_upon_recovery_vector=None):
         """Create a new Setup, save it in setups dict under given name.
 
         Two preset setups exist: "vector-borne" and "host-host". You may select
@@ -349,15 +349,15 @@ class Model(object):
             parent at birth (number 0-1)
         vertical_transmission_vector -- probability that a vector is infected by
             its parent at birth (number 0-1)
-        inherit_protection_host -- probability that a host inherits all
-            protection sequences from its parent (number 0-1)
-        inherit_protection_vector -- probability that a vector inherits all
-            protection sequences from its parent (number 0-1)
-        protection_upon_recovery_host -- defines indexes in genome string that
-            define substring to be added to host protection sequences after
+        inherit_immunity_host -- probability that a host inherits all
+            immunity sequences from its parent (number 0-1)
+        inherit_immunity_vector -- probability that a vector inherits all
+            immunity sequences from its parent (number 0-1)
+        immunity_upon_recovery_host -- defines indexes in genome string that
+            define substring to be added to host immunity sequences after
             recovery (None or array-like of length 2 with int 0-num_loci)
-        protection_upon_recovery_vector -- defines indexes in genome string that
-            define substring to be added to vector protection sequences after
+        immunity_upon_recovery_vector -- defines indexes in genome string that
+            define substring to be added to vector immunity sequences after
             recovery (None or array-like of length 2 with int 0-num_loci)
         """
 
@@ -456,14 +456,14 @@ class Model(object):
             vertical_transmission_vector = \
                 0 if vertical_transmission_vector is None \
                 else vertical_transmission_vector
-            inherit_protection_host = \
-                0 if inherit_protection_host is None \
-                else inherit_protection_host
-            inherit_protection_vector = \
-                0 if inherit_protection_vector is None \
-                else inherit_protection_vector
-            protection_upon_recovery_host = protection_upon_recovery_host
-            protection_upon_recovery_vector = protection_upon_recovery_vector
+            inherit_immunity_host = \
+                0 if inherit_immunity_host is None \
+                else inherit_immunity_host
+            inherit_immunity_vector = \
+                0 if inherit_immunity_vector is None \
+                else inherit_immunity_vector
+            immunity_upon_recovery_host = immunity_upon_recovery_host
+            immunity_upon_recovery_vector = immunity_upon_recovery_vector
 
         elif preset == "host-host":
             num_loci = 10 if num_loci is None else num_loci
@@ -563,14 +563,14 @@ class Model(object):
             vertical_transmission_vector = \
                 0 if vertical_transmission_vector is None \
                 else vertical_transmission_vector
-            inherit_protection_host = \
-                0 if inherit_protection_host is None \
-                else inherit_protection_host
-            inherit_protection_vector = \
-                0 if inherit_protection_vector is None \
-                else inherit_protection_vector
-            protection_upon_recovery_host = protection_upon_recovery_host
-            protection_upon_recovery_vector = protection_upon_recovery_vector
+            inherit_immunity_host = \
+                0 if inherit_immunity_host is None \
+                else inherit_immunity_host
+            inherit_immunity_vector = \
+                0 if inherit_immunity_vector is None \
+                else inherit_immunity_vector
+            immunity_upon_recovery_host = immunity_upon_recovery_host
+            immunity_upon_recovery_vector = immunity_upon_recovery_vector
 
         self.setups[name] = Setup(
             name,
@@ -596,8 +596,8 @@ class Model(object):
             mutate_in_host, mutate_in_vector, death_rate_host,death_rate_vector,
             birth_rate_host, birth_rate_vector,
             vertical_transmission_host, vertical_transmission_vector,
-            inherit_protection_host, inherit_protection_vector,
-            protection_upon_recovery_host, protection_upon_recovery_vector
+            inherit_immunity_host, inherit_immunity_vector,
+            immunity_upon_recovery_host, immunity_upon_recovery_vector
             )
 
     def newIntervention(self, time, method_name, args):
@@ -990,7 +990,7 @@ class Model(object):
             Organism - host/vector
             ID - ID of host/vector
             Pathogens - all genomes present in this host/vector separated by ;
-            Protection - all genomes present in this host/vector separated by ;
+            Immunity - all genomes present in this host/vector separated by ;
             Alive - whether host/vector is alive at this time, True/False
 
         Arguments:
@@ -1030,11 +1030,11 @@ class Model(object):
 
         return getPathogens(dat, save_to_file=save_to_file)
 
-    def getProtections(self, dat, save_to_file=""):
-        """Create Dataframe with counts for all protection sequences in data.
+    def getImmunitySequences(self, dat, save_to_file=""):
+        """Create Dataframe with counts for all immunity sequences in data.
 
         Returns sorted pandas Dataframe with counts for occurrences of all
-        protection sequences in data passed.
+        immunity sequences in data passed.
 
         Arguments:
         data -- dataframe with model history as produced by saveToDf function
@@ -1047,7 +1047,7 @@ class Model(object):
         pandas dataframe with Series as described above
         """
 
-        return getProtections(dat, save_to_file=save_to_file)
+        return getImmunitySequences(dat, save_to_file=save_to_file)
 
     def populationsPlot(
             self, file_name, data, compartment='Infected',
@@ -1061,7 +1061,7 @@ class Model(object):
         across populations in the model, with one line for each population.
 
         A host or vector is considered part of the recovered compartment
-        if it has protection sequences of any kind and is not infected.
+        if it has immunity sequences of any kind and is not infected.
 
         Arguments:
         file_name -- file path, name, and extension to save plot under (String)
@@ -1118,7 +1118,7 @@ class Model(object):
         model, with one line for each compartment.
 
         A host or vector is considered part of the recovered compartment
-        if it has protection sequences of any kind and is not infected.
+        if it has immunity sequences of any kind and is not infected.
 
         Arguments:
         file_name -- file path, name, and extension to save plot under (String)
@@ -1167,8 +1167,8 @@ class Model(object):
         """Create plot with counts for pathogen genomes or resistance vs. time.
 
         Creates a line or stacked line plot with dynamics of the pathogen
-        strains or protection sequences across selected populations in the
-        model, with one line for each pathogen genome or protection sequence
+        strains or immunity sequences across selected populations in the
+        model, with one line for each pathogen genome or immunity sequence
         being shown.
 
         Of note: sum of totals for all sequences in one time point does not
@@ -1185,7 +1185,7 @@ class Model(object):
         populations -- IDs of populations to include in analysis; if empty, uses
             all populations in model (default empty list; list of Strings)
         type_of_composition -- field of data to count totals of, can be either
-            'Pathogens' or 'Protection' (default 'Pathogens'; String)
+            'Pathogens' or 'Immunity' (default 'Pathogens'; String)
         hosts -- whether to count hosts (default True, Boolean)
         vectors -- whether to count vectors (default False, Boolean)
         num_top_sequences -- how many sequences to count separately and include
@@ -1364,9 +1364,9 @@ class Model(object):
         """Create dataframe with counts for pathogen genomes or resistance.
 
         Creates a pandas Dataframe with dynamics of the pathogen strains or
-        protection sequences across selected populations in the model,
+        immunity sequences across selected populations in the model,
         with one time point in each row and columns for pathogen genomes or
-        protection sequences.
+        immunity sequences.
 
         Of note: sum of totals for all sequences in one time point does not
         necessarily equal the number of infected hosts and/or vectors, given
@@ -1379,7 +1379,7 @@ class Model(object):
         populations -- IDs of populations to include in analysis; if empty, uses
             all populations in model (default empty list; list of Strings)
         type_of_composition -- field of data to count totals of, can be either
-            'Pathogens' or 'Protection' (default 'Pathogens'; String)
+            'Pathogens' or 'Immunity' (default 'Pathogens'; String)
         hosts -- whether to count hosts (default True, Boolean)
         vectors -- whether to count vectors (default False, Boolean)
         num_top_sequences -- how many sequences to count separately and include
@@ -1834,18 +1834,18 @@ class Model(object):
             frac_vectors,resistance_seqs,vectors
             )
 
-    def protectHosts(
-            self, pop_id, frac_hosts, protection_sequence, group_id=""):
-        """Protect a random fraction of infected hosts against some infection.
+    def immunizeHosts(
+            self, pop_id, frac_hosts, immunity_sequence, group_id=""):
+        """Immunize a random fraction of infected hosts against some infection.
 
-        Adds protection sequence specified to a random fraction of the hosts
+        Adds immunity sequence specified to a random fraction of the hosts
         specified. Does not cure them if they are already infected.
 
         Arguments:
         pop_id -- ID of population to be modified (String)
         frac_hosts -- fraction of hosts considered to be randomly selected
             (number between 0 and 1)
-        protection_sequence -- sequence against which to protect (String)
+        immunity_sequence -- sequence against which to immunize (String)
 
         Keyword arguments:
         group_id -- ID of specific hosts to sample from, if empty, samples
@@ -1857,22 +1857,22 @@ class Model(object):
         else:
             hosts = self.groups[group_id]
 
-        self.populations[pop_id].protectHosts(
-            frac_hosts,protection_sequence,hosts
+        self.populations[pop_id].immunizeHosts(
+            frac_hosts,immunity_sequence,hosts
             )
 
-    def protectVectors(
-            self, pop_id, frac_vectors, protection_sequence, group_id=""):
-        """Protect a random fraction of infected vectors against some infection.
+    def immunizeVectors(
+            self, pop_id, frac_vectors, immunity_sequence, group_id=""):
+        """Immunize a random fraction of infected vectors against some infection.
 
-        Adds protection sequence specified to a random fraction of the vectors
+        Adds immunity sequence specified to a random fraction of the vectors
         specified. Does not cure them if they are already infected.
 
         Arguments:
         pop_id -- ID of population to be modified (String)
         frac_vectors -- fraction of vectors considered to be randomly selected
             (number between 0 and 1)
-        protection_sequence -- sequence against which to protect (String)
+        immunity_sequence -- sequence against which to immunize (String)
 
         Keyword arguments:
         group_id -- ID of specific vectors to sample from, if empty, samples
@@ -1884,12 +1884,12 @@ class Model(object):
         else:
             vectors = self.groups[group_id]
 
-        self.populations[pop_id].protectVectors(
-            frac_vectors,protection_sequence,vectors
+        self.populations[pop_id].immunizeVectors(
+            frac_vectors,immunity_sequence,vectors
             )
 
-    def wipeProtectionHosts(self, pop_id, group_id=""):
-        """Removes all protection sequences from hosts.
+    def wipeImmunityHosts(self, pop_id, group_id=""):
+        """Removes all immunity sequences from hosts.
 
         Arguments:
         pop_id -- ID of population to be modified (String)
@@ -1904,10 +1904,10 @@ class Model(object):
         else:
             hosts = self.groups[group_id]
 
-        self.populations[pop_id].wipeProtectionHosts(hosts)
+        self.populations[pop_id].wipeImmunityHosts(hosts)
 
-    def wipeProtectionVectors(self, pop_id, group_id=""):
-        """Removes all protection sequences from vectors.
+    def wipeImmunityVectors(self, pop_id, group_id=""):
+        """Removes all immunity sequences from vectors.
 
         Arguments:
         pop_id -- ID of population to be modified (String)
@@ -1922,7 +1922,7 @@ class Model(object):
         else:
             vectors = self.groups[group_id]
 
-        self.populations[pop_id].wipeProtectionVectors(vectors)
+        self.populations[pop_id].wipeImmunityVectors(vectors)
 
     ### Modify population parameters: ###
 

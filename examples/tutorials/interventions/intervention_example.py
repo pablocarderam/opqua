@@ -85,12 +85,12 @@ model.newIntervention(
     # At time 250, selects 85% of random hosts and stores them under the group
     # ID 'vaccinated'. They may be healthy or infected.
 model.newIntervention(
-    250, 'protectHosts',
+    250, 'immunizeHosts',
     [ 'my_population', 1, 'GGGGGGGGGG', 'vaccinated' ]
     )
-# model.newIntervention( 250, model.protectHosts, [ 'my_population', 1, 'C', 'vaccinated' ] )
-# model.newIntervention( 250, model.protectHosts, [ 'my_population', 1, 'T', 'vaccinated' ] )
-    # At time 250, protects 100% of the vaccinated group from pathogens
+# model.newIntervention( 250, model.immunizeHosts, [ 'my_population', 1, 'C', 'vaccinated' ] )
+# model.newIntervention( 250, model.immunizeHosts, [ 'my_population', 1, 'T', 'vaccinated' ] )
+    # At time 250, immunizes 100% of the vaccinated group from pathogens
     # with a 'GGGGGGGGGG' sequence in their genome.
 
 output = model.run(0,400)

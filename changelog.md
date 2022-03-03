@@ -1,6 +1,10 @@
 
 # Opqua Changelog
 
+## v0.9.8-immunity-0.1
+## 2 Mar 2022
+Renamed "Protection" with "Immunity".
+
 ## v0.9.8
 ## 18 Jan 2022
 Update compositionPlot additional arguments.

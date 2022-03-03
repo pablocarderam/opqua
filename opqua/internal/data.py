@@ -18,7 +18,7 @@ def saveToDf(history,save_to_file,n_cores=0,verbose=10, **kwargs):
         Organism - host/vector
         ID - ID of host/vector
         Pathogens - all genomes present in this host/vector separated by ;
-        Protection - all genomes present in this host/vector separated by ;
+        Immunity - all genomes present in this host/vector separated by ;
         Alive - whether host/vector is alive at this time, True/False
 
     Writing straight to a file and then reading into a pandas dataframe was
@@ -44,7 +44,7 @@ def saveToDf(history,save_to_file,n_cores=0,verbose=10, **kwargs):
         n_cores = jl.cpu_count()
 
     new_df = ','.join(
-        ['Time','Population','Organism','ID','Pathogens','Protection','Alive']
+        ['Time','Population','Organism','ID','Pathogens','Immunity','Alive']
         ) + '\n' + '\n'.join( jl.Parallel(
             n_jobs=n_cores, verbose=verbose, **kwargs) (
             jl.delayed( lambda d: ''.join(d) ) (
@@ -52,24 +52,24 @@ def saveToDf(history,save_to_file,n_cores=0,verbose=10, **kwargs):
                     '\n'.join( [ ','.join( [
                         str(time), str(pop.id), 'Host', str(host.id), '"'
                         + ';'.join( host.pathogens.keys() )
-                        + '"', '"' + ';'.join( host.protection_sequences )
+                        + '"', '"' + ';'.join( host.immunity_sequences )
                         + '"', 'True'
                         ] ) for host in pop.hosts ] ) + '\n'
                     + '\n'.join( [ ','.join( [
                         str(time), str(pop.id), 'Vector', str(vector.id), '"'
                         + ';'.join( vector.pathogens.keys() )
-                        + '"', '"' + ';'.join( vector.protection_sequences )
+                        + '"', '"' + ';'.join( vector.immunity_sequences )
                         + '"', 'True'
                         ] ) for vector in pop.vectors ] ) + '\n'
                     + '\n'.join( [ ','.join( [
                         str(time), str(pop.id), 'Host', str(host.id), '"'
                         + ';'.join( host.pathogens.keys() ) + '"', '"'
-                        + ';'.join( host.protection_sequences ) + '"', 'False'
+                        + ';'.join( host.immunity_sequences ) + '"', 'False'
                         ] ) for host in pop.dead_hosts ] ) + '\n'
                     + '\n'.join( [ ','.join( [
                         str(time), str(pop.id), 'Vector', str(vector.id), '"'
                         + ';'.join( vector.pathogens.keys() ) + '"', '"'
-                        + ';'.join( vector.protection_sequences ) + '"', 'False'
+                        + ';'.join( vector.immunity_sequences ) + '"', 'False'
                         ] ) for vector in pop.dead_vectors ] )
                     for id,pop in model.populations.items()
                 ] )
@@ -131,10 +131,10 @@ def populationsDf(
         num_top_populations = len( pd.unique( dat['Population'] ) )
 
     dat['Infected'] = ( dat['Pathogens'].fillna('').str.len() > 0 )
-    dat['Protected'] = ( dat['Protection'].fillna('').str.len() > 0 )
+    dat['Immune'] = ( dat['Immunity'].fillna('').str.len() > 0 )
 
     grouped = dat.groupby( [
-        'Time','Population','Alive','Infected','Protected'
+        'Time','Population','Alive','Infected','Immune'
         ] ).size().reset_index(name='Number')
 
     compartment_names = ['Naive','Infected','Recovered','Dead']
@@ -142,7 +142,7 @@ def populationsDf(
     grouped['Compartment'] = compartment_names[3]
     grouped.loc[
         ( grouped['Alive'] == True ) & ( grouped['Infected'] == False )
-            & ( grouped['Protected'] == False ), 'Compartment'
+            & ( grouped['Immune'] == False ), 'Compartment'
         ] = compartment_names[0]
     grouped.loc[
         ( grouped['Alive'] == True ) & ( grouped['Infected'] == True ),
@@ -150,7 +150,7 @@ def populationsDf(
         ] = compartment_names[1]
     grouped.loc[
         ( grouped['Alive'] == True ) & ( grouped['Infected'] == False )
-        & ( grouped['Protected'] == True ), 'Compartment'
+        & ( grouped['Immune'] == True ), 'Compartment'
         ] = compartment_names[2]
 
     grouped = grouped[ grouped['Compartment'] == compartment ]
@@ -160,7 +160,7 @@ def populationsDf(
     ).sum().reset_index()
 
     grouped = grouped.drop(
-        columns=['Alive','Infected','Protected','Compartment']
+        columns=['Alive','Infected','Immune','Compartment']
         )
 
     grouped = grouped.pivot(
@@ -230,10 +230,10 @@ def compartmentDf(
         dat = dat[ dat['Organism'] != 'Vector' ]
 
     dat['Infected'] = ( dat['Pathogens'].fillna('').str.len() > 0 )
-    dat['Protected'] = ( dat['Protection'].fillna('').str.len() > 0 )
+    dat['Immune'] = ( dat['Immunity'].fillna('').str.len() > 0 )
 
     grouped = dat.groupby( [
-        'Time','Alive','Infected','Protected'
+        'Time','Alive','Infected','Immune'
         ] ).size().reset_index(name='Number')
 
     compartment_names = ['Naive','Infected','Recovered','Dead']
@@ -241,22 +241,22 @@ def compartmentDf(
     grouped['Compartment'] = compartment_names[3]
     grouped.loc[
         ( grouped['Alive'] == True ) & ( grouped['Infected'] == False )
-        & ( grouped['Protected'] == False ), 'Compartment'
+        & ( grouped['Immune'] == False ), 'Compartment'
         ] = compartment_names[0]
     grouped.loc[
         ( grouped['Alive'] == True ) & ( grouped['Infected'] == True )
-        & ( grouped['Protected'] == True ), 'Compartment'
+        & ( grouped['Immune'] == True ), 'Compartment'
         ] = compartment_names[1]
     grouped.loc[
         ( grouped['Alive'] == True ) & ( grouped['Infected'] == True )
-        & ( grouped['Protected'] == False ), 'Compartment'
+        & ( grouped['Immune'] == False ), 'Compartment'
         ] = compartment_names[1] + '_2'
     grouped.loc[
         ( grouped['Alive'] == True ) & ( grouped['Infected'] == False )
-        & ( grouped['Protected'] == True ), 'Compartment'
+        & ( grouped['Immune'] == True ), 'Compartment'
         ] = compartment_names[2]
 
-    grouped = grouped.drop( columns=['Alive','Infected','Protected'] )
+    grouped = grouped.drop( columns=['Alive','Infected','Immune'] )
     grouped = grouped.pivot(
         columns='Compartment', values='Number', index='Time'
         ).fillna(0).reset_index('Time')
@@ -289,9 +289,9 @@ def compositionDf(
     """Create dataframe with counts for pathogen genomes or resistance.
 
     Creates a pandas Dataframe with dynamics of the pathogen strains or
-    protection sequences across selected populations in the model,
+    immunity sequences across selected populations in the model,
     with one time point in each row and columns for pathogen genomes or
-    protection sequences.
+    immunity sequences.
 
     Of note: sum of totals for all sequences in one time point does not
     necessarily equal the number of infected hosts and/or vectors, given
@@ -304,7 +304,7 @@ def compositionDf(
     populations -- IDs of populations to include in analysis; if empty, uses all
         populations in model (default empty list; list of Strings)
     type_of_composition -- field of data to count totals of, can be either
-        'Pathogens' or 'Protection' (default 'Pathogens'; String)
+        'Pathogens' or 'Immunity' (default 'Pathogens'; String)
     hosts -- whether to count hosts (default True, Boolean)
     vectors -- whether to count vectors (default False, Boolean)
     num_top_sequences -- how many sequences to count separately and include
@@ -492,11 +492,11 @@ def getPathogens(data, save_to_file=""):
 
     return out
 
-def getProtections(data, save_to_file=""):
-    """Create Dataframe with counts for all protection sequences in data.
+def getImmunitySequences(data, save_to_file=""):
+    """Create Dataframe with counts for all immunity sequences in data.
 
     Returns sorted pandas Dataframe with counts for occurrences of all
-    protection sequences in data passed.
+    immunity sequences in data passed.
 
     Arguments:
     data -- dataframe with model history as produced by saveToDf function
@@ -510,9 +510,9 @@ def getProtections(data, save_to_file=""):
     """
 
     out = pd.Series( ';'.join(
-        data['Protection'].dropna()
+        data['Immunity'].dropna()
         ).split(';') ).str.strip().value_counts(ascending=False).reset_index()
-    out.columns = ['Protection','Counts']
+    out.columns = ['Immunity','Counts']
 
     if len(save_to_file) > 0:
         out.to_csv(save_to_file, index=False)
