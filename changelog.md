@@ -2,7 +2,7 @@
 # Opqua Changelog
 
 ## v0.9.8
-## 18 Jan 2022
+## 27 Feb 2022
 Update compositionPlot additional arguments.
 
 ## v0.9.7
