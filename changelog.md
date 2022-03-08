@@ -1,6 +1,13 @@
 
 # Opqua Changelog
 
+## v0.9.8.2
+## 8 Mar 2022
+Change units of lethality_rate_host and lethality_rate_vector to be a rate like
+other parameters for better internal consistency, instead of a fraction of
+recovered cases. Affects only behavior of simulations with disease-caused
+mortality. Updated example accordingly.
+
 ## v0.9.8.1
 ## 7 Mar 2022
 Fix bug in updateVectorCoefficients() specific to natality and migration.

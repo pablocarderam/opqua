@@ -1084,7 +1084,7 @@ class Population(object):
         """
 
         index_host,rand = self.getWeightedRandom(
-            rand, self.lethality_rate_host * self.recovery_rate_host
+            rand, self.lethality_rate_host
                 * self.coefficients_hosts[:,self.LETHALITY]
             )
 
@@ -1100,7 +1100,7 @@ class Population(object):
         """
 
         index_vector,rand = self.getWeightedRandom(
-            rand, self.lethality_rate_vector * self.recovery_rate_vector
+            rand, self.lethality_rate_vector
                 * self.coefficients_vectors[:,self.LETHALITY]
             )
 

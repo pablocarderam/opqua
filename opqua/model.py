@@ -324,9 +324,9 @@ class Model(object):
             1/time (number >= 0)
         recovery_rate_vector -- rate at which vectors clear all pathogens
             1/time (number >= 0)
-        lethality_rate_host -- fraction of infected hosts that die from disease
+        lethality_rate_host -- rate at which infected hosts die from disease
             (number 0-1)
-        lethality_rate_vector -- fraction of infected vectors that die from
+        lethality_rate_vector -- rate at which infected vectors die from
             disease (number 0-1)
         recombine_in_host -- rate at which recombination occurs in host;
             evts/time (number >= 0)

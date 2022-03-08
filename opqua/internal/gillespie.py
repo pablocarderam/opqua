@@ -294,7 +294,6 @@ class Gillespie(object):
 
             rates[self.KILL_HOST,i] = (
                 self.model.populations[id].lethality_rate_host
-                * self.model.populations[id].recovery_rate_host
                 * self.model.populations[id].coefficients_hosts[
                     :, self.model.populations[id].LETHALITY
                     ].sum()
@@ -302,7 +301,6 @@ class Gillespie(object):
 
             rates[self.KILL_VECTOR,i] = (
                 self.model.populations[id].lethality_rate_vector
-                * self.model.populations[id].recovery_rate_vector
                 * self.model.populations[id].coefficients_vectors[
                     :, self.model.populations[id].LETHALITY
                     ].sum()
