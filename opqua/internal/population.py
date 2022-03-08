@@ -1254,8 +1254,8 @@ class Population(object):
         self.coefficients_vectors = np.zeros( self.coefficients_vectors.shape )
         self.coefficients_vectors[ 1:, self.RECEIVE_CONTACT ] = 1
         self.coefficients_vectors[ 1:, self.RECEIVE_POPULATION_CONTACT ] = 1
-        self.coefficients_hosts[ 1:, self.NATALITY ] = 1
-        self.coefficients_hosts[ 1:, self.MIGRATION ] = 1
+        self.coefficients_vectors[ 1:, self.NATALITY ] = 1
+        self.coefficients_vectors[ 1:, self.MIGRATION ] = 1
 
         for v in self.vectors:
             genomes = v.pathogens.keys()

@@ -1,6 +1,12 @@
 
 # Opqua Changelog
 
+## v0.9.8.1
+## 7 Mar 2022
+Fix bug in updateVectorCoefficients() specific to natality and migration.
+Does not affect any simulation results as long as natality and migration are not
+functions of pathogen genome sequence.
+
 ## v0.9.8
 ## 27 Feb 2022
 Update compositionPlot additional arguments.
