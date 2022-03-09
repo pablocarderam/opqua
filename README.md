@@ -850,7 +850,7 @@ _Arguments:_
 #### run
 
 ```python
-run(t0,tf,sampling=0,host_sampling=0,vector_sampling=0)
+run(t0,tf,time_sampling=0,host_sampling=0,vector_sampling=0)
 ```
 
 
