@@ -1,6 +1,11 @@
 
 # Opqua Changelog
 
+## v0.9.8.3
+## 9 Mar 2022
+Modify behavior of compositionPlot to take all hosts/vectors into account when
+plotting immunity/protection.
+
 ## v0.9.8.2
 ## 8 Mar 2022
 Change units of lethality_rate_host and lethality_rate_vector to be a rate like
