@@ -12,10 +12,12 @@ class Setup(object):
             natalityHost, recoveryHost, migrationHost,
             populationContactHost, receivePopulationContactHost,
             mutationHost, recombinationHost,
+            immunizationHost, deimmunizationHost,
             fitnessVector, contactVector, receiveContactVector, lethalityVector,
             natalityVector,recoveryVector, migrationVector,
             populationContactVector, receivePopulationContactVector,
             mutationVector, recombinationVector,
+            immunizationVector, deimmunizationVector,
             contact_rate_host_vector,
             transmission_efficiency_host_vector,
             transmission_efficiency_vector_host,
@@ -30,7 +32,9 @@ class Setup(object):
             birth_rate_host, birth_rate_vector,
             vertical_transmission_host, vertical_transmission_vector,
             inherit_immunity_host, inherit_immunity_vector,
-            immunity_upon_recovery_host, immunity_upon_recovery_vector):
+            immunity_acquisition_rate_host, immunity_acquisition_rate_vector,
+            immunity_loss_rate_host, immunity_loss_rate_vector,
+            immunityWeightsHost, immunityWeightsVector):
         """Create a new Setup.
 
         Arguments:
@@ -73,6 +77,14 @@ class Setup(object):
             recombination rate for a given host based on genome sequence of
             pathogen
             (function object, takes a String argument and returns a number 0-1)
+        immunizationHost -- function that returns coefficient modifying
+            immunization rate for a given host based on genome sequence of
+            pathogen
+            (function object, takes a String argument and returns a number 0-1)
+        deimmunizationHost -- function that returns coefficient modifying
+            deimmunization rate for a given host based on genome sequence of
+            pathogen
+            (function object, takes a String argument and returns a number 0-1)
         fitnessVector -- function that evaluates relative fitness in head-to-
             head competition for different genomes within the same vector
             (function object, takes a String argument and returns a number >= 0)
@@ -107,6 +119,14 @@ class Setup(object):
             recombination rate for a given vector based on genome sequence of
             pathogen
             (function object, takes a String argument and returns a number 0-1)
+        immunizationVector -- function that returns coefficient modifying
+            immunization rate for a given vector based on genome sequence of
+            pathogen
+            (function object, takes a String argument and returns a number 0-1)
+        deimmunizationVector -- function that returns coefficient modifying
+            deimmunization rate for a given vector based on genome sequence of
+            pathogen
+            (function object, takes a String argument and returns a number 0-1)
         contact_rate_host_vector -- rate of host-vector contact events, not
             necessarily transmission, assumes constant population density;
             evts/time (number >= 0)
@@ -129,9 +149,9 @@ class Setup(object):
             1/time (number >= 0)
         recovery_rate_vector -- rate at which vectors clear all pathogens
             1/time (number >= 0)
-        lethality_rate_host -- fraction of infected hosts that die from disease
+        lethality_rate_host -- rate at which infected hosts die from disease
             (number 0-1)
-        lethality_rate_vector -- fraction of infected vectors that die from
+        lethality_rate_vector -- rate at which infected vectors die from
             disease (number 0-1)
         recombine_in_host -- rate at which recombination occurs in host;
             evts/time (number >= 0)
@@ -158,12 +178,22 @@ class Setup(object):
             immunity sequences from its parent (number 0-1)
         inherit_immunity_vector -- probability that a vector inherits all
             immunity sequences from its parent (number 0-1)
-        immunity_upon_recovery_host -- defines indexes in genome string that
-            define substring to be added to host immunity sequences after
-            recovery (None or array-like of length 2 with int 0-num_loci)
-        immunity_upon_recovery_vector -- defines indexes in genome string that
-            define substring to be added to vector immunity sequences after
-            recovery (None or array-like of length 2 with int 0-num_loci)
+        immunity_acquisition_rate_host -- rate at which infected hosts acquire
+            immunity to a pathogen infecting them; 1/time (number >= 0)
+        immunity_acquisition_rate_vector -- rate at which infected vectors
+            acquire immunity to a pathogen infecting them; 1/time (number >= 0)
+        immunity_loss_rate_host -- rate at which infected hosts lose
+            immunity to a pathogen infecting them; 1/time (number >= 0)
+        immunity_loss_rate_vector -- rate at which infected vectors
+            lose immunity to a pathogen infecting them; 1/time (number >= 0)
+        immunityWeightsHost -- function that returns coefficient modifying
+            immunity for a given host based on genome sequence of pathogen and a
+            given immunity sequence
+            (function object, takes two String arguments and returns a number)
+        immunityWeightsVector -- function that returns coefficient modifying
+            immunity for a given vector based on genome sequence of pathogen and
+            a given immunity sequence
+            (function object, takes two String arguments and returns a number)
         """
 
         super(Setup, self).__init__()
@@ -189,6 +219,8 @@ class Setup(object):
         self.receivePopulationContactHost = receivePopulationContactHost
         self.mutationHost = mutationHost
         self.recombinationHost = recombinationHost
+        self.immunizationHost = immunizationHost
+        self.deimmunizationHost = deimmunizationHost
 
         self.fitnessVector = fitnessVector
         self.contactVector = contactVector
@@ -201,6 +233,8 @@ class Setup(object):
         self.receivePopulationContactVector = receivePopulationContactVector
         self.mutationVector = mutationVector
         self.recombinationVector = recombinationVector
+        self.immunizationVector = immunizationVector
+        self.deimmunizationVector = deimmunizationVector
 
         self.contact_rate_host_vector = contact_rate_host_vector
         self.contact_rate_host_host = contact_rate_host_host
@@ -236,5 +270,12 @@ class Setup(object):
         self.inherit_immunity_host = inherit_immunity_host
         self.inherit_immunity_vector = inherit_immunity_vector
 
-        self.immunity_upon_recovery_host = immunity_upon_recovery_host
-        self.immunity_upon_recovery_vector = immunity_upon_recovery_vector
+        self.immunity_acquisition_rate_host = immunity_acquisition_rate_host
+        self.immunity_acquisition_rate_vector = immunity_acquisition_rate_vector
+        self.immunity_loss_rate_host = immunity_loss_rate_host
+        self.immunity_loss_rate_vector = immunity_loss_rate_vector
+
+        self.immunityWeightsHost = immunityWeightsHost
+        self.immunityWeightsVector = immunityWeightsVector
+
+        # TODO: add coefficient weights for each genome position

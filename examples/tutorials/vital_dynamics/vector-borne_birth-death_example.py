@@ -12,8 +12,9 @@ my_model.newSetup('my_setup', preset='vector-borne',
         # Create a new set of parameters called "my_setup" to be used to
         # simulate a population in the model. Use the default parameter set for
         # a vector-borne model.
-    lethality_rate_host=1e-1, # change the default host lethality rate to 10%
-    immunity_upon_recovery_host=[0,10],
+    lethality_rate_host=1e-2,
+        # change the default host lethality rate to 10% of recovery rate
+    protection_upon_recovery_host=[0,10],
         # make hosts immune to the genome that infected them if they recover
         # [0,10] means that pathogen genome positions 0 through 9 will be saved
         # as immune memory
@@ -24,7 +25,7 @@ my_model.newSetup('my_setup', preset='vector-borne',
     birth_rate_vector=1e-2,
         # change the default vector birth rate to 0.01 births/time unit
     death_rate_vector=1e-2
-        # change the default natural vector death rate to 0.01 births/time unit
+        # change the default natural vector death rate to 0.01 deaths/time unit
     )
 
 my_model.newPopulation(

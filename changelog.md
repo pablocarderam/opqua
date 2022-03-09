@@ -1,12 +1,48 @@
 
 # Opqua Changelog
 
+## v0.9.8-immunity-0.2
+## 9 Mar 2022
+Major overhaul of immunity mechanics in simulation engine. Still testing some
+behaviors, but going well so far.
+
+- Added new events for acquisition and loss of immunity; immunity is no longer
+  acquired only upon recovery.
+- Added new parameters to control acquisition and loss of immunity.
+- Added new parameter to specify custom user functions to evaluate effect of
+  immunity by comparing pathogen genomes with genomes in immune memory.
+- Immune memory now samples entire genome (so "partial matches" can be specified
+  through custom functions as explained in the last point).
+- Immunity now consists of modifying intra-host fitness through an extra
+  coefficient; if it is "sterilizing" (i.e. coefficient=0) then that pathogen is
+  removed from host/vector.
+- Immunity therefore affects rates of all event types through a pathogen's
+  intra-host fitness, but it can additionally decrease rates of events where
+  pathogens are doing the action (transmission, death, mutation, recombination,
+  immunization)
+- Immunity can be inherited vertically on a sequence-by-sequence basis, not
+  all-or-nothing
+- Added an "immunity" example to the examples/tutorials folder.
+
+Also added other modifications done in parallel on the main branch:
+- Modify behavior of compositionPlot to take all hosts/vectors into account when
+  plotting immunity/protection.
+
+- Change units of lethality_rate_host and lethality_rate_vector to be a rate
+  like other parameters for better internal consistency, instead of a fraction
+  of recovered cases. Affects only behavior of simulations with disease-caused
+  mortality. Updated example accordingly.
+
+- Fix bug in updateVectorCoefficients() specific to natality and migration.
+  Does not affect any simulation results as long as natality and migration are
+  not functions of pathogen genome sequence.
+
 ## v0.9.8-immunity-0.1
 ## 2 Mar 2022
 Renamed "Protection" with "Immunity".
 
 ## v0.9.8
-## 18 Jan 2022
+## 27 Feb 2022
 Update compositionPlot additional arguments.
 
 ## v0.9.7

@@ -110,13 +110,15 @@ class Model(object):
     - Utility -
     customModelFunction -- returns output of given function run on model
 
-    --- Preset fitness functions: ---
+    --- Preset fitness and immunity functions: ---
         * these are static methods
 
     peakLandscape -- evaluates genome numeric phenotype by decreasing with
         distance from optimal sequence
     valleyLandscape -- evaluates genome numeric phenotype by increasing with
         distance from worst sequence
+    elementMatchImmunity -- immunity using partial element-wise matching
+    perfectMatchImmunity -- immunity using perfect string matching
     """
 
     ### CONSTANTS ###
@@ -193,13 +195,14 @@ class Model(object):
             lethalityHost=None, natalityHost=None,
             recoveryHost=None, migrationHost=None,
             populationContactHost=None, receivePopulationContactHost=None,
-            mutationHost=None,
-            recombinationHost=None, fitnessVector=None,
-            contactVector=None, receiveContactVector=None, lethalityVector=None,
-            natalityVector=None, recoveryVector=None,
+            mutationHost=None, recombinationHost=None,
+            immunizationHost=None, deimmunizationHost=None,
+            fitnessVector=None, contactVector=None, receiveContactVector=None,
+            lethalityVector=None, natalityVector=None, recoveryVector=None,
             migrationVector=None, populationContactVector=None,
             receivePopulationContactVector=None,
             mutationVector=None, recombinationVector=None,
+            immunizationVector=None, deimmunizationVector=None,
             contact_rate_host_vector=None,
             transmission_efficiency_host_vector=None,
             transmission_efficiency_vector_host=None,
@@ -215,8 +218,10 @@ class Model(object):
             birth_rate_host=None, birth_rate_vector=None,
             vertical_transmission_host=None, vertical_transmission_vector=None,
             inherit_immunity_host=None, inherit_immunity_vector=None,
-            immunity_upon_recovery_host=None,
-            immunity_upon_recovery_vector=None):
+            immunity_acquisition_rate_host=None,
+            immunity_acquisition_rate_vector=None,
+            immunity_loss_rate_host=None, immunity_loss_rate_vector=None,
+            immunityWeightsHost=None, immunityWeightsVector=None):
         """Create a new Setup, save it in setups dict under given name.
 
         Two preset setups exist: "vector-borne" and "host-host". You may select
@@ -268,6 +273,14 @@ class Model(object):
             recombination rate for a given host based on genome sequence of
             pathogen
             (function object, takes a String argument and returns a number 0-1)
+        immunizationHost -- function that returns coefficient modifying
+            immunization rate for a given host based on genome sequence of
+            pathogen
+            (function object, takes a String argument and returns a number 0-1)
+        deimmunizationHost -- function that returns coefficient modifying
+            deimmunization rate for a given host based on genome sequence of
+            pathogen
+            (function object, takes a String argument and returns a number 0-1)
         fitnessVector -- function that evaluates relative fitness in head-to-
             head competition for different genomes within the same vector
             (function object, takes a String argument and returns a number >= 0)
@@ -302,6 +315,14 @@ class Model(object):
             recombination rate for a given vector based on genome sequence of
             pathogen
             (function object, takes a String argument and returns a number 0-1)
+        immunizationVector -- function that returns coefficient modifying
+            immunization rate for a given vector based on genome sequence of
+            pathogen
+            (function object, takes a String argument and returns a number 0-1)
+        deimmunizationVector -- function that returns coefficient modifying
+            deimmunization rate for a given vector based on genome sequence of
+            pathogen
+            (function object, takes a String argument and returns a number 0-1)
         contact_rate_host_vector -- rate of host-vector contact events, not
             necessarily transmission, assumes constant population density;
             evts/time (number >= 0)
@@ -324,9 +345,9 @@ class Model(object):
             1/time (number >= 0)
         recovery_rate_vector -- rate at which vectors clear all pathogens
             1/time (number >= 0)
-        lethality_rate_host -- fraction of infected hosts that die from disease
+        lethality_rate_host -- rate at which infected hosts die from disease
             (number 0-1)
-        lethality_rate_vector -- fraction of infected vectors that die from
+        lethality_rate_vector -- rate at which infected vectors die from
             disease (number 0-1)
         recombine_in_host -- rate at which recombination occurs in host;
             evts/time (number >= 0)
@@ -353,12 +374,22 @@ class Model(object):
             immunity sequences from its parent (number 0-1)
         inherit_immunity_vector -- probability that a vector inherits all
             immunity sequences from its parent (number 0-1)
-        immunity_upon_recovery_host -- defines indexes in genome string that
-            define substring to be added to host immunity sequences after
-            recovery (None or array-like of length 2 with int 0-num_loci)
-        immunity_upon_recovery_vector -- defines indexes in genome string that
-            define substring to be added to vector immunity sequences after
-            recovery (None or array-like of length 2 with int 0-num_loci)
+        immunity_acquisition_rate_host -- rate at which infected hosts acquire
+            immunity to a pathogen infecting them; 1/time (number >= 0)
+        immunity_acquisition_rate_vector -- rate at which infected vectors
+            acquire immunity to a pathogen infecting them; 1/time (number >= 0)
+        immunity_loss_rate_host -- rate at which infected hosts lose
+            immunity to a pathogen infecting them; 1/time (number >= 0)
+        immunity_loss_rate_vector -- rate at which infected vectors
+            lose immunity to a pathogen infecting them; 1/time (number >= 0)
+        immunityWeightsHost -- function that returns coefficient modifying
+            immunity for a given host based on genome sequence of pathogen and a
+            given immunity sequence
+            (function object, takes two String arguments and returns a number)
+        immunityWeightsVector -- function that returns coefficient modifying
+            immunity for a given vector based on genome sequence of pathogen and
+            a given immunity sequence
+            (function object, takes two String arguments and returns a number)
         """
 
         if preset == "vector-borne":
@@ -368,7 +399,8 @@ class Model(object):
             fitnessHost = (lambda g: 1) if fitnessHost is None else fitnessHost
             contactHost = (lambda g: 1) if contactHost is None else contactHost
             receiveContactHost = \
-                (lambda g: 1) if receiveContactHost is None else receiveContactHost
+                (lambda g: 1) if receiveContactHost is None \
+                else receiveContactHost
             lethalityHost = \
                 (lambda g: 1) if lethalityHost is None else lethalityHost
             natalityHost = \
@@ -378,19 +410,28 @@ class Model(object):
             migrationHost = \
                 (lambda g: 1) if migrationHost is None else migrationHost
             populationContactHost = \
-                (lambda g: 1) if populationContactHost is None else populationContactHost
+                (lambda g: 1) if populationContactHost is None \
+                else populationContactHost
             receivePopulationContactHost = \
-                (lambda g: 1) if receivePopulationContactHost is None else receivePopulationContactHost
+                (lambda g: 1) if receivePopulationContactHost is None \
+                else receivePopulationContactHost
             mutationHost = \
                 (lambda g: 1) if mutationHost is None else mutationHost
             recombinationHost = \
-                (lambda g: 1) if recombinationHost is None else recombinationHost
+                (lambda g: 1) if recombinationHost is None \
+                else recombinationHost
+            immunizationHost = \
+                (lambda g: 1) if immunizationHost is None else immunizationHost
+            deimmunizationHost = \
+                (lambda g: 1) if deimmunizationHost is None \
+                else deimmunizationHost
             fitnessVector = \
                 (lambda g: 1) if fitnessVector is None else fitnessVector
             contactVector = \
                 (lambda g: 1) if contactVector is None else contactVector
             receiveContactVector = \
-                (lambda g: 1) if receiveContactVector is None else receiveContactVector
+                (lambda g: 1) if receiveContactVector is None \
+                else receiveContactVector
             lethalityVector = \
                 (lambda g: 1) if lethalityVector is None else lethalityVector
             natalityVector = \
@@ -400,13 +441,23 @@ class Model(object):
             migrationVector = \
                 (lambda g: 1) if migrationVector is None else migrationVector
             populationContactVector = \
-                (lambda g: 1) if populationContactVector is None else populationContactVector
+                (lambda g: 1) if populationContactVector is None \
+                else populationContactVector
             receivePopulationContactVector = \
-                (lambda g: 1) if receivePopulationContactVector is None else receivePopulationContactVector
+                (lambda g: 1) if receivePopulationContactVector is None \
+                else receivePopulationContactVector
             mutationVector = \
-                (lambda g: 1) if mutationVector is None else mutationVector
+                (lambda g: 1) if mutationVector is None \
+                else mutationVector
             recombinationVector = \
-                (lambda g: 1) if recombinationVector is None else recombinationVector
+                (lambda g: 1) if recombinationVector is None \
+                else recombinationVector
+            immunizationVector = \
+                (lambda g: 1) if immunizationVector is None \
+                else immunizationVector
+            deimmunizationVector = \
+                (lambda g: 1) if deimmunizationVector is None \
+                else deimmunizationVector
             contact_rate_host_vector = \
                 2e-1 if contact_rate_host_vector is None \
                 else contact_rate_host_vector
@@ -462,8 +513,24 @@ class Model(object):
             inherit_immunity_vector = \
                 0 if inherit_immunity_vector is None \
                 else inherit_immunity_vector
-            immunity_upon_recovery_host = immunity_upon_recovery_host
-            immunity_upon_recovery_vector = immunity_upon_recovery_vector
+            immunity_acquisition_rate_host = \
+                0 if immunity_acquisition_rate_host is None \
+                else immunity_acquisition_rate_host
+            immunity_acquisition_rate_vector = \
+                0 if immunity_acquisition_rate_vector is None \
+                else immunity_acquisition_rate_vector
+            immunity_loss_rate_host = \
+                0 if immunity_loss_rate_host is None \
+                else immunity_loss_rate_host
+            immunity_loss_rate_vector = \
+                0 if immunity_loss_rate_vector is None \
+                else immunity_loss_rate_vector
+            immunityWeightsHost = \
+                (lambda g1,g2: 1) if immunityWeightsHost is None \
+                else immunityWeightsHost
+            immunityWeightsVector = \
+                (lambda g1,g2: 1) if immunityWeightsVector is None \
+                else immunityWeightsVector
 
         elif preset == "host-host":
             num_loci = 10 if num_loci is None else num_loci
@@ -472,7 +539,8 @@ class Model(object):
             fitnessHost = (lambda g: 1) if fitnessHost is None else fitnessHost
             contactHost = (lambda g: 1) if contactHost is None else contactHost
             receiveContactHost = \
-                (lambda g: 1) if receiveContactHost is None else receiveContactHost
+                (lambda g: 1) if receiveContactHost is None \
+                else receiveContactHost
             lethalityHost = \
                 (lambda g: 1) if lethalityHost is None else lethalityHost
             natalityHost = \
@@ -482,39 +550,54 @@ class Model(object):
             migrationHost = \
                 (lambda g: 1) if migrationHost is None else migrationHost
             populationContactHost = \
-                (lambda g: 1) if populationContactHost is None else populationContactHost
+                (lambda g: 1) if populationContactHost is None \
+                else populationContactHost
             receivePopulationContactHost = \
-                (lambda g: 1) if receivePopulationContactHost is None else receivePopulationContactHost
+                (lambda g: 1) if receivePopulationContactHost is None \
+                else receivePopulationContactHost
             mutationHost = \
                 (lambda g: 1) if mutationHost is None else mutationHost
             recombinationHost = \
-                (lambda g: 1) if recombinationHost is None else recombinationHost
+                (lambda g: 1) if recombinationHost is None \
+                else recombinationHost
+            immunizationHost = \
+                (lambda g: 1) if immunizationHost is None \
+                else immunizationHost
+            deimmunizationHost = \
+                (lambda g: 1) if deimmunizationHost is None \
+                else deimmunizationHost
             fitnessVector = \
                 (lambda g: 1) if fitnessVector is None else fitnessVector
             contactVector = \
                 (lambda g: 1) if contactVector is None else contactVector
             receiveContactVector = \
-                (lambda g: 1) if receiveContactVector is None else receiveContactVector
+                (lambda g: 1) if receiveContactVector is None \
+                else receiveContactVector
             lethalityVector = \
                 (lambda g: 1) if lethalityVector is None else lethalityVector
             natalityVector = \
                 (lambda g: 1) if natalityVector is None else natalityVector
             recoveryVector = \
                 (lambda g: 1) if recoveryVector is None else recoveryVector
-            lethality_rate_host = \
-                0 if lethality_rate_host is None else lethality_rate_host
-            lethality_rate_vector = \
-                0 if lethality_rate_vector is None else lethality_rate_vector
             migrationVector = \
                 (lambda g: 1) if migrationVector is None else migrationVector
             populationContactVector = \
-                (lambda g: 1) if populationContactVector is None else populationContactVector
+                (lambda g: 1) if populationContactVector is None \
+                else populationContactVector
             receivePopulationContactVector = \
-                (lambda g: 1) if receivePopulationContactVector is None else receivePopulationContactVector
+                (lambda g: 1) if receivePopulationContactVector is None \
+                else receivePopulationContactVector
             mutationVector = \
                 (lambda g: 1) if mutationVector is None else mutationVector
             recombinationVector = \
-                (lambda g: 1) if recombinationVector is None else recombinationVector
+                (lambda g: 1) if recombinationVector is None \
+                else recombinationVector
+            immunizationVector = \
+                (lambda g: 1) if immunizationVector is None \
+                else immunizationVector
+            deimmunizationVector = \
+                (lambda g: 1) if deimmunizationVector is None \
+                else deimmunizationVector
             contact_rate_host_vector = \
                 0 if contact_rate_host_vector is None \
                 else contact_rate_host_vector
@@ -542,6 +625,10 @@ class Model(object):
                 1e-4 if recombine_in_host is None else recombine_in_host
             recombine_in_vector = \
                 0 if recombine_in_vector is None else recombine_in_vector
+            lethality_rate_host = \
+                0 if lethality_rate_host is None else lethality_rate_host
+            lethality_rate_vector = \
+                0 if lethality_rate_vector is None else lethality_rate_vector
             num_crossover_host = 1 \
                 if num_crossover_host is None else num_crossover_host
             num_crossover_vector = \
@@ -569,8 +656,24 @@ class Model(object):
             inherit_immunity_vector = \
                 0 if inherit_immunity_vector is None \
                 else inherit_immunity_vector
-            immunity_upon_recovery_host = immunity_upon_recovery_host
-            immunity_upon_recovery_vector = immunity_upon_recovery_vector
+            immunity_acquisition_rate_host = \
+                0 if immunity_acquisition_rate_host is None \
+                else immunity_acquisition_rate_host
+            immunity_acquisition_rate_vector = \
+                0 if immunity_acquisition_rate_vector is None \
+                else immunity_acquisition_rate_vector
+            immunity_loss_rate_host = \
+                0 if immunity_loss_rate_host is None \
+                else immunity_loss_rate_host
+            immunity_loss_rate_vector = \
+                0 if immunity_loss_rate_vector is None \
+                else immunity_loss_rate_vector
+            immunityWeightsHost = \
+                (lambda g1,g2: 1) if immunityWeightsHost is None \
+                else immunityWeightsHost
+            immunityWeightsVector = \
+                (lambda g1,g2: 1) if immunityWeightsVector is None \
+                else immunityWeightsVector
 
         self.setups[name] = Setup(
             name,
@@ -579,10 +682,12 @@ class Model(object):
             natalityHost, recoveryHost, migrationHost,
             populationContactHost, receivePopulationContactHost,
             mutationHost, recombinationHost,
+            immunizationHost, deimmunizationHost,
             fitnessVector, contactVector, receiveContactVector, lethalityVector,
             natalityVector,recoveryVector, migrationVector,
             populationContactVector, receivePopulationContactVector,
             mutationVector, recombinationVector,
+            immunizationVector, deimmunizationVector,
             contact_rate_host_vector,
             transmission_efficiency_host_vector,
             transmission_efficiency_vector_host,
@@ -597,7 +702,9 @@ class Model(object):
             birth_rate_host, birth_rate_vector,
             vertical_transmission_host, vertical_transmission_vector,
             inherit_immunity_host, inherit_immunity_vector,
-            immunity_upon_recovery_host, immunity_upon_recovery_vector
+            immunity_acquisition_rate_host, immunity_acquisition_rate_vector,
+            immunity_loss_rate_host, immunity_loss_rate_vector,
+            immunityWeightsHost, immunityWeightsVector
             )
 
     def newIntervention(self, time, method_name, args):
@@ -2000,3 +2107,52 @@ class Model(object):
         value = np.exp( np.log( min_value ) * ( 1 - distance ) )
 
         return value
+
+    @staticmethod
+    def elementMatchImmunity(genome, immunity_seq, weights=1):
+        """Return immunity coefficient using partial element-wise matching.
+
+        Compares given genome sequence and immunity sequence, returns
+        coefficient where the match at each position is weighted according to
+        the "weights" array.
+
+        Arguments:
+        genome -- the genome to be evaluated (String)
+        immunity_seq -- the genome sequence to measure against (String)
+        weights -- how much a match at each position within the genome
+            contributes to the immunity coefficient; shoule sum to 1 (Numpy
+            array)
+
+        Return:
+        immune coefficient of genome (number)
+        """
+
+        genome_encoded = np.frombuffer(genome.encode('UTF-8'), dtype=np.int8)
+        immunity_seq_encoded = np.frombuffer(
+            immunity_seq.encode('UTF-8'), dtype=np.int8
+            )
+        coef = (
+            np.equal(genome_encoded, immunity_seq_encoded)
+            * weights
+            ).sum() / np.sum( weights * np.ones( len(genome) ) )
+
+        return coef
+
+    @staticmethod
+    def perfectMatchImmunity(genome, immunity_seq, weight=1):
+        """Return immunity coefficient using perfect string matching.
+
+        Compares given genome sequence and immunity sequence, returns
+        coefficient where a perfect match confers the immunity in "weight",
+        while any mismatch confers no immunity.
+
+        Arguments:
+        genome -- the genome to be evaluated (String)
+        immunity_seq -- the genome sequence to measure against (String)
+        weight -- fraction immunity conferred by a perfect match (number 0-1)
+
+        Return:
+        immune coefficient of genome (number)
+        """
+
+        return ( genome == immunity_seq ) * weight

@@ -40,9 +40,8 @@ class Host(object):
                 # if not slimmed down for data storage, save other attributes
             self.pathogens = {} # Dictionary with all current infections in this
                 # host, with keys=genome strings, values=fitness numbers
-            self.immunity_sequences = [] # A list of strings this host is
-                # immune to. If a pathogen's genome contains one of these
-                # values, it cannot infect this host.
+            self.immunity_sequences = [] # A list of genomes this host has
+                # immunity to
             self.population = population
             self.sum_fitness = 0
                 # sum of all pathogen fitnesses within this host
@@ -67,6 +66,28 @@ class Host(object):
 
         return copy
 
+    def immunityModifier(self, genome):
+        """Returns immunity coefficient modifying fitness for given genome.
+
+        Computed with regards to this specific host's immunity sequences and
+        the population's immunity sequence weights. Coefficient is 0-1, where
+        0 is total protection from infection.
+
+        Arguments:
+        genome -- the genome to be added (String)
+
+        Returns:
+        coefficient to multiply with intrinsic pathogen fitness
+        """
+
+        coefficients = np.zeros( max( len( self.immunity_sequences ) , 1 ) )
+        for i,immunity_seq in enumerate(self.immunity_sequences):
+            coefficients[i] = self.population.immunityWeightsHost(
+                genome, immunity_seq
+                )
+
+        return max( 1-coefficients.max(), 0 )
+
     def acquirePathogen(self, genome):
         """Adds given genome to this host's pathogens.
 
@@ -75,42 +96,55 @@ class Host(object):
         Arguments:
         genome -- the genome to be added (String)
         """
-        self.pathogens[genome] = self.population.fitnessHost(genome)
-        old_sum_fitness = self.sum_fitness
-        self.sum_fitness += self.pathogens[genome]
-        sum_fitness_denom = self.sum_fitness if self.sum_fitness > 0 else 1
-        self.population.coefficients_hosts[self.coefficient_index,:] = (
+
+        immunity_modifier = self.immunityModifier(genome)
+
+        if immunity_modifier > 0:
+            self.pathogens[genome] = (
+                self.population.fitnessHost(genome)
+                * immunity_modifier
+                )
+            old_sum_fitness = self.sum_fitness if ( immunity_modifier > 0
+                or self.sum_fitness > 0 ) else 1
+            self.sum_fitness += self.pathogens[genome]
+            sum_fitness_denom = self.sum_fitness if self.sum_fitness > 0 else 1
+            self.population.coefficients_hosts[self.coefficient_index,:] = (
+                self.population.coefficients_hosts[
+                    self.coefficient_index,:
+                    ]
+                * old_sum_fitness / sum_fitness_denom ) + ( np.array([
+                        # positions dependent on class constants
+                    0,
+                    self.population.contactHost(genome) * immunity_modifier,
+                    self.population.receiveContactHost(genome),
+                    self.population.lethalityHost(genome) * immunity_modifier,
+                    self.population.natalityHost(genome),
+                    self.population.recoveryHost(genome),
+                    self.population.migrationHost(genome),
+                    self.population.populationContactHost(genome)
+                        * immunity_modifier,
+                    self.population.receivePopulationContactHost(genome),
+                    self.population.mutationHost(genome) * immunity_modifier,
+                    self.population.recombinationHost(genome)
+                        * immunity_modifier,
+                    self.population.immunizationHost(genome)
+                        * immunity_modifier,
+                    self.population.deimmunizationHost(genome)
+                ]) * self.pathogens[genome] / sum_fitness_denom )
+
             self.population.coefficients_hosts[
-                self.coefficient_index,:
-                ]
-            * old_sum_fitness / sum_fitness_denom ) + ( np.array([
-                    # positions dependent on class constants
-                0,
-                self.population.contactHost(genome),
-                self.population.receiveContactHost(genome),
-                self.population.lethalityHost(genome),
-                self.population.natalityHost(genome),
-                self.population.recoveryHost(genome),
-                self.population.migrationHost(genome),
-                self.population.populationContactHost(genome),
-                self.population.receivePopulationContactHost(genome),
-                self.population.mutationHost(genome),
-                self.population.recombinationHost(genome)
-            ]) * self.pathogens[genome] / sum_fitness_denom )
-
-        self.population.coefficients_hosts[
-            self.coefficient_index,self.population.RECOMBINATION
-            ] = self.population.coefficients_hosts[
                 self.coefficient_index,self.population.RECOMBINATION
-                ] * ( len(self.pathogens) > 1 )
+                ] = self.population.coefficients_hosts[
+                    self.coefficient_index,self.population.RECOMBINATION
+                    ] * ( len(self.pathogens) > 1 )
 
-        self.population.coefficients_hosts[
-            self.coefficient_index,self.population.INFECTED
-            ] = 1
+            self.population.coefficients_hosts[
+                self.coefficient_index,self.population.INFECTED
+                ] = 1
 
-        if self not in self.population.infected_hosts:
-            self.population.infected_hosts.append(self)
-            self.population.healthy_hosts.remove(self)
+            if self not in self.population.infected_hosts:
+                self.population.infected_hosts.append(self)
+                self.population.healthy_hosts.remove(self)
 
     def infectHost(self, host):
         """Infect given host with a sample of this host's pathogens.
@@ -146,9 +180,8 @@ class Host(object):
                 )
             ) )
         for genome in genomes_inoculated:
-            if genome not in host.pathogens.keys() and not any(
-                    [ p in genome for p in host.immunity_sequences ]
-                    ):
+            if ( genome not in host.pathogens.keys()
+                    and np.random.rand() < host.immunityModifier(genome) ):
                 host.acquirePathogen(genome)
                 changed = True
 
@@ -188,9 +221,8 @@ class Host(object):
                 )
             ) )
         for genome in genomes_inoculated:
-            if genome not in vector.pathogens.keys() and not any(
-                    [ p in genome for p in vector.immunity_sequences ]
-                    ):
+            if ( genome not in vector.pathogens.keys()
+                    and np.random.rand() < vector.immunityModifier(genome) ):
                 vector.acquirePathogen(genome)
                 changed = True
 
@@ -205,15 +237,6 @@ class Host(object):
         """
 
         if self in self.population.infected_hosts:
-            if self.population.immunity_upon_recovery_host:
-                for genome in self.pathogens:
-                    seq = genome[
-                        self.population.immunity_upon_recovery_host[0]
-                        :self.population.immunity_upon_recovery_host[1]
-                        ]
-                    if seq not in self.immunity_sequences:
-                        self.immunity_sequences.append(seq)
-
             self.pathogens = {}
             self.sum_fitness = 0
             self.population.coefficients_hosts[
@@ -248,8 +271,10 @@ class Host(object):
         if self.population.vertical_transmission_host > rand:
             self.infectHost(host)
 
-        if self.population.inherit_immunity_host > np.random.random():
-            host.immunity_sequences = self.immunity_sequences.copy()
+        for immune_seq in self.immunity_sequences:
+            if self.population.inherit_immunity_host > np.random.random():
+                host.immunity_sequences[immune_seq] = self.immunity_sequences[
+                    immune_seq ]
 
     def applyTreatment(self, resistance_seqs):
         """Remove all infections with genotypes susceptible to given treatment.
@@ -290,7 +315,8 @@ class Host(object):
         genomes = list( self.pathogens.keys() )
         weights = [
             self.population.mutationHost(g)
-            * self.population.fitnessHost(g) for g in genomes
+            * self.population.fitnessHost(g)
+            * self.immunityModifier(g) for g in genomes
             ]
         index_genome,rand = self.getWeightedRandomGenome( rand,weights )
 
@@ -315,7 +341,8 @@ class Host(object):
         genomes = list( self.pathogens.keys() )
         weights = [
             self.population.recombinationHost(g)
-            * self.population.fitnessHost(g) for g in genomes
+            * self.population.fitnessHost(g)
+            * self.immunityModifier(g) for g in genomes
             ]
         index_genome,rand = self.getWeightedRandomGenome( rand,weights )
         index_other_genome,rand = self.getWeightedRandomGenome( rand,weights )
@@ -353,6 +380,34 @@ class Host(object):
 
                 if new_genome not in self.population.model.global_trackers['genomes_seen']:
                     self.population.model.global_trackers['genomes_seen'].append(new_genome)
+
+    def immunize(self,rand):
+        """Adds a random pathogen genome to this host's immune memory."""
+
+        genomes = list( self.pathogens.keys() )
+        weights = [
+            self.population.immunizationHost(g)
+            * self.population.fitnessHost(g)
+            * self.immunityModifier(g) for g in genomes
+            ]
+        index_genome,rand = self.getWeightedRandomGenome( rand,weights )
+
+        immunize_genome = genomes[index_genome]
+        if immunize_genome not in self.immunity_sequences:
+            self.immunity_sequences.append(immunize_genome)
+
+    def deimmunize(self,rand):
+        """Removes a random pathogen genome from this host's immune memory."""
+
+        genomes = list( self.pathogens.keys() )
+        weights = [
+            self.population.deimmunizationHost(g)
+            for g in self.immunity_sequences
+            ]
+        index_genome,rand = self.getWeightedRandomGenome( rand,weights )
+
+        deimmunize_genome = self.immunity_sequences[index_genome]
+        self.immunity_sequences.remove(deimmunize_genome)
 
     def getWeightedRandomGenome(self, rand, r):
         """Returns index of element chosen from weights and given random number.

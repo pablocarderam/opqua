@@ -337,7 +337,9 @@ def compositionDf(
     else:
         dat = cp.deepcopy( data )
 
-    dat = dat[ (dat['Pathogens'] != "") & (~dat['Pathogens'].isna()) ]
+    dat = dat[
+        (dat[type_of_composition] != "") & (~dat[type_of_composition].isna())
+        ]
 
     if len(genomic_positions) > 0:
         print('Extracting genomic locations...')

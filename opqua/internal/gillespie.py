@@ -44,6 +44,10 @@ class Gillespie(object):
     DIE_VECTOR = 17
     BIRTH_HOST = 18
     BIRTH_VECTOR = 19
+    IMMUNIZE_HOST = 20
+    IMMUNIZE_VECTOR = 21
+    DEIMMUNIZE_HOST = 22
+    DEIMMUNIZE_VECTOR = 23
 
     EVENT_IDS = { # must match above
         0:'MIGRATE_HOST',
@@ -65,7 +69,11 @@ class Gillespie(object):
         16:'DIE_HOST',
         17:'DIE_VECTOR',
         18:'BIRTH_HOST',
-        19:'BIRTH_VECTOR'
+        19:'BIRTH_VECTOR',
+        20:'IMMUNIZE_HOST',
+        21:'IMMUNIZE_VECTOR',
+        22:'DEIMMUNIZE_HOST',
+        23:'DEIMMUNIZE_VECTOR'
         }
 
     def __init__(self, model):
@@ -90,7 +98,9 @@ class Gillespie(object):
             self.RECOMBINE_HOST, self.RECOMBINE_VECTOR,
             self.KILL_HOST, self.KILL_VECTOR,
             self.DIE_HOST, self.DIE_VECTOR,
-            self.BIRTH_HOST, self.BIRTH_VECTOR
+            self.BIRTH_HOST, self.BIRTH_VECTOR,
+            self.IMMUNIZE_HOST, self.IMMUNIZE_VECTOR,
+            self.DEIMMUNIZE_HOST, self.DEIMMUNIZE_VECTOR
             ]
             # event IDs in specific order to be used
 
@@ -294,7 +304,6 @@ class Gillespie(object):
 
             rates[self.KILL_HOST,i] = (
                 self.model.populations[id].lethality_rate_host
-                * self.model.populations[id].recovery_rate_host
                 * self.model.populations[id].coefficients_hosts[
                     :, self.model.populations[id].LETHALITY
                     ].sum()
@@ -302,7 +311,6 @@ class Gillespie(object):
 
             rates[self.KILL_VECTOR,i] = (
                 self.model.populations[id].lethality_rate_vector
-                * self.model.populations[id].recovery_rate_vector
                 * self.model.populations[id].coefficients_vectors[
                     :, self.model.populations[id].LETHALITY
                     ].sum()
@@ -329,6 +337,34 @@ class Gillespie(object):
                 self.model.populations[id].birth_rate_vector
                 * self.model.populations[id].coefficients_vectors[
                     :, self.model.populations[id].NATALITY
+                    ].sum()
+                )
+
+            rates[self.IMMUNIZE_HOST,i] = (
+                self.model.populations[id].immunity_acquisition_rate_host
+                * self.model.populations[id].coefficients_hosts[
+                    :, self.model.populations[id].IMMUNIZATION
+                    ].sum()
+                )
+
+            rates[self.IMMUNIZE_VECTOR,i] = (
+                self.model.populations[id].immunity_acquisition_rate_vector
+                * self.model.populations[id].coefficients_vectors[
+                    :, self.model.populations[id].IMMUNIZATION
+                    ].sum()
+                )
+
+            rates[self.DEIMMUNIZE_HOST,i] = (
+                self.model.populations[id].immunity_loss_rate_host
+                * self.model.populations[id].coefficients_hosts[
+                    :, self.model.populations[id].DEIMMUNIZATION
+                    ].sum()
+                )
+
+            rates[self.DEIMMUNIZE_VECTOR,i] = (
+                self.model.populations[id].immunity_loss_rate_vector
+                * self.model.populations[id].coefficients_vectors[
+                    :, self.model.populations[id].DEIMMUNIZATION
                     ].sum()
                 )
 
@@ -496,6 +532,22 @@ class Gillespie(object):
 
         elif act == self.BIRTH_VECTOR:
             pop.birthVector(rand)
+            changed = True
+
+        elif act == self.IMMUNIZE_HOST:
+            pop.immunizeHost(rand)
+            changed = True
+
+        elif act == self.IMMUNIZE_VECTOR:
+            pop.immunizeVector(rand)
+            changed = True
+
+        elif act == self.DEIMMUNIZE_HOST:
+            pop.deimmunizeHost(rand)
+            changed = True
+
+        elif act == self.DEIMMUNIZE_VECTOR:
+            pop.deimmunizeVector(rand)
             changed = True
 
         self.model.global_trackers['num_events'][self.EVENT_IDS[act]] += 1

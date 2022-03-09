@@ -42,9 +42,8 @@ class Vector(object):
                 # if not slimmed down for data storage, save other attributes
             self.pathogens = {} # Dictionary with all current infections in this
                 # vector, with keys=genome strings, values=fitness numbers
-            self.immunity_sequences = [] # A list of strings this vector is
-                # immune to. If a pathogen's genome contains one of these
-                # values, it cannot infect this vector.
+            self.immunity_sequences = [] # A list of genomes this vector has
+                # immunity to
             self.population = population
             self.sum_fitness = 0
                 # sum of all pathogen fitnesses within this vector
@@ -68,6 +67,28 @@ class Vector(object):
 
         return copy
 
+    def immunityModifier(self, genome):
+        """Returns immunity coefficient modifying fitness for given genome.
+
+        Computed with regards to this specific vector's immunity sequences and
+        the population's immunity sequence weights. Coefficient is 0-1, where
+        0 is total protection from infection.
+
+        Arguments:
+        genome -- the genome to be added (String)
+
+        Returns:
+        coefficient to multiply with intrinsic pathogen fitness
+        """
+
+        coefficients = np.zeros( max(len(self.immunity_sequences),1) )
+        for i,immunity_seq in enumerate(self.immunity_sequences):
+            coefficients[i] =self.population.immunityWeightsVector(
+                genome, immunity_seq
+                )
+
+        return max( 1-coefficients.max(), 0 )
+
     def acquirePathogen(self, genome):
         """Adds given genome to this vector's pathogens.
 
@@ -80,41 +101,54 @@ class Vector(object):
         whether or not the model has changed state (Boolean)
         """
 
-        self.pathogens[genome] = self.population.fitnessVector(genome)
-        old_sum_fitness = self.sum_fitness
-        self.sum_fitness += self.pathogens[genome]
-        sum_fitness_denom = self.sum_fitness if self.sum_fitness > 0 else 1
-        self.population.coefficients_vectors[self.coefficient_index,:] = (
+        immunity_modifier = self.immunityModifier(genome)
+
+        if immunity_modifier > 0:
+            self.pathogens[genome] = (
+                self.population.fitnessVector(genome)
+                * immunity_modifier
+                )
+            old_sum_fitness = self.sum_fitness if ( immunity_modifier > 0
+                or self.sum_fitness > 0 ) else 1
+            self.sum_fitness += self.pathogens[genome]
+            sum_fitness_denom = self.sum_fitness if self.sum_fitness > 0 else 1
+            self.population.coefficients_vectors[self.coefficient_index,:] = (
+                self.population.coefficients_vectors[
+                    self.coefficient_index,:
+                    ]
+                * old_sum_fitness / sum_fitness_denom ) + ( np.array([
+                        # positions dependent on class constants
+                    0,
+                    self.population.contactVector(genome) * immunity_modifier,
+                    self.population.receiveContactVector(genome),
+                    self.population.lethalityVector(genome) * immunity_modifier,
+                    self.population.natalityVector(genome),
+                    self.population.recoveryVector(genome),
+                    self.population.migrationVector(genome),
+                    self.population.populationContactVector(genome)
+                        * immunity_modifier,
+                    self.population.receivePopulationContactVector(genome),
+                    self.population.mutationVector(genome)
+                        * immunity_modifier,
+                    self.population.recombinationVector(genome)
+                        * immunity_modifier,
+                    self.population.immunizationVector(genome)
+                        * immunity_modifier,
+                    self.population.deimmunizationVector(genome)
+                ]) * self.pathogens[genome] / sum_fitness_denom )
+
             self.population.coefficients_vectors[
-                self.coefficient_index,:
-                ]
-            * old_sum_fitness / sum_fitness_denom ) + ( np.array([
-                    # positions dependent on class constants
-                0,
-                self.population.contactVector(genome),
-                self.population.receiveContactVector(genome),
-                self.population.lethalityVector(genome),
-                self.population.natalityVector(genome),
-                self.population.recoveryVector(genome),
-                self.population.migrationVector(genome),
-                self.population.populationContactVector(genome),
-                self.population.receivePopulationContactVector(genome),
-                self.population.mutationVector(genome),
-                self.population.recombinationVector(genome)
-            ]) * self.pathogens[genome] / sum_fitness_denom )
-
-        self.population.coefficients_vectors[
-            self.coefficient_index,self.population.RECOMBINATION
-            ] = self.population.coefficients_vectors[
                 self.coefficient_index,self.population.RECOMBINATION
-                ] * ( len(self.pathogens) > 1 )
+                ] = self.population.coefficients_vectors[
+                    self.coefficient_index,self.population.RECOMBINATION
+                    ] * ( len(self.pathogens) > 1 )
 
-        self.population.coefficients_vectors[
-            self.coefficient_index,self.population.INFECTED
-            ] = 1
+            self.population.coefficients_vectors[
+                self.coefficient_index,self.population.INFECTED
+                ] = 1
 
-        if self not in self.population.infected_vectors:
-            self.population.infected_vectors.append(self)
+            if self not in self.population.infected_vectors:
+                self.population.infected_vectors.append(self)
 
     def infectHost(self, host):
         """Infect given host with a sample of this vector's pathogens.
@@ -150,9 +184,8 @@ class Vector(object):
                 )
             ) )
         for genome in genomes_inoculated:
-            if genome not in host.pathogens.keys() and not any(
-                    [ p in genome for p in host.immunity_sequences ]
-                    ):
+            if ( genome not in host.pathogens.keys()
+                    and np.random.rand() < host.immunityModifier(genome) ):
                 host.acquirePathogen(genome)
                 changed = True
 
@@ -192,9 +225,8 @@ class Vector(object):
                 )
             ) )
         for genome in genomes_inoculated:
-            if genome not in vector.pathogens.keys() and not any(
-                    [ p in genome for p in vector.immunity_sequences ]
-                    ):
+            if ( genome not in vector.pathogens.keys()
+                    and np.random.rand() < vector.immunityModifier(genome) ):
                 vector.acquirePathogen(genome)
                 changed = True
 
@@ -209,15 +241,6 @@ class Vector(object):
         """
 
         if self in self.population.infected_vectors:
-            if self.population.immunity_upon_recovery_vector:
-                for genome in self.pathogens:
-                    seq = genome[
-                        self.population.immunity_upon_recovery_vector[0]
-                        :self.population.immunity_upon_recovery_vector[1]
-                        ]
-                    if seq not in self.immunity_sequences:
-                        self.immunity_sequences.append(seq)
-
             self.pathogens = {}
             self.sum_fitness = 0
             self.population.coefficients_vectors[
@@ -249,8 +272,10 @@ class Vector(object):
         if self.population.vertical_transmission_vector > rand:
             self.infectVector(vector)
 
-        if self.population.inherit_immunity_vector > np.random.random():
-            vector.immunity_sequences = self.immunity_sequences.copy()
+        for immune_seq in self.immunity_sequences:
+            if self.population.inherit_immunity_vector > np.random.random():
+                vector.immunity_sequences[immune_seq] = self.immunity_sequences[
+                    immune_seq ]
 
     def applyTreatment(self, resistance_seqs):
         """Remove all infections with genotypes susceptible to given treatment.
@@ -291,7 +316,8 @@ class Vector(object):
         genomes = list( self.pathogens.keys() )
         weights = [
             self.population.mutationVector(g)
-            * self.population.fitnessVector(g) for g in genomes
+            * self.population.fitnessVector(g)
+            * self.immunityModifier(g) for g in genomes
             ]
         index_genome,rand = self.getWeightedRandomGenome( rand,weights )
 
@@ -316,7 +342,8 @@ class Vector(object):
         genomes = list( self.pathogens.keys() )
         weights = [
             self.population.recombinationVector(g)
-            * self.population.fitnessVector(g) for g in genomes
+            * self.population.fitnessVector(g)
+            * self.immunityModifier(g) for g in genomes
             ]
         index_genome,rand = self.getWeightedRandomGenome( rand,weights )
         index_other_genome,rand = self.getWeightedRandomGenome( rand,weights )
@@ -354,6 +381,34 @@ class Vector(object):
 
                 if new_genome not in self.population.model.global_trackers['genomes_seen']:
                     self.population.model.global_trackers['genomes_seen'].append(new_genome)
+
+    def immunize(self,rand):
+        """Adds a random pathogen genome to this vector's immune memory."""
+
+        genomes = list( self.pathogens.keys() )
+        weights = [
+            self.population.immunizationVector(g)
+            * self.population.fitnessVector(g)
+            * self.immunityModifier(g) for g in genomes
+            ]
+        index_genome,rand = self.getWeightedRandomGenome( rand,weights )
+
+        immunize_genome = genomes[index_genome]
+        if immunize_genome not in self.immunity_sequences:
+            self.immunity_sequences.append(new_genome)
+
+    def deimmunize(self,rand):
+        """Removes a random pathogen genome from this vector's immune memory."""
+
+        genomes = list( self.pathogens.keys() )
+        weights = [
+            self.population.deimmunizationVector(g)
+            for g in self.immunity_sequences
+            ]
+        index_genome,rand = self.getWeightedRandomGenome( rand,weights )
+
+        deimmunize_genome = self.immunity_sequences[index_genome]
+        self.immunity_sequences.remove(deimmunize_genome)
 
     def getWeightedRandomGenome(self, rand, r):
         """Returns index of element chosen from weights and given random number.

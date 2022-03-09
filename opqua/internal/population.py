@@ -35,6 +35,10 @@ class Population(object):
         coefficients array
     RECOMBINATION -- position of aggregated recovery rate for each individual
         inside coefficients array
+    IMMUNIZATION -- position of aggregated immunity adquisition rate for each
+        individual inside coefficients array
+    DEIMMUNIZATION -- position of aggregated immunity loss rate for each
+        individual inside coefficients array
     NUM_COEFFICIENTS -- total number of types of coefficients (columns) in
         coefficient arrays
     CHROMOSOME_SEPARATOR -- character reserved to denote separate chromosomes in
@@ -89,6 +93,11 @@ class Population(object):
     mutateVector -- mutates a single locus in a random pathogen in a vector
     recombineHost -- recombines two random pathogens in a host
     recombineVector -- recombines two random pathogens in a host
+    immunizeHost -- adds a pathogen genome to a random host's immune memory
+    immunizeVector -- adds a pathogen genome to a random vector's immune memory
+    deimmunizeHost -- removes a pathogen genome from a host's immune memory
+    deimmunizeVector -- removes a pathogen genome to a vector's immune memory
+    updateIndividualCoefficients -- recalculates coefficients of host/vector
     updateHostCoefficients -- updates event coefficients in population's hosts
     updateVectorCoefficients -- updates event coefficients in population's
         vectors
@@ -107,8 +116,10 @@ class Population(object):
     RECEIVE_POPULATION_CONTACT = 8
     MUTATION = 9
     RECOMBINATION = 10
+    IMMUNIZATION = 11
+    DEIMMUNIZATION = 12
 
-    NUM_COEFFICIENTS = 11
+    NUM_COEFFICIENTS = 13
 
     CHROMOSOME_SEPARATOR = '/'
 
@@ -282,6 +293,8 @@ class Population(object):
         self.receivePopulationContactHost = setup.receivePopulationContactHost
         self.mutationHost = setup.mutationHost
         self.recombinationHost = setup.recombinationHost
+        self.immunizationHost = setup.immunizationHost
+        self.deimmunizationHost = setup.deimmunizationHost
         self.updateHostCoefficients()
 
         self.fitnessVector = setup.fitnessVector
@@ -295,6 +308,8 @@ class Population(object):
         self.receivePopulationContactVector = setup.receivePopulationContactVector
         self.mutationVector = setup.mutationVector
         self.recombinationVector = setup.recombinationVector
+        self.immunizationVector = setup.immunizationVector
+        self.deimmunizationVector = setup.deimmunizationVector
         self.updateVectorCoefficients()
 
         self.contact_rate_host_vector = setup.contact_rate_host_vector
@@ -326,10 +341,14 @@ class Population(object):
         self.vertical_transmission_vector = setup.vertical_transmission_vector
         self.inherit_immunity_host = setup.inherit_immunity_host
         self.inherit_immunity_vector = setup.inherit_immunity_vector
-        self.immunity_upon_recovery_host \
-            = setup.immunity_upon_recovery_host
-        self.immunity_upon_recovery_vector \
-            = setup.immunity_upon_recovery_vector
+        self.immunity_acquisition_rate_host \
+            = setup.immunity_acquisition_rate_host
+        self.immunity_acquisition_rate_vector \
+            = setup.immunity_acquisition_rate_vector
+        self.immunity_loss_rate_host = setup.immunity_loss_rate_host
+        self.immunity_loss_rate_vector = setup.immunity_loss_rate_vector
+        self.immunityWeightsHost = setup.immunityWeightsHost
+        self.immunityWeightsVector = setup.immunityWeightsVector
 
     def addHosts(self, num_hosts):
         """Add a number of healthy hosts to population, return list with them.
@@ -1084,7 +1103,7 @@ class Population(object):
         """
 
         index_host,rand = self.getWeightedRandom(
-            rand, self.lethality_rate_host * self.recovery_rate_host
+            rand, self.lethality_rate_host
                 * self.coefficients_hosts[:,self.LETHALITY]
             )
 
@@ -1100,7 +1119,7 @@ class Population(object):
         """
 
         index_vector,rand = self.getWeightedRandom(
-            rand, self.lethality_rate_vector * self.recovery_rate_vector
+            rand, self.lethality_rate_vector
                 * self.coefficients_vectors[:,self.LETHALITY]
             )
 
@@ -1234,35 +1253,103 @@ class Population(object):
 
         vector.recombine(rand)
 
+    def immunizeHost(self, rand):
+        """Adds a pathogen genome to a random host's immune memory.
+
+        Arguments:
+        rand -- uniform random number from 0 to 1 to use when choosing
+            individual in which to choose pathogen
+        """
+
+        index_host,rand = self.getWeightedRandom(
+            rand,self.coefficients_hosts[:,self.IMMUNIZATION]
+            )
+        host = self.hosts[index_host]
+
+        host.immunize(rand)
+        self.updateIndividualCoefficients(host)
+
+    def immunizeVector(self, rand):
+        """Adds a pathogen genome to a random vector's immune memory.
+
+        Arguments:
+        rand -- uniform random number from 0 to 1 to use when choosing
+            individual in which to choose pathogen
+        """
+
+        index_vector,rand = self.getWeightedRandom(
+            rand,self.coefficients_vectors[:,self.IMMUNIZATION]
+            )
+        vector = self.vectors[index_vector]
+
+        vector.immunize(rand)
+        self.updateIndividualCoefficients(vector)
+
+    def deimmunizeHost(self, rand):
+        """Removes a pathogen genome to a random host's immune memory.
+
+        Arguments:
+        rand -- uniform random number from 0 to 1 to use when choosing
+            individual in which to choose pathogen
+        """
+
+        index_host,rand = self.getWeightedRandom(
+            rand,self.coefficients_hosts[:,self.DEIMMUNIZATION]
+            )
+        host = self.hosts[index_host]
+
+        host.deimmunize(rand)
+        self.updateIndividualCoefficients(host)
+
+    def deimmunizeVector(self, rand):
+        """Removes a pathogen genome to a random vector's immune memory.
+
+        Arguments:
+        rand -- uniform random number from 0 to 1 to use when choosing
+            individual in which to choose pathogen
+        """
+
+        index_vector,rand = self.getWeightedRandom(
+            rand,self.coefficients_vectors[:,self.DEIMMUNIZATION]
+            )
+        vector = self.vectors[index_vector]
+
+        vector.deimmunize(rand)
+        self.updateIndividualCoefficients(vector)
+
+    def updateIndividualCoefficients(self,individual):
+        """Recalculates coefficient values of given host/vector."""
+
+        genomes = individual.pathogens.keys()
+        individual.recover()
+        for g in genomes:
+            individual.acquirePathogen(g)
+
     def updateHostCoefficients(self):
         """Updates event coefficient values in population's hosts."""
+
         self.coefficients_hosts = np.zeros( self.coefficients_hosts.shape )
         self.coefficients_hosts[ 1:, self.RECEIVE_CONTACT ] = 1
         self.coefficients_hosts[ 1:, self.RECEIVE_POPULATION_CONTACT ] = 1
         self.coefficients_hosts[ 1:, self.NATALITY ] = 1
         self.coefficients_hosts[ 1:, self.MIGRATION ] = 1
+        self.coefficients_hosts[ 1:, self.DEIMMUNIZATION ] = 1
 
         for h in self.hosts:
-            genomes = h.pathogens.keys()
-            h.pathogens = {}
-            h.sum_fitness = 0
-            for g in genomes:
-                h.acquirePathogen(g)
+            self.updateIndividualCoefficients(h)
 
     def updateVectorCoefficients(self):
         """Updates event coefficient values in population's vectors."""
+
         self.coefficients_vectors = np.zeros( self.coefficients_vectors.shape )
         self.coefficients_vectors[ 1:, self.RECEIVE_CONTACT ] = 1
         self.coefficients_vectors[ 1:, self.RECEIVE_POPULATION_CONTACT ] = 1
-        self.coefficients_hosts[ 1:, self.NATALITY ] = 1
-        self.coefficients_hosts[ 1:, self.MIGRATION ] = 1
+        self.coefficients_vectors[ 1:, self.NATALITY ] = 1
+        self.coefficients_vectors[ 1:, self.MIGRATION ] = 1
+        self.coefficients_vectors[ 1:, self.DEIMMUNIZATION ] = 1
 
         for v in self.vectors:
-            genomes = v.pathogens.keys()
-            v.pathogens = {}
-            v.sum_fitness = 0
-            for g in genomes:
-                v.acquirePathogen(g)
+            self.updateIndividualCoefficients(v)
 
     def healthyCoefficientRow(self):
         """Returns coefficient values corresponding to a healthy host/vector."""
@@ -1272,6 +1359,7 @@ class Population(object):
         v[ 0, self.RECEIVE_POPULATION_CONTACT ] = 1
         v[ 0, self.NATALITY ] = 1
         v[ 0, self.MIGRATION ] = 1
+        v[ 0, self.DEIMMUNIZATION ] = 1
 
         return v
 

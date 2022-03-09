@@ -512,12 +512,16 @@ Utility:
 - [customModelFunction](#customModelFunction) -- returns output of given
 function run on model
 
-#### Preset fitness functions ###
+#### Preset fitness and immunity functions ###
 
 - [peakLandscape](#peakLandscape) -- evaluates genome numeric phenotype by
 decreasing with distance from optimal sequence
 - [valleyLandscape](#valleyLandscape) -- evaluates genome numeric phenotype by
 increasing with distance from worst sequence
+- [elementMatchImmunity](#elementMatchImmunity) -- immunity using partial
+element-wise matching
+- [perfectMatchImmunity](#perfectMatchImmunity) -- immunity using perfect string
+matching
 
 
 ### Detailed Model method list
@@ -610,8 +614,12 @@ vertical_transmission_host = 0
 vertical_transmission_vector = 0
 inherit_immunity_host = 0
 inherit_immunity_vector = 0
-immunity_upon_recovery_host = None
-immunity_upon_recovery_vector = None
+immunity_acquisition_rate_host = 0
+immunity_acquisition_rate_vector = 0
+immunity_loss_rate_host = 0
+immunity_loss_rate_vector = 0
+immunityWeightsHost = (lambda g: 1)
+immunityWeightsVector = (lambda g: 1)
 ```
 
 "vector-borne":
@@ -665,8 +673,12 @@ vertical_transmission_host = 0
 vertical_transmission_vector = 0
 inherit_immunity_host = 0
 inherit_immunity_vector = 0
-immunity_upon_recovery_host = None
-immunity_upon_recovery_vector = None
+immunity_acquisition_rate_host = 0
+immunity_acquisition_rate_vector = 0
+immunity_loss_rate_host = 0
+immunity_loss_rate_vector = 0
+immunityWeightsHost = (lambda g: 1)
+immunityWeightsVector = (lambda g: 1)
 ```
 
 _Arguments:_
@@ -717,6 +729,14 @@ _Keyword arguments:_
     recombination rate for a given host based on genome sequence of
     pathogen
     (function object, takes a String argument and returns a number 0-1)
+- immunizationHost -- function that returns coefficient modifying
+    immunization rate for a given host based on genome sequence of
+    pathogen
+    (function object, takes a String argument and returns a number 0-1)
+- deimmunizationHost -- function that returns coefficient modifying
+    deimmunization rate for a given host based on genome sequence of
+    pathogen
+    (function object, takes a String argument and returns a number 0-1)
 - fitnessVector -- function that evaluates relative fitness in head-to-
     head competition for different genomes within the same vector
     (function object, takes a String argument and returns a number >= 0)
@@ -755,6 +775,14 @@ _Keyword arguments:_
     recombination rate for a given vector based on genome sequence of
     pathogen
     (function object, takes a String argument and returns a number 0-1)
+- immunizationVector -- function that returns coefficient modifying
+    immunization rate for a given vector based on genome sequence of
+    pathogen
+    (function object, takes a String argument and returns a number 0-1)
+- deimmunizationVector -- function that returns coefficient modifying
+    deimmunization rate for a given vector based on genome sequence of
+    pathogen
+    (function object, takes a String argument and returns a number 0-1)
 - contact_rate_host_vector -- ("biting") rate of host-vector contact events, not
     necessarily transmission, assumes constant population density;
     events/(vector*time) (number >= 0)
@@ -777,9 +805,9 @@ _Keyword arguments:_
     1/time (number >= 0)
 - recovery_rate_vector -- rate at which vectors clear all pathogens
     1/time (number >= 0)
-- lethality_rate_host -- fraction of infected hosts that die from disease
+- lethality_rate_host -- rate at which infected hosts die from disease
     (number 0-1)
-- lethality_rate_vector -- fraction of infected vectors that die from
+- lethality_rate_vector -- rate at which infected vectors die from
     disease (number 0-1)
 - recombine_in_host -- rate at which recombination occurs in host;
     events/time (number >= 0)
@@ -806,12 +834,22 @@ _Keyword arguments:_
     immunity sequences from its parent (number 0-1)
 - inherit_immunity_vector -- probability that a vector inherits all
     immunity sequences from its parent (number 0-1)
-- immunity_upon_recovery_host -- defines indexes in genome string that
-    define substring to be added to host immunity sequences after
-    recovery (None or array-like of length 2 with int 0-num_loci)
-- immunity_upon_recovery_vector -- defines indexes in genome string that
-    define substring to be added to vector immunity sequences after
-    recovery (None or array-like of length 2 with int 0-num_loci)
+- immunity_acquisition_rate_host -- rate at which infected hosts acquire
+    immunity to a pathogen infecting them; 1/time (number >= 0)
+- immunity_acquisition_rate_vector -- rate at which infected vectors
+    acquire immunity to a pathogen infecting them; 1/time (number >= 0)
+- immunity_loss_rate_host -- rate at which infected hosts lose
+    immunity to a pathogen infecting them; 1/time (number >= 0)
+- immunity_loss_rate_vector -- rate at which infected vectors
+    lose immunity to a pathogen infecting them; 1/time (number >= 0)
+- immunityWeightsHost -- function that returns coefficient modifying immunity
+    for a given host based on genome sequence of pathogen and a given
+    immunity sequence
+    (function object, takes two String arguments and returns a number)
+- immunityWeightsVector -- function that returns coefficient modifying immunity
+    for a given vector based on genome sequence of pathogen and a given
+    immunity sequence
+    (function object, takes two String arguments and returns a number)
 
 #### newIntervention
 
@@ -850,7 +888,7 @@ _Arguments:_
 #### run
 
 ```python
-run(t0,tf,sampling=0,host_sampling=0,vector_sampling=0)
+run(t0,tf,time_sampling=0,host_sampling=0,vector_sampling=0)
 ```
 
 
@@ -1913,3 +1951,47 @@ _Arguments:_
 
 _Returns:_
 - value of genome (number)
+
+#### elementMatchImmunity
+
+```python
+elementMatchImmunity(genome, immunity_seq, weights=1):
+```
+
+
+Return immunity coefficient using partial element-wise matching.
+
+Compares given genome sequence and immunity sequence, returns
+coefficient where the match at each position is weighted according to
+the "weights" array.
+
+_Arguments:_
+- genome -- the genome to be evaluated (String)
+- immunity_seq -- the genome sequence to measure against (String)
+- weights -- how much a match at each position within the genome
+    contributes to the immunity coefficient; shoule sum to 1 (Numpy
+    array)
+
+_Return:_
+immune coefficient of genome (number)
+
+#### perfectMatchImmunity
+
+```python
+perfectMatchImmunity(genome, immunity_seq, weight=1):
+```
+
+
+Return immunity coefficient using perfect string matching.
+
+Compares given genome sequence and immunity sequence, returns
+coefficient where a perfect match confers the immunity in "weight",
+while any mismatch confers no immunity.
+
+_Arguments:_
+- genome -- the genome to be evaluated (String)
+- immunity_seq -- the genome sequence to measure against (String)
+- weight -- fraction immunity conferred by a perfect match (number 0-1)
+
+_Return:_
+immune coefficient of genome (number)
