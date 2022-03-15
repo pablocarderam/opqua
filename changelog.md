@@ -1,6 +1,10 @@
 
 # Opqua Changelog
 
+## v0.9.8-immunity-0.3
+## 13 Mar 2022
+Update Pillow to 9.0.1
+
 ## v0.9.8-immunity-0.2
 ## 9 Mar 2022
 Major overhaul of immunity mechanics in simulation engine. Still testing some
