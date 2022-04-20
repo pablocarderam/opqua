@@ -192,13 +192,13 @@ class Model(object):
             self, name, preset=None,
             num_loci=None, possible_alleles=None,
             fitnessHost=None, contactHost=None, receiveContactHost=None,
-            lethalityHost=None, natalityHost=None,
+            mortalityHost=None, natalityHost=None,
             recoveryHost=None, migrationHost=None,
             populationContactHost=None, receivePopulationContactHost=None,
             mutationHost=None, recombinationHost=None,
             immunizationHost=None, deimmunizationHost=None,
             fitnessVector=None, contactVector=None, receiveContactVector=None,
-            lethalityVector=None, natalityVector=None, recoveryVector=None,
+            mortalityVector=None, natalityVector=None, recoveryVector=None,
             migrationVector=None, populationContactVector=None,
             receivePopulationContactVector=None,
             mutationVector=None, recombinationVector=None,
@@ -210,7 +210,7 @@ class Model(object):
             transmission_efficiency_host_host=None,
             mean_inoculum_host=None, mean_inoculum_vector=None,
             recovery_rate_host=None, recovery_rate_vector=None,
-            lethality_rate_host=None, lethality_rate_vector=None,
+            mortality_rate_host=None, mortality_rate_vector=None,
             recombine_in_host=None, recombine_in_vector=None,
             num_crossover_host=None, num_crossover_vector=None,
             mutate_in_host=None, mutate_in_vector=None,
@@ -250,7 +250,7 @@ class Model(object):
         receiveContactHost -- function that returns coefficient modifying
             probability of a given host being chosen to be the infected in
             a contact event, based on genome sequence of pathogen
-        lethalityHost -- function that returns coefficient modifying death rate
+        mortalityHost -- function that returns coefficient modifying death rate
             for a given host, based on genome sequence of pathogen
             (function object, takes a String argument and returns a number 0-1)
         natalityHost -- function that returns coefficient modifying birth rate
@@ -292,7 +292,7 @@ class Model(object):
             probability of a given vector being chosen to be the infected in
             a contact event, based on genome sequence of pathogen
             (function object, takes a String argument and returns a number 0-1)
-        lethalityVector -- function that returns coefficient modifying death
+        mortalityVector -- function that returns coefficient modifying death
             rate for a given vector, based on genome sequence of pathogen
             (function object, takes a String argument and returns a number 0-1)
         natalityVector -- function that returns coefficient modifying birth rate
@@ -345,9 +345,9 @@ class Model(object):
             1/time (number >= 0)
         recovery_rate_vector -- rate at which vectors clear all pathogens
             1/time (number >= 0)
-        lethality_rate_host -- rate at which infected hosts die from disease
+        mortality_rate_host -- rate at which infected hosts die from disease
             (number 0-1)
-        lethality_rate_vector -- rate at which infected vectors die from
+        mortality_rate_vector -- rate at which infected vectors die from
             disease (number 0-1)
         recombine_in_host -- rate at which recombination occurs in host;
             evts/time (number >= 0)
@@ -401,8 +401,8 @@ class Model(object):
             receiveContactHost = \
                 (lambda g: 1) if receiveContactHost is None \
                 else receiveContactHost
-            lethalityHost = \
-                (lambda g: 1) if lethalityHost is None else lethalityHost
+            mortalityHost = \
+                (lambda g: 1) if mortalityHost is None else mortalityHost
             natalityHost = \
                 (lambda g: 1) if natalityHost is None else natalityHost
             recoveryHost = \
@@ -432,8 +432,8 @@ class Model(object):
             receiveContactVector = \
                 (lambda g: 1) if receiveContactVector is None \
                 else receiveContactVector
-            lethalityVector = \
-                (lambda g: 1) if lethalityVector is None else lethalityVector
+            mortalityVector = \
+                (lambda g: 1) if mortalityVector is None else mortalityVector
             natalityVector = \
                 (lambda g: 1) if natalityVector is None else natalityVector
             recoveryVector = \
@@ -480,10 +480,10 @@ class Model(object):
                 1e-1 if recovery_rate_host is None else recovery_rate_host
             recovery_rate_vector = \
                 1e-1 if recovery_rate_vector is None else recovery_rate_vector
-            lethality_rate_host = \
-                0 if lethality_rate_host is None else lethality_rate_host
-            lethality_rate_vector = \
-                0 if lethality_rate_vector is None else lethality_rate_vector
+            mortality_rate_host = \
+                0 if mortality_rate_host is None else mortality_rate_host
+            mortality_rate_vector = \
+                0 if mortality_rate_vector is None else mortality_rate_vector
             recombine_in_host = \
                 0 if recombine_in_host is None else recombine_in_host
             recombine_in_vector = \
@@ -541,8 +541,8 @@ class Model(object):
             receiveContactHost = \
                 (lambda g: 1) if receiveContactHost is None \
                 else receiveContactHost
-            lethalityHost = \
-                (lambda g: 1) if lethalityHost is None else lethalityHost
+            mortalityHost = \
+                (lambda g: 1) if mortalityHost is None else mortalityHost
             natalityHost = \
                 (lambda g: 1) if natalityHost is None else natalityHost
             recoveryHost = \
@@ -573,8 +573,8 @@ class Model(object):
             receiveContactVector = \
                 (lambda g: 1) if receiveContactVector is None \
                 else receiveContactVector
-            lethalityVector = \
-                (lambda g: 1) if lethalityVector is None else lethalityVector
+            mortalityVector = \
+                (lambda g: 1) if mortalityVector is None else mortalityVector
             natalityVector = \
                 (lambda g: 1) if natalityVector is None else natalityVector
             recoveryVector = \
@@ -625,10 +625,10 @@ class Model(object):
                 1e-4 if recombine_in_host is None else recombine_in_host
             recombine_in_vector = \
                 0 if recombine_in_vector is None else recombine_in_vector
-            lethality_rate_host = \
-                0 if lethality_rate_host is None else lethality_rate_host
-            lethality_rate_vector = \
-                0 if lethality_rate_vector is None else lethality_rate_vector
+            mortality_rate_host = \
+                0 if mortality_rate_host is None else mortality_rate_host
+            mortality_rate_vector = \
+                0 if mortality_rate_vector is None else mortality_rate_vector
             num_crossover_host = 1 \
                 if num_crossover_host is None else num_crossover_host
             num_crossover_vector = \
@@ -678,12 +678,12 @@ class Model(object):
         self.setups[name] = Setup(
             name,
             num_loci, possible_alleles,
-            fitnessHost, contactHost, receiveContactHost, lethalityHost,
+            fitnessHost, contactHost, receiveContactHost, mortalityHost,
             natalityHost, recoveryHost, migrationHost,
             populationContactHost, receivePopulationContactHost,
             mutationHost, recombinationHost,
             immunizationHost, deimmunizationHost,
-            fitnessVector, contactVector, receiveContactVector, lethalityVector,
+            fitnessVector, contactVector, receiveContactVector, mortalityVector,
             natalityVector,recoveryVector, migrationVector,
             populationContactVector, receivePopulationContactVector,
             mutationVector, recombinationVector,
@@ -695,7 +695,7 @@ class Model(object):
             transmission_efficiency_host_host,
             mean_inoculum_host, mean_inoculum_vector,
             recovery_rate_host, recovery_rate_vector,
-            lethality_rate_host,lethality_rate_vector,
+            mortality_rate_host,mortality_rate_vector,
             recombine_in_host, recombine_in_vector,
             num_crossover_host, num_crossover_vector,
             mutate_in_host, mutate_in_vector, death_rate_host,death_rate_vector,

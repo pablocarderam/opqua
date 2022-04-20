@@ -121,7 +121,7 @@ class Vector(object):
                     0,
                     self.population.contactVector(genome) * immunity_modifier,
                     self.population.receiveContactVector(genome),
-                    self.population.lethalityVector(genome) * immunity_modifier,
+                    self.population.mortalityVector(genome) * immunity_modifier,
                     self.population.natalityVector(genome),
                     self.population.recoveryVector(genome),
                     self.population.migrationVector(genome),

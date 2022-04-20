@@ -1,6 +1,10 @@
 
 # Opqua Changelog
 
+## v0.9.8-immunity-0.4
+## 20 Apr 2022
+Change all mentions of "lethality" to "mortality".
+
 ## v0.9.8-immunity-0.3
 ## 13 Mar 2022
 Update Pillow to 9.0.1

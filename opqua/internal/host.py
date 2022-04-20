@@ -117,7 +117,7 @@ class Host(object):
                     0,
                     self.population.contactHost(genome) * immunity_modifier,
                     self.population.receiveContactHost(genome),
-                    self.population.lethalityHost(genome) * immunity_modifier,
+                    self.population.mortalityHost(genome) * immunity_modifier,
                     self.population.natalityHost(genome),
                     self.population.recoveryHost(genome),
                     self.population.migrationHost(genome),

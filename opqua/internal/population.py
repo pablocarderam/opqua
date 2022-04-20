@@ -285,7 +285,7 @@ class Population(object):
         self.fitnessHost = setup.fitnessHost
         self.contactHost = setup.contactHost
         self.receiveContactHost = setup.receiveContactHost
-        self.lethalityHost = setup.lethalityHost
+        self.mortalityHost = setup.mortalityHost
         self.natalityHost = setup.natalityHost
         self.recoveryHost = setup.recoveryHost
         self.migrationHost = setup.migrationHost
@@ -300,7 +300,7 @@ class Population(object):
         self.fitnessVector = setup.fitnessVector
         self.contactVector = setup.contactVector
         self.receiveContactVector = setup.receiveContactVector
-        self.lethalityVector = setup.lethalityVector
+        self.mortalityVector = setup.mortalityVector
         self.natalityVector = setup.natalityVector
         self.recoveryVector = setup.recoveryVector
         self.migrationVector = setup.migrationVector
@@ -325,8 +325,8 @@ class Population(object):
         self.mean_inoculum_vector = setup.mean_inoculum_vector
         self.recovery_rate_host = setup.recovery_rate_host
         self.recovery_rate_vector = setup.recovery_rate_vector
-        self.lethality_rate_host = setup.lethality_rate_host
-        self.lethality_rate_vector = setup.lethality_rate_vector
+        self.mortality_rate_host = setup.mortality_rate_host
+        self.mortality_rate_vector = setup.mortality_rate_vector
         self.recombine_in_host = setup.recombine_in_host
         self.recombine_in_vector = setup.recombine_in_vector
         self.num_crossover_host = setup.num_crossover_host
@@ -1103,7 +1103,7 @@ class Population(object):
         """
 
         index_host,rand = self.getWeightedRandom(
-            rand, self.lethality_rate_host
+            rand, self.mortality_rate_host
                 * self.coefficients_hosts[:,self.LETHALITY]
             )
 
@@ -1119,7 +1119,7 @@ class Population(object):
         """
 
         index_vector,rand = self.getWeightedRandom(
-            rand, self.lethality_rate_vector
+            rand, self.mortality_rate_vector
                 * self.coefficients_vectors[:,self.LETHALITY]
             )
 
