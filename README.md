@@ -773,14 +773,14 @@ _Keyword arguments:_
     from a host to a vector during a contact event (int >= 0)
 - recovery_rate_host -- rate at which hosts clear all pathogens;
     1/time (number >= 0)
-- recovery_rate_vector -- rate at which vectors clear all pathogens
+- recovery_rate_vector -- rate at which vectors clear all pathogens;
     1/time (number >= 0)
-- recovery_rate_vector -- rate at which vectors clear all pathogens
+- recovery_rate_vector -- rate at which vectors clear all pathogens;
     1/time (number >= 0)
-- lethality_rate_host -- rate at which infected hosts die from disease
-    (number 0-1)
+- lethality_rate_host -- rate at which infected hosts die from disease;
+    1/time (number >= 0)
 - lethality_rate_vector -- rate at which infected vectors die from
-    disease (number 0-1)
+    disease; 1/time (number >= 0)
 - recombine_in_host -- rate at which recombination occurs in host;
     events/time (number >= 0)
 - recombine_in_vector -- rate at which recombination occurs in vector;
