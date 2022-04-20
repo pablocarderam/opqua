@@ -1,6 +1,6 @@
 
 """
-Simple model of a vector-borne disease with 10% host lethality spreading among
+Simple model of a vector-borne disease with 10% host mortality spreading among
 hosts and vectors that have natural birth and death rates in a single
 population. There is no evolution and pathogen genomes don't affect spread.
 """
@@ -12,8 +12,8 @@ my_model.newSetup('my_setup', preset='vector-borne',
         # Create a new set of parameters called "my_setup" to be used to
         # simulate a population in the model. Use the default parameter set for
         # a vector-borne model.
-    lethality_rate_host=1e-2,
-        # change the default host lethality rate to 10% of recovery rate
+    mortality_rate_host=1e-2,
+        # change the default host mortality rate to 10% of recovery rate
     protection_upon_recovery_host=[0,10],
         # make hosts immune to the genome that infected them if they recover
         # [0,10] means that pathogen genome positions 0 through 9 will be saved

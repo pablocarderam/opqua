@@ -8,11 +8,11 @@ class Setup(object):
             self,
             id,
             num_loci, possible_alleles,
-            fitnessHost, contactHost, receiveContactHost, lethalityHost,
+            fitnessHost, contactHost, receiveContactHost, mortalityHost,
             natalityHost, recoveryHost, migrationHost,
             populationContactHost, receivePopulationContactHost,
             mutationHost, recombinationHost,
-            fitnessVector, contactVector, receiveContactVector, lethalityVector,
+            fitnessVector, contactVector, receiveContactVector, mortalityVector,
             natalityVector,recoveryVector, migrationVector,
             populationContactVector, receivePopulationContactVector,
             mutationVector, recombinationVector,
@@ -23,7 +23,7 @@ class Setup(object):
             transmission_efficiency_host_host,
             mean_inoculum_host, mean_inoculum_vector,
             recovery_rate_host, recovery_rate_vector,
-            lethality_rate_host,lethality_rate_vector,
+            mortality_rate_host,mortality_rate_vector,
             recombine_in_host, recombine_in_vector,
             num_crossover_host, num_crossover_vector,
             mutate_in_host, mutate_in_vector, death_rate_host,death_rate_vector,
@@ -50,7 +50,7 @@ class Setup(object):
             probability of a given host being chosen to be the infected in
             a contact event, based on genome sequence of pathogen
             (function object, takes a String argument and returns a number 0-1)
-        lethalityHost -- function that returns coefficient modifying death rate
+        mortalityHost -- function that returns coefficient modifying death rate
             for a given host, based on genome sequence of pathogen
             (function object, takes a String argument and returns a number 0-1)
         natalityHost -- function that returns coefficient modifying birth rate
@@ -84,7 +84,7 @@ class Setup(object):
             probability of a given vector being chosen to be the infected in
             a contact event, based on genome sequence of pathogen
             (function object, takes a String argument and returns a number 0-1)
-        lethalityVector -- function that returns coefficient modifying death
+        mortalityVector -- function that returns coefficient modifying death
             rate for a given vector, based on genome sequence of pathogen
             (function object, takes a String argument and returns a number 0-1)
         natalityVector -- function that returns coefficient modifying birth rate
@@ -129,9 +129,9 @@ class Setup(object):
             1/time (number >= 0)
         recovery_rate_vector -- rate at which vectors clear all pathogens
             1/time (number >= 0)
-        lethality_rate_host -- rate at which infected hosts die from disease
+        mortality_rate_host -- rate at which infected hosts die from disease
             (number 0-1)
-        lethality_rate_vector -- rate at which infected vectors die from
+        mortality_rate_vector -- rate at which infected vectors die from
             disease (number 0-1)
         recombine_in_host -- rate at which recombination occurs in host;
             evts/time (number >= 0)
@@ -181,7 +181,7 @@ class Setup(object):
         self.fitnessHost = fitnessHost
         self.contactHost = contactHost
         self.receiveContactHost = receiveContactHost
-        self.lethalityHost = lethalityHost
+        self.mortalityHost = mortalityHost
         self.natalityHost = natalityHost
         self.recoveryHost = recoveryHost
         self.migrationHost = migrationHost
@@ -193,7 +193,7 @@ class Setup(object):
         self.fitnessVector = fitnessVector
         self.contactVector = contactVector
         self.receiveContactVector = receiveContactVector
-        self.lethalityVector = lethalityVector
+        self.mortalityVector = mortalityVector
         self.natalityVector = natalityVector
         self.recoveryVector = recoveryVector
         self.migrationVector = migrationVector
@@ -216,8 +216,8 @@ class Setup(object):
         self.mean_inoculum_vector = mean_inoculum_vector
         self.recovery_rate_host = recovery_rate_host
         self.recovery_rate_vector = recovery_rate_vector
-        self.lethality_rate_host = lethality_rate_host
-        self.lethality_rate_vector = lethality_rate_vector
+        self.mortality_rate_host = mortality_rate_host
+        self.mortality_rate_vector = mortality_rate_vector
 
         self.recombine_in_host = recombine_in_host
         self.recombine_in_vector = recombine_in_vector

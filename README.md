@@ -254,7 +254,7 @@ Births result in a new host/vector that may optionally inherit its parent's
 protection sequences. Additionally, a parent may optionally infect its offspring
 at birth following a Poisson sampling process equivalent to the one described
 for other contact events above. Deaths of existing hosts/vectors can occur both
-naturally or due to infection lethality. Only deaths due to infection are
+naturally or due to infection mortality. Only deaths due to infection are
 tracked and recorded in the model's history.
 
 De novo mutation of a pathogen in a given host/vector results in a single locus
@@ -566,7 +566,7 @@ possible_alleles = 'ATCG'
 fitnessHost = (lambda g: 1)
 contactHost = (lambda g: 1)
 receiveContactHost = (lambda g: 1)
-lethalityHost = (lambda g: 1)
+mortalityHost = (lambda g: 1)
 natalityHost = (lambda g: 1)
 recoveryHost = (lambda g: 1)
 migrationHost = (lambda g: 1)
@@ -577,7 +577,7 @@ recombinationHost = (lambda g: 1)
 fitnessVector = (lambda g: 1)
 contactVector = (lambda g: 1)
 receiveContactVector = (lambda g: 1)
-lethalityVector = (lambda g: 1)
+mortalityVector = (lambda g: 1)
 natalityVector = (lambda g: 1)
 recoveryVector = (lambda g: 1)
 migrationVector = (lambda g: 1)
@@ -594,8 +594,8 @@ mean_inoculum_host = 1e1
 mean_inoculum_vector = 0
 recovery_rate_host = 1e-1
 recovery_rate_vector = 0
-lethality_rate_host = 0
-lethality_rate_vector = 0
+mortality_rate_host = 0
+mortality_rate_vector = 0
 recombine_in_host = 1e-4
 recombine_in_vector = 0
 num_crossover_host = 1
@@ -621,7 +621,7 @@ possible_alleles = 'ATCG'
 fitnessHost = (lambda g: 1)
 contactHost = (lambda g: 1)
 receiveContactHost = (lambda g: 1)
-lethalityHost = (lambda g: 1)
+mortalityHost = (lambda g: 1)
 natalityHost = (lambda g: 1)
 recoveryHost = (lambda g: 1)
 migrationHost = (lambda g: 1)
@@ -632,7 +632,7 @@ recombinationHost = (lambda g: 1)
 fitnessVector = (lambda g: 1)
 contactVector = (lambda g: 1)
 receiveContactVector = (lambda g: 1)
-lethalityVector = (lambda g: 1)
+mortalityVector = (lambda g: 1)
 natalityVector = (lambda g: 1)
 recoveryVector = (lambda g: 1)
 migrationVector = (lambda g: 1)
@@ -649,8 +649,8 @@ mean_inoculum_host = 1e2
 mean_inoculum_vector = 1e0
 recovery_rate_host = 1e-1
 recovery_rate_vector = 1e-1
-lethality_rate_host = 0
-lethality_rate_vector = 0
+mortality_rate_host = 0
+mortality_rate_vector = 0
 recombine_in_host = 0
 recombine_in_vector = 1e-4
 num_crossover_host = 0
@@ -690,7 +690,7 @@ _Keyword arguments:_
 - receiveContactHost -- function that returns coefficient modifying
     probability of a given host being chosen to be the infected in
     a contact event, based on genome sequence of pathogen
-- lethalityHost -- function that returns coefficient modifying death rate
+- mortalityHost -- function that returns coefficient modifying death rate
     for a given host, based on genome sequence of pathogen
     (function object, takes a String argument and returns a number 0-1)
 - natalityHost -- function that returns coefficient modifying birth rate
@@ -728,7 +728,7 @@ _Keyword arguments:_
     probability of a given vector being chosen to be the infected in
     a contact event, based on genome sequence of pathogen
     (function object, takes a String argument and returns a number 0-1)
-- lethalityVector -- function that returns coefficient modifying death
+- mortalityVector -- function that returns coefficient modifying death
     rate for a given vector, based on genome sequence of pathogen
     (function object, takes a String argument and returns a number 0-1)
 - natalityVector -- function that returns coefficient modifying birth rate
@@ -777,9 +777,9 @@ _Keyword arguments:_
     1/time (number >= 0)
 - recovery_rate_vector -- rate at which vectors clear all pathogens;
     1/time (number >= 0)
-- lethality_rate_host -- rate at which infected hosts die from disease;
+- mortality_rate_host -- rate at which infected hosts die from disease;
     1/time (number >= 0)
-- lethality_rate_vector -- rate at which infected vectors die from
+- mortality_rate_vector -- rate at which infected vectors die from
     disease; 1/time (number >= 0)
 - recombine_in_host -- rate at which recombination occurs in host;
     events/time (number >= 0)
@@ -1876,7 +1876,7 @@ Originally meant as a purifying selection fitness function based on exponential
 decay of fitness as genomes move away from the optimal sequence. Distance is
 measured as percent Hamming distance from an optimal genome sequence.
 
-Can be used to evaluate lethality as well as transmissibility.
+Can be used to evaluate mortality as well as transmissibility.
 
 _Arguments:_
 - genome -- the genome to be evaluated (String)
@@ -1903,7 +1903,7 @@ decay of fitness as genomes move closer to the worst possible sequence. Distance
 is measured as percent Hamming distance from the worst possible genome
 sequence.
 
-Can be used to evaluate lethality as well as transmissibility.
+Can be used to evaluate mortality as well as transmissibility.
 
 _Arguments:_
 - genome -- the genome to be evaluated (String)

@@ -88,7 +88,7 @@ class Host(object):
                 0,
                 self.population.contactHost(genome),
                 self.population.receiveContactHost(genome),
-                self.population.lethalityHost(genome),
+                self.population.mortalityHost(genome),
                 self.population.natalityHost(genome),
                 self.population.recoveryHost(genome),
                 self.population.migrationHost(genome),

@@ -93,7 +93,7 @@ class Vector(object):
                 0,
                 self.population.contactVector(genome),
                 self.population.receiveContactVector(genome),
-                self.population.lethalityVector(genome),
+                self.population.mortalityVector(genome),
                 self.population.natalityVector(genome),
                 self.population.recoveryVector(genome),
                 self.population.migrationVector(genome),
