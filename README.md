@@ -46,10 +46,11 @@ user-specified adaptive landscapes
 Check out the `changelog` file for information on recent updates.
 
 Opqua has been used in-depth to study [pathogen evolution across fitness valleys](https://github.com/pablocarderam/fitness_valleys_opqua).
-Check out the preprint on [biorXiv](https://doi.org/10.1101/2021.12.16.473045).
+Check out the peer-reviewed preprint on
+[biorXiv](https://doi.org/10.1101/2021.12.16.473045), accepted for publication.
 
-Opqua is developed by [Pablo Cárdenas](https://pablo-cardenas.com) and Mauricio
-Santos-Vega.
+Opqua is developed by [Pablo Cárdenas](https://pablo-cardenas.com) in
+collaboration with Vladimir Corredor and Mauricio Santos-Vega.
 Follow their science antics on Twitter at
 [@pcr_guy](https://twitter.com/pcr_guy) and
 [@msantosvega](https://twitter.com/msantosvega).

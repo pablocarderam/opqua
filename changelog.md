@@ -1,6 +1,10 @@
 
 # Opqua Changelog
 
+## v1.0.0
+## 10 May 2022
+Revisions approved, manuscript accepted!
+
 ## v0.9.9
 ## 20 Apr 2022
 Change all mentions of "lethality" to "mortality".
