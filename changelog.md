@@ -3,7 +3,7 @@
 
 ## v1.0.0
 ## 10 May 2022
-Revisions approved, manuscript accepted!
+Revisions incorporated!
 
 ## v0.9.9
 ## 20 Apr 2022
