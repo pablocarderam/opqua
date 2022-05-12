@@ -1,8 +1,8 @@
 Opqua <img align="right" src="img/circle-header.png" width="400px" title="circle header">
 
-[![DOI](https://zenodo.org/badge/249037110.svg)](https://zenodo.org/badge/latestdoi/249037110)
-
 =====
+
+[![DOI](https://zenodo.org/badge/249037110.svg)](https://zenodo.org/badge/latestdoi/249037110)
 
 **opqua** (opkua, upkua)
 \[[Chibcha/muysccubun](https://en.wikipedia.org/wiki/Chibcha_language)\]
