@@ -106,20 +106,21 @@ class Population(object):
     """
 
     INFECTED = 0
-    CONTACT = 1
-    RECEIVE_CONTACT = 2
-    LETHALITY = 3
-    NATALITY = 4
-    RECOVERY = 5
-    MIGRATION = 6
-    POPULATION_CONTACT = 7
-    RECEIVE_POPULATION_CONTACT = 8
-    MUTATION = 9
-    RECOMBINATION = 10
-    IMMUNIZATION = 11
-    DEIMMUNIZATION = 12
+    IMMUNIZED = 1
+    CONTACT = 2
+    RECEIVE_CONTACT = 3
+    LETHALITY = 4
+    NATALITY = 5
+    RECOVERY = 6
+    MIGRATION = 7
+    POPULATION_CONTACT = 8
+    RECEIVE_POPULATION_CONTACT = 9
+    MUTATION = 10
+    RECOMBINATION = 11
+    IMMUNIZATION = 12
+    DEIMMUNIZATION = 13
 
-    NUM_COEFFICIENTS = 13
+    NUM_COEFFICIENTS = 14
 
     CHROMOSOME_SEPARATOR = '/'
 
@@ -744,7 +745,8 @@ class Population(object):
             replace=False
             )
         for host in immunize_hosts:
-            host.immunity_sequences.append(immunity_sequence)
+            host.addImmuneSequence(immunity_sequence)
+            self.updateIndividualCoefficients(host)
 
     def immunizeVectors(self, frac_vectors, immunity_sequence, vectors=[]):
         """Immunize a random fraction of infected vectors against some infection.
@@ -771,7 +773,8 @@ class Population(object):
             replace=False
             )
         for vector in immunize_vectors:
-            vector.immunity_sequences.append(immunity_sequence)
+            vector.addImmuneSequence(immunity_sequence)
+            self.updateIndividualCoefficients(vector)
 
     def wipeImmunityHosts(self, hosts=[]):
         """Removes all immunity sequences from hosts.
@@ -787,6 +790,8 @@ class Population(object):
 
         for host in hosts_to_consider:
             host.immunity_sequences = []
+            self.coefficients_hosts[ host.coefficient_index,self.IMMUNIZED ] = 0
+            self.updateIndividualCoefficients(host)
 
     def wipeImmunityVectors(self, vectors=[]):
         """Removes all immunity sequences from vectors.
@@ -802,6 +807,8 @@ class Population(object):
 
         for vector in vectors_to_consider:
             vector.immunity_sequences = []
+            self.coefficients_vectors[vector.coefficient_index,self.IMMUNIZED]=0
+            self.updateIndividualCoefficients(vector)
 
     def setHostMigrationNeighbor(self, neighbor, rate):
         """Set host migration rate from this population towards another one.
@@ -1295,6 +1302,7 @@ class Population(object):
 
         index_host,rand = self.getWeightedRandom(
             rand,self.coefficients_hosts[:,self.DEIMMUNIZATION]
+            * self.coefficients_hosts[:,self.IMMUNIZED]
             )
         host = self.hosts[index_host]
 
@@ -1311,6 +1319,7 @@ class Population(object):
 
         index_vector,rand = self.getWeightedRandom(
             rand,self.coefficients_vectors[:,self.DEIMMUNIZATION]
+            * self.coefficients_hosts[:,self.IMMUNIZED]
             )
         vector = self.vectors[index_vector]
 
@@ -1322,10 +1331,6 @@ class Population(object):
 
         genomes = individual.pathogens.keys()
         individual.recover()
-        if len(individual.immunity_sequences) > 0:
-            self.coefficients_hosts[
-            individual.coefficient_index:, self.DEIMMUNIZATION
-            ] = 1
 
         for g in genomes:
             individual.acquirePathogen(g)
@@ -1338,7 +1343,7 @@ class Population(object):
         self.coefficients_hosts[ 1:, self.RECEIVE_POPULATION_CONTACT ] = 1
         self.coefficients_hosts[ 1:, self.NATALITY ] = 1
         self.coefficients_hosts[ 1:, self.MIGRATION ] = 1
-        self.coefficients_hosts[ 1:, self.DEIMMUNIZATION ] = 0
+        self.coefficients_hosts[ 1:, self.DEIMMUNIZATION ] = 1
 
         for h in self.hosts:
             self.updateIndividualCoefficients(h)
@@ -1351,7 +1356,7 @@ class Population(object):
         self.coefficients_vectors[ 1:, self.RECEIVE_POPULATION_CONTACT ] = 1
         self.coefficients_vectors[ 1:, self.NATALITY ] = 1
         self.coefficients_vectors[ 1:, self.MIGRATION ] = 1
-        self.coefficients_vectors[ 1:, self.DEIMMUNIZATION ] = 0
+        self.coefficients_vectors[ 1:, self.DEIMMUNIZATION ] = 1
 
         for v in self.vectors:
             self.updateIndividualCoefficients(v)
@@ -1364,7 +1369,7 @@ class Population(object):
         v[ 0, self.RECEIVE_POPULATION_CONTACT ] = 1
         v[ 0, self.NATALITY ] = 1
         v[ 0, self.MIGRATION ] = 1
-        v[ 0, self.DEIMMUNIZATION ] = 0
+        v[ 0, self.DEIMMUNIZATION ] = 1
 
         return v
 

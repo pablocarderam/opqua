@@ -3,8 +3,11 @@
 
 ## v0.9.8-immunity-0.5
 ## 17 May 2022
-Make deimmunization coefficients 0 by default, modified to 1 if immunity
-sequences are present in updateIndividualCoefficients().
+Change immunization architecture slightly. Now, coefficient matrix has an
+additional "IMMUNIZED" column tracking whether hosts/vectors have any immunity
+at all. This is used to identify hosts/vectors capable of being deimmunized.
+Additionally, individual coefficients are now recalculated in all instances
+where immunity changes.
 
 ## v0.9.8-immunity-0.4
 ## 20 Apr 2022

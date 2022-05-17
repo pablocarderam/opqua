@@ -356,16 +356,26 @@ class Gillespie(object):
 
             rates[self.DEIMMUNIZE_HOST,i] = (
                 self.model.populations[id].immunity_loss_rate_host
-                * self.model.populations[id].coefficients_hosts[
-                    :, self.model.populations[id].DEIMMUNIZATION
-                    ].sum()
+                * np.multiply(
+                    self.model.populations[id].coefficients_hosts[
+                        :, self.model.populations[id].DEIMMUNIZATION
+                        ],
+                    self.model.populations[id].coefficients_hosts[
+                        :,self.model.populations[id].IMMUNIZED
+                        ]
+                    ).sum()
                 )
 
             rates[self.DEIMMUNIZE_VECTOR,i] = (
                 self.model.populations[id].immunity_loss_rate_vector
-                * self.model.populations[id].coefficients_vectors[
-                    :, self.model.populations[id].DEIMMUNIZATION
-                    ].sum()
+                * np.multiply(
+                    self.model.populations[id].coefficients_vectors[
+                        :, self.model.populations[id].DEIMMUNIZATION
+                        ],
+                    self.model.populations[id].coefficients_vectors[
+                        :,self.model.populations[id].IMMUNIZED
+                        ]
+                    ).sum()
                 )
 
         return rates

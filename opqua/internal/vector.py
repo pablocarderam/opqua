@@ -118,7 +118,7 @@ class Vector(object):
                     ]
                 * old_sum_fitness / sum_fitness_denom ) + ( np.array([
                         # positions dependent on class constants
-                    0,
+                    0,0,
                     self.population.contactVector(genome) * immunity_modifier,
                     self.population.receiveContactVector(genome),
                     self.population.mortalityVector(genome) * immunity_modifier,
@@ -269,13 +269,19 @@ class Vector(object):
         vector_list = self.population.addVectors(1)
         vector = vector_list[0]
 
-        if self.population.vertical_transmission_vector > rand:
-            self.infectVector(vector)
-
         for immune_seq in self.immunity_sequences:
             if self.population.inherit_immunity_vector > np.random.random():
                 vector.immunity_sequences[immune_seq] = self.immunity_sequences[
                     immune_seq ]
+
+        vector.population.coefficients_vectors[
+            vector.coefficient_index,vector.population.IMMUNIZED
+            ] = ( len(vector.immunity_sequences) > 0 )
+
+        if self.population.vertical_transmission_vector > rand:
+            self.infectVector(vector)
+        else:
+            vector.population.updateIndividualCoefficients(self)
 
     def applyTreatment(self, resistance_seqs):
         """Remove all infections with genotypes susceptible to given treatment.
@@ -394,8 +400,17 @@ class Vector(object):
         index_genome,rand = self.getWeightedRandomGenome( rand,weights )
 
         immunize_genome = genomes[index_genome]
-        if immunize_genome not in self.immunity_sequences:
-            self.immunity_sequences.append(new_genome)
+        self.addImmuneSequence(immunize_genome)
+
+    def addImmuneSequence(self,genome):
+        """Adds a specific pathogen genome to this vector's immune memory."""
+
+        if genome not in self.immunity_sequences:
+            self.immunity_sequences.append(genome)
+            self.population.coefficients_vectors[
+                self.coefficient_index,self.population.IMMUNIZED
+                ] = 1
+            self.population.updateIndividualCoefficients(self)
 
     def deimmunize(self,rand):
         """Removes a random pathogen genome from this vector's immune memory."""
@@ -409,6 +424,10 @@ class Vector(object):
 
         deimmunize_genome = self.immunity_sequences[index_genome]
         self.immunity_sequences.remove(deimmunize_genome)
+        self.population.coefficients_vectors[
+            self.coefficient_index,self.population.IMMUNIZED
+            ] = ( len(self.immunity_sequences) > 0 )
+        self.population.updateIndividualCoefficients(self)
 
     def getWeightedRandomGenome(self, rand, r):
         """Returns index of element chosen from weights and given random number.

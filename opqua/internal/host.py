@@ -114,7 +114,7 @@ class Host(object):
                     ]
                 * old_sum_fitness / sum_fitness_denom ) + ( np.array([
                         # positions dependent on class constants
-                    0,
+                    0,0,
                     self.population.contactHost(genome) * immunity_modifier,
                     self.population.receiveContactHost(genome),
                     self.population.mortalityHost(genome) * immunity_modifier,
@@ -268,13 +268,19 @@ class Host(object):
         host_list = self.population.addHosts(1)
         host = host_list[0]
 
-        if self.population.vertical_transmission_host > rand:
-            self.infectHost(host)
-
         for immune_seq in self.immunity_sequences:
             if self.population.inherit_immunity_host > np.random.random():
                 host.immunity_sequences[immune_seq] = self.immunity_sequences[
                     immune_seq ]
+
+        host.population.coefficients_hosts[
+            host.coefficient_index,host.population.IMMUNIZED
+            ] = ( len(host.immunity_sequences) > 0 )
+
+        if self.population.vertical_transmission_host > rand:
+            self.infectHost(host)
+        else:
+            host.population.updateIndividualCoefficients(self)
 
     def applyTreatment(self, resistance_seqs):
         """Remove all infections with genotypes susceptible to given treatment.
@@ -393,8 +399,17 @@ class Host(object):
         index_genome,rand = self.getWeightedRandomGenome( rand,weights )
 
         immunize_genome = genomes[index_genome]
-        if immunize_genome not in self.immunity_sequences:
-            self.immunity_sequences.append(immunize_genome)
+        self.addImmuneSequence(immunize_genome)
+
+    def addImmuneSequence(self,genome):
+        """Adds a specific pathogen genome to this host's immune memory."""
+
+        if genome not in self.immunity_sequences:
+            self.immunity_sequences.append(genome)
+            self.population.coefficients_hosts[
+                self.coefficient_index,self.population.IMMUNIZED
+                ] = 1
+            self.population.updateIndividualCoefficients(self)
 
     def deimmunize(self,rand):
         """Removes a random pathogen genome from this host's immune memory."""
@@ -408,6 +423,10 @@ class Host(object):
 
         deimmunize_genome = self.immunity_sequences[index_genome]
         self.immunity_sequences.remove(deimmunize_genome)
+        self.population.coefficients_hosts[
+            self.coefficient_index,self.population.IMMUNIZED
+            ] = ( len(self.immunity_sequences) > 0 )
+        self.population.updateIndividualCoefficients(self)
 
     def getWeightedRandomGenome(self, rand, r):
         """Returns index of element chosen from weights and given random number.
