@@ -19,7 +19,7 @@ _Taken from D. F. Gómez Aldana's
 - [Requirements and Installation](#requirements-and-installation)
 - [Usage](#usage)
 - [How Does Opqua Work?](#how-does-opqua-work)
-- [Model Documentation](#opqua-model-documentation)
+- [Model Documentation](#model-documentation)
 
 ## About
 

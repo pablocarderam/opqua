@@ -160,18 +160,6 @@ class Population(object):
                 ]
                 # contains all live vectors
 
-            # delete dummy first row, correct indexes of hosts afterwards
-            # self.coefficients_hosts = np.delete(
-            #     self.coefficients_hosts, 0, 0
-            #     ) if num_hosts > 0 else self.coefficients_hosts
-            # self.coefficients_vectors = np.delete(
-            #     self.coefficients_vectors, 0, 0
-            #     ) if num_vectors > 0 else self.coefficients_vectors
-            # for h in self.hosts:
-            #     h.coefficient_index -= 1
-            # for v in self.vectors:
-            #     v.coefficient_index -= 1
-
             self.infected_hosts = []
                 # contains live, infected hosts (also in hosts list)
             self.healthy_hosts = self.hosts.copy()
