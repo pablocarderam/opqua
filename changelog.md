@@ -1,6 +1,11 @@
 
 # Opqua Changelog
 
+## v0.9.8-immunity-0.5
+## 17 May 2022
+Make deimmunization coefficients 0 by default, modified to 1 if immunity
+sequences are present in updateIndividualCoefficients().
+
 ## v0.9.8-immunity-0.4
 ## 20 Apr 2022
 Change all mentions of "lethality" to "mortality".

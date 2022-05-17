@@ -1322,6 +1322,11 @@ class Population(object):
 
         genomes = individual.pathogens.keys()
         individual.recover()
+        if len(individual.immunity_sequences) > 0:
+            self.coefficients_hosts[
+            individual.coefficient_index:, self.DEIMMUNIZATION
+            ] = 1
+
         for g in genomes:
             individual.acquirePathogen(g)
 
@@ -1333,7 +1338,7 @@ class Population(object):
         self.coefficients_hosts[ 1:, self.RECEIVE_POPULATION_CONTACT ] = 1
         self.coefficients_hosts[ 1:, self.NATALITY ] = 1
         self.coefficients_hosts[ 1:, self.MIGRATION ] = 1
-        self.coefficients_hosts[ 1:, self.DEIMMUNIZATION ] = 1
+        self.coefficients_hosts[ 1:, self.DEIMMUNIZATION ] = 0
 
         for h in self.hosts:
             self.updateIndividualCoefficients(h)
@@ -1346,7 +1351,7 @@ class Population(object):
         self.coefficients_vectors[ 1:, self.RECEIVE_POPULATION_CONTACT ] = 1
         self.coefficients_vectors[ 1:, self.NATALITY ] = 1
         self.coefficients_vectors[ 1:, self.MIGRATION ] = 1
-        self.coefficients_vectors[ 1:, self.DEIMMUNIZATION ] = 1
+        self.coefficients_vectors[ 1:, self.DEIMMUNIZATION ] = 0
 
         for v in self.vectors:
             self.updateIndividualCoefficients(v)
@@ -1359,7 +1364,7 @@ class Population(object):
         v[ 0, self.RECEIVE_POPULATION_CONTACT ] = 1
         v[ 0, self.NATALITY ] = 1
         v[ 0, self.MIGRATION ] = 1
-        v[ 0, self.DEIMMUNIZATION ] = 1
+        v[ 0, self.DEIMMUNIZATION ] = 0
 
         return v
 
