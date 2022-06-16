@@ -50,7 +50,7 @@ class Host(object):
 
             population.coefficients_hosts = np.vstack( (
                 population.coefficients_hosts,
-                population.healthyCoefficientRow()
+                self.healthyCoefficientRow()
                 ) ) # adds a row to coefficient array
 
     def copyState(self):
@@ -65,6 +65,19 @@ class Host(object):
         copy.immunity_sequences = self.immunity_sequences.copy()
 
         return copy
+
+    def healthyCoefficientRow(self):
+        """Returns coefficient values corresponding to this healthy host."""
+
+        v = np.zeros((1,self.population.NUM_COEFFICIENTS))
+        v[ 0, self.population.IMMUNIZED ] = ( len(self.immunity_sequences) > 0 )
+        v[ 0, self.population.RECEIVE_CONTACT ] = 1
+        v[ 0, self.population.RECEIVE_POPULATION_CONTACT ] = 1
+        v[ 0, self.population.NATALITY ] = 1
+        v[ 0, self.population.MIGRATION ] = 1
+        v[ 0, self.population.DEIMMUNIZATION ] = 1
+
+        return v
 
     def immunityModifier(self, genome):
         """Returns immunity coefficient modifying fitness for given genome.
@@ -241,7 +254,7 @@ class Host(object):
             self.sum_fitness = 0
             self.population.coefficients_hosts[
                 self.coefficient_index,:
-                ] = self.population.healthyCoefficientRow()
+                ] = self.healthyCoefficientRow()
 
             self.population.infected_hosts.remove(self)
             self.population.healthy_hosts.append(self)
@@ -308,7 +321,7 @@ class Host(object):
             self.sum_fitness = 0
             self.population.coefficients_hosts[
                 self.coefficient_index,:
-                ] = self.population.healthyCoefficientRow()
+                ] = self.healthyCoefficientRow()
             for genome in genomes_remaining:
                 self.acquirePathogen(genome)
 

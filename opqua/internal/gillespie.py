@@ -580,8 +580,8 @@ class Gillespie(object):
             of the system state (saves all by default) (int, default 0)
         vector_sampling -- how many vectors to skip before saving one in a
             snapshot of the system state (saves all by default) (int, default 0)
-        print_every_n_events -- number of events a message is printed to console
-            (int>0, default 1000)
+        print_every_n_events -- number of events after which a message is
+            printed to console; if <0, never prints (int, default 1000)
 
         Returns:
         dictionary containing model state history, with keys=times and

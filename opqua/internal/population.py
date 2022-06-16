@@ -881,16 +881,20 @@ class Population(object):
 
         for host in migrating_hosts:
             genomes = { g:1 for g in host.pathogens }
-            self.removeHosts([host])
             new_host_list = target_pop.addHosts(1) # list of 1
+            new_host_list[0].immunity_sequences = list(host.immunity_sequences)
             target_pop.addPathogensToHosts(genomes,hosts=new_host_list)
+            self.removeHosts([host])
             host = None
 
         for vector in migrating_vectors:
             genomes = { g:1 for g in vector.pathogens }
-            self.removeVectors([vector])
             new_vector_list = target_pop.addVectors(1) # list of 1
+            new_vector_list[0].immunity_sequences = list(
+                vector.immunity_sequences
+                )
             target_pop.addPathogensToVectors(genomes,vectors=new_vector_list)
+            self.removeVectors([vector])
             vector = None
 
     def setHostHostPopulationContactNeighbor(self, neighbor, rate):
@@ -1360,18 +1364,6 @@ class Population(object):
 
         for v in self.vectors:
             self.updateIndividualCoefficients(v)
-
-    def healthyCoefficientRow(self):
-        """Returns coefficient values corresponding to a healthy host/vector."""
-
-        v = np.zeros((1,self.NUM_COEFFICIENTS))
-        v[ 0, self.RECEIVE_CONTACT ] = 1
-        v[ 0, self.RECEIVE_POPULATION_CONTACT ] = 1
-        v[ 0, self.NATALITY ] = 1
-        v[ 0, self.MIGRATION ] = 1
-        v[ 0, self.DEIMMUNIZATION ] = 1
-
-        return v
 
     def getWeightedRandom(self, rand, r):
         """Returns index of element chosen from weights and given random number.

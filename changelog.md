@@ -1,6 +1,21 @@
 
 # Opqua Changelog
 
+## v0.9.8-immunity-0.6
+## 16 Jun 2022
+Fixed two bugs related to excessive immunity loss and added print_every_n_events
+parameter to run() function.
+
+- In the first one, host/vector IMMUNE coefficients were set to zero upon recovery
+regardless of actual immune state. Fixed by moving healthyCoefficientRow() to
+Host and Vector classes, then modifying the function to check that host/vector's
+immune state and set the IMMUNE coefficient accordingly.
+
+- In the second bug, loss of immunity happened upon migration because immune
+sequences were not being transferred upon migration. Fixed that in migrate().
+
+- Also added print_every_n_events parameter to run() function in Model class.
+
 ## v0.9.8-immunity-0.5
 ## 17 May 2022
 Change immunization architecture slightly. Now, coefficient matrix has an

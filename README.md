@@ -888,7 +888,8 @@ _Arguments:_
 #### run
 
 ```python
-run(t0,tf,time_sampling=0,host_sampling=0,vector_sampling=0)
+run(t0,tf,time_sampling=0,host_sampling=0,vector_sampling=0,
+  print_every_n_events=1000)
 ```
 
 
@@ -910,6 +911,8 @@ _Arguments:_
     of the system state (saves all by default) (int, default 0)
 - vector_sampling -- how many vectors to skip before saving one in a  
     snapshot of the system state (saves all by default) (int, default 0)
+- print_every_n_events -- number of events after which a message is
+    printed to console; if <0, never prints (int, default 1000)
 
 #### runReplicates
 
