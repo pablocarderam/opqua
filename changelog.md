@@ -1,6 +1,9 @@
 
 # Opqua Changelog
 
+## v1.0.2
+Previous fix didn't cut it and I jumped the gun on the release. This works.
+
 ## v1.0.1
 Fixed recombination bug where one of the two progeny genomes was being lost
 (thanks David Suárez!).
