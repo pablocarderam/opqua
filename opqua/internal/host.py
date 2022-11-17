@@ -373,8 +373,9 @@ class Host(object):
             children = [ genomes[index_genome], genomes[index_other_genome] ]
 
             for l in loci:
+                temp_child_0 = children[0]
                 children[0] = children[0][0:l] + children[1][l:]
-                children[1] = children[1][0:l] + children[0][l:]
+                children[1] = children[1][0:l] + temp_child_0[l:]
 
             children = [
                 genome.split(self.population.CHROMOSOME_SEPARATOR)

@@ -1,6 +1,12 @@
 
 # Opqua Changelog
 
+## v0.9.8-immunity-0.7
+## 17 Nov 2022
+Fixed recombination bug where one of the two progeny genomes was being lost
+(thanks David Suárez!).
+Updated joblib version.
+
 ## v0.9.8-immunity-0.6
 ## 16 Jun 2022
 Fixed two bugs related to excessive immunity loss and added print_every_n_events
