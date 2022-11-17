@@ -1,6 +1,11 @@
 
 # Opqua Changelog
 
+## v1.0.1
+Fixed recombination bug where one of the two progeny genomes was being lost
+(thanks David Suárez!).
+Updated joblib version.
+
 ## v1.0.0
 ## 10 May 2022
 Revisions incorporated!

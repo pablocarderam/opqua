@@ -325,11 +325,12 @@ class Vector(object):
             num_evts = np.random.poisson( self.population.num_crossover_vector )
             loci = np.random.randint( 0, self.population.num_loci, num_evts )
 
+            parents = [ genomes[index_genome], genomes[index_other_genome] ]
             children = [ genomes[index_genome], genomes[index_other_genome] ]
 
             for l in loci:
-                children[0] = children[0][0:l] + children[1][l:]
-                children[1] = children[1][0:l] + children[0][l:]
+                children[0] = children[0][0:l] + parents[1][l:]
+                children[1] = children[1][0:l] + parents[0][l:]
 
             children = [
                 genome.split(self.population.CHROMOSOME_SEPARATOR)
