@@ -127,3 +127,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Example resulting files
+examples/tutorials-jupyter/*/*.csv
+examples/tutorials-jupyter/*/*.png
