@@ -37,11 +37,3 @@ under an [MIT License](https://choosealicense.com/licenses/mit/).
    usage
    model_documentation
 ```
-
-```{eval-rst}
-Indices and tables
-==================
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-```
