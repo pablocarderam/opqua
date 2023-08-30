@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>opqua.internal.plot &mdash; Opqua 1.0.2 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=1ed6394b"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Opqua
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../about.html">About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../requirements_and_installation.html">Requirements and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../model_documentation.html">Model Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">opqua</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Opqua</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">opqua.internal.plot</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for opqua.internal.plot</h1><div class="highlight"><pre>
+<span></span>
+<span class="sd">&quot;&quot;&quot;Contains graphmaking methods.&quot;&quot;&quot;</span>
+
+<span class="c1">### Imports ###</span>
+<span class="kn">import</span> <span class="nn">copy</span> <span class="k">as</span> <span class="nn">cp</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span> <span class="c1"># handle arrays</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span> <span class="c1"># data wrangling</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span> <span class="c1"># plots</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span> <span class="c1"># pretty plots</span>
+<span class="kn">import</span> <span class="nn">scipy.cluster.hierarchy</span> <span class="k">as</span> <span class="nn">sp_hie</span>
+<span class="kn">import</span> <span class="nn">scipy.spatial</span> <span class="k">as</span> <span class="nn">sp_spa</span>
+
+<span class="kn">from</span> <span class="nn">opqua.internal.data</span> <span class="kn">import</span> <span class="n">saveToDf</span><span class="p">,</span> <span class="n">populationsDf</span><span class="p">,</span> <span class="n">compartmentDf</span><span class="p">,</span> \
+    <span class="n">compositionDf</span><span class="p">,</span> <span class="n">pathogenDistanceDf</span>
+
+<span class="n">CB_PALETTE</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;#E69F00&quot;</span><span class="p">,</span> <span class="s2">&quot;#56B4E9&quot;</span><span class="p">,</span> <span class="s2">&quot;#009E73&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;#F0E442&quot;</span><span class="p">,</span> <span class="s2">&quot;#0072B2&quot;</span><span class="p">,</span> <span class="s2">&quot;#D55E00&quot;</span><span class="p">,</span> <span class="s2">&quot;#CC79A7&quot;</span><span class="p">,</span> <span class="s2">&quot;#999999&quot;</span><span class="p">]</span>
+    <span class="c1"># www.cookbook-r.com/Graphs/Colors_(ggplot2)/#a-colorblind-friendly-palette</span>
+    <span class="c1"># http://jfly.iam.u-tokyo.ac.jp/color/</span>
+<span class="n">DEF_CMAP</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">cubehelix_palette</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mf">.5</span><span class="p">,</span> <span class="n">rot</span><span class="o">=-</span><span class="mf">.75</span><span class="p">,</span> <span class="n">as_cmap</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="populationsPlot">
+<a class="viewcode-back" href="../../../opqua.internal.html#opqua.internal.plot.populationsPlot">[docs]</a>
+<span class="k">def</span> <span class="nf">populationsPlot</span><span class="p">(</span>
+        <span class="n">file_name</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">compartment</span><span class="o">=</span><span class="s1">&#39;Infected&#39;</span><span class="p">,</span> <span class="n">hosts</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">vectors</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">num_top_populations</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">track_specific_populations</span><span class="o">=</span><span class="p">[],</span>
+        <span class="n">save_data_to_file</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">x_label</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">y_label</span><span class="o">=</span><span class="s1">&#39;Infected hosts&#39;</span><span class="p">,</span>
+        <span class="n">legend_title</span><span class="o">=</span><span class="s1">&#39;Population&#39;</span><span class="p">,</span> <span class="n">legend_values</span><span class="o">=</span><span class="p">[],</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
+        <span class="n">palette</span><span class="o">=</span><span class="n">CB_PALETTE</span><span class="p">,</span> <span class="n">stacked</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create plot with aggregated totals per population across time.</span>
+
+<span class="sd">    Creates a line or stacked line plot with dynamics of a compartment</span>
+<span class="sd">    across populations in the model, with one line for each population.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">    file_name -- file path, name, and extension to save plot under (String)</span>
+<span class="sd">    data -- dataframe with model history as produced by saveToDf function</span>
+<span class="sd">        (DataFrame)</span>
+
+<span class="sd">    Keyword arguments:</span>
+<span class="sd">    compartment -- subset of hosts/vectors to count totals of, can be either</span>
+<span class="sd">        &#39;Naive&#39;,&#39;Infected&#39;,&#39;Recovered&#39;, or &#39;Dead&#39; (default &#39;Infected&#39;; String)</span>
+<span class="sd">    hosts -- whether to count hosts (default True, Boolean)</span>
+<span class="sd">    vectors -- whether to count vectors (default False, Boolean)</span>
+<span class="sd">    num_top_populations -- how many populations to count separately and include</span>
+<span class="sd">        as columns, remainder will be counted under column &quot;Other&quot;; if &lt;0,</span>
+<span class="sd">        includes all populations in model (default 7; int)</span>
+<span class="sd">    track_specific_populations -- contains IDs of specific populations to have</span>
+<span class="sd">        as a separate column if not part of the top num_top_populations</span>
+<span class="sd">        populations (default empty list; list of Strings)</span>
+<span class="sd">    save_data_to_file -- file path and name to save model plot data under, no</span>
+<span class="sd">        saving occurs if empty string (default &#39;&#39;; String)</span>
+<span class="sd">    x_label -- X axis title (default &#39;Time&#39;, String)</span>
+<span class="sd">    y_label -- Y axis title (default &#39;Hosts&#39;, String)</span>
+<span class="sd">    legend_title -- legend title (default &#39;Population&#39;, String)</span>
+<span class="sd">    legend_values -- labels for each trace, if empty list, uses population IDs</span>
+<span class="sd">        (default empty list, list of Strings)</span>
+<span class="sd">    figsize -- dimensions of figure (default (8,4), array-like of two ints)</span>
+<span class="sd">    dpi -- figure resolution (default 200, int)</span>
+<span class="sd">    palette -- color palette to use for traces (default CB_PALETTE, list of</span>
+<span class="sd">        color Strings)</span>
+<span class="sd">    stacked -- whether to draw a regular line plot instead of a stacked one</span>
+<span class="sd">        (default False, Boolean)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    axis object for plot with model population dynamics as described above</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">pops</span> <span class="o">=</span> <span class="n">populationsDf</span><span class="p">(</span>
+        <span class="n">data</span><span class="p">,</span> <span class="n">compartment</span><span class="o">=</span><span class="n">compartment</span><span class="p">,</span> <span class="n">hosts</span><span class="o">=</span><span class="n">hosts</span><span class="p">,</span> <span class="n">vectors</span><span class="o">=</span><span class="n">vectors</span><span class="p">,</span>
+        <span class="n">num_top_populations</span><span class="o">=</span><span class="n">num_top_populations</span><span class="p">,</span>
+        <span class="n">track_specific_populations</span><span class="o">=</span><span class="n">track_specific_populations</span><span class="p">,</span>
+        <span class="n">save_to_file</span><span class="o">=</span><span class="n">save_data_to_file</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">pops</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="n">dpi</span><span class="p">)</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">stacked</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">legend_values</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">labs</span> <span class="o">=</span> <span class="n">legend_values</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">labs</span> <span class="o">=</span> <span class="n">pops</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span>
+
+            <span class="n">ax</span><span class="o">.</span><span class="n">stackplot</span><span class="p">(</span>
+                <span class="n">pops</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">],</span> <span class="n">pops</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(),</span>
+                <span class="n">labels</span><span class="o">=</span><span class="n">labs</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="n">palette</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">legend_values</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">labs</span> <span class="o">=</span> <span class="n">legend_values</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">labs</span> <span class="o">=</span> <span class="n">pops</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span>
+
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pops</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                    <span class="n">pops</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">],</span> <span class="n">pops</span><span class="p">[</span><span class="n">c</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="n">labs</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">palette</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                    <span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="n">x_label</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="n">y_label</span><span class="p">)</span>
+
+        <span class="n">box</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_position</span><span class="p">()</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_position</span><span class="p">([</span><span class="n">box</span><span class="o">.</span><span class="n">x0</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">y0</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">width</span> <span class="o">*</span> <span class="mf">0.8</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">height</span><span class="p">])</span>
+
+        <span class="n">handles</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_legend_handles_labels</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span>
+            <span class="n">handles</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;center left&#39;</span><span class="p">,</span> <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span>
+            <span class="n">title</span><span class="o">=</span><span class="n">legend_title</span>
+            <span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Nothing to plot! Check your data.&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ax</span></div>
+
+
+
+<div class="viewcode-block" id="compartmentPlot">
+<a class="viewcode-back" href="../../../opqua.internal.html#opqua.internal.plot.compartmentPlot">[docs]</a>
+<span class="k">def</span> <span class="nf">compartmentPlot</span><span class="p">(</span>
+        <span class="n">file_name</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">populations</span><span class="o">=</span><span class="p">[],</span> <span class="n">hosts</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">vectors</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">save_data_to_file</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">x_label</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">y_label</span><span class="o">=</span><span class="s1">&#39;Hosts&#39;</span><span class="p">,</span>
+        <span class="n">legend_title</span><span class="o">=</span><span class="s1">&#39;Compartment&#39;</span><span class="p">,</span> <span class="n">legend_values</span><span class="o">=</span><span class="p">[],</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
+        <span class="n">palette</span><span class="o">=</span><span class="n">CB_PALETTE</span><span class="p">,</span> <span class="n">stacked</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create plot with num. of naive, susc., inf., rec. hosts/vectors vs. time.</span>
+
+<span class="sd">    Creates a line or stacked line plot with dynamics of all compartments</span>
+<span class="sd">    (naive, infected, recovered, dead) across selected populations in the model,</span>
+<span class="sd">    with one line for each compartment.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">    file_name -- file path, name, and extension to save plot under (String)</span>
+<span class="sd">    data -- dataframe with model history as produced by saveToDf function</span>
+<span class="sd">        (DataFrame)</span>
+
+<span class="sd">    Keyword arguments:</span>
+<span class="sd">    populations -- IDs of populations to include in analysis; if empty, uses all</span>
+<span class="sd">        populations in model (default empty list; list of Strings)</span>
+<span class="sd">    hosts -- whether to count hosts (default True, Boolean)</span>
+<span class="sd">    vectors -- whether to count vectors (default False, Boolean)</span>
+<span class="sd">    save_data_to_file -- file path and name to save model data under, no saving</span>
+<span class="sd">        occurs if empty string (default &#39;&#39;; String)</span>
+<span class="sd">    x_label -- X axis title (default &#39;Time&#39;, String)</span>
+<span class="sd">    y_label -- Y axis title (default &#39;Hosts&#39;, String)</span>
+<span class="sd">    legend_title -- legend title (default &#39;Population&#39;, String)</span>
+<span class="sd">    legend_values -- labels for each trace, if empty list, uses population IDs</span>
+<span class="sd">        (default empty list, list of Strings)</span>
+<span class="sd">    figsize -- dimensions of figure (default (8,4), array-like of two ints)</span>
+<span class="sd">    dpi -- figure resolution (default 200, int)</span>
+<span class="sd">    palette -- color palette to use for traces (default CB_PALETTE, list of</span>
+<span class="sd">        color Strings)</span>
+<span class="sd">    stacked -- whether to draw a regular line plot instead of a stacked one</span>
+<span class="sd">        (default False, Boolean)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    axis object for plot with model compartment dynamics as described above</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">comp</span> <span class="o">=</span> <span class="n">compartmentDf</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">populations</span><span class="o">=</span><span class="n">populations</span><span class="p">,</span> <span class="n">hosts</span><span class="o">=</span><span class="n">hosts</span><span class="p">,</span>
+        <span class="n">vectors</span><span class="o">=</span><span class="n">vectors</span><span class="p">,</span> <span class="n">save_to_file</span><span class="o">=</span><span class="n">save_data_to_file</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">comp</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="n">dpi</span><span class="p">)</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">stacked</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">legend_values</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">labs</span> <span class="o">=</span> <span class="n">legend_values</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">labs</span> <span class="o">=</span> <span class="n">comp</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span>
+
+            <span class="n">ax</span><span class="o">.</span><span class="n">stackplot</span><span class="p">(</span>
+                <span class="n">comp</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">],</span> <span class="n">comp</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(),</span>
+                <span class="n">labels</span><span class="o">=</span><span class="n">labs</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="n">palette</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">legend_values</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">labs</span> <span class="o">=</span> <span class="n">legend_values</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">labs</span> <span class="o">=</span> <span class="n">comp</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span>
+
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">comp</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                    <span class="n">comp</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">],</span> <span class="n">comp</span><span class="p">[</span><span class="n">c</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="n">labs</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">palette</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                    <span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="n">x_label</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="n">y_label</span><span class="p">)</span>
+
+        <span class="n">box</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_position</span><span class="p">()</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_position</span><span class="p">([</span><span class="n">box</span><span class="o">.</span><span class="n">x0</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">y0</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">width</span> <span class="o">*</span> <span class="mf">0.8</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">height</span><span class="p">])</span>
+
+        <span class="n">handles</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_legend_handles_labels</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span>
+            <span class="n">handles</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;center left&#39;</span><span class="p">,</span> <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span>
+            <span class="n">title</span><span class="o">=</span><span class="n">legend_title</span>
+            <span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Nothing to plot! Check your data.&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ax</span></div>
+
+
+<div class="viewcode-block" id="compositionPlot">
+<a class="viewcode-back" href="../../../opqua.internal.html#opqua.internal.plot.compositionPlot">[docs]</a>
+<span class="k">def</span> <span class="nf">compositionPlot</span><span class="p">(</span>
+        <span class="n">file_name</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">composition_dataframe</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">populations</span><span class="o">=</span><span class="p">[],</span> <span class="n">type_of_composition</span><span class="o">=</span><span class="s1">&#39;Pathogens&#39;</span><span class="p">,</span>
+        <span class="n">hosts</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">vectors</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">num_top_sequences</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span>
+        <span class="n">track_specific_sequences</span><span class="o">=</span><span class="p">[],</span> <span class="n">genomic_positions</span><span class="o">=</span><span class="p">[],</span>
+        <span class="n">count_individuals_based_on_model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">save_data_to_file</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">x_label</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">y_label</span><span class="o">=</span><span class="s1">&#39;Infections&#39;</span><span class="p">,</span> <span class="n">legend_title</span><span class="o">=</span><span class="s1">&#39;Genotype&#39;</span><span class="p">,</span>
+        <span class="n">legend_values</span><span class="o">=</span><span class="p">[],</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">palette</span><span class="o">=</span><span class="n">CB_PALETTE</span><span class="p">,</span>
+        <span class="n">stacked</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">remove_legend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">population_fraction</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create plot with counts for pathogen genomes or resistance across time.</span>
+
+<span class="sd">    Creates a line or stacked line plot with dynamics of the pathogen strains or</span>
+<span class="sd">    protection sequences across selected populations in the model,</span>
+<span class="sd">    with one line for each pathogen genome or protection sequence being shown.</span>
+
+<span class="sd">    Of note: sum of totals for all sequences in one time point does not</span>
+<span class="sd">    necessarily equal the number of infected hosts and/or vectors, given</span>
+<span class="sd">    multiple infections in the same host/vector are counted separately.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">    file_name -- file path, name, and extension to save plot under (String)</span>
+<span class="sd">    data -- dataframe with model history as produced by saveToDf function</span>
+
+<span class="sd">    Keyword arguments:</span>
+<span class="sd">    composition_dataframe -- output of compositionDf() if already computed</span>
+<span class="sd">        (Pandas DataFrame, None by default)</span>
+<span class="sd">    populations -- IDs of populations to include in analysis; if empty, uses all</span>
+<span class="sd">        populations in model (default empty list; list of Strings)</span>
+<span class="sd">    type_of_composition -- field of data to count totals of, can be either</span>
+<span class="sd">        &#39;Pathogens&#39; or &#39;Protection&#39; (default &#39;Pathogens&#39;; String)</span>
+<span class="sd">    hosts -- whether to count hosts (default True, Boolean)</span>
+<span class="sd">    vectors -- whether to count vectors (default False, Boolean)</span>
+<span class="sd">    num_top_sequences -- how many sequences to count separately and include</span>
+<span class="sd">        as columns, remainder will be counted under column &quot;Other&quot;; if &lt;0,</span>
+<span class="sd">        includes all genomes in model (default 7; int)</span>
+<span class="sd">    track_specific_sequences -- contains specific sequences to have</span>
+<span class="sd">        as a separate column if not part of the top num_top_sequences</span>
+<span class="sd">        sequences (default empty list; list of Strings)</span>
+<span class="sd">    genomic_positions -- list in which each element is a list with loci</span>
+<span class="sd">        positions to extract (e.g. genomic_positions=[ [0,3], [5,6] ] extracts</span>
+<span class="sd">        positions 0, 1, 2, and 5 from each genome); if empty, takes full genomes</span>
+<span class="sd">        (default empty list; list of lists of int)</span>
+<span class="sd">    count_individuals_based_on_model -- Model object with populations and</span>
+<span class="sd">        fitness functions used to evaluate the most fit pathogen genome in each</span>
+<span class="sd">        host/vector in order to count only a single pathogen per host/vector, as</span>
+<span class="sd">        opposed to all pathogens within each host/vector; if None, counts all</span>
+<span class="sd">        pathogens (default None; None or Model)</span>
+<span class="sd">    save_data_to_file -- file path and name to save model data under, no saving</span>
+<span class="sd">        occurs if empty string (default &#39;&#39;; String)</span>
+<span class="sd">    x_label -- X axis title (default &#39;Time&#39;, String)</span>
+<span class="sd">    y_label -- Y axis title (default &#39;Hosts&#39;, String)</span>
+<span class="sd">    legend_title -- legend title (default &#39;Population&#39;, String)</span>
+<span class="sd">    legend_values -- labels for each trace, if empty list, uses population IDs</span>
+<span class="sd">        (default empty list, list of Strings)</span>
+<span class="sd">    figsize -- dimensions of figure (default (8,4), array-like of two ints)</span>
+<span class="sd">    dpi -- figure resolution (default 200, int)</span>
+<span class="sd">    palette -- color palette to use for traces (default CB_PALETTE, list of</span>
+<span class="sd">        color Strings)</span>
+<span class="sd">    stacked -- whether to draw a regular line plot instead of a stacked one</span>
+<span class="sd">        (default False, Boolean).</span>
+<span class="sd">    remove_legend -- whether to print the sequences on the figure legend instead</span>
+<span class="sd">        of printing them on a separate csv file (default True; Boolean)</span>
+<span class="sd">    population_fraction -- whether to graph fractions of pathogen population</span>
+<span class="sd">        instead of pathogen counts (default False, Boolean)</span>
+<span class="sd">    **kwargs -- additional arguents for joblib multiprocessing</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    axis object for plot with model sequence composition dynamics as described</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">composition_dataframe</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">comp</span> <span class="o">=</span> <span class="n">compositionDf</span><span class="p">(</span>
+            <span class="n">data</span><span class="p">,</span> <span class="n">populations</span><span class="o">=</span><span class="n">populations</span><span class="p">,</span>
+            <span class="n">type_of_composition</span><span class="o">=</span><span class="n">type_of_composition</span><span class="p">,</span>
+            <span class="n">hosts</span><span class="o">=</span><span class="n">hosts</span><span class="p">,</span> <span class="n">vectors</span><span class="o">=</span><span class="n">vectors</span><span class="p">,</span> <span class="n">num_top_sequences</span><span class="o">=</span><span class="n">num_top_sequences</span><span class="p">,</span>
+            <span class="n">track_specific_sequences</span><span class="o">=</span><span class="n">track_specific_sequences</span><span class="p">,</span>
+            <span class="n">genomic_positions</span><span class="o">=</span><span class="n">genomic_positions</span><span class="p">,</span>
+            <span class="n">count_individuals_based_on_model</span><span class="o">=</span><span class="n">count_individuals_based_on_model</span><span class="p">,</span>
+            <span class="n">save_to_file</span><span class="o">=</span><span class="n">save_data_to_file</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+            <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">comp</span> <span class="o">=</span> <span class="n">composition_dataframe</span>
+
+    <span class="k">if</span> <span class="n">population_fraction</span><span class="p">:</span>
+        <span class="n">total_infections</span> <span class="o">=</span> <span class="n">comp</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">comp</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;corrected &#39;</span><span class="o">+</span><span class="n">col</span><span class="p">)</span>
+            <span class="n">comp</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">comp</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">/</span> <span class="n">total_infections</span>
+
+    <span class="k">if</span> <span class="n">comp</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="n">dpi</span><span class="p">)</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">stacked</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">legend_values</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">labs</span> <span class="o">=</span> <span class="n">legend_values</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">labs</span> <span class="o">=</span> <span class="n">comp</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span>
+
+            <span class="n">ax</span><span class="o">.</span><span class="n">stackplot</span><span class="p">(</span>
+                <span class="n">comp</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">],</span> <span class="n">comp</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(),</span>
+                <span class="n">labels</span><span class="o">=</span><span class="n">labs</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="n">palette</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">legend_values</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">labs</span> <span class="o">=</span> <span class="n">legend_values</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">labs</span> <span class="o">=</span> <span class="n">comp</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span>
+
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">comp</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                    <span class="n">comp</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">],</span> <span class="n">comp</span><span class="p">[</span><span class="n">c</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="n">labs</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">palette</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                    <span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="n">x_label</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="n">y_label</span><span class="p">)</span>
+
+        <span class="n">box</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_position</span><span class="p">()</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_position</span><span class="p">([</span><span class="n">box</span><span class="o">.</span><span class="n">x0</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">y0</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">width</span> <span class="o">*</span> <span class="mf">0.8</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">height</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="n">remove_legend</span><span class="p">:</span>
+            <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+                <span class="n">labs</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Groups&#39;</span><span class="p">]</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">file_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;_labels.csv&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">handles</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_legend_handles_labels</span><span class="p">()</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span>
+                <span class="n">handles</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;center left&#39;</span><span class="p">,</span> <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span>
+                <span class="n">title</span><span class="o">=</span><span class="n">legend_title</span>
+                <span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Nothing to plot! Check your data.&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ax</span></div>
+
+
+<div class="viewcode-block" id="clustermap">
+<a class="viewcode-back" href="../../../opqua.internal.html#opqua.internal.plot.clustermap">[docs]</a>
+<span class="k">def</span> <span class="nf">clustermap</span><span class="p">(</span>
+        <span class="n">file_name</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">num_top_sequences</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">track_specific_sequences</span><span class="o">=</span><span class="p">[],</span>
+        <span class="n">seq_names</span><span class="o">=</span><span class="p">[],</span> <span class="n">n_cores</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;weighted&#39;</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s1">&#39;euclidean&#39;</span><span class="p">,</span>
+        <span class="n">save_data_to_file</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">legend_title</span><span class="o">=</span><span class="s1">&#39;Distance&#39;</span><span class="p">,</span> <span class="n">legend_values</span><span class="o">=</span><span class="p">[],</span>
+        <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">color_map</span><span class="o">=</span><span class="n">DEF_CMAP</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a heatmap and dendrogram for pathogen genomes in data passed.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">    file_name -- file path, name, and extension to save plot under (String)</span>
+<span class="sd">    data -- dataframe with model history as produced by saveToDf function</span>
+
+<span class="sd">    Keyword arguments:</span>
+<span class="sd">    num_top_sequences -- how many sequences to include in matrix; if &lt;0,</span>
+<span class="sd">        includes all genomes in data passed (default -1; int)</span>
+<span class="sd">    track_specific_sequences -- contains specific sequences to include in matrix</span>
+<span class="sd">        if not part of the top num_top_sequences sequences (default empty list;</span>
+<span class="sd">        list of Strings)</span>
+<span class="sd">    seq_names -- list with names to be used for sequence labels in matrix must</span>
+<span class="sd">        be of same length as number of sequences to be displayed; if empty,</span>
+<span class="sd">        uses sequences themselves (default empty list; list of Strings)</span>
+<span class="sd">    n_cores -- number of cores to parallelize distance compute across, if 0, all</span>
+<span class="sd">        cores available are used (default 0; int)</span>
+<span class="sd">    method -- clustering algorithm to use with seaborn clustermap (default</span>
+<span class="sd">        &#39;weighted&#39;; String)</span>
+<span class="sd">    metric -- distance metric to use with seaborn clustermap (default</span>
+<span class="sd">        &#39;euclidean&#39;; String)</span>
+<span class="sd">    save_data_to_file -- file path and name to save model data under, no saving</span>
+<span class="sd">        occurs if empty string (default &#39;&#39;; String)</span>
+<span class="sd">    legend_title -- legend title (default &#39;Distance&#39;, String)</span>
+<span class="sd">    figsize -- dimensions of figure (default (8,4), array-like of two ints)</span>
+<span class="sd">    dpi -- figure resolution (default 200, int)</span>
+<span class="sd">    color_map -- color map to use for traces (default DEF_CMAP, cmap object)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    figure object for plot with heatmap and dendrogram as described</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">dis</span> <span class="o">=</span> <span class="n">pathogenDistanceDf</span><span class="p">(</span>
+        <span class="n">data</span><span class="p">,</span> <span class="n">num_top_sequences</span><span class="o">=</span><span class="n">num_top_sequences</span><span class="p">,</span>
+        <span class="n">track_specific_sequences</span><span class="o">=</span><span class="n">track_specific_sequences</span><span class="p">,</span> <span class="n">seq_names</span><span class="o">=</span><span class="n">seq_names</span><span class="p">,</span>
+        <span class="n">n_cores</span><span class="o">=</span><span class="n">n_cores</span><span class="p">,</span> <span class="n">save_to_file</span><span class="o">=</span><span class="n">save_data_to_file</span>
+        <span class="p">)</span>
+
+    <span class="n">lin</span> <span class="o">=</span> <span class="n">sp_hie</span><span class="o">.</span><span class="n">linkage</span><span class="p">(</span>
+        <span class="n">sp_spa</span><span class="o">.</span><span class="n">distance</span><span class="o">.</span><span class="n">squareform</span><span class="p">(</span><span class="n">dis</span><span class="p">),</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;weighted&#39;</span><span class="p">,</span>
+        <span class="n">optimal_ordering</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+
+    <span class="n">g</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">clustermap</span><span class="p">(</span>
+        <span class="n">dis</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="n">metric</span><span class="p">,</span> <span class="n">cbar_kws</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">legend_title</span><span class="p">},</span>
+        <span class="n">cmap</span><span class="o">=</span><span class="n">color_map</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span>
+        <span class="p">)</span>
+
+    <span class="n">g</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="n">dpi</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">g</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Pablo Cárdenas.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
