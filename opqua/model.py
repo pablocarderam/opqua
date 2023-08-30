@@ -29,94 +29,20 @@ class Model(object):
     in simulation. Also contains groups of hosts/vectors for manipulations and
     stores model history as snapshots for each time point.
 
-    *** --- CONSTANTS: --- ***
-    ### Color scheme constants ###
-    CB_PALETTE -- a colorblind-friendly 8-color color scheme
-    DEF_CMAP -- a colormap object for Seaborn plots
+    **CONSTANTS:**
 
-    *** --- ATTRIBUTES: --- ***
-    populations -- dictionary with keys=population IDs, values=Population
-        objects
-    setups -- dictionary with keys=setup IDs, values=Setup objects
-    interventions -- contains model interventions in the order they will occur
-    groups -- dictionary with keys=group IDs, values=lists of hosts/vectors
-    history -- dictionary with keys=time values, values=Model objects that
-        are snapshots of Model at that timepoint
-    t_var -- variable that tracks time in simulations
+    - `CB_PALETTE`: a colorblind-friendly 8-color color scheme.
+    - `DEF_CMAP`: a colormap object for Seaborn plots.
 
-    *** --- METHODS: --- ***
-
-    --- Model Initialization and Simulation: ---
-
-    setRandomSeed -- set random seed for numpy random number generator
-    newSetup -- creates a new Setup, save it in setups dict under given name
-    newIntervention -- creates a new intervention executed during simulation
-    run -- simulates model for a specified length of time
-    runReplicates -- simulate replicates of a model, save only end results
-    runParamSweep -- simulate parameter sweep with a model, save only end results
-    copyState -- returns a slimmed-down version of the current model state
-
-    --- Data Output and Plotting: ---
-
-    saveToDataFrame -- saves status of model to dataframe, writes to file
-    getPathogens -- creates Dataframe with counts for all pathogen genomes
-    getProtections -- creates Dataframe with counts for all protection sequences
-    populationsPlot -- plots aggregated totals per population across time
-    compartmentPlot -- plots number of naive,inf,rec,dead hosts/vectors vs time
-    compositionPlot -- plots counts for pathogen genomes or resistance vs. time
-    clustermap -- create a heatmap and dendrogram for pathogen genomes in data
-    pathogenDistanceHistory -- get pairwise distances for pathogen genomes
-    getGenomeTimes -- create DataFrame with times genomes first appeared during
-        simulation
-    getCompositionData -- create dataframe with counts for pathogen genomes or
-        resistance
-
-    --- Model interventions: ---
-
-    - Make and connect populations -
-    newPopulation -- create a new Population object with setup parameters
-    linkPopulationsHostMigration -- set host migration rate from one population
-        towards another
-    linkPopulationsVectorMigration -- set vector migration rate from one
-        population towards another
-    linkPopulationsHostHostContact -- set host-host inter-population contact
-        rate from one population towards another
-    linkPopulationsHostVectorMigration -- set host-vector inter-population
-        contact rate from one population towards another
-    linkPopulationsVectorHostMigration -- set vector-host inter-population
-        contact rate from one population towards another
-    createInterconnectedPopulations -- create new populations, link all of them
-        to each other by migration and/or inter-population contact
-
-    - Manipulate hosts and vectors in population -
-    newHostGroup -- returns a list of random (healthy or any) hosts
-    newVectorGroup -- returns a list of random (healthy or any) vectors
-    addHosts -- adds hosts to the population
-    addVectors -- adds vectors to the population
-    removeHosts -- removes hosts from the population
-    removeVectors -- removes vectors from the population
-    addPathogensToHosts -- adds pathogens with specified genomes to hosts
-    addPathogensToVectors -- adds pathogens with specified genomes to vectors
-    treatHosts -- removes infections susceptible to given treatment from hosts
-    treatVectors -- removes infections susceptible to treatment from vectors
-    protectHosts -- adds protection sequence to hosts
-    protectVectors -- adds protection sequence to vectors
-    wipeProtectionHosts -- removes all protection sequences from hosts
-    wipeProtectionVectors -- removes all protection sequences from vectors
-
-    - Modify population parameters -
-    setSetup -- assigns a given set of parameters to this population
-
-    - Utility -
-    customModelFunction -- returns output of given function run on model
-
-    --- Preset fitness functions: ---
-        * these are static methods
-
-    peakLandscape -- evaluates genome numeric phenotype by decreasing with
-        distance from optimal sequence
-    valleyLandscape -- evaluates genome numeric phenotype by increasing with
-        distance from worst sequence
+    Attributes:
+        populations: dictionary with keys=population IDs, values=Population
+            objects.
+        setups: dictionary with keys=setup IDs, values=Setup objects.
+        interventions: contains model interventions in the order they will occur.
+        groups: dictionary with keys=group IDs, values=lists of hosts/vectors.
+        history: dictionary with keys=time values, values=Model objects that
+            are snapshots of Model at that timepoint.
+        t_var: variable that tracks time in simulations.
     """
 
     ### CONSTANTS ###
@@ -181,7 +107,7 @@ class Model(object):
         """Set random seed for numpy random number generator.
 
         Arguments:
-        seed -- int for the random seed to be passed to numpy (int)
+            seed (int): int for the random seed to be passed to numpy.
         """
 
         np.random.seed(seed)
@@ -217,7 +143,7 @@ class Model(object):
             inherit_protection_host=None, inherit_protection_vector=None,
             protection_upon_recovery_host=None,
             protection_upon_recovery_vector=None):
-        """Create a new Setup, save it in setups dict under given name.
+        """Create a new `Setup`, save it in setups dict under given name.
 
         Two preset setups exist: "vector-borne" and "host-host". You may select
         one of the preset setups with the preset keyword argument and then
@@ -225,140 +151,125 @@ class Model(object):
         having to specify all of them.
 
         Arguments:
-        name -- name of setup to be used as a key in model setups dictionary
+            name (String): name of setup to be used as a key in model setups dictionary.
 
         Keyword arguments:
-        preset -- preset setup to be used: "vector-borne" or "host-host", if
-            None, must define all other keyword arguments (default None; None or
-            String)
-        num_loci -- length of each pathogen genome string (int > 0)
-        possible_alleles -- set of possible characters in all genome string, or
-            at each position in genome string (String or list of Strings with
-            num_loci elements)
-        fitnessHost -- function that evaluates relative fitness in head-to-head
-            competition for different genomes within the same host
-            (function object, takes a String argument and returns a number >= 0)
-        contactHost -- function that returns coefficient modifying probability
-            of a given host being chosen to be the infector in a contact event,
-            based on genome sequence of pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        receiveContactHost -- function that returns coefficient modifying
-            probability of a given host being chosen to be the infected in
-            a contact event, based on genome sequence of pathogen
-        mortalityHost -- function that returns coefficient modifying death rate
-            for a given host, based on genome sequence of pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        natalityHost -- function that returns coefficient modifying birth rate
-            for a given host, based on genome sequence of pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        recoveryHost -- function that returns coefficient modifying recovery
-            rate for a given host based on genome sequence of pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        migrationHost -- function that returns coefficient modifying migration
-            rate for a given host based on genome sequence of pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        populationContactHost -- function that returns coefficient modifying
-            population contact rate for a given host based on genome sequence of
-            pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        mutationHost -- function that returns coefficient modifying mutation
-            rate for a given host based on genome sequence of pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        recombinationHost -- function that returns coefficient modifying
-            recombination rate for a given host based on genome sequence of
-            pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        fitnessVector -- function that evaluates relative fitness in head-to-
-            head competition for different genomes within the same vector
-            (function object, takes a String argument and returns a number >= 0)
-        contactVector -- function that returns coefficient modifying probability
-            of a given vector being chosen to be the infector in a contact
-            event, based on genome sequence of pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        receiveContactVector -- function that returns coefficient modifying
-            probability of a given vector being chosen to be the infected in
-            a contact event, based on genome sequence of pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        mortalityVector -- function that returns coefficient modifying death
-            rate for a given vector, based on genome sequence of pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        natalityVector -- function that returns coefficient modifying birth rate
-            for a given vector, based on genome sequence of pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        recoveryVector -- function that returns coefficient modifying recovery
-            rate for a given vector based on genome sequence of pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        migrationVector -- function that returns coefficient modifying migration
-            rate for a given vector based on genome sequence of pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        populationContactVector -- function that returns coefficient modifying
-            population contact rate for a given vector based on genome sequence
-            of pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        mutationVector -- function that returns coefficient modifying mutation
-            rate for a given vector based on genome sequence of pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        recombinationVector -- function that returns coefficient modifying
-            recombination rate for a given vector based on genome sequence of
-            pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        contact_rate_host_vector -- rate of host-vector contact events, not
-            necessarily transmission, assumes constant population density;
-            evts/time (number >= 0)
-        transmission_efficiency_host_vector -- fraction of host-vector contacts
-            that result in successful transmission
-        transmission_efficiency_vector_host -- fraction of vector-host contacts
-            that result in successful transmission
-        contact_rate_host_host -- rate of host-host contact events, not
-            necessarily transmission, assumes constant population density;
-            evts/time (number >= 0)
-        transmission_efficiency_host_host -- fraction of host-host contacts
-                that result in successful transmission
-        mean_inoculum_host -- mean number of pathogens that are transmitted from
-            a vector or host into a new host during a contact event (int >= 0)
-        mean_inoculum_vector -- mean number of pathogens that are transmitted
-            from a host to a vector during a contact event (int >= 0)
-        recovery_rate_host -- rate at which hosts clear all pathogens;
-            1/time (number >= 0)
-        recovery_rate_vector -- rate at which vectors clear all pathogens
-            1/time (number >= 0)
-        recovery_rate_vector -- rate at which vectors clear all pathogens
-            1/time (number >= 0)
-        mortality_rate_host -- rate at which infected hosts die from disease
-            (number 0-1)
-        mortality_rate_vector -- rate at which infected vectors die from
-            disease (number 0-1)
-        recombine_in_host -- rate at which recombination occurs in host;
-            evts/time (number >= 0)
-        recombine_in_vector -- rate at which recombination occurs in vector;
-            evts/time (number >= 0)
-        num_crossover_host -- mean of a Poisson distribution modeling the number
-            of crossover events of host recombination events (number >= 0)
-        num_crossover_vector -- mean of a Poisson distribution modeling the
-            number of crossover events of vector recombination events
-            (number >= 0)
-        mutate_in_host -- rate at which mutation occurs in host; evts/time
-            (number >= 0)
-        mutate_in_vector -- rate at which mutation occurs in vector; evts/time
-            (number >= 0)
-        death_rate_host -- natural host death rate; 1/time (number >= 0)
-        death_rate_vector -- natural vector death rate; 1/time (number >= 0)
-        birth_rate_host -- infected host birth rate; 1/time (number >= 0)
-        birth_rate_vector -- infected vector birth rate; 1/time (number >= 0)
-        vertical_transmission_host -- probability that a host is infected by its
-            parent at birth (number 0-1)
-        vertical_transmission_vector -- probability that a vector is infected by
-            its parent at birth (number 0-1)
-        inherit_protection_host -- probability that a host inherits all
-            protection sequences from its parent (number 0-1)
-        inherit_protection_vector -- probability that a vector inherits all
-            protection sequences from its parent (number 0-1)
-        protection_upon_recovery_host -- defines indexes in genome string that
-            define substring to be added to host protection sequences after
-            recovery (None or array-like of length 2 with int 0-num_loci)
-        protection_upon_recovery_vector -- defines indexes in genome string that
-            define substring to be added to vector protection sequences after
-            recovery (None or array-like of length 2 with int 0-num_loci)
+            preset (None or String): preset setup to be used: "vector-borne" or "host-host", if
+                None, must define all other keyword arguments. Defaults to None.
+            num_loci (int>0): length of each pathogen genome string.
+            possible_alleles (String or list of Strings with num_loci elements): set of possible 
+                characters in all genome string, or at each position in genome string. 
+            fitnessHost (callable, takes a String argument and returns a number >= 0): function 
+                that evaluates relative fitness in head-to-head competition for different genomes 
+                within the same host.
+            contactHost (callable, takes a String argument and returns a number 0-1): function that 
+                returns coefficient modifying probability of a given host being chosen to be the 
+                infector in a contact event, based on genome sequence of pathogen.
+            receiveContactHost (callable, takes a String argument and returns a number 0-1): function 
+                that returns coefficient modifying probability of a given host being chosen to be 
+                the infected in a contact event, based on genome sequence of pathogen.
+            mortalityHost (callable, takes a String argument and returns a number 0-1): function that 
+                returns coefficient modifying death rate for a given host, based on genome sequence 
+                of pathogen.
+            natalityHost (callable, takes a String argument and returns a number 0-1): function that 
+                returns coefficient modifying birth rate for a given host, based on genome sequence 
+                of pathogen.
+            recoveryHost (callable, takes a String argument and returns a number 0-1): function that 
+                returns coefficient modifying recovery rate for a given host based on genome sequence 
+                of pathogen.
+            migrationHost (callable, takes a String argument and returns a number 0-1): function that 
+                returns coefficient modifying migration rate for a given host based on genome sequence 
+                of pathogen.
+            populationContactHost (callable, takes a String argument and returns a number 0-1): function 
+                that returns coefficient modifying population contact rate for a given host based on 
+                genome sequence of pathogen.
+            mutationHost (callable, takes a String argument and returns a number 0-1): function that 
+                returns coefficient modifying mutation rate for a given host based on genome sequence 
+                of pathogen.
+            recombinationHost (callable, takes a String argument and returns a number 0-1): function 
+                that returns coefficient modifying recombination rate for a given host based on genome 
+                sequence of pathogen.
+            fitnessVector (callable, takes a String argument and returns a number >=0): function that 
+                evaluates relative fitness in head-to-head competition for different genomes within 
+                the same vector.
+            contactVector (callable, takes a String argument and returns a number 0-1): function that 
+                returns coefficient modifying probability of a given vector being chosen to be the 
+                infector in a contact event, based on genome sequence of pathogen.
+            receiveContactVector (callable, takes a String argument and returns a number 0-1): function 
+                that returns coefficient modifying probability of a given vector being chosen to be the 
+                infected in a contact event, based on genome sequence of pathogen.
+            mortalityVector (callable, takes a String argument and returns a number 0-1): function that 
+                returns coefficient modifying death rate for a given vector, based on genome sequence 
+                of pathogen.
+            natalityVector (callable, takes a String argument and returns a number 0-1): function that 
+                returns coefficient modifying birth rate for a given vector, based on genome sequence 
+                of pathogen.
+            recoveryVector (callable, takes a String argument and returns a number 0-1): function that 
+                returns coefficient modifying recovery rate for a given vector based on genome sequence 
+                of pathogen.
+            migrationVector (callable, takes a String argument and returns a number 0-1): function that 
+                returns coefficient modifying migration rate for a given vector based on genome sequence 
+                of pathogen.
+            populationContactVector (callable, takes a String argument and returns a number 0-1): function 
+                that returns coefficient modifying population contact rate for a given vector based on 
+                genome sequence of pathogen.
+            mutationVector (callable, takes a String argument and returns a number 0-1): function that 
+                returns coefficient modifying mutation rate for a given vector based on genome sequence 
+                of pathogen.
+            recombinationVector (callable, takes a String argument and returns a number 0-1): function 
+                that returns coefficient modifying recombination rate for a given vector based on genome 
+                sequence of pathogen.
+            contact_rate_host_vector (number >= 0): rate of host-vector contact events, not necessarily 
+                transmission, assumes constant population density; evts/time.
+            transmission_efficiency_host_vector (float): fraction of host-vector contacts
+                that result in successful transmission.
+            transmission_efficiency_vector_host (float): fraction of vector-host contacts
+                that result in successful transmission.
+            contact_rate_host_host (number >= 0): rate of host-host contact events, not
+                necessarily transmission, assumes constant population density; evts/time.
+            transmission_efficiency_host_host (float): fraction of host-host contacts
+                    that result in successful transmission.
+            mean_inoculum_host (int >= 0): mean number of pathogens that are transmitted from
+                a vector or host into a new host during a contact event.
+            mean_inoculum_vector (int >= 0) mean number of pathogens that are transmitted
+                from a host to a vector during a contact event.
+            recovery_rate_host (number >= 0): rate at which hosts clear all pathogens;
+                1/time.
+            recovery_rate_vector (number >= 0): rate at which vectors clear all pathogens
+                1/time.
+            recovery_rate_vector (number >= 0): rate at which vectors clear all pathogens
+                1/time.
+            mortality_rate_host (number 0-1): rate at which infected hosts die from disease.
+            mortality_rate_vector (number 0-1): rate at which infected vectors die from
+                disease.
+            recombine_in_host (number >= 0): rate at which recombination occurs in host;
+                evts/time.
+            recombine_in_vector (number >= 0): rate at which recombination occurs in vector;
+                evts/time.
+            num_crossover_host (number >= 0): mean of a Poisson distribution modeling the number
+                of crossover events of host recombination events.
+            num_crossover_vector (number >= 0): mean of a Poisson distribution modeling the
+                number of crossover events of vector recombination events.
+            mutate_in_host (number >= 0): rate at which mutation occurs in host; evts/time.
+            mutate_in_vector (number >= 0): rate at which mutation occurs in vector; evts/time.
+            death_rate_host (number >= 0): natural host death rate; 1/time.
+            death_rate_vector (number >= 0): natural vector death rate; 1/time.
+            birth_rate_host (number >= 0): infected host birth rate; 1/time.
+            birth_rate_vector (number >= 0): infected vector birth rate; 1/time.
+            vertical_transmission_host (number 0-1): probability that a host is infected by its
+                parent at birth.
+            vertical_transmission_vector (number 0-1): probability that a vector is infected by
+                its parent at birth.
+            inherit_protection_host (number 0-1): probability that a host inherits all
+                protection sequences from its parent.
+            inherit_protection_vector (number 0-1): probability that a vector inherits all
+                protection sequences from its parent.
+            protection_upon_recovery_host (None or array-like of length 2 with int 0-num_loci): defines 
+                indexes in genome string that define substring to be added to host protection sequences 
+                after recovery.
+            protection_upon_recovery_vector (None or array-like of length 2 with int 0-num_loci): defines 
+                indexes in genome string that define substring to be added to vector protection sequences 
+                after recovery.
         """
 
         if preset == "vector-borne":
@@ -604,10 +515,10 @@ class Model(object):
         """Create a new intervention to be carried out at a specific time.
 
         Arguments:
-        time -- time at which intervention will take place (number >= 0)
-        method_name -- intervention to be carried out, must correspond to the
-            name of a method of the Model object (String)
-        args -- contains arguments for function in positinal order (array-like)
+            time (number >= 0): time at which intervention will take place.
+            method_name (String): intervention to be carried out, must correspond to the
+                name of a method of the `Model` object.
+            args (array-like): contains arguments for function in positinal order.
         """
 
         self.interventions.append( Intervention(time, method_name, args, self) )
@@ -615,16 +526,16 @@ class Model(object):
     def addCustomConditionTracker(self, condition_id, trackerFunction):
         """Add a function to track occurrences of custom events in simulation.
 
-        Adds function trackerFunction to dictionary custom_condition_trackers
-        under key condition_id. Function trackerFunction will be executed at
+        Adds function `trackerFunction` to dictionary `custom_condition_trackers`
+        under key `condition_id`. Function `trackerFunction` will be executed at
         every event in the simulation. Every time True is returned,
-        the simulation time will be stored under the corresponding condition_id
-        key inside global_trackers['custom_condition']
+        the simulation time will be stored under the corresponding `condition_id`
+        key inside `global_trackers['custom_condition']`.
 
         Arguments:
-        condition_id -- ID of this specific condition (String)
-        trackerFunction -- function that take a Model object as argument and
-            returns True or False; (Function)
+            condition_id (String): ID of this specific condition-
+            trackerFunction (callable): function that take a `Model` object as argument 
+                and returns True or False.
         """
 
         self.custom_condition_trackers['condition_id'] = trackerFunction
@@ -635,23 +546,21 @@ class Model(object):
 
         Simulates a time series using the Gillespie algorithm.
 
-        Saves a dictionary containing model state history, with keys=times and
-        values=Model objects with model snapshot at that time point under this
+        Saves a dictionary containing model state history, with `keys=times` and
+        `values=Model` objects with model snapshot at that time point under this
         model's history attribute.
 
         Arguments:
-        t0 -- initial time point to start simulation at (number >= 0)
-        tf -- initial time point to end simulation at (number >= 0)
+            t0 (number >= 0): initial time point to start simulation at.
+            tf (number >= 0): initial time point to end simulation at.
 
         Keyword arguments:
-        time_sampling -- how many events to skip before saving a snapshot of the
-            system state (saves all by default), if <0, saves only final state
-            (int, default 0)
-        host_sampling -- how many hosts to skip before saving one in a snapshot
-            of the system state (saves all by default) (int >= 0, default 0)
-        vector_sampling -- how many vectors to skip before saving one in a
-            snapshot of the system state (saves all by default)
-            (int >= 0, default 0)
+            time_sampling (int): how many events to skip before saving a snapshot of the
+                system state (saves all by default), if <0, saves only final state. Defaults to 0.
+            host_sampling (int >= 0): how many hosts to skip before saving one in a snapshot
+                of the system state (saves all by default). Defaults to 0.
+            vector_sampling (int >= 0): how many vectors to skip before saving one in a
+                snapshot of the system state (saves all by default). Defaults to 0.
         """
 
         sim = Gillespie(self)
@@ -666,27 +575,25 @@ class Model(object):
 
         Simulates replicates of a time series using the Gillespie algorithm.
 
-        Saves a dictionary containing model end state state, with keys=times and
-        values=Model objects with model snapshot. The time is the final
-        timepoint.
+        Saves a dictionary containing model end state state, with `keys=times` and
+        `values=Model` objects with model snapshot. The time is the final timepoint.
 
         Arguments:
-        t0 -- initial time point to start simulation at (number >= 0)
-        tf -- initial time point to end simulation at (number >= 0)
-        replicates -- how many replicates to simulate (int >= 1)
+            t0 (number >= 0): initial time point to start simulation at.
+            tf (number >= 0): initial time point to end simulation at.
+            replicates (int >= 1): how many replicates to simulate.
 
         Keyword arguments:
-        host_sampling -- how many hosts to skip before saving one in a snapshot
-            of the system state (saves all by default) (int >= 0, default 0)
-        vector_sampling -- how many vectors to skip before saving one in a
-            snapshot of the system state (saves all by default)
-            (int >= 0, default 0)
-        n_cores -- number of cores to parallelize file export across, if 0, all
-            cores available are used (default 0; int >= 0)
-        **kwargs -- additional arguents for joblib multiprocessing
+            host_sampling (int >= 0): how many hosts to skip before saving one in a snapshot
+                of the system state (saves all by default). Defaults to 0.
+            vector_sampling (int >= 0): how many vectors to skip before saving one in a
+                snapshot of the system state (saves all by default). Defaults to 0.
+            n_cores (int >= 0): number of cores to parallelize file export across, if 0, all
+                cores available are used. Defaults to 0.
+            **kwargs: additional arguents for joblib multiprocessing.
 
         Returns:
-        List of Model objects with the final snapshots
+            List of `Model` objects with the final snapshots.
         """
 
         if not n_cores:
@@ -722,55 +629,55 @@ class Model(object):
 
         Simulates variations of a time series using the Gillespie algorithm.
 
-        Saves a dictionary containing model end state state, with keys=times and
-        values=Model objects with model snapshot. The time is the final
+        Saves a dictionary containing model end state state, with `keys=times` and
+        `values=Model` objects with model snapshot. The time is the final
         timepoint.
 
         Arguments:
-        t0 -- initial time point to start simulation at (number >= 0)
-        tf -- initial time point to end simulation at (number >= 0)
-        setup_id -- ID of setup to be assigned (String)
+            t0 (number >= 0): initial time point to start simulation at.
+            tf (number >= 0): initial time point to end simulation at.
+            setup_id (String): ID of setup to be assigned.
 
         Keyword arguments:
-        param_sweep_dic -- dictionary with keys=parameter names (attributes of
-            Setup), values=list of values for parameter (list, class of elements
-            depends on parameter)
-        host_population_size_sweep -- dictionary with keys=population IDs
-            (Strings), values=list of values with host population sizes
-            (must be greater than original size set for each population, list of
-            numbers)
-        vector_population_size_sweep -- dictionary with keys=population IDs
-            (Strings), values=list of values with vector population sizes
-            (must be greater than original size set for each population, list of
-            numbers)
-        host_migration_sweep_dic -- dictionary with keys=population IDs of
-            origin and destination, separated by a colon ';' (Strings),
-            values=list of values (list of numbers)
-        vector_migration_sweep_dic -- dictionary with keys=population IDs of
-            origin and destination, separated by a colon ';' (Strings),
-            values=list of values (list of numbers)
-        host_host_population_contact_sweep_dic -- dictionary with
-            keys=population IDs of origin and destination, separated by a colon
-            ';' (Strings), values=list of values (list of numbers)
-        host_vector_population_contact_sweep_dic -- dictionary with
-            keys=population IDs of origin and destination, separated by a colon
-            ';' (Strings), values=list of values (list of numbers)
-        vector_host_population_contact_sweep_dic -- dictionary with
-            keys=population IDs of origin and destination, separated by a colon
-            ';' (Strings), values=list of values (list of numbers)
-        replicates -- how many replicates to simulate (int >= 1)
-        host_sampling -- how many hosts to skip before saving one in a snapshot
-            of the system state (saves all by default) (int >= 0, default 0)
-        vector_sampling -- how many vectors to skip before saving one in a
-            snapshot of the system state (saves all by default)
-            (int >= 0, default 0)
-        n_cores -- number of cores to parallelize file export across, if 0, all
-            cores available are used (default 0; int >= 0)
-        **kwargs -- additional arguents for joblib multiprocessing
+            param_sweep_dic -- dictionary with keys=parameter names (attributes of
+                Setup), values=list of values for parameter (list, class of elements
+                depends on parameter)
+            host_population_size_sweep -- dictionary with keys=population IDs
+                (Strings), values=list of values with host population sizes
+                (must be greater than original size set for each population, list of
+                numbers)
+            vector_population_size_sweep -- dictionary with keys=population IDs
+                (Strings), values=list of values with vector population sizes
+                (must be greater than original size set for each population, list of
+                numbers)
+            host_migration_sweep_dic -- dictionary with keys=population IDs of
+                origin and destination, separated by a colon ';' (Strings),
+                values=list of values (list of numbers)
+            vector_migration_sweep_dic -- dictionary with keys=population IDs of
+                origin and destination, separated by a colon ';' (Strings),
+                values=list of values (list of numbers)
+            host_host_population_contact_sweep_dic -- dictionary with
+                keys=population IDs of origin and destination, separated by a colon
+                ';' (Strings), values=list of values (list of numbers)
+            host_vector_population_contact_sweep_dic -- dictionary with
+                keys=population IDs of origin and destination, separated by a colon
+                ';' (Strings), values=list of values (list of numbers)
+            vector_host_population_contact_sweep_dic -- dictionary with
+                keys=population IDs of origin and destination, separated by a colon
+                ';' (Strings), values=list of values (list of numbers)
+            replicates -- how many replicates to simulate (int >= 1)
+            host_sampling -- how many hosts to skip before saving one in a snapshot
+                of the system state (saves all by default) (int >= 0, default 0)
+            vector_sampling -- how many vectors to skip before saving one in a
+                snapshot of the system state (saves all by default)
+                (int >= 0, default 0)
+            n_cores -- number of cores to parallelize file export across, if 0, all
+                cores available are used (default 0; int >= 0)
+            **kwargs -- additional arguents for joblib multiprocessing
 
         Returns:
-        DataFrame with parameter combinations, list of Model objects with the
-            final snapshots
+            DataFrame with parameter combinations, list of Model objects with the
+                final snapshots.
         """
 
         if not n_cores:
@@ -939,14 +846,13 @@ class Model(object):
         """Returns a slimmed-down representation of the current model state.
 
         Keyword arguments:
-        host_sampling -- how many hosts to skip before saving one in a snapshot
-            of the system state (saves all by default) (int >= 0, default 0)
-        vector_sampling -- how many vectors to skip before saving one in a
-            snapshot of the system state (saves all by default)
-            (int >= 0, default 0)
+            host_sampling (int >= 0): how many hosts to skip before saving one in a snapshot
+                of the system state (saves all by default). Defaults to 0.
+            vector_sampling (int >= 0): how many vectors to skip before saving one in a
+                snapshot of the system state (saves all by default). Defaults to 0.
 
         Returns:
-        Model object with current population host and vector lists.
+            Model object with current population host and vector lists.
         """
 
         copy = Model()
@@ -962,7 +868,7 @@ class Model(object):
         """Returns a full copy of the current model with inner references.
 
         Returns:
-        copied Model object
+            Copied Model object.
         """
 
         model = cp.deepcopy(self)
@@ -994,15 +900,15 @@ class Model(object):
             Alive - whether host/vector is alive at this time, True/False
 
         Arguments:
-        save_to_file -- file path and name to save model data under (String)
+            save_to_file (String): file path and name to save model data under.
 
         Keyword arguments:
-        n_cores -- number of cores to parallelize file export across, if 0, all
-            cores available are used (default 0; int >= 0)
-        **kwargs -- additional arguents for joblib multiprocessing
+            n_cores (int >= 0): number of cores to parallelize file export across, if 0, all
+                cores available are used. Defaults to 0.
+            **kwargs: additional arguents for joblib multiprocessing.
 
         Returns:
-        pandas dataframe with model history as described above
+            `pandas dataframe` with model history as described above.
         """
 
         data = saveToDf(
@@ -1018,14 +924,14 @@ class Model(object):
         pathogen genomes in data passed.
 
         Arguments:
-        data -- dataframe with model history as produced by saveToDf function
+            data (pandas DataFrame): dataframe with model history as produced by `saveToDf` function.
 
         Keyword arguments:
-        save_to_file -- file path and name to save model data under, no saving
-            occurs if empty string (default ''; String)
+            save_to_file (String): file path and name to save model data under, no saving
+                occurs if empty string. Defaults to "".
 
         Returns:
-        pandas dataframe with Series as described above
+            `pandas dataframe` with Series as described above.
         """
 
         return getPathogens(dat, save_to_file=save_to_file)
@@ -1033,18 +939,18 @@ class Model(object):
     def getProtections(self, dat, save_to_file=""):
         """Create Dataframe with counts for all protection sequences in data.
 
-        Returns sorted pandas Dataframe with counts for occurrences of all
+        Returns sorted `pandas Dataframe` with counts for occurrences of all
         protection sequences in data passed.
 
         Arguments:
-        data -- dataframe with model history as produced by saveToDf function
+            data (dataframe): dataframe with model history as produced by `saveToDf` function.
 
         Keyword arguments:
-        save_to_file -- file path and name to save model data under, no saving
-            occurs if empty string (default ''; String)
+            save_to_file (String): file path and name to save model data under, no saving
+                occurs if empty string. Defaults to "".
 
         Returns:
-        pandas dataframe with Series as described above
+            pandas DataFrame with Series as described above.
         """
 
         return getProtections(dat, save_to_file=save_to_file)
@@ -1064,38 +970,34 @@ class Model(object):
         if it has protection sequences of any kind and is not infected.
 
         Arguments:
-        file_name -- file path, name, and extension to save plot under (String)
-        data -- dataframe with model history as produced by saveToDf function
-            (DataFrame)
+            file_name (String): file path, name, and extension to save plot under.
+            data (pandas DataFrame): dataframe with model history as produced by saveToDf function.
 
         Keyword arguments:
-        compartment -- subset of hosts/vectors to count totals of, can be either
-            'Naive','Infected','Recovered', or 'Dead'
-            (default 'Infected'; String)
-        hosts -- whether to count hosts (default True, Boolean)
-        vectors -- whether to count vectors (default False, Boolean)
-        num_top_populations -- how many populations to count separately and
-            include as columns, remainder will be counted under column "Other";
-            if <0, includes all populations in model (default 7; int)
-        track_specific_populations -- contains IDs of specific populations to
-            have as a separate column if not part of the top num_top_populations
-            populations (default empty list; list of Strings)
-        save_data_to_file -- file path and name to save model plot data under,
-            no saving occurs if empty string (default ''; String)
-        x_label -- X axis title (default 'Time', String)
-        y_label -- Y axis title (default 'Hosts', String)
-        legend_title -- legend title (default 'Population', String)
-        legend_values -- labels for each trace, if empty list, uses population
-            IDs (default empty list, list of Strings)
-        figsize -- dimensions of figure (default (8,4), array-like of two ints)
-        dpi -- figure resolution (default 200, int)
-        palette -- color palette to use for traces (default CB_PALETTE, list of
-            color Strings)
-        stacked -- whether to draw a regular line plot instead of a stacked one
-            (default False, Boolean)
+            compartment (String): subset of hosts/vectors to count totals of, can be either
+                'Naive','Infected','Recovered', or 'Dead'. Defaults to 'Infected'.
+            hosts (Boolean): whether to count hosts. Defaults to True.
+            vectors (Boolean) whether to count vectors. Defaults to False.
+            num_top_populations (int): how many populations to count separately and
+                include as columns, remainder will be counted under column "Other";
+                if <0, includes all populations in model. Defaults to 7.
+            track_specific_populations (list of Strings): contains IDs of specific populations to
+                have as a separate column if not part of the top num_top_populations
+                populations. Defaults to [].
+            save_data_to_file (String): file path and name to save model plot data under,
+                no saving occurs if empty string. Defaults to "".
+            x_label (String): X axis title. Defaults to 'Time'.
+            y_label (String): Y axis title. Defaults to 'Hosts'.
+            legend_title (String): legend title. Defaults to 'Population'.
+            legend_values (list of Strings): labels for each trace, if empty list, uses population
+                IDs. Defaults to [].
+            figsize (array-like of two ints): dimensions of figure. Defaults to (8,4).
+            dpi (int): figure resolution. Defaults to 200.
+            palette (list of color Strings): color palette to use for traces. Defaults to `CB_PALETTE`.
+            stacked (Boolean): whether to draw a regular line plot instead of a stacked one. Defaults to False.
 
         Returns:
-        axis object for plot with model population dynamics as described above
+            `axis object` for plot with model population dynamics as described above.
         """
 
         return populationsPlot(
@@ -1121,31 +1023,29 @@ class Model(object):
         if it has protection sequences of any kind and is not infected.
 
         Arguments:
-        file_name -- file path, name, and extension to save plot under (String)
-        data -- dataframe with model history as produced by saveToDf function
-            (DataFrame)
+            file_name (String): file path, name, and extension to save plot under.
+            data (pandas DataFrame): dataframe with model history as produced by `saveToDf` function.
 
         Keyword arguments:
-        populations -- IDs of populations to include in analysis; if empty, uses
-            all populations in model (default empty list; list of Strings)
-        hosts -- whether to count hosts (default True, Boolean)
-        vectors -- whether to count vectors (default False, Boolean)
-        save_data_to_file -- file path and name to save model data under, no
-            saving occurs if empty string (default ''; String)
-        x_label -- X axis title (default 'Time', String)
-        y_label -- Y axis title (default 'Hosts', String)
-        legend_title -- legend title (default 'Population', String)
-        legend_values -- labels for each trace, if empty list, uses population
-            IDs (default empty list, list of Strings)
-        figsize -- dimensions of figure (default (8,4), array-like of two ints)
-        dpi -- figure resolution (default 200, int)
-        palette -- color palette to use for traces (default CB_PALETTE, list of
-            color Strings)
-        stacked -- whether to draw a regular line plot instead of a stacked one
-            (default False, Boolean)
+            populations (list of Strings): IDs of populations to include in analysis; if empty, uses
+                all populations in model. Defaults to [].
+            hosts (Boolean): whether to count hosts. Defaults to True.
+            vectors (Boolean): whether to count vectors. Defaults to False.
+            save_data_to_file (String): file path and name to save model data under, no
+                saving occurs if empty string. Defaults to "".
+            x_label (String): X axis title. Defaults to 'Time'.
+            y_label (String): Y axis title. Defaults to 'Hosts'.
+            legend_title (String): legend title. Defaults to 'Population'.
+            legend_values (list of Strings): labels for each trace, if empty list, uses population
+                IDs. Defaults to [].
+            figsize (array-like of two ints): dimensions of figure. Defaults to (8,4).
+            dpi (int)): figure resolution. Defaults to 200.
+            palette (list of color Strings): color palette to use for traces. Defaults to `CB_PALETTE`.
+            stacked -- whether to draw a regular line plot instead of a stacked one
+                (default False, Boolean)
 
         Returns:
-        axis object for plot with model compartment dynamics as described above
+            axis object for plot with model compartment dynamics as described above
         """
 
         return compartmentPlot(
@@ -1176,54 +1076,50 @@ class Model(object):
         multiple infections in the same host/vector are counted separately.
 
         Arguments:
-        file_name -- file path, name, and extension to save plot under (String)
-        data -- dataframe with model history as produced by saveToDf function
+            file_name (String): file path, name, and extension to save plot under.
+            data (pandas DataFrame): dataframe with model history as produced by `saveToDf` function.
 
         Keyword arguments:
-        composition_dataframe -- output of compositionDf() if already computed
-            (Pandas DataFrame, None by default)
-        populations -- IDs of populations to include in analysis; if empty, uses
-            all populations in model (default empty list; list of Strings)
-        type_of_composition -- field of data to count totals of, can be either
-            'Pathogens' or 'Protection' (default 'Pathogens'; String)
-        hosts -- whether to count hosts (default True, Boolean)
-        vectors -- whether to count vectors (default False, Boolean)
-        num_top_sequences -- how many sequences to count separately and include
-            as columns, remainder will be counted under column "Other"; if <0,
-            includes all genomes in model (default 7; int)
-        track_specific_sequences -- contains specific sequences to have
-            as a separate column if not part of the top num_top_sequences
-            sequences (default empty list; list of Strings)
-        genomic_positions -- list in which each element is a list with loci
-            positions to extract (e.g. genomic_positions=[ [0,3], [5,6] ]
-            extracts positions 0, 1, 2, and 5 from each genome); if empty, takes
-            full genomes (default empty list; list of lists of int)
-        count_individuals_based_on_model -- Model object with populations and
-            fitness functions used to evaluate the most fit pathogen genome in
-            each host/vector in order to count only a single pathogen per
-            host/vector, as opposed to all pathogens within each host/vector; if
-            None, counts all pathogens (default None; None or Model)
-        save_data_to_file -- file path and name to save model data under, no
-            saving occurs if empty string (default ''; String)
-        x_label -- X axis title (default 'Time', String)
-        y_label -- Y axis title (default 'Hosts', String)
-        legend_title -- legend title (default 'Population', String)
-        legend_values -- labels for each trace, if empty list, uses population
-            IDs (default empty list, list of Strings)
-        figsize -- dimensions of figure (default (8,4), array-like of two ints)
-        dpi -- figure resolution (default 200, int)
-        palette -- color palette to use for traces (default CB_PALETTE, list of
-            color Strings)
-        stacked -- whether to draw a regular line plot instead of a stacked one
-            (default False, Boolean).
-        remove_legend -- whether to print the sequences on the figure legend
-            instead of printing them on a separate csv file
-            (default True; Boolean)
-        **kwargs -- additional arguents for joblib multiprocessing
+            composition_dataframe (pandas DataFrame): output of compositionDf() if already computed
+                Defaults to None.
+            populations (list of Strings): IDs of populations to include in analysis; if empty, uses
+                all populations in model. Defaults to [].
+            type_of_composition (String) field of data to count totals of, can be either
+                'Pathogens' or 'Protection'. Defaults to 'Pathogens'.
+            hosts (Boolean) whether to count hosts. Defaults to True.
+            vectors (Boolean): whether to count vectors. Defaults to False.
+            num_top_sequences (int): how many sequences to count separately and include
+                as columns, remainder will be counted under column "Other"; if <0,
+                includes all genomes in model. Defaults to 7.
+            track_specific_sequences (list of Strings): contains specific sequences to have
+                as a separate column if not part of the top num_top_sequences
+                sequences. Defaults to [].
+            genomic_positions (list of lists of int): list in which each element is a list with loci
+                positions to extract (e.g. genomic_positions=[ [0,3], [5,6] ]
+                extracts positions 0, 1, 2, and 5 from each genome); if empty, takes
+                full genomes. Defaults to [].
+            count_individuals_based_on_model (None or Model): `Model` object with populations and
+                fitness functions used to evaluate the most fit pathogen genome in
+                each host/vector in order to count only a single pathogen per
+                host/vector, as opposed to all pathogens within each host/vector; if
+                None, counts all pathogens. Defaults to None.
+            save_data_to_file (String): file path and name to save model data under, no
+                saving occurs if empty string. Defaults to "".
+            x_label (String): X axis title. Defaults to 'Time'.
+            y_label (String): Y axis title. Defaults to 'Hosts'.
+            legend_title (String): legend title. Defaults to 'Population'.
+            legend_values (list of Strings): labels for each trace, if empty list, uses population
+                IDs. Defaults to [].
+            figsize (array-like of two ints): dimensions of figure. Defaults to (8,4).
+            dpi (int): figure resolution. Defaults to 200.
+            palette (list of color Strings): color palette to use for traces. Defaults to `CB_PALETTE`.
+            stacked (Boolean): whether to draw a regular line plot instead of a stacked one. Defaults to False.
+            remove_legend (Boolean): whether to print the sequences on the figure legend
+                instead of printing them on a separate csv file. Defaults to True.
+            **kwargs: additional arguents for joblib multiprocessing.
 
         Returns:
-        axis object for plot with model sequence composition dynamics as
-            described
+            axis object for plot with model sequence composition dynamics as described.
         """
 
         return compositionPlot(
@@ -1251,34 +1147,31 @@ class Model(object):
         """Create a heatmap and dendrogram for pathogen genomes in data passed.
 
         Arguments:
-        file_name -- file path, name, and extension to save plot under (String)
-        data -- dataframe with model history as produced by saveToDf function
+            file_name (String): file path, name, and extension to save plot under.
+            data (pandas DataFrame): dataframe with model history as produced by `saveToDf` 
+                function.
 
         Keyword arguments:
-        num_top_sequences -- how many sequences to include in matrix; if <0,
-            includes all genomes in data passed (default -1; int)
-        track_specific_sequences -- contains specific sequences to include in
-            matrix if not part of the top num_top_sequences sequences (default
-            empty list; list of Strings)
-        seq_names -- list with names to be used for sequence labels in matrix
-            must be of same length as number of sequences to be displayed; if
-            empty, uses sequences themselves (default empty list; list of
-            Strings)
-        n_cores -- number of cores to parallelize distance compute across, if 0,
-            all cores available are used (default 0; int >= 0)
-        method -- clustering algorithm to use with seaborn clustermap (default
-            'weighted'; String)
-        metric -- distance metric to use with seaborn clustermap (default
-            'euclidean'; String)
-        save_data_to_file -- file path and name to save model data under, no
-            saving occurs if empty string (default ''; String)
-        legend_title -- legend title (default 'Distance', String)
-        figsize -- dimensions of figure (default (8,4), array-like of two ints)
-        dpi -- figure resolution (default 200, int)
-        color_map -- color map to use for traces (default DEF_CMAP, cmap object)
+            num_top_sequences (int): how many sequences to include in matrix; if <0,
+                includes all genomes in data passed. Defaults to -1.
+            track_specific_sequences (list of Strings): contains specific sequences to include 
+                in matrix if not part of the top num_top_sequences sequences. Defaults to [].
+            seq_names (list ofStrings): list with names to be used for sequence labels in matrix
+                must be of same length as number of sequences to be displayed; if empty, uses sequences 
+                themselves. Defaults to [].
+            n_cores (int >= 0): number of cores to parallelize distance compute across, if 0,
+                all cores available are used. Defaults to 0.
+            method (String): clustering algorithm to use with seaborn clustermap. Defaults to 'weighted'.
+            metric (String): distance metric to use with seaborn clustermap. Defaults to 'euclidean'.
+            save_data_to_file (String): file path and name to save model data under, no
+                saving occurs if empty string. Defaults to "".
+            legend_title (String): legend title. Defaults to 'Distance'.
+            figsize (array-like of two ints): dimensions of figure. Defaults to (8,4).
+            dpi (int): figure resolution. Defaults to 200.
+            color_map (matplotlib cmap object): color map to use for traces. Defaults to `DEF_CMAP`.
 
         Returns:
-        figure object for plot with heatmap and dendrogram as described
+            figure object for plot with heatmap and dendrogram as described.
         """
 
         return clustermap(
@@ -1302,27 +1195,26 @@ class Model(object):
         from an optimal genome sequence.
 
         Arguments:
-        data -- dataframe with model history as produced by saveToDf function
+            data (pandas DataFrame): dataframe with model history as produced by `saveToDf` 
+                function.
 
         Keyword arguments:
-        samples -- how many timepoints to uniformly sample from the total
-            timecourse; if <0, takes all timepoints (default 1; int)
-        num_top_sequences -- how many sequences to include in matrix; if <0,
-            includes all genomes in data passed (default -1; int)
-        track_specific_sequences -- contains specific sequences to include in
-            matrix if not part of the top num_top_sequences sequences (default
-            empty list; list of Strings)
-        seq_names -- list with names to be used for sequence labels in matrix
-            must be of same length as number of sequences to be displayed; if
-            empty, uses sequences themselves
-            (default empty list; list of Strings)
-        n_cores -- number of cores to parallelize distance compute across, if 0,
-            all cores available are used (default 0; int >= 0)
-        save_to_file -- file path and name to save model data under, no saving
-            occurs if empty string (default ''; String)
+            samples (int): how many timepoints to uniformly sample from the total
+                timecourse; if <0, takes all timepoints. Defaults to 1.
+            num_top_sequences (int) how many sequences to include in matrix; if <0,
+                includes all genomes in data passed. Defaults to -1.
+            track_specific_sequences (list of Strings): contains specific sequences to include in
+                matrix if not part of the top num_top_sequences sequences. Defaults to [].
+            seq_names (list of Strings): list with names to be used for sequence labels in matrix
+                must be of same length as number of sequences to be displayed; if
+                empty, uses sequences themselves. Defaults to [].
+            n_cores (int >= 0): number of cores to parallelize distance compute across, if 0,
+                all cores available are used. Defaults to 0.
+            save_to_file (String): file path and name to save model data under, no saving
+                occurs if empty string. Defaults to "".
 
         Returns:
-        pandas dataframe with distance matrix as described above
+            pandas DataFrame with distance matrix as described above.
         """
         return getPathogenDistanceHistoryDf(data,
             samples=samples, num_top_sequences=num_top_sequences,
@@ -1336,18 +1228,19 @@ class Model(object):
         """Create DataFrame with times genomes first appeared during simulation.
 
         Arguments:
-        data -- dataframe with model history as produced by saveToDf function
+            data (pandas DataFrame): dataframe with model history as produced by `saveToDf` 
+                function.
 
         Keyword arguments:
-        samples -- how many timepoints to uniformly sample from the total
-            timecourse; if <0, takes all timepoints (default 1; int)
-        save_to_file -- file path and name to save model data under, no saving
-            occurs if empty string (default ''; String)
-        n_cores -- number of cores to parallelize across, if 0, all cores
-            available are used (default 0; int)
+            samples (int): how many timepoints to uniformly sample from the total
+                timecourse; if <0, takes all timepoints. Defaults to 1.
+            save_to_file (String): file path and name to save model data under, no saving
+                occurs if empty string. Defaults to "".
+            n_cores (int): number of cores to parallelize across, if 0, all cores
+                available are used. Defaults to 0.
 
         Returns:
-        pandas dataframe with genomes and times as described above
+            pandas DataFrame with genomes and times as described above.
         """
         return getGenomeTimesDf(data,
             samples=samples, num_top_sequences=num_top_sequences,
@@ -1373,39 +1266,39 @@ class Model(object):
         multiple infections in the same host/vector are counted separately.
 
         Keyword arguments:
-        data -- dataframe with model history as produced by saveToDf function;
-            if None, computes this dataframe and saves it under
-            'raw_data_'+save_data_to_file (DataFrame, default None)
-        populations -- IDs of populations to include in analysis; if empty, uses
-            all populations in model (default empty list; list of Strings)
-        type_of_composition -- field of data to count totals of, can be either
-            'Pathogens' or 'Protection' (default 'Pathogens'; String)
-        hosts -- whether to count hosts (default True, Boolean)
-        vectors -- whether to count vectors (default False, Boolean)
-        num_top_sequences -- how many sequences to count separately and include
-            as columns, remainder will be counted under column "Other"; if <0,
-            includes all genomes in model (default -1; int)
-        track_specific_sequences -- contains specific sequences to have
-            as a separate column if not part of the top num_top_sequences
-            sequences (default empty list; list of Strings)
-        genomic_positions -- list in which each element is a list with loci
-            positions to extract (e.g. genomic_positions=[ [0,3], [5,6] ]
-            extracts positions 0, 1, 2, and 5 from each genome); if empty, takes
-            full genomes(default empty list; list of lists of int)
-        count_individuals_based_on_model -- Model object with populations and
-            fitness functions used to evaluate the most fit pathogen genome in
-            each host/vector in order to count only a single pathogen per
-            host/vector, asopposed to all pathogens within each host/vector; if
-            None, counts all pathogens (default None; None or Model)
-        save_data_to_file -- file path and name to save model data under, no
-            saving occurs if empty string (default ''; String)
-        n_cores -- number of cores to parallelize processing across, if 0, all
-            cores available are used (default 0; int)
-        **kwargs -- additional arguents for joblib multiprocessing
+            data (pandas DataFrame): dataframe with model history as produced by `saveToDf` 
+                function; if None, computes this dataframe and saves it under
+                'raw_data_'+save_data_to_file. Defaults to None.
+            populations (list of Strings): IDs of populations to include in analysis; if empty, uses
+                all populations in model. Defaults to [].
+            type_of_composition (String): field of data to count totals of, can be either
+                'Pathogens' or 'Protection'. Defaults to 'Pathogens'.
+            hosts (Boolean): whether to count hosts. Defaults to True.
+            vectors (Boolean): whether to count vectors. Defaults to False.
+            num_top_sequences (int): how many sequences to count separately and include
+                as columns, remainder will be counted under column "Other"; if <0,
+                includes all genomes in model. Defaults to -1.
+            track_specific_sequences (list of Strings): contains specific sequences to have
+                as a separate column if not part of the top num_top_sequences
+                sequences. Defaults to [].
+            genomic_positions (list of lists of int): list in which each element is a list with 
+                loci positions to extract (e.g. genomic_positions=[ [0,3], [5,6] ]
+                extracts positions 0, 1, 2, and 5 from each genome); if empty, takes
+                full genomes. Defaults to [].
+            count_individuals_based_on_model (None or Model object): Model object with populations and
+                fitness functions used to evaluate the most fit pathogen genome in
+                each host/vector in order to count only a single pathogen per
+                host/vector, asopposed to all pathogens within each host/vector; if
+                None, counts all pathogens. Defaults to None.
+            save_data_to_file (String): file path and name to save model data under, no
+                saving occurs if empty string. Defaults to "".
+            n_cores (int): number of cores to parallelize processing across, if 0, all
+                cores available are used. Defaults to 0.
+            **kwargs: additional arguents for joblib multiprocessing.
 
         Returns:
-        pandas dataframe with model sequence composition dynamics as described
-            above
+            pandas DataFrame with model sequence composition dynamics as described
+                above.
         """
 
         if data is None:
@@ -1432,14 +1325,12 @@ class Model(object):
         If population ID is already in use, appends _2 to it
 
         Arguments:
-        id -- unique identifier for this population in the model (String)
-        setup_name -- setup object with parameters for this population (Setup)
+            id (String): unique identifier for this population in the model.
+            setup_name (Setup object): setup object with parameters for this population.
 
         Keyword arguments:
-        num_hosts -- number of hosts to initialize population with (default 100;
-            int >= 0)
-        num_vectors -- number of hosts to initialize population with (default
-            100; int >= 0)
+            num_hosts (int >= 0): number of hosts to initialize population with. Defaults to 100.
+            num_vectors (int >= 0): number of hosts to initialize population with. Defaults to 100.
         """
 
         if id in self.populations.keys():
@@ -1484,12 +1375,10 @@ class Model(object):
         """Set host migration rate from one population towards another.
 
         Arguments:
-        pop1_id -- origin population for which migration rate will be specified
-            (String)
-        pop1_id -- destination population for which migration rate will be
-            specified (String)
-        rate -- migration rate from one population to the neighbor; evts/time
-            (number >= 0)
+            pop1_id (String): origin population for which migration rate will be specified.
+            pop1_id (String): destination population for which migration rate will be
+                specified.
+            rate (number >= 0): migration rate from one population to the neighbor; evts/time.
         """
 
         self.populations[pop1_id].setHostMigrationNeighbor(
@@ -1500,12 +1389,10 @@ class Model(object):
         """Set vector migration rate from one population towards another.
 
         Arguments:
-        pop1_id -- origin population for which migration rate will be specified
-            (String)
-        pop1_id -- destination population for which migration rate will be
-            specified (String)
-        rate -- migration rate from one population to the neighbor; evts/time
-            (number >= 0)
+            pop1_id (String): origin population for which migration rate will be specified.
+            pop1_id (String): destination population for which migration rate will be
+                specified.
+            rate (number >= 0): migration rate from one population to the neighbor; evts/time.
         """
 
         self.populations[pop1_id].setVectorMigrationNeighbor(
@@ -1516,12 +1403,12 @@ class Model(object):
         """Set host-host contact rate from one population towards another.
 
         Arguments:
-        pop1_id -- origin population for which inter-population contact rate
-            will be specified (String)
-        pop1_id -- destination population for which inter-population contact
-            rate will be specified (String)
-        rate -- inter-population contact rate from one population to the
-            neighbor; evts/time (number >= 0)
+        pop1_id (String): origin population for which inter-population contact rate
+            will be specified.
+        pop1_id (String): destination population for which inter-population contact
+            rate will be specified.
+        rate (number >= 0): inter-population contact rate from one population to the
+            neighbor; evts/time.
         """
 
         self.populations[pop1_id].setHostHostPopulationContactNeighbor(
@@ -1532,12 +1419,12 @@ class Model(object):
         """Set host-vector contact rate from one population towards another.
 
         Arguments:
-        pop1_id -- origin population for which inter-population contact rate
-            will be specified (String)
-        pop1_id -- destination population for which inter-population contact
-            rate will be specified (String)
-        rate -- inter-population contact rate from one population to the
-            neighbor; evts/time (number >= 0)
+            pop1_id (String): origin population for which inter-population contact rate
+                will be specified.
+            pop1_id (String): destination population for which inter-population contact
+                rate will be specified.
+            rate (number >= 0): inter-population contact rate from one population to the
+                neighbor; evts/time.
         """
 
         self.populations[pop1_id].setHostVectorPopulationContactNeighbor(
@@ -1548,12 +1435,12 @@ class Model(object):
         """Set vector-host contact rate from one population towards another.
 
         Arguments:
-        pop1_id -- origin population for which inter-population contact rate
-            will be specified (String)
-        pop1_id -- destination population for which inter-population contact
-            rate will be specified (String)
-        rate -- inter-population contact rate from one population to the
-            neighbor; evts/time (number >= 0)
+            pop1_id (String): origin population for which inter-population contact rate
+                will be specified.
+            pop1_id (String): destination population for which inter-population contact
+                rate will be specified.
+            rate (number >= 0): inter-population contact rate from one population to the
+                neighbor; evts/time.
         """
 
         self.populations[pop1_id].setVectorHostPopulationContactNeighbor(
@@ -1574,26 +1461,23 @@ class Model(object):
         'id_prefix_2', etc.
 
         Arguments:
-        num_populations -- number of populations to be created (int)
-        id_prefix -- prefix for IDs to be used for this population in the model,
-            (String)
-        setup_name -- setup object with parameters for all populations (Setup)
+            num_populations (int): number of populations to be created.
+            id_prefix (String): prefix for IDs to be used for this population in the model.
+            setup_name (Setup object): setup object with parameters for all populations.
 
         Keyword arguments:
-        host_migration_rate -- host migration rate between populations;
-            evts/time (default 0; number >= 0)
-        vector_migration_rate -- vector migration rate between populations;
-            evts/time (default 0; number >= 0)
-        host_host_contact_rate -- host-host inter-population contact rate
-            between populations; evts/time (default 0; number >= 0)
-        host_vector_contact_rate -- host-vector inter-population contact rate
-            between populations; evts/time (default 0; number >= 0)
-        vector_host_contact_rate -- vector-host inter-population contact rate
-            between populations; evts/time (default 0; number >= 0)
-        num_hosts -- number of hosts to initialize population with (default 100;
-            int)
-        num_vectors -- number of hosts to initialize population with (default
-            100; int)
+            host_migration_rate (number >= 0): host migration rate between populations;
+                evts/time. Defaults to 0.
+            vector_migration_rate (number >= 0): vector migration rate between populations;
+                evts/time. Defaults to 0.
+            host_host_contact_rate (number >= 0): host-host inter-population contact rate
+                between populations; evts/time. Defaults to 0.
+            host_vector_contact_rate (number >= 0): host-vector inter-population contact rate
+                between populations; evts/time. Defaults to 0.
+            vector_host_contact_rate (number >= 0): vector-host inter-population contact rate
+                between populations; evts/time. Defaults to 0.
+            num_hosts (int): number of hosts to initialize population with. Defaults to 100.
+            num_vectors (int): number of hosts to initialize population with. Defaults to 100.
         """
 
         new_pops = [
@@ -1645,18 +1529,18 @@ class Model(object):
         """Return a list of random hosts in population.
 
         Arguments:
-        pop_id -- ID of population to be sampled from (String)
-        group_id -- ID to name group with (String)
+            pop_id (String): ID of population to be sampled from.
+            group_id (String): ID to name group with.
 
         Keyword arguments:
-        hosts -- number of hosts to be sampled randomly: if <0, samples from
-            whole population; if <1, takes that fraction of population; if >=1,
-            samples that integer number of hosts (default -1, number)
-        type -- whether to sample healthy hosts only, infected hosts only, or
-            any hosts (default 'any'; String = {'healthy', 'infected', 'any'})
+            hosts (number): number of hosts to be sampled randomly: if <0, samples from
+                whole population; if <1, takes that fraction of population; if >=1,
+                samples that integer number of hosts. Defaults to -1.
+            type (String = {'healthy', 'infected', 'any'}): whether to sample healthy hosts only, 
+                infected hosts only, or any hosts. Defaults to 'any'.
 
         Returns:
-        list containing sampled hosts
+            list containing sampled hosts.
         """
 
         self.groups[group_id] = self.populations[pop_id].newHostGroup(
@@ -1667,19 +1551,18 @@ class Model(object):
         """Return a list of random vectors in population.
 
         Arguments:
-        pop_id -- ID of population to be sampled from (String)
-        group_id -- ID to name group with (String)
+            pop_id (String): ID of population to be sampled from.
+            group_id (String): ID to name group with.
 
         Keyword arguments:
-        vectors -- number of vectors to be sampled randomly: if <0, samples from
-            whole population; if <1, takes that fraction of population; if >=1,
-            samples that integer number of vectors (default -1, number)
-        type -- whether to sample healthy vectors only, infected vectors
-            only, or any vectors (default 'any'; String = {'healthy',
-            'infected', 'any'})
+            vectors (number): number of vectors to be sampled randomly: if <0, samples from
+                whole population; if <1, takes that fraction of population; if >=1,
+                samples that integer number of vectors. Defaults to -1.
+            type (String = {'healthy', 'infected', 'any'}): whether to sample healthy vectors only, infected vectors
+                only, or any vectors. Defaults to 'any'.
 
         Returns:
-        list containing sampled vectors
+            list containing sampled vectors.
         """
 
         self.groups[group_id] = self.populations[pop_id].newVectorGroup(
@@ -1690,11 +1573,11 @@ class Model(object):
         """Add a number of healthy hosts to population, return list with them.
 
         Arguments:
-        pop_id -- ID of population to be modified (String)
-        num_hosts -- number of hosts to be added (int)
+            pop_id (String): ID of population to be modified.
+            num_hosts (int): number of hosts to be added.
 
         Returns:
-        list containing new hosts
+            list containing new hosts.
         """
 
         self.populations[pop_id].addHosts(num_hosts)
@@ -1703,11 +1586,11 @@ class Model(object):
         """Add a number of healthy vectors to population, return list with them.
 
         Arguments:
-        pop_id -- ID of population to be modified (String)
-        num_vectors -- number of vectors to be added (int)
+            pop_id (String): ID of population to be modified.
+            num_vectors (int): number of vectors to be added.
 
         Returns:
-        list containing new vectors
+            list containing new vectors.
         """
 
         self.populations[pop_id].addVectors(num_vectors)
@@ -1716,10 +1599,9 @@ class Model(object):
         """Remove a number of specified or random hosts from population.
 
         Arguments:
-        pop_id -- ID of population to be modified (String)
-        num_hosts_or_list -- number of hosts to be sampled randomly for removal
-            or list of hosts to be removed, must be hosts in this population
-            (int or list of Hosts)
+            pop_id (String): ID of population to be modified.
+            num_hosts_or_list (int or list of Hosts): number of hosts to be sampled randomly for removal
+                or list of hosts to be removed, must be hosts in this population.
         """
 
         self.populations[pop_id].removeHosts(num_hosts_or_list)
@@ -1728,10 +1610,10 @@ class Model(object):
         """Remove a number of specified or random vectors from population.
 
         Arguments:
-        pop_id -- ID of population to be modified (String)
-        num_vectors_or_list -- number of vectors to be sampled randomly for
-            removal or list of vectors to be removed, must be vectors in this
-            population (int or list of Vectors)
+            pop_id (String): ID of population to be modified.
+            num_vectors_or_list (int or list of Vectors): number of vectors to be sampled randomly for
+                removal or list of vectors to be removed, must be vectors in this
+                population.
         """
 
         self.populations[pop_id].removeVectors(num_vectors_or_list)
@@ -1740,14 +1622,13 @@ class Model(object):
         """Add specified pathogens to random hosts, optionally from a list.
 
         Arguments:
-        pop_id -- ID of population to be modified (String)
-        genomes_numbers -- dictionary containing pathogen genomes to add as keys
-            and number of hosts each one will be added to as values (dict with
-            keys=Strings, values=int)
+            pop_id (String): ID of population to be modified.
+            genomes_numbers (dict with keys=Strings, values=int) dictionary containing pathogen 
+                genomes to add as keys and number of hosts each one will be added to as values.
 
         Keyword arguments:
-        group_id -- ID of specific hosts to sample from, if empty, samples
-            from whole population (default empty String; String)
+            group_id (String): ID of specific hosts to sample from, if empty, samples
+                from whole population. Defaults to "".
         """
 
         if group_id == "":
@@ -1761,14 +1642,13 @@ class Model(object):
         """Add specified pathogens to random vectors, optionally from a list.
 
         Arguments:
-        pop_id -- ID of population to be modified (String)
-        genomes_numbers -- dictionary containing pathogen genomes to add as keys
-            and number of vectors each one will be added to as values (dict with
-            keys=Strings, values=int)
+            pop_id (String): ID of population to be modified.
+            genomes_numbers (dict with keys=Strings, values=int): dictionary containing pathogen 
+                genomes to add as keys and number of vectors each one will be added to as values.
 
         Keyword arguments:
-        group_id -- ID of specific vectors to sample from, if empty, samples
-            from whole population (default empty String; String)
+            group_id (String): ID of specific vectors to sample from, if empty, samples
+                from whole population. Defaults to "".
         """
 
         if group_id == "":
@@ -1787,15 +1667,13 @@ class Model(object):
         population infected list and adds to healthy list if appropriate.
 
         Arguments:
-        pop_id -- ID of population to be modified (String)
-        frac_hosts -- fraction of hosts considered to be randomly selected
-            (number between 0 and 1)
-        resistance_seqs -- contains sequences required for treatment resistance
-            (list of Strings)
+            pop_id (String): ID of population to be modified.
+            frac_hosts (number between 0 and 1): fraction of hosts considered to be randomly selected.
+            resistance_seqs (list of Strings): contains sequences required for treatment resistance.
 
         Keyword arguments:
-        group_id -- ID of specific hosts to sample from, if empty, samples
-            from whole population (default empty String; String)
+            group_id (String): ID of specific hosts to sample from, if empty, samples
+                from whole population. Defaults to "".
         """
 
         if group_id == "":
@@ -1814,15 +1692,14 @@ class Model(object):
         population infected list and adds to healthy list if appropriate.
 
         Arguments:
-        pop_id -- ID of population to be modified (String)
-        frac_vectors -- fraction of vectors considered to be randomly selected
-            (number between 0 and 1)
-        resistance_seqs -- contains sequences required for treatment resistance
-            (list of Strings)
+            pop_id (String): ID of population to be modified.
+            frac_vectors (number between 0 and 1): fraction of vectors considered to be 
+                randomly selected.
+            resistance_seqs (list of Strings): contains sequences required for treatment resistance.
 
         Keyword arguments:
-        group_id -- ID of specific vectors to sample from, if empty, samples
-            from whole population (default empty String; String)
+            group_id (String): ID of specific vectors to sample from, if empty, samples
+                from whole population. Defaults to "".
         """
 
         if group_id == "":
@@ -1842,14 +1719,14 @@ class Model(object):
         specified. Does not cure them if they are already infected.
 
         Arguments:
-        pop_id -- ID of population to be modified (String)
-        frac_hosts -- fraction of hosts considered to be randomly selected
-            (number between 0 and 1)
-        protection_sequence -- sequence against which to protect (String)
+            pop_id (String): ID of population to be modified.
+            frac_hosts (number between 0 and 1): fraction of hosts considered to be 
+                randomly selected.
+            protection_sequence (String): sequence against which to protect.
 
         Keyword arguments:
-        group_id -- ID of specific hosts to sample from, if empty, samples
-            from whole population (default empty String; String)
+            group_id (String): ID of specific hosts to sample from, if empty, samples
+                from whole population. Defaults to "".
         """
 
         if group_id == "":
@@ -1869,14 +1746,13 @@ class Model(object):
         specified. Does not cure them if they are already infected.
 
         Arguments:
-        pop_id -- ID of population to be modified (String)
-        frac_vectors -- fraction of vectors considered to be randomly selected
-            (number between 0 and 1)
-        protection_sequence -- sequence against which to protect (String)
+            pop_id (String): ID of population to be modified.
+            frac_vectors (number between 0 and 1): fraction of vectors considered to be randomly selected.
+            protection_sequence (String): sequence against which to protect.
 
         Keyword arguments:
-        group_id -- ID of specific vectors to sample from, if empty, samples
-            from whole population (default empty String; empty)
+            group_id (String): ID of specific vectors to sample from, if empty, samples
+                from whole population. Defaults to "".
         """
 
         if group_id == "":
@@ -1892,11 +1768,11 @@ class Model(object):
         """Removes all protection sequences from hosts.
 
         Arguments:
-        pop_id -- ID of population to be modified (String)
+            pop_id (String): ID of population to be modified.
 
         Keyword arguments:
-        group_id -- ID of specific hosts to sample from, if empty, samples from
-            whole from whole population (default empty String; String)
+        group_id (String): ID of specific hosts to sample from, if empty, samples from
+            whole from whole population. Defaults to "".
         """
 
         if group_id == "":
@@ -1910,11 +1786,11 @@ class Model(object):
         """Removes all protection sequences from vectors.
 
         Arguments:
-        pop_id -- ID of population to be modified (String)
+            pop_id (String): ID of population to be modified.
 
         Keyword arguments:
-        group_id -- ID of specific vectors to sample from, if empty, samples
-            from whole population (default empty String; String)
+        group_id (String): ID of specific vectors to sample from, if empty, samples
+            from whole population. Defaults to "".
         """
 
         if group_id == "":
@@ -1930,8 +1806,8 @@ class Model(object):
         """Assign parameters stored in Setup object to this population.
 
         Arguments:
-        pop_id -- ID of population to be modified (String)
-        setup_id -- ID of setup to be assigned (String)
+            pop_id (String): ID of population to be modified.
+            setup_id (String): ID of setup to be assigned.
         """
 
         self.populations[pop_id].setSetup( self.setups[setup_id] )
@@ -1942,11 +1818,11 @@ class Model(object):
         """Returns output of given function, passing this model as a parameter.
 
         Arguments:
-        function -- function to be evaluated; must take a Model object as the
-                    only parameter (function)
+            function (callable): function to be evaluated; must take a Model object as the
+                        only parameter.
 
         Returns:
-        Output of function passed as parameter
+            output of function passed as parameter.
         """
 
         return function(self)
@@ -1962,14 +1838,14 @@ class Model(object):
         measured as percent Hamming distance from an optimal genome sequence.
 
         Arguments:
-        genome -- the genome to be evaluated (String)
-        peak_genome -- the genome sequence to measure distance against, has
-            value of 1 (String)
-        min_value -- minimum value at maximum distance from optimal
-            genome (number 0-1)
+            genome (String): the genome to be evaluated.
+            peak_genome (String): the genome sequence to measure distance against, has
+                value of 1.
+            min_value (number 0-1): minimum value at maximum distance from optimal
+                genome.
 
         Return:
-        value of genome (number)
+            value of genome (number).
         """
 
         distance = td.hamming(genome, peak_genome) / len(genome)
@@ -1987,13 +1863,13 @@ class Model(object):
         sequence.
 
         Arguments:
-        genome -- the genome to be evaluated (String)
-        valley_genome -- the genome sequence to measure distance against, has
-            value of min_value (String)
-        min_value -- fitness value of worst possible genome (number 0-1)
+            genome (String): the genome to be evaluated.
+            valley_genome (String): the genome sequence to measure distance against, has
+                value of min_value.
+            min_value (number 0-1): fitness value of worst possible genome.
 
         Return:
-        value of genome (number)
+            value of genome (number).
         """
 
         distance = td.hamming(genome, valley_genome) / len(genome)
