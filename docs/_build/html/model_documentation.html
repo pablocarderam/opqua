@@ -593,7 +593,7 @@ sequences. Defaults to [].</p></li>
 positions to extract (e.g. genomic_positions=[ [0,3], [5,6] ]
 extracts positions 0, 1, 2, and 5 from each genome); if empty, takes
 full genomes. Defaults to [].</p></li>
-<li><p><strong>count_individuals_based_on_model</strong> (<em>None</em><em> or </em><a class="reference internal" href="opqua.html#opqua.model.Model" title="opqua.model.Model"><em>Model</em></a>) – <cite>Model</cite> object with populations and
+<li><p><strong>count_individuals_based_on_model</strong> (<em>None</em><em> or </em><a class="reference internal" href="#opqua.model.Model" title="opqua.model.Model"><em>Model</em></a>) – <cite>Model</cite> object with populations and
 fitness functions used to evaluate the most fit pathogen genome in
 each host/vector in order to count only a single pathogen per
 host/vector, as opposed to all pathogens within each host/vector; if
@@ -715,8 +715,8 @@ multiple infections in the same host/vector are counted separately.</p>
 <dt class="field-odd">Keyword Arguments<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>data</strong> (<em>pandas DataFrame</em>) – dataframe with model history as produced by <cite>saveToDf</cite>
-function; if None, computes this dataframe and saves it under
-‘<a href="#id1"><span class="problematic" id="id2">raw_data_</span></a>’+save_data_to_file. Defaults to None.</p></li>
+function; if None, computes this dataframe and saves it under ‘<a href="#id1"><span class="problematic" id="id2">raw_data_</span></a>’+’save_data_to_file’.
+Defaults to None.</p></li>
 <li><p><strong>populations</strong> (<em>list</em><em> of </em><em>Strings</em>) – IDs of populations to include in analysis; if empty, uses
 all populations in model. Defaults to [].</p></li>
 <li><p><strong>type_of_composition</strong> (<em>String</em>) – field of data to count totals of, can be either
@@ -824,15 +824,16 @@ occurs if empty string. Defaults to “”.</p>
 <dt class="sig sig-object py" id="opqua.model.Model.linkPopulationsHostHostContact">
 <span class="sig-name descname"><span class="pre">linkPopulationsHostHostContact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pop1_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pop2_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rate</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/model.html#Model.linkPopulationsHostHostContact"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.model.Model.linkPopulationsHostHostContact" title="Link to this definition"></a></dt>
 <dd><p>Set host-host contact rate from one population towards another.</p>
-<p>Arguments:
-pop1_id (String): origin population for which inter-population contact rate</p>
-<blockquote>
-<div><p>will be specified.</p>
-</div></blockquote>
-<dl class="simple">
-<dt>pop1_id (String): destination population for which inter-population contact</dt><dd><p>rate will be specified.</p>
-</dd>
-<dt>rate (number &gt;= 0): inter-population contact rate from one population to the</dt><dd><p>neighbor; evts/time.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pop1_id</strong> (<em>String</em>) – origin population for which inter-population contact rate
+will be specified.</p></li>
+<li><p><strong>pop1_id</strong> – destination population for which inter-population contact
+rate will be specified.</p></li>
+<li><p><strong>rate</strong> (<em>number &gt;= 0</em>) – inter-population contact rate from one population to the
+neighbor; evts/time.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -962,7 +963,7 @@ name of a method of the <cite>Model</cite> object.</p></li>
 <dt class="field-even">Keyword Arguments<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
 <li><p><strong>num_hosts</strong> (<em>int &gt;= 0</em>) – number of hosts to initialize population with. Defaults to 100.</p></li>
-<li><p><strong>num_vectors</strong> (<em>int &gt;= 0</em>) – number of hosts to initialize population with. Defaults to 100.</p></li>
+<li><p><strong>num_vectors</strong> (<em>int &gt;= 0</em>) – number of vectors to initialize population with. Defaults to 100.</p></li>
 </ul>
 </dd>
 </dl>
@@ -976,6 +977,114 @@ name of a method of the <cite>Model</cite> object.</p></li>
 one of the preset setups with the preset keyword argument and then
 modify individual parameters with additional keyword arguments, without
 having to specify all of them.</p>
+<p><strong>“host-host”:</strong></p>
+<ul class="simple">
+<li><p><cite>num_loci</cite> = 10</p></li>
+<li><p><cite>possible_alleles</cite> = ‘ATCG’</p></li>
+<li><p><cite>fitnessHost</cite> = (lambda g: 1)</p></li>
+<li><p><cite>contactHost</cite> = (lambda g: 1)</p></li>
+<li><p><cite>receiveContactHost</cite> = (lambda g: 1)</p></li>
+<li><p><cite>mortalityHost</cite> = (lambda g: 1)</p></li>
+<li><p><cite>natalityHost</cite> = (lambda g: 1)</p></li>
+<li><p><cite>recoveryHost</cite> = (lambda g: 1)</p></li>
+<li><p><cite>migrationHost</cite> = (lambda g: 1)</p></li>
+<li><p><cite>populationContactHost</cite> = (lambda g: 1)</p></li>
+<li><p><cite>receivePopulationContactHost</cite> = (lambda g: 1)</p></li>
+<li><p><cite>mutationHost</cite> = (lambda g: 1)</p></li>
+<li><p><cite>recombinationHost</cite> = (lambda g: 1)</p></li>
+<li><p><cite>fitnessVector</cite> = (lambda g: 1)</p></li>
+<li><p><cite>contactVector</cite> = (lambda g: 1)</p></li>
+<li><p><cite>receiveContactVector</cite> = (lambda g: 1)</p></li>
+<li><p><cite>mortalityVector</cite> = (lambda g: 1)</p></li>
+<li><p><cite>natalityVector</cite> = (lambda g: 1)</p></li>
+<li><p><cite>recoveryVector</cite> = (lambda g: 1)</p></li>
+<li><p><cite>migrationVector</cite> = (lambda g: 1)</p></li>
+<li><p><cite>populationContactVector</cite> = (lambda g: 1)</p></li>
+<li><p><cite>receivePopulationContactVector</cite> = (lambda g: 1)</p></li>
+<li><p><cite>mutationVector</cite> = (lambda g: 1)</p></li>
+<li><p><cite>recombinationVector</cite> = (lambda g: 1)</p></li>
+<li><p><cite>contact_rate_host_vector</cite> = 0</p></li>
+<li><p><cite>transmission_efficiency_host_vector</cite> = 0</p></li>
+<li><p><cite>transmission_efficiency_vector_host</cite> = 0</p></li>
+<li><p><cite>contact_rate_host_host</cite> = 2e-1</p></li>
+<li><p><cite>transmission_efficiency_host_host</cite> = 1</p></li>
+<li><p><cite>mean_inoculum_host</cite> = 1e1</p></li>
+<li><p><cite>mean_inoculum_vector</cite> = 0</p></li>
+<li><p><cite>recovery_rate_host</cite> = 1e-1</p></li>
+<li><p><cite>recovery_rate_vector</cite> = 0</p></li>
+<li><p><cite>mortality_rate_host</cite> = 0</p></li>
+<li><p><cite>mortality_rate_vector</cite> = 0</p></li>
+<li><p><cite>recombine_in_host</cite> = 1e-4</p></li>
+<li><p><cite>recombine_in_vector</cite> = 0</p></li>
+<li><p><cite>num_crossover_host</cite> = 1</p></li>
+<li><p><cite>num_crossover_vector</cite> = 0</p></li>
+<li><p><cite>mutate_in_host</cite> = 1e-6</p></li>
+<li><p><cite>mutate_in_vector</cite> = 0</p></li>
+<li><p><cite>death_rate_host</cite> = 0</p></li>
+<li><p><cite>death_rate_vector</cite> = 0</p></li>
+<li><p><cite>birth_rate_host</cite> = 0</p></li>
+<li><p><cite>birth_rate_vector</cite> = 0</p></li>
+<li><p><cite>vertical_transmission_host</cite> = 0</p></li>
+<li><p><cite>vertical_transmission_vector</cite> = 0</p></li>
+<li><p><cite>inherit_protection_host</cite> = 0</p></li>
+<li><p><cite>inherit_protection_vector</cite> = 0</p></li>
+<li><p><cite>protection_upon_recovery_host</cite> = None</p></li>
+<li><p><cite>protection_upon_recovery_vector</cite> = None</p></li>
+</ul>
+<p><strong>“vector-borne”:</strong></p>
+<ul class="simple">
+<li><p><cite>num_loci</cite> = 10</p></li>
+<li><p><cite>possible_alleles</cite> = ‘ATCG’</p></li>
+<li><p><cite>fitnessHost</cite> = (lambda g: 1)</p></li>
+<li><p><cite>contactHost</cite> = (lambda g: 1)</p></li>
+<li><p><cite>receiveContactHost</cite> = (lambda g: 1)</p></li>
+<li><p><cite>mortalityHost</cite> = (lambda g: 1)</p></li>
+<li><p><cite>natalityHost</cite> = (lambda g: 1)</p></li>
+<li><p><cite>recoveryHost</cite> = (lambda g: 1)</p></li>
+<li><p><cite>migrationHost</cite> = (lambda g: 1)</p></li>
+<li><p><cite>populationContactHost</cite> = (lambda g: 1)</p></li>
+<li><p><cite>receivePopulationContactHost</cite> = (lambda g: 1)</p></li>
+<li><p><cite>mutationHost</cite> = (lambda g: 1)</p></li>
+<li><p><cite>recombinationHost</cite> = (lambda g: 1)</p></li>
+<li><p><cite>fitnessVector</cite> = (lambda g: 1)</p></li>
+<li><p><cite>contactVector</cite> = (lambda g: 1)</p></li>
+<li><p><cite>receiveContactVector</cite> = (lambda g: 1)</p></li>
+<li><p><cite>mortalityVector</cite> = (lambda g: 1)</p></li>
+<li><p><cite>natalityVector</cite> = (lambda g: 1)</p></li>
+<li><p><cite>recoveryVector</cite> = (lambda g: 1)</p></li>
+<li><p><cite>migrationVector</cite> = (lambda g: 1)</p></li>
+<li><p><cite>populationContactVector</cite> = (lambda g: 1)</p></li>
+<li><p><cite>receivePopulationContactVector</cite> = (lambda g: 1)</p></li>
+<li><p><cite>mutationVector</cite> = (lambda g: 1)</p></li>
+<li><p><cite>recombinationVector</cite> = (lambda g: 1)</p></li>
+<li><p><cite>contact_rate_host_vector</cite> = 2e-1</p></li>
+<li><p><cite>transmission_efficiency_host_vector</cite> = 1</p></li>
+<li><p><cite>transmission_efficiency_vector_host</cite> = 1</p></li>
+<li><p><cite>contact_rate_host_host</cite> = 0</p></li>
+<li><p><cite>transmission_efficiency_host_host</cite> = 0</p></li>
+<li><p><cite>mean_inoculum_host</cite> = 1e2</p></li>
+<li><p><cite>mean_inoculum_vector</cite> = 1e0</p></li>
+<li><p><cite>recovery_rate_host</cite> = 1e-1</p></li>
+<li><p><cite>recovery_rate_vector</cite> = 1e-1</p></li>
+<li><p><cite>mortality_rate_host</cite> = 0</p></li>
+<li><p><cite>mortality_rate_vector</cite> = 0</p></li>
+<li><p><cite>recombine_in_host</cite> = 0</p></li>
+<li><p><cite>recombine_in_vector</cite> = 1e-4</p></li>
+<li><p><cite>num_crossover_host</cite> = 0</p></li>
+<li><p><cite>num_crossover_vector</cite> = 1</p></li>
+<li><p><cite>mutate_in_host</cite> = 1e-6</p></li>
+<li><p><cite>mutate_in_vector</cite> = 0</p></li>
+<li><p><cite>death_rate_host</cite> = 0</p></li>
+<li><p><cite>death_rate_vector</cite> = 0</p></li>
+<li><p><cite>birth_rate_host</cite> = 0</p></li>
+<li><p><cite>birth_rate_vector</cite> = 0</p></li>
+<li><p><cite>vertical_transmission_host</cite> = 0</p></li>
+<li><p><cite>vertical_transmission_vector</cite> = 0</p></li>
+<li><p><cite>inherit_protection_host</cite> = 0</p></li>
+<li><p><cite>inherit_protection_vector</cite> = 0</p></li>
+<li><p><cite>protection_upon_recovery_host</cite> = None</p></li>
+<li><p><cite>protection_upon_recovery_vector</cite> = None</p></li>
+</ul>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>name</strong> (<em>String</em>) – name of setup to be used as a key in model setups dictionary.</p>
@@ -1426,15 +1535,15 @@ cores available are used. Defaults to 0.</p></li>
 <dd><p>Save status of model to dataframe, write to file location given.</p>
 <p>Creates a pandas Dataframe in long format with the given model history,
 with one host or vector per simulation time in each row, and columns:</p>
-<blockquote>
-<div><p>Time - simulation time of entry
-Population - ID of this host/vector’s population
-Organism - host/vector
-ID - ID of host/vector
-Pathogens - all genomes present in this host/vector separated by ;
-Protection - all genomes present in this host/vector separated by ;
-Alive - whether host/vector is alive at this time, True/False</p>
-</div></blockquote>
+<ul class="simple">
+<li><p>Time - simulation time of entry</p></li>
+<li><p>Population - ID of this host/vector’s population</p></li>
+<li><p>Organism - host/vector</p></li>
+<li><p>ID - ID of host/vector</p></li>
+<li><p>Pathogens - all genomes present in this host/vector separated by ;</p></li>
+<li><p>Protection - all genomes present in this host/vector separated by ;</p></li>
+<li><p>Alive - whether host/vector is alive at this time, True/False</p></li>
+</ul>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>save_to_file</strong> (<em>String</em>) – file path and name to save model data under.</p>
@@ -1555,12 +1664,11 @@ value of min_value.</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>pop_id</strong> (<em>String</em>) – ID of population to be modified.</p>
 </dd>
+<dt class="field-even">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>group_id</strong> (<em>String</em>) – ID of specific hosts to sample from, if empty, samples from
+whole from whole population. Defaults to “”.</p>
+</dd>
 </dl>
-<p>Keyword arguments:
-group_id (String): ID of specific hosts to sample from, if empty, samples from</p>
-<blockquote>
-<div><p>whole from whole population. Defaults to “”.</p>
-</div></blockquote>
 </dd></dl>
 
 <dl class="py method">
@@ -1571,12 +1679,11 @@ group_id (String): ID of specific hosts to sample from, if empty, samples from</
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>pop_id</strong> (<em>String</em>) – ID of population to be modified.</p>
 </dd>
+<dt class="field-even">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>group_id</strong> (<em>String</em>) – ID of specific vectors to sample from, if empty, samples
+from whole population. Defaults to “”.</p>
+</dd>
 </dl>
-<p>Keyword arguments:
-group_id (String): ID of specific vectors to sample from, if empty, samples</p>
-<blockquote>
-<div><p>from whole population. Defaults to “”.</p>
-</div></blockquote>
 </dd></dl>
 
 </dd></dl>

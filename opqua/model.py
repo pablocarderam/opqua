@@ -150,6 +150,114 @@ class Model(object):
         modify individual parameters with additional keyword arguments, without
         having to specify all of them.
 
+        **"host-host":**
+
+        - `num_loci` = 10
+        - `possible_alleles` = 'ATCG'
+        - `fitnessHost` = (lambda g: 1)
+        - `contactHost` = (lambda g: 1)
+        - `receiveContactHost` = (lambda g: 1)
+        - `mortalityHost` = (lambda g: 1)
+        - `natalityHost` = (lambda g: 1)
+        - `recoveryHost` = (lambda g: 1)
+        - `migrationHost` = (lambda g: 1)
+        - `populationContactHost` = (lambda g: 1)
+        - `receivePopulationContactHost` = (lambda g: 1)
+        - `mutationHost` = (lambda g: 1)
+        - `recombinationHost` = (lambda g: 1)
+        - `fitnessVector` = (lambda g: 1)
+        - `contactVector` = (lambda g: 1)
+        - `receiveContactVector` = (lambda g: 1)
+        - `mortalityVector` = (lambda g: 1)
+        - `natalityVector` = (lambda g: 1)
+        - `recoveryVector` = (lambda g: 1)
+        - `migrationVector` = (lambda g: 1)
+        - `populationContactVector` = (lambda g: 1)
+        - `receivePopulationContactVector` = (lambda g: 1)
+        - `mutationVector` = (lambda g: 1)
+        - `recombinationVector` = (lambda g: 1)
+        - `contact_rate_host_vector` = 0
+        - `transmission_efficiency_host_vector` = 0
+        - `transmission_efficiency_vector_host` = 0
+        - `contact_rate_host_host` = 2e-1
+        - `transmission_efficiency_host_host` = 1
+        - `mean_inoculum_host` = 1e1
+        - `mean_inoculum_vector` = 0
+        - `recovery_rate_host` = 1e-1
+        - `recovery_rate_vector` = 0
+        - `mortality_rate_host` = 0
+        - `mortality_rate_vector` = 0
+        - `recombine_in_host` = 1e-4
+        - `recombine_in_vector` = 0
+        - `num_crossover_host` = 1
+        - `num_crossover_vector` = 0
+        - `mutate_in_host` = 1e-6
+        - `mutate_in_vector` = 0
+        - `death_rate_host` = 0
+        - `death_rate_vector` = 0
+        - `birth_rate_host` = 0
+        - `birth_rate_vector` = 0
+        - `vertical_transmission_host` = 0
+        - `vertical_transmission_vector` = 0
+        - `inherit_protection_host` = 0
+        - `inherit_protection_vector` = 0
+        - `protection_upon_recovery_host` = None
+        - `protection_upon_recovery_vector` = None
+
+        **"vector-borne":**
+
+        - `num_loci` = 10
+        - `possible_alleles` = 'ATCG'
+        - `fitnessHost` = (lambda g: 1)
+        - `contactHost` = (lambda g: 1)
+        - `receiveContactHost` = (lambda g: 1)
+        - `mortalityHost` = (lambda g: 1)
+        - `natalityHost` = (lambda g: 1)
+        - `recoveryHost` = (lambda g: 1)
+        - `migrationHost` = (lambda g: 1)
+        - `populationContactHost` = (lambda g: 1)
+        - `receivePopulationContactHost` = (lambda g: 1)
+        - `mutationHost` = (lambda g: 1)
+        - `recombinationHost` = (lambda g: 1)
+        - `fitnessVector` = (lambda g: 1)
+        - `contactVector` = (lambda g: 1)
+        - `receiveContactVector` = (lambda g: 1)
+        - `mortalityVector` = (lambda g: 1)
+        - `natalityVector` = (lambda g: 1)
+        - `recoveryVector` = (lambda g: 1)
+        - `migrationVector` = (lambda g: 1)
+        - `populationContactVector` = (lambda g: 1)
+        - `receivePopulationContactVector` = (lambda g: 1)
+        - `mutationVector` = (lambda g: 1)
+        - `recombinationVector` = (lambda g: 1)
+        - `contact_rate_host_vector` = 2e-1
+        - `transmission_efficiency_host_vector` = 1
+        - `transmission_efficiency_vector_host` = 1
+        - `contact_rate_host_host` = 0
+        - `transmission_efficiency_host_host` = 0
+        - `mean_inoculum_host` = 1e2
+        - `mean_inoculum_vector` = 1e0
+        - `recovery_rate_host` = 1e-1
+        - `recovery_rate_vector` = 1e-1
+        - `mortality_rate_host` = 0
+        - `mortality_rate_vector` = 0
+        - `recombine_in_host` = 0
+        - `recombine_in_vector` = 1e-4
+        - `num_crossover_host` = 0
+        - `num_crossover_vector` = 1
+        - `mutate_in_host` = 1e-6
+        - `mutate_in_vector` = 0
+        - `death_rate_host` = 0
+        - `death_rate_vector` = 0
+        - `birth_rate_host` = 0
+        - `birth_rate_vector` = 0
+        - `vertical_transmission_host` = 0
+        - `vertical_transmission_vector` = 0
+        - `inherit_protection_host` = 0
+        - `inherit_protection_vector` = 0
+        - `protection_upon_recovery_host` = None
+        - `protection_upon_recovery_vector` = None
+
         Arguments:
             name (String): name of setup to be used as a key in model setups dictionary.
 
@@ -891,13 +999,14 @@ class Model(object):
 
         Creates a pandas Dataframe in long format with the given model history,
         with one host or vector per simulation time in each row, and columns:
-            Time - simulation time of entry
-            Population - ID of this host/vector's population
-            Organism - host/vector
-            ID - ID of host/vector
-            Pathogens - all genomes present in this host/vector separated by ;
-            Protection - all genomes present in this host/vector separated by ;
-            Alive - whether host/vector is alive at this time, True/False
+            
+        - Time - simulation time of entry
+        - Population - ID of this host/vector's population
+        - Organism - host/vector
+        - ID - ID of host/vector
+        - Pathogens - all genomes present in this host/vector separated by ;
+        - Protection - all genomes present in this host/vector separated by ;
+        - Alive - whether host/vector is alive at this time, True/False
 
         Arguments:
             save_to_file (String): file path and name to save model data under.
@@ -1267,8 +1376,8 @@ class Model(object):
 
         Keyword arguments:
             data (pandas DataFrame): dataframe with model history as produced by `saveToDf` 
-                function; if None, computes this dataframe and saves it under
-                'raw_data_'+save_data_to_file. Defaults to None.
+                function; if None, computes this dataframe and saves it under 'raw_data_'+'save_data_to_file'. 
+                Defaults to None.
             populations (list of Strings): IDs of populations to include in analysis; if empty, uses
                 all populations in model. Defaults to [].
             type_of_composition (String): field of data to count totals of, can be either
@@ -1330,7 +1439,7 @@ class Model(object):
 
         Keyword arguments:
             num_hosts (int >= 0): number of hosts to initialize population with. Defaults to 100.
-            num_vectors (int >= 0): number of hosts to initialize population with. Defaults to 100.
+            num_vectors (int >= 0): number of vectors to initialize population with. Defaults to 100.
         """
 
         if id in self.populations.keys():
@@ -1403,12 +1512,12 @@ class Model(object):
         """Set host-host contact rate from one population towards another.
 
         Arguments:
-        pop1_id (String): origin population for which inter-population contact rate
-            will be specified.
-        pop1_id (String): destination population for which inter-population contact
-            rate will be specified.
-        rate (number >= 0): inter-population contact rate from one population to the
-            neighbor; evts/time.
+            pop1_id (String): origin population for which inter-population contact rate
+                will be specified.
+            pop1_id (String): destination population for which inter-population contact
+                rate will be specified.
+            rate (number >= 0): inter-population contact rate from one population to the
+                neighbor; evts/time.
         """
 
         self.populations[pop1_id].setHostHostPopulationContactNeighbor(
@@ -1771,8 +1880,8 @@ class Model(object):
             pop_id (String): ID of population to be modified.
 
         Keyword arguments:
-        group_id (String): ID of specific hosts to sample from, if empty, samples from
-            whole from whole population. Defaults to "".
+            group_id (String): ID of specific hosts to sample from, if empty, samples from
+                whole from whole population. Defaults to "".
         """
 
         if group_id == "":
@@ -1789,8 +1898,8 @@ class Model(object):
             pop_id (String): ID of population to be modified.
 
         Keyword arguments:
-        group_id (String): ID of specific vectors to sample from, if empty, samples
-            from whole population. Defaults to "".
+            group_id (String): ID of specific vectors to sample from, if empty, samples
+                from whole population. Defaults to "".
         """
 
         if group_id == "":

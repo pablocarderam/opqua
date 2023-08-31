@@ -97,7 +97,7 @@
     <span class="n">compositionPlot</span><span class="p">,</span> <span class="n">clustermap</span>
 
 <div class="viewcode-block" id="Model">
-<a class="viewcode-back" href="../../opqua.html#opqua.model.Model">[docs]</a>
+<a class="viewcode-back" href="../../model_documentation.html#opqua.model.Model">[docs]</a>
 <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Class defines a Model.</span>
 
@@ -182,7 +182,7 @@
     <span class="c1">### Model initialization and simulation: ###</span>
 
 <div class="viewcode-block" id="Model.setRandomSeed">
-<a class="viewcode-back" href="../../opqua.html#opqua.model.Model.setRandomSeed">[docs]</a>
+<a class="viewcode-back" href="../../model_documentation.html#opqua.model.Model.setRandomSeed">[docs]</a>
     <span class="k">def</span> <span class="nf">setRandomSeed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set random seed for numpy random number generator.</span>
 
@@ -194,7 +194,7 @@
 
 
 <div class="viewcode-block" id="Model.newSetup">
-<a class="viewcode-back" href="../../opqua.html#opqua.model.Model.newSetup">[docs]</a>
+<a class="viewcode-back" href="../../model_documentation.html#opqua.model.Model.newSetup">[docs]</a>
     <span class="k">def</span> <span class="nf">newSetup</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">preset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">num_loci</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">possible_alleles</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -232,6 +232,114 @@
 <span class="sd">        one of the preset setups with the preset keyword argument and then</span>
 <span class="sd">        modify individual parameters with additional keyword arguments, without</span>
 <span class="sd">        having to specify all of them.</span>
+
+<span class="sd">        **&quot;host-host&quot;:**</span>
+
+<span class="sd">        - `num_loci` = 10</span>
+<span class="sd">        - `possible_alleles` = &#39;ATCG&#39;</span>
+<span class="sd">        - `fitnessHost` = (lambda g: 1)</span>
+<span class="sd">        - `contactHost` = (lambda g: 1)</span>
+<span class="sd">        - `receiveContactHost` = (lambda g: 1)</span>
+<span class="sd">        - `mortalityHost` = (lambda g: 1)</span>
+<span class="sd">        - `natalityHost` = (lambda g: 1)</span>
+<span class="sd">        - `recoveryHost` = (lambda g: 1)</span>
+<span class="sd">        - `migrationHost` = (lambda g: 1)</span>
+<span class="sd">        - `populationContactHost` = (lambda g: 1)</span>
+<span class="sd">        - `receivePopulationContactHost` = (lambda g: 1)</span>
+<span class="sd">        - `mutationHost` = (lambda g: 1)</span>
+<span class="sd">        - `recombinationHost` = (lambda g: 1)</span>
+<span class="sd">        - `fitnessVector` = (lambda g: 1)</span>
+<span class="sd">        - `contactVector` = (lambda g: 1)</span>
+<span class="sd">        - `receiveContactVector` = (lambda g: 1)</span>
+<span class="sd">        - `mortalityVector` = (lambda g: 1)</span>
+<span class="sd">        - `natalityVector` = (lambda g: 1)</span>
+<span class="sd">        - `recoveryVector` = (lambda g: 1)</span>
+<span class="sd">        - `migrationVector` = (lambda g: 1)</span>
+<span class="sd">        - `populationContactVector` = (lambda g: 1)</span>
+<span class="sd">        - `receivePopulationContactVector` = (lambda g: 1)</span>
+<span class="sd">        - `mutationVector` = (lambda g: 1)</span>
+<span class="sd">        - `recombinationVector` = (lambda g: 1)</span>
+<span class="sd">        - `contact_rate_host_vector` = 0</span>
+<span class="sd">        - `transmission_efficiency_host_vector` = 0</span>
+<span class="sd">        - `transmission_efficiency_vector_host` = 0</span>
+<span class="sd">        - `contact_rate_host_host` = 2e-1</span>
+<span class="sd">        - `transmission_efficiency_host_host` = 1</span>
+<span class="sd">        - `mean_inoculum_host` = 1e1</span>
+<span class="sd">        - `mean_inoculum_vector` = 0</span>
+<span class="sd">        - `recovery_rate_host` = 1e-1</span>
+<span class="sd">        - `recovery_rate_vector` = 0</span>
+<span class="sd">        - `mortality_rate_host` = 0</span>
+<span class="sd">        - `mortality_rate_vector` = 0</span>
+<span class="sd">        - `recombine_in_host` = 1e-4</span>
+<span class="sd">        - `recombine_in_vector` = 0</span>
+<span class="sd">        - `num_crossover_host` = 1</span>
+<span class="sd">        - `num_crossover_vector` = 0</span>
+<span class="sd">        - `mutate_in_host` = 1e-6</span>
+<span class="sd">        - `mutate_in_vector` = 0</span>
+<span class="sd">        - `death_rate_host` = 0</span>
+<span class="sd">        - `death_rate_vector` = 0</span>
+<span class="sd">        - `birth_rate_host` = 0</span>
+<span class="sd">        - `birth_rate_vector` = 0</span>
+<span class="sd">        - `vertical_transmission_host` = 0</span>
+<span class="sd">        - `vertical_transmission_vector` = 0</span>
+<span class="sd">        - `inherit_protection_host` = 0</span>
+<span class="sd">        - `inherit_protection_vector` = 0</span>
+<span class="sd">        - `protection_upon_recovery_host` = None</span>
+<span class="sd">        - `protection_upon_recovery_vector` = None</span>
+
+<span class="sd">        **&quot;vector-borne&quot;:**</span>
+
+<span class="sd">        - `num_loci` = 10</span>
+<span class="sd">        - `possible_alleles` = &#39;ATCG&#39;</span>
+<span class="sd">        - `fitnessHost` = (lambda g: 1)</span>
+<span class="sd">        - `contactHost` = (lambda g: 1)</span>
+<span class="sd">        - `receiveContactHost` = (lambda g: 1)</span>
+<span class="sd">        - `mortalityHost` = (lambda g: 1)</span>
+<span class="sd">        - `natalityHost` = (lambda g: 1)</span>
+<span class="sd">        - `recoveryHost` = (lambda g: 1)</span>
+<span class="sd">        - `migrationHost` = (lambda g: 1)</span>
+<span class="sd">        - `populationContactHost` = (lambda g: 1)</span>
+<span class="sd">        - `receivePopulationContactHost` = (lambda g: 1)</span>
+<span class="sd">        - `mutationHost` = (lambda g: 1)</span>
+<span class="sd">        - `recombinationHost` = (lambda g: 1)</span>
+<span class="sd">        - `fitnessVector` = (lambda g: 1)</span>
+<span class="sd">        - `contactVector` = (lambda g: 1)</span>
+<span class="sd">        - `receiveContactVector` = (lambda g: 1)</span>
+<span class="sd">        - `mortalityVector` = (lambda g: 1)</span>
+<span class="sd">        - `natalityVector` = (lambda g: 1)</span>
+<span class="sd">        - `recoveryVector` = (lambda g: 1)</span>
+<span class="sd">        - `migrationVector` = (lambda g: 1)</span>
+<span class="sd">        - `populationContactVector` = (lambda g: 1)</span>
+<span class="sd">        - `receivePopulationContactVector` = (lambda g: 1)</span>
+<span class="sd">        - `mutationVector` = (lambda g: 1)</span>
+<span class="sd">        - `recombinationVector` = (lambda g: 1)</span>
+<span class="sd">        - `contact_rate_host_vector` = 2e-1</span>
+<span class="sd">        - `transmission_efficiency_host_vector` = 1</span>
+<span class="sd">        - `transmission_efficiency_vector_host` = 1</span>
+<span class="sd">        - `contact_rate_host_host` = 0</span>
+<span class="sd">        - `transmission_efficiency_host_host` = 0</span>
+<span class="sd">        - `mean_inoculum_host` = 1e2</span>
+<span class="sd">        - `mean_inoculum_vector` = 1e0</span>
+<span class="sd">        - `recovery_rate_host` = 1e-1</span>
+<span class="sd">        - `recovery_rate_vector` = 1e-1</span>
+<span class="sd">        - `mortality_rate_host` = 0</span>
+<span class="sd">        - `mortality_rate_vector` = 0</span>
+<span class="sd">        - `recombine_in_host` = 0</span>
+<span class="sd">        - `recombine_in_vector` = 1e-4</span>
+<span class="sd">        - `num_crossover_host` = 0</span>
+<span class="sd">        - `num_crossover_vector` = 1</span>
+<span class="sd">        - `mutate_in_host` = 1e-6</span>
+<span class="sd">        - `mutate_in_vector` = 0</span>
+<span class="sd">        - `death_rate_host` = 0</span>
+<span class="sd">        - `death_rate_vector` = 0</span>
+<span class="sd">        - `birth_rate_host` = 0</span>
+<span class="sd">        - `birth_rate_vector` = 0</span>
+<span class="sd">        - `vertical_transmission_host` = 0</span>
+<span class="sd">        - `vertical_transmission_vector` = 0</span>
+<span class="sd">        - `inherit_protection_host` = 0</span>
+<span class="sd">        - `inherit_protection_vector` = 0</span>
+<span class="sd">        - `protection_upon_recovery_host` = None</span>
+<span class="sd">        - `protection_upon_recovery_vector` = None</span>
 
 <span class="sd">        Arguments:</span>
 <span class="sd">            name (String): name of setup to be used as a key in model setups dictionary.</span>
@@ -596,7 +704,7 @@
 
 
 <div class="viewcode-block" id="Model.newIntervention">
-<a class="viewcode-back" href="../../opqua.html#opqua.model.Model.newIntervention">[docs]</a>
+<a class="viewcode-back" href="../../model_documentation.html#opqua.model.Model.newIntervention">[docs]</a>
     <span class="k">def</span> <span class="nf">newIntervention</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">method_name</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a new intervention to be carried out at a specific time.</span>
 
@@ -611,7 +719,7 @@
 
 
 <div class="viewcode-block" id="Model.addCustomConditionTracker">
-<a class="viewcode-back" href="../../opqua.html#opqua.model.Model.addCustomConditionTracker">[docs]</a>
+<a class="viewcode-back" href="../../model_documentation.html#opqua.model.Model.addCustomConditionTracker">[docs]</a>
     <span class="k">def</span> <span class="nf">addCustomConditionTracker</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">condition_id</span><span class="p">,</span> <span class="n">trackerFunction</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a function to track occurrences of custom events in simulation.</span>
 
@@ -632,7 +740,7 @@
 
 
 <div class="viewcode-block" id="Model.run">
-<a class="viewcode-back" href="../../opqua.html#opqua.model.Model.run">[docs]</a>
+<a class="viewcode-back" href="../../model_documentation.html#opqua.model.Model.run">[docs]</a>
     <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">t0</span><span class="p">,</span><span class="n">tf</span><span class="p">,</span><span class="n">time_sampling</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">host_sampling</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">vector_sampling</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Simulate model for a specified time between two time points.</span>
 
@@ -662,7 +770,7 @@
 
 
 <div class="viewcode-block" id="Model.runReplicates">
-<a class="viewcode-back" href="../../opqua.html#opqua.model.Model.runReplicates">[docs]</a>
+<a class="viewcode-back" href="../../model_documentation.html#opqua.model.Model.runReplicates">[docs]</a>
     <span class="k">def</span> <span class="nf">runReplicates</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span><span class="n">t0</span><span class="p">,</span><span class="n">tf</span><span class="p">,</span><span class="n">replicates</span><span class="p">,</span><span class="n">host_sampling</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">vector_sampling</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">n_cores</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
             <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -712,7 +820,7 @@
 
 
 <div class="viewcode-block" id="Model.runParamSweep">
-<a class="viewcode-back" href="../../opqua.html#opqua.model.Model.runParamSweep">[docs]</a>
+<a class="viewcode-back" href="../../model_documentation.html#opqua.model.Model.runParamSweep">[docs]</a>
     <span class="k">def</span> <span class="nf">runParamSweep</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span><span class="n">t0</span><span class="p">,</span><span class="n">tf</span><span class="p">,</span><span class="n">setup_id</span><span class="p">,</span>
             <span class="n">param_sweep_dic</span><span class="o">=</span><span class="p">{},</span>
@@ -942,7 +1050,7 @@
 
 
 <div class="viewcode-block" id="Model.copyState">
-<a class="viewcode-back" href="../../opqua.html#opqua.model.Model.copyState">[docs]</a>
+<a class="viewcode-back" href="../../model_documentation.html#opqua.model.Model.copyState">[docs]</a>
     <span class="k">def</span> <span class="nf">copyState</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">host_sampling</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">vector_sampling</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a slimmed-down representation of the current model state.</span>
 
@@ -967,7 +1075,7 @@
 
 
 <div class="viewcode-block" id="Model.deepCopy">
-<a class="viewcode-back" href="../../opqua.html#opqua.model.Model.deepCopy">[docs]</a>
+<a class="viewcode-back" href="../../model_documentation.html#opqua.model.Model.deepCopy">[docs]</a>
     <span class="k">def</span> <span class="nf">deepCopy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a full copy of the current model with inner references.</span>
 
@@ -992,19 +1100,20 @@
     <span class="c1">### Output and Plots: ###</span>
 
 <div class="viewcode-block" id="Model.saveToDataFrame">
-<a class="viewcode-back" href="../../opqua.html#opqua.model.Model.saveToDataFrame">[docs]</a>
+<a class="viewcode-back" href="../../model_documentation.html#opqua.model.Model.saveToDataFrame">[docs]</a>
     <span class="k">def</span> <span class="nf">saveToDataFrame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">save_to_file</span><span class="p">,</span><span class="n">n_cores</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Save status of model to dataframe, write to file location given.</span>
 
 <span class="sd">        Creates a pandas Dataframe in long format with the given model history,</span>
 <span class="sd">        with one host or vector per simulation time in each row, and columns:</span>
-<span class="sd">            Time - simulation time of entry</span>
-<span class="sd">            Population - ID of this host/vector&#39;s population</span>
-<span class="sd">            Organism - host/vector</span>
-<span class="sd">            ID - ID of host/vector</span>
-<span class="sd">            Pathogens - all genomes present in this host/vector separated by ;</span>
-<span class="sd">            Protection - all genomes present in this host/vector separated by ;</span>
-<span class="sd">            Alive - whether host/vector is alive at this time, True/False</span>
+<span class="sd">            </span>
+<span class="sd">        - Time - simulation time of entry</span>
+<span class="sd">        - Population - ID of this host/vector&#39;s population</span>
+<span class="sd">        - Organism - host/vector</span>
+<span class="sd">        - ID - ID of host/vector</span>
+<span class="sd">        - Pathogens - all genomes present in this host/vector separated by ;</span>
+<span class="sd">        - Protection - all genomes present in this host/vector separated by ;</span>
+<span class="sd">        - Alive - whether host/vector is alive at this time, True/False</span>
 
 <span class="sd">        Arguments:</span>
 <span class="sd">            save_to_file (String): file path and name to save model data under.</span>
@@ -1026,7 +1135,7 @@
 
 
 <div class="viewcode-block" id="Model.getPathogens">
-<a class="viewcode-back" href="../../opqua.html#opqua.model.Model.getPathogens">[docs]</a>
+<a class="viewcode-back" href="../../model_documentation.html#opqua.model.Model.getPathogens">[docs]</a>
     <span class="k">def</span> <span class="nf">getPathogens</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dat</span><span class="p">,</span> <span class="n">save_to_file</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create Dataframe with counts for all pathogen genomes in data.</span>
 
@@ -1048,7 +1157,7 @@
 
 
 <div class="viewcode-block" id="Model.getProtections">
-<a class="viewcode-back" href="../../opqua.html#opqua.model.Model.getProtections">[docs]</a>
+<a class="viewcode-back" href="../../model_documentation.html#opqua.model.Model.getProtections">[docs]</a>
     <span class="k">def</span> <span class="nf">getProtections</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dat</span><span class="p">,</span> <span class="n">save_to_file</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create Dataframe with counts for all protection sequences in data.</span>
 
@@ -1070,7 +1179,7 @@
 
 
 <div class="viewcode-block" id="Model.populationsPlot">
-<a class="viewcode-back" href="../../opqua.html#opqua.model.Model.populationsPlot">[docs]</a>
+<a class="viewcode-back" href="../../model_documentation.html#opqua.model.Model.populationsPlot">[docs]</a>
     <span class="k">def</span> <span class="nf">populationsPlot</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">compartment</span><span class="o">=</span><span class="s1">&#39;Infected&#39;</span><span class="p">,</span>
             <span class="n">hosts</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">vectors</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">num_top_populations</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span>
@@ -1127,7 +1236,7 @@
 
 
 <div class="viewcode-block" id="Model.compartmentPlot">
-<a class="viewcode-back" href="../../opqua.html#opqua.model.Model.compartmentPlot">[docs]</a>
+<a class="viewcode-back" href="../../model_documentation.html#opqua.model.Model.compartmentPlot">[docs]</a>
     <span class="k">def</span> <span class="nf">compartmentPlot</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">populations</span><span class="o">=</span><span class="p">[],</span> <span class="n">hosts</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">vectors</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="n">save_data_to_file</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">x_label</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="n">y_label</span><span class="o">=</span><span class="s1">&#39;Hosts&#39;</span><span class="p">,</span>
@@ -1176,7 +1285,7 @@
 
 
 <div class="viewcode-block" id="Model.compositionPlot">
-<a class="viewcode-back" href="../../opqua.html#opqua.model.Model.compositionPlot">[docs]</a>
+<a class="viewcode-back" href="../../model_documentation.html#opqua.model.Model.compositionPlot">[docs]</a>
     <span class="k">def</span> <span class="nf">compositionPlot</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">composition_dataframe</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">populations</span><span class="o">=</span><span class="p">[],</span>
             <span class="n">type_of_composition</span><span class="o">=</span><span class="s1">&#39;Pathogens&#39;</span><span class="p">,</span> <span class="n">hosts</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">vectors</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -1262,7 +1371,7 @@
 
 
 <div class="viewcode-block" id="Model.clustermap">
-<a class="viewcode-back" href="../../opqua.html#opqua.model.Model.clustermap">[docs]</a>
+<a class="viewcode-back" href="../../model_documentation.html#opqua.model.Model.clustermap">[docs]</a>
     <span class="k">def</span> <span class="nf">clustermap</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">file_name</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">num_top_sequences</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">track_specific_sequences</span><span class="o">=</span><span class="p">[],</span>
@@ -1310,7 +1419,7 @@
 
 
 <div class="viewcode-block" id="Model.pathogenDistanceHistory">
-<a class="viewcode-back" href="../../opqua.html#opqua.model.Model.pathogenDistanceHistory">[docs]</a>
+<a class="viewcode-back" href="../../model_documentation.html#opqua.model.Model.pathogenDistanceHistory">[docs]</a>
     <span class="k">def</span> <span class="nf">pathogenDistanceHistory</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">data</span><span class="p">,</span> <span class="n">samples</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_top_sequences</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">track_specific_sequences</span><span class="o">=</span><span class="p">[],</span>
@@ -1351,7 +1460,7 @@
 
 
 <div class="viewcode-block" id="Model.getGenomeTimes">
-<a class="viewcode-back" href="../../opqua.html#opqua.model.Model.getGenomeTimes">[docs]</a>
+<a class="viewcode-back" href="../../model_documentation.html#opqua.model.Model.getGenomeTimes">[docs]</a>
     <span class="k">def</span> <span class="nf">getGenomeTimes</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">data</span><span class="p">,</span> <span class="n">samples</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_top_sequences</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">track_specific_sequences</span><span class="o">=</span><span class="p">[],</span>
@@ -1381,7 +1490,7 @@
 
 
 <div class="viewcode-block" id="Model.getCompositionData">
-<a class="viewcode-back" href="../../opqua.html#opqua.model.Model.getCompositionData">[docs]</a>
+<a class="viewcode-back" href="../../model_documentation.html#opqua.model.Model.getCompositionData">[docs]</a>
     <span class="k">def</span> <span class="nf">getCompositionData</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">populations</span><span class="o">=</span><span class="p">[],</span> <span class="n">type_of_composition</span><span class="o">=</span><span class="s1">&#39;Pathogens&#39;</span><span class="p">,</span>
             <span class="n">hosts</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">vectors</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">num_top_sequences</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
@@ -1401,8 +1510,8 @@
 
 <span class="sd">        Keyword arguments:</span>
 <span class="sd">            data (pandas DataFrame): dataframe with model history as produced by `saveToDf` </span>
-<span class="sd">                function; if None, computes this dataframe and saves it under</span>
-<span class="sd">                &#39;raw_data_&#39;+save_data_to_file. Defaults to None.</span>
+<span class="sd">                function; if None, computes this dataframe and saves it under &#39;raw_data_&#39;+&#39;save_data_to_file&#39;. </span>
+<span class="sd">                Defaults to None.</span>
 <span class="sd">            populations (list of Strings): IDs of populations to include in analysis; if empty, uses</span>
 <span class="sd">                all populations in model. Defaults to [].</span>
 <span class="sd">            type_of_composition (String): field of data to count totals of, can be either</span>
@@ -1455,7 +1564,7 @@
     <span class="c1">### Model interventions: ###</span>
 
 <div class="viewcode-block" id="Model.newPopulation">
-<a class="viewcode-back" href="../../opqua.html#opqua.model.Model.newPopulation">[docs]</a>
+<a class="viewcode-back" href="../../model_documentation.html#opqua.model.Model.newPopulation">[docs]</a>
     <span class="k">def</span> <span class="nf">newPopulation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">setup_name</span><span class="p">,</span> <span class="n">num_hosts</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">num_vectors</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a new Population object with setup parameters.</span>
 
@@ -1467,7 +1576,7 @@
 
 <span class="sd">        Keyword arguments:</span>
 <span class="sd">            num_hosts (int &gt;= 0): number of hosts to initialize population with. Defaults to 100.</span>
-<span class="sd">            num_vectors (int &gt;= 0): number of hosts to initialize population with. Defaults to 100.</span>
+<span class="sd">            num_vectors (int &gt;= 0): number of vectors to initialize population with. Defaults to 100.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="nb">id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">populations</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
@@ -1510,7 +1619,7 @@
 
 
 <div class="viewcode-block" id="Model.linkPopulationsHostMigration">
-<a class="viewcode-back" href="../../opqua.html#opqua.model.Model.linkPopulationsHostMigration">[docs]</a>
+<a class="viewcode-back" href="../../model_documentation.html#opqua.model.Model.linkPopulationsHostMigration">[docs]</a>
     <span class="k">def</span> <span class="nf">linkPopulationsHostMigration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pop1_id</span><span class="p">,</span> <span class="n">pop2_id</span><span class="p">,</span> <span class="n">rate</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set host migration rate from one population towards another.</span>
 
@@ -1527,7 +1636,7 @@
 
 
 <div class="viewcode-block" id="Model.linkPopulationsVectorMigration">
-<a class="viewcode-back" href="../../opqua.html#opqua.model.Model.linkPopulationsVectorMigration">[docs]</a>
+<a class="viewcode-back" href="../../model_documentation.html#opqua.model.Model.linkPopulationsVectorMigration">[docs]</a>
     <span class="k">def</span> <span class="nf">linkPopulationsVectorMigration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pop1_id</span><span class="p">,</span> <span class="n">pop2_id</span><span class="p">,</span> <span class="n">rate</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set vector migration rate from one population towards another.</span>
 
@@ -1544,17 +1653,17 @@
 
 
 <div class="viewcode-block" id="Model.linkPopulationsHostHostContact">
-<a class="viewcode-back" href="../../opqua.html#opqua.model.Model.linkPopulationsHostHostContact">[docs]</a>
+<a class="viewcode-back" href="../../model_documentation.html#opqua.model.Model.linkPopulationsHostHostContact">[docs]</a>
     <span class="k">def</span> <span class="nf">linkPopulationsHostHostContact</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pop1_id</span><span class="p">,</span> <span class="n">pop2_id</span><span class="p">,</span> <span class="n">rate</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set host-host contact rate from one population towards another.</span>
 
 <span class="sd">        Arguments:</span>
-<span class="sd">        pop1_id (String): origin population for which inter-population contact rate</span>
-<span class="sd">            will be specified.</span>
-<span class="sd">        pop1_id (String): destination population for which inter-population contact</span>
-<span class="sd">            rate will be specified.</span>
-<span class="sd">        rate (number &gt;= 0): inter-population contact rate from one population to the</span>
-<span class="sd">            neighbor; evts/time.</span>
+<span class="sd">            pop1_id (String): origin population for which inter-population contact rate</span>
+<span class="sd">                will be specified.</span>
+<span class="sd">            pop1_id (String): destination population for which inter-population contact</span>
+<span class="sd">                rate will be specified.</span>
+<span class="sd">            rate (number &gt;= 0): inter-population contact rate from one population to the</span>
+<span class="sd">                neighbor; evts/time.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="n">pop1_id</span><span class="p">]</span><span class="o">.</span><span class="n">setHostHostPopulationContactNeighbor</span><span class="p">(</span>
@@ -1563,7 +1672,7 @@
 
 
 <div class="viewcode-block" id="Model.linkPopulationsHostVectorContact">
-<a class="viewcode-back" href="../../opqua.html#opqua.model.Model.linkPopulationsHostVectorContact">[docs]</a>
+<a class="viewcode-back" href="../../model_documentation.html#opqua.model.Model.linkPopulationsHostVectorContact">[docs]</a>
     <span class="k">def</span> <span class="nf">linkPopulationsHostVectorContact</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pop1_id</span><span class="p">,</span> <span class="n">pop2_id</span><span class="p">,</span> <span class="n">rate</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set host-vector contact rate from one population towards another.</span>
 
@@ -1582,7 +1691,7 @@
 
 
 <div class="viewcode-block" id="Model.linkPopulationsVectorHostContact">
-<a class="viewcode-back" href="../../opqua.html#opqua.model.Model.linkPopulationsVectorHostContact">[docs]</a>
+<a class="viewcode-back" href="../../model_documentation.html#opqua.model.Model.linkPopulationsVectorHostContact">[docs]</a>
     <span class="k">def</span> <span class="nf">linkPopulationsVectorHostContact</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pop1_id</span><span class="p">,</span> <span class="n">pop2_id</span><span class="p">,</span> <span class="n">rate</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set vector-host contact rate from one population towards another.</span>
 
@@ -1601,7 +1710,7 @@
 
 
 <div class="viewcode-block" id="Model.createInterconnectedPopulations">
-<a class="viewcode-back" href="../../opqua.html#opqua.model.Model.createInterconnectedPopulations">[docs]</a>
+<a class="viewcode-back" href="../../model_documentation.html#opqua.model.Model.createInterconnectedPopulations">[docs]</a>
     <span class="k">def</span> <span class="nf">createInterconnectedPopulations</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">num_populations</span><span class="p">,</span> <span class="n">id_prefix</span><span class="p">,</span> <span class="n">setup_name</span><span class="p">,</span>
             <span class="n">host_migration_rate</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">vector_migration_rate</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
@@ -1682,7 +1791,7 @@
 
 
 <div class="viewcode-block" id="Model.newHostGroup">
-<a class="viewcode-back" href="../../opqua.html#opqua.model.Model.newHostGroup">[docs]</a>
+<a class="viewcode-back" href="../../model_documentation.html#opqua.model.Model.newHostGroup">[docs]</a>
     <span class="k">def</span> <span class="nf">newHostGroup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pop_id</span><span class="p">,</span> <span class="n">group_id</span><span class="p">,</span> <span class="n">hosts</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;any&#39;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a list of random hosts in population.</span>
 
@@ -1707,7 +1816,7 @@
 
 
 <div class="viewcode-block" id="Model.newVectorGroup">
-<a class="viewcode-back" href="../../opqua.html#opqua.model.Model.newVectorGroup">[docs]</a>
+<a class="viewcode-back" href="../../model_documentation.html#opqua.model.Model.newVectorGroup">[docs]</a>
     <span class="k">def</span> <span class="nf">newVectorGroup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pop_id</span><span class="p">,</span> <span class="n">group_id</span><span class="p">,</span> <span class="n">vectors</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;any&#39;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a list of random vectors in population.</span>
 
@@ -1732,7 +1841,7 @@
 
 
 <div class="viewcode-block" id="Model.addHosts">
-<a class="viewcode-back" href="../../opqua.html#opqua.model.Model.addHosts">[docs]</a>
+<a class="viewcode-back" href="../../model_documentation.html#opqua.model.Model.addHosts">[docs]</a>
     <span class="k">def</span> <span class="nf">addHosts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pop_id</span><span class="p">,</span> <span class="n">num_hosts</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a number of healthy hosts to population, return list with them.</span>
 
@@ -1748,7 +1857,7 @@
 
 
 <div class="viewcode-block" id="Model.addVectors">
-<a class="viewcode-back" href="../../opqua.html#opqua.model.Model.addVectors">[docs]</a>
+<a class="viewcode-back" href="../../model_documentation.html#opqua.model.Model.addVectors">[docs]</a>
     <span class="k">def</span> <span class="nf">addVectors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pop_id</span><span class="p">,</span> <span class="n">num_vectors</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a number of healthy vectors to population, return list with them.</span>
 
@@ -1764,7 +1873,7 @@
 
 
 <div class="viewcode-block" id="Model.removeHosts">
-<a class="viewcode-back" href="../../opqua.html#opqua.model.Model.removeHosts">[docs]</a>
+<a class="viewcode-back" href="../../model_documentation.html#opqua.model.Model.removeHosts">[docs]</a>
     <span class="k">def</span> <span class="nf">removeHosts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pop_id</span><span class="p">,</span> <span class="n">num_hosts_or_list</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove a number of specified or random hosts from population.</span>
 
@@ -1778,7 +1887,7 @@
 
 
 <div class="viewcode-block" id="Model.removeVectors">
-<a class="viewcode-back" href="../../opqua.html#opqua.model.Model.removeVectors">[docs]</a>
+<a class="viewcode-back" href="../../model_documentation.html#opqua.model.Model.removeVectors">[docs]</a>
     <span class="k">def</span> <span class="nf">removeVectors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pop_id</span><span class="p">,</span> <span class="n">num_vectors_or_list</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove a number of specified or random vectors from population.</span>
 
@@ -1793,7 +1902,7 @@
 
 
 <div class="viewcode-block" id="Model.addPathogensToHosts">
-<a class="viewcode-back" href="../../opqua.html#opqua.model.Model.addPathogensToHosts">[docs]</a>
+<a class="viewcode-back" href="../../model_documentation.html#opqua.model.Model.addPathogensToHosts">[docs]</a>
     <span class="k">def</span> <span class="nf">addPathogensToHosts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pop_id</span><span class="p">,</span> <span class="n">genomes_numbers</span><span class="p">,</span> <span class="n">group_id</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Add specified pathogens to random hosts, optionally from a list.</span>
 
@@ -1816,7 +1925,7 @@
 
 
 <div class="viewcode-block" id="Model.addPathogensToVectors">
-<a class="viewcode-back" href="../../opqua.html#opqua.model.Model.addPathogensToVectors">[docs]</a>
+<a class="viewcode-back" href="../../model_documentation.html#opqua.model.Model.addPathogensToVectors">[docs]</a>
     <span class="k">def</span> <span class="nf">addPathogensToVectors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pop_id</span><span class="p">,</span> <span class="n">genomes_numbers</span><span class="p">,</span> <span class="n">group_id</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Add specified pathogens to random vectors, optionally from a list.</span>
 
@@ -1839,7 +1948,7 @@
 
 
 <div class="viewcode-block" id="Model.treatHosts">
-<a class="viewcode-back" href="../../opqua.html#opqua.model.Model.treatHosts">[docs]</a>
+<a class="viewcode-back" href="../../model_documentation.html#opqua.model.Model.treatHosts">[docs]</a>
     <span class="k">def</span> <span class="nf">treatHosts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pop_id</span><span class="p">,</span> <span class="n">frac_hosts</span><span class="p">,</span> <span class="n">resistance_seqs</span><span class="p">,</span> <span class="n">group_id</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Treat random fraction of infected hosts against some infection.</span>
 
@@ -1867,7 +1976,7 @@
 
 
 <div class="viewcode-block" id="Model.treatVectors">
-<a class="viewcode-back" href="../../opqua.html#opqua.model.Model.treatVectors">[docs]</a>
+<a class="viewcode-back" href="../../model_documentation.html#opqua.model.Model.treatVectors">[docs]</a>
     <span class="k">def</span> <span class="nf">treatVectors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pop_id</span><span class="p">,</span> <span class="n">frac_vectors</span><span class="p">,</span> <span class="n">resistance_seqs</span><span class="p">,</span> <span class="n">group_id</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Treat random fraction of infected vectors agains some infection.</span>
 
@@ -1898,7 +2007,7 @@
 
 
 <div class="viewcode-block" id="Model.protectHosts">
-<a class="viewcode-back" href="../../opqua.html#opqua.model.Model.protectHosts">[docs]</a>
+<a class="viewcode-back" href="../../model_documentation.html#opqua.model.Model.protectHosts">[docs]</a>
     <span class="k">def</span> <span class="nf">protectHosts</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">pop_id</span><span class="p">,</span> <span class="n">frac_hosts</span><span class="p">,</span> <span class="n">protection_sequence</span><span class="p">,</span> <span class="n">group_id</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Protect a random fraction of infected hosts against some infection.</span>
@@ -1928,7 +2037,7 @@
 
 
 <div class="viewcode-block" id="Model.protectVectors">
-<a class="viewcode-back" href="../../opqua.html#opqua.model.Model.protectVectors">[docs]</a>
+<a class="viewcode-back" href="../../model_documentation.html#opqua.model.Model.protectVectors">[docs]</a>
     <span class="k">def</span> <span class="nf">protectVectors</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">pop_id</span><span class="p">,</span> <span class="n">frac_vectors</span><span class="p">,</span> <span class="n">protection_sequence</span><span class="p">,</span> <span class="n">group_id</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Protect a random fraction of infected vectors against some infection.</span>
@@ -1957,7 +2066,7 @@
 
 
 <div class="viewcode-block" id="Model.wipeProtectionHosts">
-<a class="viewcode-back" href="../../opqua.html#opqua.model.Model.wipeProtectionHosts">[docs]</a>
+<a class="viewcode-back" href="../../model_documentation.html#opqua.model.Model.wipeProtectionHosts">[docs]</a>
     <span class="k">def</span> <span class="nf">wipeProtectionHosts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pop_id</span><span class="p">,</span> <span class="n">group_id</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Removes all protection sequences from hosts.</span>
 
@@ -1965,8 +2074,8 @@
 <span class="sd">            pop_id (String): ID of population to be modified.</span>
 
 <span class="sd">        Keyword arguments:</span>
-<span class="sd">        group_id (String): ID of specific hosts to sample from, if empty, samples from</span>
-<span class="sd">            whole from whole population. Defaults to &quot;&quot;.</span>
+<span class="sd">            group_id (String): ID of specific hosts to sample from, if empty, samples from</span>
+<span class="sd">                whole from whole population. Defaults to &quot;&quot;.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">group_id</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
@@ -1978,7 +2087,7 @@
 
 
 <div class="viewcode-block" id="Model.wipeProtectionVectors">
-<a class="viewcode-back" href="../../opqua.html#opqua.model.Model.wipeProtectionVectors">[docs]</a>
+<a class="viewcode-back" href="../../model_documentation.html#opqua.model.Model.wipeProtectionVectors">[docs]</a>
     <span class="k">def</span> <span class="nf">wipeProtectionVectors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pop_id</span><span class="p">,</span> <span class="n">group_id</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Removes all protection sequences from vectors.</span>
 
@@ -1986,8 +2095,8 @@
 <span class="sd">            pop_id (String): ID of population to be modified.</span>
 
 <span class="sd">        Keyword arguments:</span>
-<span class="sd">        group_id (String): ID of specific vectors to sample from, if empty, samples</span>
-<span class="sd">            from whole population. Defaults to &quot;&quot;.</span>
+<span class="sd">            group_id (String): ID of specific vectors to sample from, if empty, samples</span>
+<span class="sd">                from whole population. Defaults to &quot;&quot;.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">group_id</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
@@ -2001,7 +2110,7 @@
     <span class="c1">### Modify population parameters: ###</span>
 
 <div class="viewcode-block" id="Model.setSetup">
-<a class="viewcode-back" href="../../opqua.html#opqua.model.Model.setSetup">[docs]</a>
+<a class="viewcode-back" href="../../model_documentation.html#opqua.model.Model.setSetup">[docs]</a>
     <span class="k">def</span> <span class="nf">setSetup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pop_id</span><span class="p">,</span> <span class="n">setup_id</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Assign parameters stored in Setup object to this population.</span>
 
@@ -2016,7 +2125,7 @@
     <span class="c1">### Utility: ###</span>
 
 <div class="viewcode-block" id="Model.customModelFunction">
-<a class="viewcode-back" href="../../opqua.html#opqua.model.Model.customModelFunction">[docs]</a>
+<a class="viewcode-back" href="../../model_documentation.html#opqua.model.Model.customModelFunction">[docs]</a>
     <span class="k">def</span> <span class="nf">customModelFunction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns output of given function, passing this model as a parameter.</span>
 
@@ -2034,7 +2143,7 @@
     <span class="c1">### Preset fitness functions: ###</span>
 
 <div class="viewcode-block" id="Model.peakLandscape">
-<a class="viewcode-back" href="../../opqua.html#opqua.model.Model.peakLandscape">[docs]</a>
+<a class="viewcode-back" href="../../model_documentation.html#opqua.model.Model.peakLandscape">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">peakLandscape</span><span class="p">(</span><span class="n">genome</span><span class="p">,</span> <span class="n">peak_genome</span><span class="p">,</span> <span class="n">min_value</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return genome phenotype by decreasing with distance from optimal seq.</span>
@@ -2061,7 +2170,7 @@
 
 
 <div class="viewcode-block" id="Model.valleyLandscape">
-<a class="viewcode-back" href="../../opqua.html#opqua.model.Model.valleyLandscape">[docs]</a>
+<a class="viewcode-back" href="../../model_documentation.html#opqua.model.Model.valleyLandscape">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">valleyLandscape</span><span class="p">(</span><span class="n">genome</span><span class="p">,</span> <span class="n">valley_genome</span><span class="p">,</span> <span class="n">min_value</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return genome phenotype by increasing with distance from worst seq.</span>
