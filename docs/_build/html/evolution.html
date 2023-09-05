@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Evolution &mdash; Opqua 1.0.2 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/nbsphinx-code-cells.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=1ed6394b"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="about.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Interventions" href="intervention.html" />
+    <link rel="prev" title="Basic usage" href="basic_usage.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Opqua
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="about.html">About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="requirements_and_installation.html">Requirements and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="tutorials.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="basic_usage.html">Basic usage</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Evolution</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#A.-Fitness-function">A. Fitness function</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Model-initialization-and-setup">Model initialization and setup</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Model-simulation">Model simulation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Output-data-manipulation-and-visualization">Output data manipulation and visualization</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#B.-Transmissibility-function">B. Transmissibility function</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id1">Model initialization and setup</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id8">Model simulation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id9">Output data manipulation and visualization</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="intervention.html">Interventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="metapopulation.html">Metapopulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vital_dynamics.html">Vital dynamics</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="model_documentation.html"><code class="docutils literal notranslate"><span class="pre">Model</span></code> Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="API.html">API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Opqua</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="tutorials.html">Tutorials</a></li>
+      <li class="breadcrumb-item active">Evolution</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/evolution.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Evolution">
+<h1>Evolution<a class="headerlink" href="#Evolution" title="Link to this heading"></a></h1>
+<section id="A.-Fitness-function">
+<h2>A. Fitness function<a class="headerlink" href="#A.-Fitness-function" title="Link to this heading"></a></h2>
+<p>Host-host transmission model with susceptible and infected hosts in a single population scenario, illustrating pathogen evolution through <em>de novo</em> mutations and intra-host competition.</p>
+<p>When two pathogens with different genomes meet in the same host (or vector), the pathogen with the most fit genome has a higher probability of being transmitted to another host (or vector). In this case, the transmission rate does NOT vary according to genome. Once an event occurs, however, the pathogen with higher fitness has a higher likelihood of being transmitted.</p>
+<p>Here, we define a landscape of stabilizing selection where there is an optimal genome and every other genome is less fit, but fitness functions can be defined in any arbitrary way (accounting for multiple peaks, for instance, or special cases for a specific genome sequence).</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">opqua.model</span> <span class="kn">import</span> <span class="n">Model</span>
+</pre></div>
+</div>
+</div>
+<section id="Model-initialization-and-setup">
+<h3>Model initialization and setup<a class="headerlink" href="#Model-initialization-and-setup" title="Link to this heading"></a></h3>
+<section id="Create-a-new-Model-object">
+<h4>Create a new <code class="docutils literal notranslate"><span class="pre">Model</span></code> object<a class="headerlink" href="#Create-a-new-Model-object" title="Link to this heading"></a></h4>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">()</span> <span class="c1"># Make a new model object.</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Define-an-optimal-genome">
+<h4>Define an optimal genome<a class="headerlink" href="#Define-an-optimal-genome" title="Link to this heading"></a></h4>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">my_optimal_genome</span> <span class="o">=</span> <span class="s1">&#39;BEST&#39;</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Define-a-custom-fitness-function-for-the-host">
+<h4>Define a custom fitness function for the host<a class="headerlink" href="#Define-a-custom-fitness-function-for-the-host" title="Link to this heading"></a></h4>
+<p>Fitness functions must take in <strong>one</strong> argument and return a positive number as a fitness value. Here, we take advantage of one of the preset functions, but you can define it any way you want!</p>
+<p><strong>Stabilizing selection:</strong> any deviation from the “optimal genome” sequence results in an exponential decay in fitness to the <code class="docutils literal notranslate"><span class="pre">min_fitness</span></code> value at the maximum possible distance. Here we use strong selection, with a very low minimum fitness.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">myHostFitness</span><span class="p">(</span><span class="n">genome</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">Model</span><span class="o">.</span><span class="n">peakLandscape</span><span class="p">(</span>
+        <span class="n">genome</span><span class="p">,</span>
+            <span class="c1"># Genome to be evaluated (String), the entry for our function.</span>
+        <span class="n">peak_genome</span><span class="o">=</span><span class="n">my_optimal_genome</span><span class="p">,</span>
+            <span class="c1"># The genome sequence to measure distance against, has value of 1.</span>
+        <span class="n">min_value</span><span class="o">=</span><span class="mf">1e-10</span>
+            <span class="c1"># Minimum value at maximum distance from optimal genome.</span>
+        <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Define-a-Setup-for-our-system">
+<h4>Define a Setup for our system<a class="headerlink" href="#Define-a-Setup-for-our-system" title="Link to this heading"></a></h4>
+<p>Create a new set of parameters called <code class="docutils literal notranslate"><span class="pre">my_setup</span></code> to be used to simulate a population in the model. Use the default parameter set for a <em>host-host</em> model.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">newSetup</span><span class="p">(</span>     <span class="c1"># Create a new Setup.</span>
+    <span class="s1">&#39;my_setup&#39;</span><span class="p">,</span>
+        <span class="c1"># Name of the setup.</span>
+    <span class="n">preset</span><span class="o">=</span><span class="s1">&#39;host-host&#39;</span><span class="p">,</span>
+        <span class="c1"># Use default &#39;host-host&#39; parameters.</span>
+    <span class="n">possible_alleles</span><span class="o">=</span><span class="s1">&#39;ABDEST&#39;</span><span class="p">,</span>
+        <span class="c1"># Define &quot;letters&quot; in the &quot;genome&quot;, or possible alleles for each locus.</span>
+        <span class="c1"># Each locus can have different possible alleles if you define this</span>
+        <span class="c1"># argument as a list of strings, but here, we take the simplest</span>
+        <span class="c1"># approach.</span>
+    <span class="n">num_loci</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">my_optimal_genome</span><span class="p">),</span>
+        <span class="c1"># Define length of &quot;genome&quot;, or total number of alleles.</span>
+    <span class="n">fitnessHost</span><span class="o">=</span><span class="n">myHostFitness</span><span class="p">,</span>
+        <span class="c1"># Assign the fitness function we created (could be a lambda function).</span>
+        <span class="c1"># In general, a function that evaluates relative fitness in head-to-head</span>
+        <span class="c1"># competition for different genomes within the same host. It should be a</span>
+        <span class="c1"># functions that recieves a String as an argument and returns a number.</span>
+    <span class="n">mutate_in_host</span><span class="o">=</span><span class="mf">5e-2</span>
+        <span class="c1"># Modify de novo mutation rate of pathogens when in host to get some</span>
+        <span class="c1"># evolution!</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Create-a-population-in-our-model">
+<h4>Create a population in our model<a class="headerlink" href="#Create-a-population-in-our-model" title="Link to this heading"></a></h4>
+<p>Create a new population of 100 hosts and 0 vectors called <code class="docutils literal notranslate"><span class="pre">my_population</span></code>. The population uses parameters stored in <code class="docutils literal notranslate"><span class="pre">my_setup</span></code></p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">newPopulation</span><span class="p">(</span>            <span class="c1"># Create a new Population.</span>
+    <span class="s1">&#39;my_population&#39;</span><span class="p">,</span>
+        <span class="c1"># Unique identifier for this population in the model.</span>
+    <span class="s1">&#39;my_setup&#39;</span><span class="p">,</span>
+        <span class="c1"># Predefined Setup object with parameters for this population.</span>
+    <span class="n">num_hosts</span><span class="o">=</span><span class="mi">100</span>
+        <span class="c1"># Number of hosts to initialize population with.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Manipulate-hosts-and-vectors-in-the-population">
+<h4>Manipulate hosts and vectors in the population<a class="headerlink" href="#Manipulate-hosts-and-vectors-in-the-population" title="Link to this heading"></a></h4>
+<p>We will start off the simulation with a suboptimal pathogen genome, <em>BADD</em>. Throughout the course of the simulation, we should see this genome be outcompeted by more optimal pathogen genotypes, culminating in the optimal genome, <em>BEST</em>, which outcompetes all others.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">addPathogensToHosts</span><span class="p">(</span>    <span class="c1"># Add specified pathogens to random hosts.</span>
+    <span class="s1">&#39;my_population&#39;</span><span class="p">,</span>
+        <span class="c1"># ID of population to be modified.</span>
+    <span class="p">{</span><span class="s1">&#39;BADD&#39;</span><span class="p">:</span><span class="mi">10</span><span class="p">}</span>
+        <span class="c1"># Dictionary containing pathogen genomes to add as keys and</span>
+        <span class="c1"># number of hosts each one will be added to as values.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="Model-simulation">
+<h3>Model simulation<a class="headerlink" href="#Model-simulation" title="Link to this heading"></a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>  <span class="c1"># Simulate model for a specified time between two time points.</span>
+    <span class="mi">0</span><span class="p">,</span>      <span class="c1"># Initial time point.</span>
+    <span class="mi">200</span>     <span class="c1"># Final time point.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Simulating time: 84.9205322047209, event: CONTACT_HOST_HOST
+Simulating time: 139.4831216243728, event: CONTACT_HOST_HOST
+Simulating time: 199.83533163204655, event: RECOVER_HOST
+Simulating time: 200.0243380253218 END
+</pre></div></div>
+</div>
+</section>
+<section id="Output-data-manipulation-and-visualization">
+<h3>Output data manipulation and visualization<a class="headerlink" href="#Output-data-manipulation-and-visualization" title="Link to this heading"></a></h3>
+<section id="Create-a-table-with-the-results-of-the-given-model-history">
+<h4>Create a table with the results of the given model history<a class="headerlink" href="#Create-a-table-with-the-results-of-the-given-model-history" title="Link to this heading"></a></h4>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">saveToDataFrame</span><span class="p">(</span>
+        <span class="c1"># Creates a pandas Dataframe in long format with the given model history,</span>
+        <span class="c1"># with one host or vector per simulation time in each row.</span>
+    <span class="s1">&#39;fitness_function_mutation_example.csv&#39;</span>
+        <span class="c1"># Name of the file to save the data to.</span>
+    <span class="p">)</span>
+<span class="n">data</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Saving file...
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+[Parallel(n_jobs=8)]: Using backend LokyBackend with 8 concurrent workers.
+[Parallel(n_jobs=8)]: Done   2 tasks      | elapsed:    0.3s
+[Parallel(n_jobs=8)]: Done   9 tasks      | elapsed:    0.4s
+[Parallel(n_jobs=8)]: Batch computation too fast (0.19662265031018072s.) Setting batch_size=2.
+[Parallel(n_jobs=8)]: Done  16 tasks      | elapsed:    0.4s
+[Parallel(n_jobs=8)]: Done  25 tasks      | elapsed:    0.4s
+[Parallel(n_jobs=8)]: Batch computation too fast (0.019941329956054688s.) Setting batch_size=4.
+[Parallel(n_jobs=8)]: Done  36 tasks      | elapsed:    0.4s
+[Parallel(n_jobs=8)]: Done  58 tasks      | elapsed:    0.4s
+[Parallel(n_jobs=8)]: Batch computation too fast (0.020781755447387695s.) Setting batch_size=8.
+[Parallel(n_jobs=8)]: Done  96 tasks      | elapsed:    0.4s
+[Parallel(n_jobs=8)]: Batch computation too fast (0.016440391540527344s.) Setting batch_size=16.
+[Parallel(n_jobs=8)]: Done 168 tasks      | elapsed:    0.5s
+[Parallel(n_jobs=8)]: Batch computation too fast (0.02756667137145996s.) Setting batch_size=32.
+[Parallel(n_jobs=8)]: Done 288 tasks      | elapsed:    0.5s
+[Parallel(n_jobs=8)]: Batch computation too fast (0.051561594009399414s.) Setting batch_size=64.
+[Parallel(n_jobs=8)]: Done 560 tasks      | elapsed:    0.6s
+[Parallel(n_jobs=8)]: Done 1024 tasks      | elapsed:    0.8s
+[Parallel(n_jobs=8)]: Batch computation too fast (0.0886225700378418s.) Setting batch_size=128.
+[Parallel(n_jobs=8)]: Done 1822 tasks      | elapsed:    0.9s
+[Parallel(n_jobs=8)]: Done 2156 tasks      | elapsed:    0.9s
+[Parallel(n_jobs=8)]: Done 2270 tasks      | elapsed:    0.9s
+[Parallel(n_jobs=8)]: Done 2384 tasks      | elapsed:    0.9s
+[Parallel(n_jobs=8)]: Done 2560 out of 2560 | elapsed:    0.9s finished
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+...file saved.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Time</th>
+      <th>Population</th>
+      <th>Organism</th>
+      <th>ID</th>
+      <th>Pathogens</th>
+      <th>Protection</th>
+      <th>Alive</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.0</td>
+      <td>my_population</td>
+      <td>Host</td>
+      <td>my_population_0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.0</td>
+      <td>my_population</td>
+      <td>Host</td>
+      <td>my_population_1</td>
+      <td>BADD</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.0</td>
+      <td>my_population</td>
+      <td>Host</td>
+      <td>my_population_2</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.0</td>
+      <td>my_population</td>
+      <td>Host</td>
+      <td>my_population_3</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.0</td>
+      <td>my_population</td>
+      <td>Host</td>
+      <td>my_population_4</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>255995</th>
+      <td>200.0</td>
+      <td>my_population</td>
+      <td>Host</td>
+      <td>my_population_95</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>255996</th>
+      <td>200.0</td>
+      <td>my_population</td>
+      <td>Host</td>
+      <td>my_population_96</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>255997</th>
+      <td>200.0</td>
+      <td>my_population</td>
+      <td>Host</td>
+      <td>my_population_97</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>255998</th>
+      <td>200.0</td>
+      <td>my_population</td>
+      <td>Host</td>
+      <td>my_population_98</td>
+      <td>BEST</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>255999</th>
+      <td>200.0</td>
+      <td>my_population</td>
+      <td>Host</td>
+      <td>my_population_99</td>
+      <td>BEST</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+<p>256000 rows × 7 columns</p>
+</div></div>
+</div>
+</section>
+<section id="Create-a-plot-to-track-pathogen-genotypes-across-time">
+<h4>Create a plot to track pathogen genotypes across time<a class="headerlink" href="#Create-a-plot-to-track-pathogen-genotypes-across-time" title="Link to this heading"></a></h4>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_composition</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">compositionPlot</span><span class="p">(</span>
+        <span class="c1"># Create a plot to track pathogen genotypes across time.</span>
+    <span class="s1">&#39;fitness_function_mutation_example_composition.png&#39;</span><span class="p">,</span>
+        <span class="c1"># Name of the file to save the plot to.</span>
+    <span class="n">data</span><span class="p">,</span>
+        <span class="c1"># Dataframe with model history.</span>
+    <span class="n">num_top_sequences</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+        <span class="c1"># Track the 6 most represented genomes overall (remaining genotypes are</span>
+        <span class="c1"># lumped into the &quot;Other&quot; category).</span>
+    <span class="n">track_specific_sequences</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;BADD&#39;</span><span class="p">]</span>
+        <span class="c1"># Include the initial genome in the graph if it isn&#39;t in the top 6.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+1 / 103 genotypes processed.
+2 / 103 genotypes processed.
+3 / 103 genotypes processed.
+4 / 103 genotypes processed.
+5 / 103 genotypes processed.
+6 / 103 genotypes processed.
+7 / 103 genotypes processed.
+8 / 103 genotypes processed.
+9 / 103 genotypes processed.
+10 / 103 genotypes processed.
+11 / 103 genotypes processed.
+12 / 103 genotypes processed.
+13 / 103 genotypes processed.
+14 / 103 genotypes processed.
+15 / 103 genotypes processed.
+16 / 103 genotypes processed.
+17 / 103 genotypes processed.
+18 / 103 genotypes processed.
+19 / 103 genotypes processed.
+20 / 103 genotypes processed.
+21 / 103 genotypes processed.
+22 / 103 genotypes processed.
+23 / 103 genotypes processed.
+24 / 103 genotypes processed.
+25 / 103 genotypes processed.
+26 / 103 genotypes processed.
+27 / 103 genotypes processed.
+28 / 103 genotypes processed.
+29 / 103 genotypes processed.
+30 / 103 genotypes processed.
+31 / 103 genotypes processed.
+32 / 103 genotypes processed.
+33 / 103 genotypes processed.
+34 / 103 genotypes processed.
+35 / 103 genotypes processed.
+36 / 103 genotypes processed.
+37 / 103 genotypes processed.
+38 / 103 genotypes processed.
+39 / 103 genotypes processed.
+40 / 103 genotypes processed.
+41 / 103 genotypes processed.
+42 / 103 genotypes processed.
+43 / 103 genotypes processed.
+44 / 103 genotypes processed.
+45 / 103 genotypes processed.
+46 / 103 genotypes processed.
+47 / 103 genotypes processed.
+48 / 103 genotypes processed.
+49 / 103 genotypes processed.
+50 / 103 genotypes processed.
+51 / 103 genotypes processed.
+52 / 103 genotypes processed.
+53 / 103 genotypes processed.
+54 / 103 genotypes processed.
+55 / 103 genotypes processed.
+56 / 103 genotypes processed.
+57 / 103 genotypes processed.
+58 / 103 genotypes processed.
+59 / 103 genotypes processed.
+60 / 103 genotypes processed.
+61 / 103 genotypes processed.
+62 / 103 genotypes processed.
+63 / 103 genotypes processed.
+64 / 103 genotypes processed.
+65 / 103 genotypes processed.
+66 / 103 genotypes processed.
+67 / 103 genotypes processed.
+68 / 103 genotypes processed.
+69 / 103 genotypes processed.
+70 / 103 genotypes processed.
+71 / 103 genotypes processed.
+72 / 103 genotypes processed.
+73 / 103 genotypes processed.
+74 / 103 genotypes processed.
+75 / 103 genotypes processed.
+76 / 103 genotypes processed.
+77 / 103 genotypes processed.
+78 / 103 genotypes processed.
+79 / 103 genotypes processed.
+80 / 103 genotypes processed.
+81 / 103 genotypes processed.
+82 / 103 genotypes processed.
+83 / 103 genotypes processed.
+84 / 103 genotypes processed.
+85 / 103 genotypes processed.
+86 / 103 genotypes processed.
+87 / 103 genotypes processed.
+88 / 103 genotypes processed.
+89 / 103 genotypes processed.
+90 / 103 genotypes processed.
+91 / 103 genotypes processed.
+92 / 103 genotypes processed.
+93 / 103 genotypes processed.
+94 / 103 genotypes processed.
+95 / 103 genotypes processed.
+96 / 103 genotypes processed.
+97 / 103 genotypes processed.
+98 / 103 genotypes processed.
+99 / 103 genotypes processed.
+100 / 103 genotypes processed.
+101 / 103 genotypes processed.
+102 / 103 genotypes processed.
+103 / 103 genotypes processed.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/evolution_26_1.png" src="_images/evolution_26_1.png" />
+</div>
+</div>
+</section>
+<section id="Create-a-heatmap-and-dendrogram-for-pathogen-genomes">
+<h4>Create a heatmap and dendrogram for pathogen genomes<a class="headerlink" href="#Create-a-heatmap-and-dendrogram-for-pathogen-genomes" title="Link to this heading"></a></h4>
+<p>Generate a heatmap and dendrogram for the top 15 genomes, include the ancestral genome <em>BADD</em> in the phylogeny. Besides creating the plot, outputs the pairwise distance matrix to a csv file as well.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_clustermap</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">clustermap</span><span class="p">(</span>
+        <span class="c1"># Create a heatmap and dendrogram for pathogen genomes in data passed.</span>
+    <span class="s1">&#39;fitness_function_mutation_example_clustermap.png&#39;</span><span class="p">,</span>
+        <span class="c1"># File path, name, and extension to save plot under.</span>
+    <span class="n">data</span><span class="p">,</span>
+        <span class="c1"># Dataframe with model history.</span>
+    <span class="n">save_data_to_file</span><span class="o">=</span><span class="s1">&#39;fitness_function_mutation_example_pairwise_distances.csv&#39;</span><span class="p">,</span>
+        <span class="c1"># File path, name, and extension to save data under.</span>
+    <span class="n">num_top_sequences</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>
+        <span class="c1"># How many sequences to include in matrix.</span>
+    <span class="n">track_specific_sequences</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;BADD&#39;</span><span class="p">]</span>
+        <span class="c1"># Specific sequences to include in matrix.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/acs98/miniconda3/envs/opqua/lib/python3.9/site-packages/seaborn/matrix.py:624: ClusterWarning: scipy.cluster: The symmetric non-negative hollow observation matrix looks suspiciously like an uncondensed distance matrix
+  linkage = hierarchy.linkage(self.array, method=self.method,
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/evolution_29_1.png" src="_images/evolution_29_1.png" />
+</div>
+</div>
+</section>
+<section id="Create-a-compartment-plot">
+<h4>Create a compartment plot<a class="headerlink" href="#Create-a-compartment-plot" title="Link to this heading"></a></h4>
+<p>Plot the number of susceptible and infected hosts in the model over time.</p>
+<p>Notice the total number of infections in the composition plot can exceed the number of infected hosts in the compartment plot. This happens because a single host infected by multiple genotypes is counted twice in the former, but not the latter.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_compartments</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">compartmentPlot</span><span class="p">(</span>
+        <span class="c1"># Create plot with number of naive, infected, recovered, dead hosts/vectors vs. time.</span>
+    <span class="s1">&#39;fitness_function_example_reassortment_compartments.png&#39;</span><span class="p">,</span>
+        <span class="c1"># File path, name, and extension to save plot under.</span>
+    <span class="n">data</span>
+        <span class="c1"># Dataframe with model history.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/evolution_32_0.png" src="_images/evolution_32_0.png" />
+</div>
+</div>
+<hr class="docutils" />
+</section>
+</section>
+</section>
+<section id="B.-Transmissibility-function">
+<h2>B. Transmissibility function<a class="headerlink" href="#B.-Transmissibility-function" title="Link to this heading"></a></h2>
+<p>Host-host transmission model with susceptible and infected hosts in a single population scenario, illustrating pathogen evolution through independent reassortment/segregation of chromosomes, increased transmissibility, and intra-host competition.</p>
+<p>When two pathogens with different genomes meet in the same host (or vector), the pathogen with the most fit genome has a higher probability of being transmitted to another host (or vector). In this case, the transmission rate <strong>DOES</strong> vary according to genome, with more fit genomes having a higher transmission rate. Once an event occurs, the pathogen with higher fitness also has a higher likelihood of being transmitted.</p>
+<p>Here, we define a landscape of stabilizing selection where there is an optimal genome and every other genome is less fit, but fitness functions can be defined in any arbitrary way (accounting for multiple peaks, for instance, or special cases for a specific genome sequence).</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">opqua.model</span> <span class="kn">import</span> <span class="n">Model</span>
+</pre></div>
+</div>
+</div>
+<section id="id1">
+<h3>Model initialization and setup<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<section id="id2">
+<h4>Create a new <code class="docutils literal notranslate"><span class="pre">Model</span></code> object<a class="headerlink" href="#id2" title="Link to this heading"></a></h4>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">()</span> <span class="c1"># Make a new model object.</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="id3">
+<h4>Define an optimal genome<a class="headerlink" href="#id3" title="Link to this heading"></a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">/</span></code> denotes separators between different chromosomes, which are segregated and recombined independently of each other (this model has no recombination).</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">my_optimal_genome</span> <span class="o">=</span> <span class="s1">&#39;BEST/BEST/BEST/BEST&#39;</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="id4">
+<h4>Define a custom fitness function for the host<a class="headerlink" href="#id4" title="Link to this heading"></a></h4>
+<p>Fitness functions must take in <strong>one</strong> argument and return a positive number as a fitness value. Here, we take advantage of one of the preset functions, but you can define it any way you want!</p>
+<p><strong>Stabilizing selection:</strong> any deviation from the “optimal genome” sequence results in an exponential decay in fitness to the <code class="docutils literal notranslate"><span class="pre">min_fitness</span></code> value at the maximum possible distance. Here we use strong selection, with a very low minimum fitness</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">myHostFitness</span><span class="p">(</span><span class="n">genome</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">Model</span><span class="o">.</span><span class="n">peakLandscape</span><span class="p">(</span>
+        <span class="n">genome</span><span class="p">,</span>
+            <span class="c1"># Genome to be evaluated (String), the entry for our function.</span>
+        <span class="n">peak_genome</span><span class="o">=</span><span class="n">my_optimal_genome</span><span class="p">,</span>
+            <span class="c1"># the genome sequence to measure distance against, has value of 1.</span>
+        <span class="n">min_value</span><span class="o">=</span><span class="mf">1e-10</span>
+            <span class="c1"># minimum value at maximum distance from optimal genome.</span>
+        <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Define-a-custom-transmission-function-for-the-host">
+<h4>Define a custom transmission function for the host<a class="headerlink" href="#Define-a-custom-transmission-function-for-the-host" title="Link to this heading"></a></h4>
+<p><strong>Stabilizing selection:</strong> any deviation from the “optimal genome” sequence gets 1/20 of the fitness of the optimal genome. There is no middle ground between the optimal and the rest, in this case.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">myHostContact</span><span class="p">(</span><span class="n">genome</span><span class="p">):</span>
+    <span class="k">return</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">genome</span> <span class="o">==</span> <span class="n">my_optimal_genome</span> <span class="k">else</span> <span class="mf">0.05</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="id5">
+<h4>Define a Setup for our system<a class="headerlink" href="#id5" title="Link to this heading"></a></h4>
+<p>Create a new set of parameters called <code class="docutils literal notranslate"><span class="pre">my_setup</span></code> to be used to simulate a population in the model. Use the default parameter set for a <em>host-host</em> model.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">newSetup</span><span class="p">(</span>     <span class="c1"># Create a new Setup.</span>
+    <span class="s1">&#39;my_setup&#39;</span><span class="p">,</span>
+        <span class="c1"># Name of the setup.</span>
+    <span class="n">preset</span><span class="o">=</span><span class="s1">&#39;host-host&#39;</span><span class="p">,</span>
+        <span class="c1"># Use default &#39;host-host&#39; parameters.</span>
+    <span class="n">possible_alleles</span><span class="o">=</span><span class="s1">&#39;ABDEST&#39;</span><span class="p">,</span>
+        <span class="c1"># Define &quot;letters&quot; in the &quot;genome&quot;, or possible alleles for each locus.</span>
+        <span class="c1"># Each locus can have different possible alleles if you define this</span>
+        <span class="c1"># argument as a list of strings, but here, we take the simplest</span>
+        <span class="c1"># approach.</span>
+    <span class="n">num_loci</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">my_optimal_genome</span><span class="p">),</span>
+        <span class="c1"># Define length of &quot;genome&quot;, or total number of alleles.</span>
+    <span class="n">contact_rate_host_host</span> <span class="o">=</span> <span class="mf">2e0</span><span class="p">,</span>
+        <span class="c1"># Rate of host-host contact events, not necessarily transmission, assumes</span>
+        <span class="c1"># constant population density.</span>
+    <span class="n">contactHost</span><span class="o">=</span><span class="n">myHostContact</span><span class="p">,</span>
+        <span class="c1"># Assign the contact function we created (could be a lambda function)</span>
+        <span class="c1"># In general, a function that returns coefficient modifying probability of a</span>
+        <span class="c1"># given host being chosen to be the infector in a contact event, based on genome</span>
+        <span class="c1"># sequence of pathogen. It should be a functions that recieves a String as</span>
+        <span class="c1"># an argument and returns a number.</span>
+    <span class="n">fitnessHost</span><span class="o">=</span><span class="n">myHostFitness</span><span class="p">,</span>
+        <span class="c1"># Assign the fitness function we created (could be a lambda function)</span>
+        <span class="c1"># In general, a function that evaluates relative fitness in head-to-head</span>
+        <span class="c1"># competition for different genomes within the same host. It should be a</span>
+        <span class="c1"># functions that recieves a String as an argument and returns a number.</span>
+    <span class="n">recombine_in_host</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span>
+        <span class="c1"># Modify &quot;recombination&quot; rate of pathogens when in host to get some</span>
+        <span class="c1"># evolution! This can either be independent segregation of chromosomes</span>
+        <span class="c1"># (equivalent to reassortment), recombination of homologous chromosomes,</span>
+        <span class="c1"># or a combination of both.</span>
+    <span class="n">num_crossover_host</span><span class="o">=</span><span class="mi">0</span>
+        <span class="c1"># By specifying the average number of crossover events that happen</span>
+        <span class="c1"># during recombination to be zero, we ensure that &quot;recombination&quot; is</span>
+        <span class="c1"># restricted to independent segregation of chromosomes (separated by</span>
+        <span class="c1"># &quot;/&quot;).</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="id6">
+<h4>Create a population in our model<a class="headerlink" href="#id6" title="Link to this heading"></a></h4>
+<p>Create a new population of 100 hosts and 0 vectors called <code class="docutils literal notranslate"><span class="pre">my_population</span></code>. The population uses parameters stored in <code class="docutils literal notranslate"><span class="pre">my_setup</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">newPopulation</span><span class="p">(</span>        <span class="c1"># Create a new Population.</span>
+    <span class="s1">&#39;my_population&#39;</span><span class="p">,</span>
+        <span class="c1"># Unique identifier for this population in the model.</span>
+    <span class="s1">&#39;my_setup&#39;</span><span class="p">,</span>
+        <span class="c1"># Predefined Setup object with parameters for this population.</span>
+    <span class="n">num_hosts</span><span class="o">=</span><span class="mi">100</span>
+        <span class="c1"># Number of hosts to initialize population with.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="id7">
+<h4>Manipulate hosts and vectors in the population<a class="headerlink" href="#id7" title="Link to this heading"></a></h4>
+<p>We will start off the simulation with a suboptimal pathogen genome, <em>BEST/BADD/BEST/BADD</em>. Throughout the course of the simulation, we should see this genome be outcompeted by more optimal pathogen genotypes, culminating in the optimal genome, which outcompetes all others.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">addPathogensToHosts</span><span class="p">(</span>  <span class="c1"># Add pathogens to hosts.</span>
+    <span class="s1">&#39;my_population&#39;</span><span class="p">,</span>
+        <span class="c1"># ID of population to be modified.</span>
+    <span class="p">{</span><span class="s1">&#39;BEST/BADD/BEST/BADD&#39;</span><span class="p">:</span><span class="mi">10</span><span class="p">}</span>
+        <span class="c1"># Dictionary containing pathogen genomes to add as keys and</span>
+        <span class="c1"># number of hosts each one will be added to as values.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>We will start off the simulation with a second suboptimal pathogen genome. <em>BADD/BEST/BADD/BEST</em>. Throughout the course of the simulation, we should see this genome be outcompeted by more optimal pathogen genotypes, culminating in the optimal genome, which outcompetes all others.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">addPathogensToHosts</span><span class="p">(</span>
+    <span class="s1">&#39;my_population&#39;</span><span class="p">,</span>
+        <span class="c1"># ID of population to be modified.</span>
+    <span class="p">{</span><span class="s1">&#39;BADD/BEST/BADD/BEST&#39;</span><span class="p">:</span><span class="mi">10</span><span class="p">}</span>
+        <span class="c1"># Dictionary containing pathogen genomes to add as keys and</span>
+        <span class="c1"># number of hosts each one will be added to as values.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="id8">
+<h3>Model simulation<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>              <span class="c1"># Simulate model for a specified time between two time points.</span>
+    <span class="mi">0</span><span class="p">,</span>                  <span class="c1"># Initial time point.</span>
+    <span class="mi">500</span><span class="p">,</span>                <span class="c1"># Final time point.</span>
+    <span class="n">time_sampling</span><span class="o">=</span><span class="mi">100</span>   <span class="c1"># how many events to skip before saving a snapshot of the system state.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Simulating time: 500 END
+</pre></div></div>
+</div>
+</section>
+<section id="id9">
+<h3>Output data manipulation and visualization<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
+<section id="id10">
+<h4>Create a table with the results of the given model history<a class="headerlink" href="#id10" title="Link to this heading"></a></h4>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">saveToDataFrame</span><span class="p">(</span>
+        <span class="c1"># Creates a pandas Dataframe in long format with the given model history,</span>
+        <span class="c1"># with one host or vector per simulation time in each row.</span>
+    <span class="s1">&#39;transmissibility_function_reassortment_example.csv&#39;</span>
+        <span class="c1"># Name of the file to save the data to.</span>
+    <span class="p">)</span>
+<span class="n">data</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Saving file...
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+[Parallel(n_jobs=8)]: Using backend LokyBackend with 8 concurrent workers.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+...file saved.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+[Parallel(n_jobs=8)]: Done   2 out of   8 | elapsed:    0.3s remaining:    0.8s
+[Parallel(n_jobs=8)]: Done   3 out of   8 | elapsed:    0.3s remaining:    0.5s
+[Parallel(n_jobs=8)]: Done   4 out of   8 | elapsed:    0.3s remaining:    0.3s
+[Parallel(n_jobs=8)]: Done   5 out of   8 | elapsed:    0.3s remaining:    0.2s
+[Parallel(n_jobs=8)]: Done   6 out of   8 | elapsed:    0.3s remaining:    0.1s
+[Parallel(n_jobs=8)]: Done   8 out of   8 | elapsed:    0.3s finished
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Time</th>
+      <th>Population</th>
+      <th>Organism</th>
+      <th>ID</th>
+      <th>Pathogens</th>
+      <th>Protection</th>
+      <th>Alive</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.0</td>
+      <td>my_population</td>
+      <td>Host</td>
+      <td>my_population_0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.0</td>
+      <td>my_population</td>
+      <td>Host</td>
+      <td>my_population_1</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.0</td>
+      <td>my_population</td>
+      <td>Host</td>
+      <td>my_population_2</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.0</td>
+      <td>my_population</td>
+      <td>Host</td>
+      <td>my_population_3</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.0</td>
+      <td>my_population</td>
+      <td>Host</td>
+      <td>my_population_4</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>795</th>
+      <td>500.0</td>
+      <td>my_population</td>
+      <td>Host</td>
+      <td>my_population_95</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>796</th>
+      <td>500.0</td>
+      <td>my_population</td>
+      <td>Host</td>
+      <td>my_population_96</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>797</th>
+      <td>500.0</td>
+      <td>my_population</td>
+      <td>Host</td>
+      <td>my_population_97</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>798</th>
+      <td>500.0</td>
+      <td>my_population</td>
+      <td>Host</td>
+      <td>my_population_98</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>799</th>
+      <td>500.0</td>
+      <td>my_population</td>
+      <td>Host</td>
+      <td>my_population_99</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+<p>800 rows × 7 columns</p>
+</div></div>
+</div>
+</section>
+<section id="id11">
+<h4>Create a plot to track pathogen genotypes across time<a class="headerlink" href="#id11" title="Link to this heading"></a></h4>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_composition</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">compositionPlot</span><span class="p">(</span>
+        <span class="c1"># Create a plot to track pathogen genotypes across time.</span>
+    <span class="s1">&#39;transmissibility_function_reassortment_example_composition.png&#39;</span><span class="p">,</span>
+        <span class="c1"># Name of the file to save the plot to.</span>
+    <span class="n">data</span>
+        <span class="c1"># Dataframe with model history</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+1 / 2 genotypes processed.
+2 / 2 genotypes processed.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/evolution_62_1.png" src="_images/evolution_62_1.png" />
+</div>
+</div>
+</section>
+<section id="id12">
+<h4>Create a heatmap and dendrogram for pathogen genomes<a class="headerlink" href="#id12" title="Link to this heading"></a></h4>
+<p>Generate a heatmap and dendrogram for the top 24 genomes. Besides creating the plot, outputs the pairwise distance matrix to a csv file as well.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_clustermap</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">clustermap</span><span class="p">(</span>
+        <span class="c1"># Create a heatmap and dendrogram for pathogen genomes in data passed.</span>
+    <span class="s1">&#39;transmissibility_function_reassortment_example_clustermap.png&#39;</span><span class="p">,</span>
+        <span class="c1"># File path, name, and extension to save plot under.</span>
+    <span class="n">data</span><span class="p">,</span>
+        <span class="c1"># Dataframe with model history.</span>
+    <span class="n">save_data_to_file</span><span class="o">=</span><span class="s1">&#39;transmissibility_function_reassortment_example_pairwise_distances.csv&#39;</span><span class="p">,</span>
+        <span class="c1"># File path, name, and extension to save data under.</span>
+    <span class="n">num_top_sequences</span><span class="o">=</span><span class="mi">24</span>
+        <span class="c1"># How many sequences to include in matrix.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/acs98/miniconda3/envs/opqua/lib/python3.9/site-packages/seaborn/matrix.py:624: ClusterWarning: scipy.cluster: The symmetric non-negative hollow observation matrix looks suspiciously like an uncondensed distance matrix
+  linkage = hierarchy.linkage(self.array, method=self.method,
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/evolution_64_1.png" src="_images/evolution_64_1.png" />
+</div>
+</div>
+</section>
+<section id="id13">
+<h4>Create a compartment plot<a class="headerlink" href="#id13" title="Link to this heading"></a></h4>
+<p>Plot the number of susceptible and infected hosts in the model over time.</p>
+<p>Notice the total number of infections in the composition plot can exceed the number of infected hosts in the compartment plot. This happens because a single host infected by multiple genotypes is counted twice in the former, but not the latter.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_compartments</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">compartmentPlot</span><span class="p">(</span>
+        <span class="c1"># Create plot with number of naive, infected, recovered, dead hosts/vectors vs. time.</span>
+    <span class="s1">&#39;transmissibility_function_reassortment_example_compartments.png&#39;</span><span class="p">,</span>
+        <span class="c1"># File path, name, and extension to save plot under.</span>
+    <span class="n">data</span>
+        <span class="c1"># Dataframe with model history.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/evolution_67_0.png" src="_images/evolution_67_0.png" />
+</div>
+</div>
+</section>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="basic_usage.html" class="btn btn-neutral float-left" title="Basic usage" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="intervention.html" class="btn btn-neutral float-right" title="Interventions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Pablo Cárdenas.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

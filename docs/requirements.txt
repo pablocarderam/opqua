@@ -18,3 +18,4 @@ myst_parser
 nbsphinx
 sphinx==7.2.4
 sphinx-autoapi
+pypandoc

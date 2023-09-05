@@ -28,12 +28,13 @@ under an [MIT License](https://choosealicense.com/licenses/mit/).
 
 ```{eval-rst}
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 2
    :caption: Contents
 
    about
    requirements_and_installation
    usage
+   tutorials
    model_documentation
    API
 ```

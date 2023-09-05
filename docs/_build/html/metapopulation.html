@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Metapopulation &mdash; Opqua 1.0.2 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/nbsphinx-code-cells.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=1ed6394b"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="about.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Vital dynamics" href="vital_dynamics.html" />
+    <link rel="prev" title="Interventions" href="intervention.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Opqua
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="about.html">About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="requirements_and_installation.html">Requirements and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="tutorials.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="basic_usage.html">Basic usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="evolution.html">Evolution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intervention.html">Interventions</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Metapopulation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#A.-Migration">A. Migration</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Model-initialization-and-setup">Model initialization and setup</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Model-simulation">Model simulation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Output-data-manipulation-and-visualization">Output data manipulation and visualization</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#B.-Population-contact">B. Population contact</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id1">Model initialization and setup</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id6">Model simulation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id7">Output data manipulation and visualization</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="vital_dynamics.html">Vital dynamics</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="model_documentation.html"><code class="docutils literal notranslate"><span class="pre">Model</span></code> Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="API.html">API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Opqua</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="tutorials.html">Tutorials</a></li>
+      <li class="breadcrumb-item active">Metapopulation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/metapopulation.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Metapopulation">
+<h1>Metapopulation<a class="headerlink" href="#Metapopulation" title="Link to this heading"></a></h1>
+<section id="A.-Migration">
+<h2>A. Migration<a class="headerlink" href="#A.-Migration" title="Link to this heading"></a></h2>
+<p>Vector-borne model with susceptible and infected hosts and vectors, showing a metapopulation model setup with multiple populations connected to each other by migrating hosts.</p>
+<p><strong>Population A</strong> is connected to <strong>Population B</strong> and to <strong>Clustered Population 4</strong> (both are one-way connections). <strong>Clustered Populations 0-4</strong> are all connected to each other in two-way connections.</p>
+<p>Isolated population is not connected to any others.</p>
+<p>Two different pathogen genotypes are initially seeded into <strong>Populations A</strong> and <strong>B</strong>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">opqua.model</span> <span class="kn">import</span> <span class="n">Model</span>
+</pre></div>
+</div>
+</div>
+<section id="Model-initialization-and-setup">
+<h3>Model initialization and setup<a class="headerlink" href="#Model-initialization-and-setup" title="Link to this heading"></a></h3>
+<section id="Create-a-new-Model-object">
+<h4>Create a new <code class="docutils literal notranslate"><span class="pre">Model</span></code> object<a class="headerlink" href="#Create-a-new-Model-object" title="Link to this heading"></a></h4>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">()</span> <span class="c1"># Make a new model object.</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Define-a-Setup-for-our-system">
+<h4>Define a Setup for our system<a class="headerlink" href="#Define-a-Setup-for-our-system" title="Link to this heading"></a></h4>
+<p>Create a new set of parameters called <code class="docutils literal notranslate"><span class="pre">setup_normal</span></code> to be used to simulate a population in the model. Use the default parameter set for a <em>vector-borne</em> model.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">newSetup</span><span class="p">(</span> <span class="c1"># Create a new Setup.</span>
+    <span class="s1">&#39;setup_normal&#39;</span><span class="p">,</span>
+        <span class="c1"># Name of the setup.</span>
+    <span class="n">preset</span><span class="o">=</span><span class="s1">&#39;vector-borne&#39;</span>
+        <span class="c1"># Use default &#39;vector-borne&#39; parameters.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>We make a second setup called <code class="docutils literal notranslate"><span class="pre">setup_cluster</span></code> with the same parameters, but doubles contact rate of the first setup.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">newSetup</span><span class="p">(</span> <span class="c1"># Create a new Setup.</span>
+    <span class="s1">&#39;setup_cluster&#39;</span><span class="p">,</span>
+        <span class="c1"># Name of the setup.</span>
+    <span class="n">contact_rate_host_vector</span> <span class="o">=</span> <span class="p">(</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">model</span><span class="o">.</span><span class="n">setups</span><span class="p">[</span><span class="s1">&#39;setup_normal&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">contact_rate_host_vector</span> <span class="p">),</span>
+        <span class="c1"># rate of host-vector contact events, not necessarily transmission, assumes</span>
+        <span class="c1"># constant population density.</span>
+    <span class="n">preset</span><span class="o">=</span><span class="s1">&#39;vector-borne&#39;</span>
+        <span class="c1"># Use default &#39;vector-borne&#39; parameters.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Create-a-population-in-our-model">
+<h4>Create a population in our model<a class="headerlink" href="#Create-a-population-in-our-model" title="Link to this heading"></a></h4>
+<p>Create a population of 20 hosts and 20 vectors called <code class="docutils literal notranslate"><span class="pre">population_A</span></code>. The population uses parameters stored in <code class="docutils literal notranslate"><span class="pre">setup_normal</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">newPopulation</span><span class="p">(</span>    <span class="c1"># Create a new Population.</span>
+    <span class="s1">&#39;population_A&#39;</span><span class="p">,</span>
+        <span class="c1"># Unique identifier for this population in the model.</span>
+    <span class="s1">&#39;setup_normal&#39;</span><span class="p">,</span>
+        <span class="c1"># Predefined Setup object with parameters for this population.</span>
+    <span class="n">num_hosts</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+        <span class="c1"># Number of hosts in the population with.</span>
+    <span class="n">num_vectors</span><span class="o">=</span><span class="mi">20</span>
+        <span class="c1"># Number of vectors in the population with.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Create a second population of 20 hosts and 20 vectors called <code class="docutils literal notranslate"><span class="pre">population_B</span></code>. The population uses parameters stored in <code class="docutils literal notranslate"><span class="pre">setup_normal</span></code>. The two populations that will be connected.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">newPopulation</span><span class="p">(</span>    <span class="c1"># Create a new Population.</span>
+    <span class="s1">&#39;population_B&#39;</span><span class="p">,</span>
+        <span class="c1"># Unique identifier for this population in the model.</span>
+    <span class="s1">&#39;setup_normal&#39;</span><span class="p">,</span>
+        <span class="c1"># Predefined Setup object with parameters for this population.</span>
+    <span class="n">num_hosts</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+        <span class="c1"># Number of hosts in the population with.</span>
+    <span class="n">num_vectors</span><span class="o">=</span><span class="mi">20</span>
+        <span class="c1"># Number of vectors in the population with.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Create a thrid population of 20 hosts and 20 vectors called <code class="docutils literal notranslate"><span class="pre">isolated_population</span></code> that will remain isolated. The population uses parameters stored in <code class="docutils literal notranslate"><span class="pre">setup_normal</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">newPopulation</span><span class="p">(</span>    <span class="c1"># Create a new Population.</span>
+    <span class="s1">&#39;isolated_population&#39;</span><span class="p">,</span>
+        <span class="c1"># Unique identifier for this population in the model.</span>
+    <span class="s1">&#39;setup_normal&#39;</span><span class="p">,</span>
+        <span class="c1"># Predefined Setup object with parameters for this population.</span>
+    <span class="n">num_hosts</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+        <span class="c1"># Number of hosts in the population with.</span>
+    <span class="n">num_vectors</span><span class="o">=</span><span class="mi">20</span>
+        <span class="c1"># Number of vectors in the population with.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Create a cluster of 5 populations connected to each other with a migration rate of 2e-3 between each of them in both directions. Each population has an numbered ID with the prefix <em>clustered_population_</em>, has the parameters defined in the <em>setup_cluster</em> setup, and has 20 hosts and vectors.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">createInterconnectedPopulations</span><span class="p">(</span>  <span class="c1"># Create new populations, link all of them to each other.</span>
+    <span class="mi">5</span><span class="p">,</span>
+        <span class="c1"># number of populations to be created.</span>
+    <span class="s1">&#39;clustered_population_&#39;</span><span class="p">,</span>
+        <span class="c1"># prefix for IDs to be used for this population in the model.</span>
+    <span class="s1">&#39;setup_cluster&#39;</span><span class="p">,</span>
+        <span class="c1"># Predefined Setup object with parameters for this population.</span>
+    <span class="n">host_migration_rate</span><span class="o">=</span><span class="mf">2e-3</span><span class="p">,</span>
+        <span class="c1">#  host migration rate between populations</span>
+    <span class="n">vector_migration_rate</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="c1"># vector migration rate between populations</span>
+    <span class="n">host_host_contact_rate</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="c1"># host-host inter-population contact rate between populations</span>
+    <span class="n">vector_host_contact_rate</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="c1"># host-vector inter-population contact rate between populations</span>
+    <span class="n">num_hosts</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+        <span class="c1"># number of hosts to initialize population with.</span>
+    <span class="n">num_vectors</span><span class="o">=</span><span class="mi">20</span>
+        <span class="c1"># number of hosts to initialize population with.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Now, we link <code class="docutils literal notranslate"><span class="pre">population_A</span></code> to one of the clustered populations with a one-way migration rate of 2e-3.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">linkPopulationsHostMigration</span><span class="p">(</span>
+        <span class="c1"># Set host-vector contact rate from one population towards another.</span>
+    <span class="s1">&#39;population_A&#39;</span><span class="p">,</span>
+        <span class="c1"># Origin population ID for which migration rate will</span>
+        <span class="c1"># be specified.</span>
+    <span class="s1">&#39;clustered_population_4&#39;</span><span class="p">,</span>
+        <span class="c1"># destination population ID for which migration rate</span>
+        <span class="c1"># will be specified.</span>
+    <span class="mf">2e-3</span>
+        <span class="c1"># migration rate from one population to the neighbor.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>We link <code class="docutils literal notranslate"><span class="pre">population_A</span></code> to <code class="docutils literal notranslate"><span class="pre">population_B</span></code> with a one-way migration rate of 2e-3.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">linkPopulationsHostMigration</span><span class="p">(</span>
+        <span class="c1"># Set host-vector contact rate from one population towards another.</span>
+    <span class="s1">&#39;population_A&#39;</span><span class="p">,</span>
+        <span class="c1"># Origin population ID for which migration rate will</span>
+        <span class="c1"># be specified.</span>
+    <span class="s1">&#39;population_B&#39;</span><span class="p">,</span>
+        <span class="c1"># destination population ID for which migration rate</span>
+        <span class="c1"># will be specified.</span>
+    <span class="mf">2e-3</span>
+        <span class="c1"># migration rate from one population to the neighbor.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Manipulate-hosts-and-vectors-in-the-population">
+<h4>Manipulate hosts and vectors in the population<a class="headerlink" href="#Manipulate-hosts-and-vectors-in-the-population" title="Link to this heading"></a></h4>
+<p>Add pathogens with a genome of <em>AAAAAAAAAA</em> to 20 random hosts in population <code class="docutils literal notranslate"><span class="pre">population_A</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">addPathogensToHosts</span><span class="p">(</span> <span class="c1"># Add specified pathogens to random hosts.</span>
+    <span class="s1">&#39;population_A&#39;</span><span class="p">,</span>
+        <span class="c1"># ID of population to be modified.</span>
+    <span class="p">{</span><span class="s1">&#39;AAAAAAAAAA&#39;</span><span class="p">:</span><span class="mi">5</span><span class="p">}</span>
+        <span class="c1"># Dictionary containing pathogen genomes to add as keys and</span>
+        <span class="c1"># number of hosts each one will be added to as values.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">population_B</span></code> starts with <code class="docutils literal notranslate"><span class="pre">GGGGGGGGGG</span></code> genotype pathogens.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">addPathogensToHosts</span><span class="p">(</span> <span class="c1"># Add specified pathogens to random hosts.</span>
+    <span class="s1">&#39;population_B&#39;</span><span class="p">,</span>
+        <span class="c1"># ID of population to be modified.</span>
+    <span class="p">{</span><span class="s1">&#39;GGGGGGGGGG&#39;</span><span class="p">:</span><span class="mi">5</span><span class="p">}</span>
+        <span class="c1"># Dictionary containing pathogen genomes to add as keys and</span>
+        <span class="c1"># number of hosts each one will be added to as values.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="Model-simulation">
+<h3>Model simulation<a class="headerlink" href="#Model-simulation" title="Link to this heading"></a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>          <span class="c1"># Simulate model for a specified time between two time points.</span>
+    <span class="mi">0</span><span class="p">,</span>              <span class="c1"># Initial time point.</span>
+    <span class="mi">100</span><span class="p">,</span>            <span class="c1"># Final time point.</span>
+    <span class="n">time_sampling</span><span class="o">=</span><span class="mi">0</span> <span class="c1"># how many events to skip before saving a snapshot of the system state.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Simulating time: 83.06461341318253, event: CONTACT_VECTOR_HOST
+Simulating time: 100.06274296487011 END
+</pre></div></div>
+</div>
+</section>
+<section id="Output-data-manipulation-and-visualization">
+<h3>Output data manipulation and visualization<a class="headerlink" href="#Output-data-manipulation-and-visualization" title="Link to this heading"></a></h3>
+<section id="Create-a-table-with-the-results-of-the-given-model-history">
+<h4>Create a table with the results of the given model history<a class="headerlink" href="#Create-a-table-with-the-results-of-the-given-model-history" title="Link to this heading"></a></h4>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">saveToDataFrame</span><span class="p">(</span>
+        <span class="c1"># Creates a pandas Dataframe in long format with the given model history,</span>
+        <span class="c1"># with one host or vector per simulation time in each row.</span>
+    <span class="s1">&#39;metapopulations_migration_example.csv&#39;</span>
+        <span class="c1"># Name of the file to save the data to.</span>
+    <span class="p">)</span>
+<span class="n">data</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Saving file...
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+[Parallel(n_jobs=8)]: Using backend LokyBackend with 8 concurrent workers.
+[Parallel(n_jobs=8)]: Done   2 tasks      | elapsed:    0.3s
+[Parallel(n_jobs=8)]: Batch computation too fast (0.19491923660278324s.) Setting batch_size=2.
+[Parallel(n_jobs=8)]: Done   9 tasks      | elapsed:    0.3s
+[Parallel(n_jobs=8)]: Done  16 tasks      | elapsed:    0.3s
+[Parallel(n_jobs=8)]: Done  26 tasks      | elapsed:    0.3s
+[Parallel(n_jobs=8)]: Batch computation too fast (0.027785778045654297s.) Setting batch_size=4.
+[Parallel(n_jobs=8)]: Done  44 tasks      | elapsed:    0.4s
+[Parallel(n_jobs=8)]: Batch computation too fast (0.024601459503173828s.) Setting batch_size=8.
+[Parallel(n_jobs=8)]: Done  76 tasks      | elapsed:    0.4s
+[Parallel(n_jobs=8)]: Done 120 tasks      | elapsed:    0.5s
+[Parallel(n_jobs=8)]: Batch computation too fast (0.040442705154418945s.) Setting batch_size=16.
+[Parallel(n_jobs=8)]: Done 224 tasks      | elapsed:    0.6s
+[Parallel(n_jobs=8)]: Batch computation too fast (0.06669497489929199s.) Setting batch_size=32.
+[Parallel(n_jobs=8)]: Done 408 tasks      | elapsed:    0.8s
+[Parallel(n_jobs=8)]: Batch computation too fast (0.0938570499420166s.) Setting batch_size=64.
+[Parallel(n_jobs=8)]: Done 606 tasks      | elapsed:    0.8s
+[Parallel(n_jobs=8)]: Done 714 tasks      | elapsed:    0.8s
+[Parallel(n_jobs=8)]: Done 793 tasks      | elapsed:    0.8s
+[Parallel(n_jobs=8)]: Done 810 tasks      | elapsed:    0.8s
+[Parallel(n_jobs=8)]: Done 829 tasks      | elapsed:    0.9s
+[Parallel(n_jobs=8)]: Done 848 tasks      | elapsed:    0.9s
+[Parallel(n_jobs=8)]: Done 869 tasks      | elapsed:    0.9s
+[Parallel(n_jobs=8)]: Done 890 tasks      | elapsed:    0.9s
+[Parallel(n_jobs=8)]: Done 918 out of 918 | elapsed:    0.9s finished
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+...file saved.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Time</th>
+      <th>Population</th>
+      <th>Organism</th>
+      <th>ID</th>
+      <th>Pathogens</th>
+      <th>Protection</th>
+      <th>Alive</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.0</td>
+      <td>population_A</td>
+      <td>Host</td>
+      <td>population_A_0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.0</td>
+      <td>population_A</td>
+      <td>Host</td>
+      <td>population_A_1</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.0</td>
+      <td>population_A</td>
+      <td>Host</td>
+      <td>population_A_2</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.0</td>
+      <td>population_A</td>
+      <td>Host</td>
+      <td>population_A_3</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.0</td>
+      <td>population_A</td>
+      <td>Host</td>
+      <td>population_A_4</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>293755</th>
+      <td>100.0</td>
+      <td>clustered_population_4</td>
+      <td>Vector</td>
+      <td>clustered_population_4_15</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>293756</th>
+      <td>100.0</td>
+      <td>clustered_population_4</td>
+      <td>Vector</td>
+      <td>clustered_population_4_16</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>293757</th>
+      <td>100.0</td>
+      <td>clustered_population_4</td>
+      <td>Vector</td>
+      <td>clustered_population_4_17</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>293758</th>
+      <td>100.0</td>
+      <td>clustered_population_4</td>
+      <td>Vector</td>
+      <td>clustered_population_4_18</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>293759</th>
+      <td>100.0</td>
+      <td>clustered_population_4</td>
+      <td>Vector</td>
+      <td>clustered_population_4_19</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+<p>293760 rows × 7 columns</p>
+</div></div>
+</div>
+</section>
+<section id="Creates-a-line-or-stacked-line-plot-with-dynamics-of-a-compartment-across-populations-in-the-model,-with-one-line-for-each-population.">
+<h4>Creates a line or stacked line plot with dynamics of a compartment across populations in the model, with one line for each population.<a class="headerlink" href="#Creates-a-line-or-stacked-line-plot-with-dynamics-of-a-compartment-across-populations-in-the-model,-with-one-line-for-each-population." title="Link to this heading"></a></h4>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">populationsPlot</span><span class="p">(</span> <span class="c1"># Create plot with aggregated totals per population across time.</span>
+    <span class="s1">&#39;metapopulations_migration_example.png&#39;</span><span class="p">,</span>
+        <span class="c1"># Name of the file to save the plot to.</span>
+    <span class="n">data</span><span class="p">,</span>
+        <span class="c1"># Dataframe with model history.</span>
+    <span class="n">num_top_populations</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+        <span class="c1"># how many populations to count separately and include as columns, remainder will be</span>
+        <span class="c1"># counted under column “Other”</span>
+    <span class="n">track_specific_populations</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;isolated_population&#39;</span><span class="p">],</span>
+        <span class="c1"># Make sure to plot the isolated population totals if not in the top</span>
+        <span class="c1"># infected populations.</span>
+    <span class="n">y_label</span><span class="o">=</span><span class="s1">&#39;Infected hosts&#39;</span>
+        <span class="c1"># change y label</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/metapopulation_36_0.png" src="_images/metapopulation_36_0.png" />
+</div>
+</div>
+<hr class="docutils" />
+</section>
+</section>
+</section>
+<section id="B.-Population-contact">
+<h2>B. Population contact<a class="headerlink" href="#B.-Population-contact" title="Link to this heading"></a></h2>
+<p>Vector-borne model with susceptible and infected hosts and vectors, showing a metapopulation model setup with multiple populations connected to each other by “population contact” events between vectors and hosts, in which a vector and a host from different populations contact each other without migrating from one population to another.</p>
+<p><strong>Population A</strong> is connected to <strong>Population B</strong> and to <strong>Clustered Population</strong> 4 (both are one-way connections).</p>
+<p><strong>Clustered Populations 0-4</strong> are all connected to each other in two-way connections.</p>
+<p>Isolated population is not connected to any others.</p>
+<p>Two different pathogen genotypes are initially seeded into <strong>Populations A</strong> and <strong>B</strong>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">opqua.model</span> <span class="kn">import</span> <span class="n">Model</span>
+</pre></div>
+</div>
+</div>
+<section id="id1">
+<h3>Model initialization and setup<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<section id="id2">
+<h4>Create a new <code class="docutils literal notranslate"><span class="pre">Model</span></code> object<a class="headerlink" href="#id2" title="Link to this heading"></a></h4>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">()</span> <span class="c1"># Make a new model object.</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="id3">
+<h4>Define a Setup for our system<a class="headerlink" href="#id3" title="Link to this heading"></a></h4>
+<p>Create a new set of parameters called <code class="docutils literal notranslate"><span class="pre">setup_normal</span></code> to be used to simulate a population in the model. Use the default parameter set for a <em>vector-borne</em> model.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">newSetup</span><span class="p">(</span>     <span class="c1"># Create a new Setup.</span>
+    <span class="s1">&#39;setup_normal&#39;</span><span class="p">,</span>
+        <span class="c1"># Name of the setup.</span>
+    <span class="n">preset</span><span class="o">=</span><span class="s1">&#39;vector-borne&#39;</span>
+        <span class="c1"># Use default &#39;vector-borne&#39; parameters.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>We make a second setup called <code class="docutils literal notranslate"><span class="pre">setup_cluster</span></code> with the same parameters, but doubles contact rate of the first setup.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">newSetup</span><span class="p">(</span>
+    <span class="s1">&#39;setup_cluster&#39;</span><span class="p">,</span>
+        <span class="c1"># Name of the setup.</span>
+    <span class="n">contact_rate_host_vector</span> <span class="o">=</span> <span class="p">(</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">model</span><span class="o">.</span><span class="n">setups</span><span class="p">[</span><span class="s1">&#39;setup_normal&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">contact_rate_host_vector</span> <span class="p">),</span>
+        <span class="c1"># rate of host-vector contact events, not necessarily transmission, assumes</span>
+        <span class="c1"># constant population density.</span>
+    <span class="n">preset</span><span class="o">=</span><span class="s1">&#39;vector-borne&#39;</span>
+        <span class="c1"># Use default &#39;vector-borne&#39; parameters.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="id4">
+<h4>Create a population in our model<a class="headerlink" href="#id4" title="Link to this heading"></a></h4>
+<p>Create a population of 20 hosts and 20 vectors called <code class="docutils literal notranslate"><span class="pre">population_A</span></code>. The population uses parameters stored in <code class="docutils literal notranslate"><span class="pre">setup_normal</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">newPopulation</span><span class="p">(</span>    <span class="c1"># Create a new Population.</span>
+    <span class="s1">&#39;population_A&#39;</span><span class="p">,</span>
+        <span class="c1"># Unique identifier for this population in the model.</span>
+    <span class="s1">&#39;setup_normal&#39;</span><span class="p">,</span>
+        <span class="c1"># Predefined Setup object with parameters for this population.</span>
+    <span class="n">num_hosts</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+        <span class="c1"># Number of hosts in the population with.</span>
+    <span class="n">num_vectors</span><span class="o">=</span><span class="mi">20</span>
+        <span class="c1"># Number of vectors in the population with.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Create a second population of 20 hosts and 20 vectors called <code class="docutils literal notranslate"><span class="pre">population_B</span></code>. The population uses parameters stored in <code class="docutils literal notranslate"><span class="pre">setup_normal</span></code>. The two populations that will be connected.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">newPopulation</span><span class="p">(</span>    <span class="c1"># Create a new Population.</span>
+    <span class="s1">&#39;population_B&#39;</span><span class="p">,</span>
+        <span class="c1"># Unique identifier for this population in the model.</span>
+    <span class="s1">&#39;setup_normal&#39;</span><span class="p">,</span>
+        <span class="c1"># Predefined Setup object with parameters for this population.</span>
+    <span class="n">num_hosts</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+        <span class="c1"># Number of hosts in the population with.</span>
+    <span class="n">num_vectors</span><span class="o">=</span><span class="mi">20</span>
+        <span class="c1"># Number of vectors in the population with.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Create a thrid population of 20 hosts and 20 vectors called <code class="docutils literal notranslate"><span class="pre">isolated_population</span></code> that will remain isolated. The population uses parameters stored in <code class="docutils literal notranslate"><span class="pre">setup_normal</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">newPopulation</span><span class="p">(</span>    <span class="c1"># Create a new Population.</span>
+    <span class="s1">&#39;isolated_population&#39;</span><span class="p">,</span>
+        <span class="c1"># Unique identifier for this population in the model.</span>
+    <span class="s1">&#39;setup_normal&#39;</span><span class="p">,</span>
+        <span class="c1"># Predefined Setup object with parameters for this population.</span>
+    <span class="n">num_hosts</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+        <span class="c1"># Number of hosts in the population with.</span>
+    <span class="n">num_vectors</span><span class="o">=</span><span class="mi">20</span>
+        <span class="c1"># Number of vectors in the population with.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Create a cluster of 5 populations connected to each other with a population contact rate of 1e-2 between each of them in both directions. Each population has an numbered ID with the prefix <em>clustered_population_</em>, has the parameters defined in the <em>setup_cluster</em> setup, and has 20 hosts and vectors.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">createInterconnectedPopulations</span><span class="p">(</span>  <span class="c1"># Create new populations, link all of them to each other.</span>
+    <span class="mi">5</span><span class="p">,</span>
+        <span class="c1"># number of populations to be created.</span>
+    <span class="s1">&#39;clustered_population_&#39;</span><span class="p">,</span>
+        <span class="c1"># prefix for IDs to be used for this population in the model.</span>
+    <span class="s1">&#39;setup_cluster&#39;</span><span class="p">,</span>
+        <span class="c1"># Predefined Setup object with parameters for this population.</span>
+    <span class="n">host_migration_rate</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="c1">#  host migration rate between populations</span>
+    <span class="n">vector_migration_rate</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="c1"># vector migration rate between populations</span>
+    <span class="n">vector_host_contact_rate</span><span class="o">=</span><span class="mf">2e-2</span><span class="p">,</span>
+        <span class="c1"># host-host inter-population contact rate between populations</span>
+    <span class="n">host_vector_contact_rate</span><span class="o">=</span><span class="mf">2e-2</span><span class="p">,</span>
+        <span class="c1"># host-vector inter-population contact rate between populations</span>
+    <span class="n">num_hosts</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+        <span class="c1"># number of hosts to initialize population with.</span>
+    <span class="n">num_vectors</span><span class="o">=</span><span class="mi">20</span>
+        <span class="c1"># number of hosts to initialize population with.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Now, we link <code class="docutils literal notranslate"><span class="pre">population_A</span></code> to one of the clustered populations with a one-way migration rate of 2e-3.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">linkPopulationsHostVectorContact</span><span class="p">(</span>
+        <span class="c1"># Set host-vector contact rate from one population towards another.</span>
+    <span class="s1">&#39;population_A&#39;</span><span class="p">,</span>
+        <span class="c1"># Origin population ID for which migration rate will</span>
+        <span class="c1"># be specified.</span>
+    <span class="s1">&#39;clustered_population_4&#39;</span><span class="p">,</span>
+        <span class="c1"># destination population ID for which migration rate</span>
+        <span class="c1"># will be specified.</span>
+    <span class="mf">2e-2</span>
+        <span class="c1"># migration rate from one population to the neighbor.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>We link <code class="docutils literal notranslate"><span class="pre">population_A</span></code> to one of the clustered populations with a one-way population contact rate of 1e-2 for <code class="docutils literal notranslate"><span class="pre">population_A</span></code> hosts and <code class="docutils literal notranslate"><span class="pre">clustered_population_4</span></code> vectors. Note that for population contacts, both populations need to have contact rates towards each other (migration does not require this)</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">linkPopulationsVectorHostContact</span><span class="p">(</span>
+        <span class="c1"># Set host-vector contact rate from one population towards another.</span>
+    <span class="s1">&#39;clustered_population_4&#39;</span><span class="p">,</span>
+        <span class="c1"># Origin population ID for which migration rate will</span>
+        <span class="c1"># be specified.</span>
+    <span class="s1">&#39;population_A&#39;</span><span class="p">,</span>
+        <span class="c1"># destination population ID for which migration rate</span>
+        <span class="c1"># will be specified.</span>
+    <span class="mf">2e-2</span>
+        <span class="c1"># migration rate from one population to the neighbor.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>We link <code class="docutils literal notranslate"><span class="pre">population_A</span></code> to <code class="docutils literal notranslate"><span class="pre">population_B</span></code> with a one-way migration rate of 2e-2.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">linkPopulationsHostVectorContact</span><span class="p">(</span>
+        <span class="c1"># Set host-vector contact rate from one population towards another.</span>
+    <span class="s1">&#39;population_A&#39;</span><span class="p">,</span>
+        <span class="c1"># Origin population ID for which migration rate will</span>
+        <span class="c1"># be specified.</span>
+    <span class="s1">&#39;population_B&#39;</span><span class="p">,</span>
+        <span class="c1"># destination population ID for which migration rate</span>
+        <span class="c1"># will be specified.</span>
+    <span class="mf">2e-2</span>
+        <span class="c1"># migration rate from one population to the neighbor.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>We link <code class="docutils literal notranslate"><span class="pre">population_A</span></code> to <code class="docutils literal notranslate"><span class="pre">population_B</span></code> with a one-way population contact rate of 2e-2 for <code class="docutils literal notranslate"><span class="pre">population_A</span></code> hosts and <code class="docutils literal notranslate"><span class="pre">population_B</span></code> vectors. Note that for population contacts, both populations need to have contact rates towards each other (migration does not require this)</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">linkPopulationsVectorHostContact</span><span class="p">(</span>
+        <span class="c1"># Set host-vector contact rate from one population towards another.</span>
+    <span class="s1">&#39;population_B&#39;</span><span class="p">,</span>
+        <span class="c1"># Origin population ID for which migration rate will</span>
+        <span class="c1"># be specified.</span>
+    <span class="s1">&#39;population_A&#39;</span><span class="p">,</span>
+        <span class="c1"># destination population ID for which migration rate</span>
+        <span class="c1"># will be specified.</span>
+    <span class="mf">2e-2</span>
+        <span class="c1"># migration rate from one population to the neighbor.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="id5">
+<h4>Manipulate hosts and vectors in the population<a class="headerlink" href="#id5" title="Link to this heading"></a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">population_A</span></code> starts with <code class="docutils literal notranslate"><span class="pre">AAAAAAAAAA</span></code> genotype pathogens.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">addPathogensToHosts</span><span class="p">(</span> <span class="c1"># Add specified pathogens to random hosts.</span>
+    <span class="s1">&#39;population_A&#39;</span><span class="p">,</span>
+        <span class="c1"># ID of population to be modified.</span>
+    <span class="p">{</span><span class="s1">&#39;AAAAAAAAAA&#39;</span><span class="p">:</span><span class="mi">5</span><span class="p">}</span>
+        <span class="c1"># Dictionary containing pathogen genomes to add as keys and</span>
+        <span class="c1"># number of hosts each one will be added to as values.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">population_B</span></code> starts with <code class="docutils literal notranslate"><span class="pre">GGGGGGGGGG</span></code> genotype pathogens.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">addPathogensToHosts</span><span class="p">(</span> <span class="c1"># Add specified pathogens to random hosts.</span>
+    <span class="s1">&#39;population_B&#39;</span><span class="p">,</span>
+        <span class="c1"># ID of population to be modified.</span>
+    <span class="p">{</span><span class="s1">&#39;GGGGGGGGGG&#39;</span><span class="p">:</span><span class="mi">5</span><span class="p">}</span>
+        <span class="c1"># Dictionary containing pathogen genomes to add as keys and</span>
+        <span class="c1"># number of hosts each one will be added to as values.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="id6">
+<h3>Model simulation<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>          <span class="c1"># Simulate model for a specified time between two time points.</span>
+    <span class="mi">0</span><span class="p">,</span>              <span class="c1"># Initial time point.</span>
+    <span class="mi">100</span><span class="p">,</span>            <span class="c1"># Final time point.</span>
+    <span class="n">time_sampling</span><span class="o">=</span><span class="mi">0</span> <span class="c1"># how many events to skip before saving a snapshot of the system state.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Simulating time: 100.1491768759948 END
+</pre></div></div>
+</div>
+</section>
+<section id="id7">
+<h3>Output data manipulation and visualization<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<section id="id8">
+<h4>Create a table with the results of the given model history<a class="headerlink" href="#id8" title="Link to this heading"></a></h4>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">saveToDataFrame</span><span class="p">(</span>
+        <span class="c1"># Creates a pandas Dataframe in long format with the given model history,</span>
+        <span class="c1"># with one host or vector per simulation time in each row.</span>
+    <span class="s1">&#39;metapopulations_population_contact_example.csv&#39;</span>
+        <span class="c1"># Name of the file to save the data to.</span>
+    <span class="p">)</span>
+<span class="n">data</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Saving file...
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+[Parallel(n_jobs=8)]: Using backend LokyBackend with 8 concurrent workers.
+[Parallel(n_jobs=8)]: Done   2 tasks      | elapsed:    0.3s
+[Parallel(n_jobs=8)]: Done   9 tasks      | elapsed:    0.3s
+[Parallel(n_jobs=8)]: Batch computation too fast (0.19925533388085942s.) Setting batch_size=2.
+[Parallel(n_jobs=8)]: Done  16 tasks      | elapsed:    0.3s
+[Parallel(n_jobs=8)]: Done  25 tasks      | elapsed:    0.4s
+[Parallel(n_jobs=8)]: Batch computation too fast (0.017675399780273438s.) Setting batch_size=4.
+[Parallel(n_jobs=8)]: Done  36 tasks      | elapsed:    0.4s
+[Parallel(n_jobs=8)]: Done  58 tasks      | elapsed:    0.4s
+[Parallel(n_jobs=8)]: Batch computation too fast (0.030938148498535156s.) Setting batch_size=8.
+[Parallel(n_jobs=8)]: Done  96 tasks      | elapsed:    0.5s
+[Parallel(n_jobs=8)]: Batch computation too fast (0.039101600646972656s.) Setting batch_size=16.
+[Parallel(n_jobs=8)]: Done 168 tasks      | elapsed:    0.6s
+[Parallel(n_jobs=8)]: Batch computation too fast (0.07192206382751465s.) Setting batch_size=32.
+[Parallel(n_jobs=8)]: Done 288 tasks      | elapsed:    0.7s
+[Parallel(n_jobs=8)]: Done 453 tasks      | elapsed:    0.7s
+[Parallel(n_jobs=8)]: Done 528 tasks      | elapsed:    0.7s
+[Parallel(n_jobs=8)]: Done 545 tasks      | elapsed:    0.7s
+[Parallel(n_jobs=8)]: Done 562 tasks      | elapsed:    0.7s
+[Parallel(n_jobs=8)]: Done 581 tasks      | elapsed:    0.7s
+[Parallel(n_jobs=8)]: Done 611 out of 611 | elapsed:    0.7s finished
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+...file saved.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Time</th>
+      <th>Population</th>
+      <th>Organism</th>
+      <th>ID</th>
+      <th>Pathogens</th>
+      <th>Protection</th>
+      <th>Alive</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.0</td>
+      <td>population_A</td>
+      <td>Host</td>
+      <td>population_A_0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.0</td>
+      <td>population_A</td>
+      <td>Host</td>
+      <td>population_A_1</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.0</td>
+      <td>population_A</td>
+      <td>Host</td>
+      <td>population_A_2</td>
+      <td>AAAAAAAAAA</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.0</td>
+      <td>population_A</td>
+      <td>Host</td>
+      <td>population_A_3</td>
+      <td>AAAAAAAAAA</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.0</td>
+      <td>population_A</td>
+      <td>Host</td>
+      <td>population_A_4</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>195515</th>
+      <td>100.0</td>
+      <td>clustered_population_4</td>
+      <td>Vector</td>
+      <td>clustered_population_4_15</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>195516</th>
+      <td>100.0</td>
+      <td>clustered_population_4</td>
+      <td>Vector</td>
+      <td>clustered_population_4_16</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>195517</th>
+      <td>100.0</td>
+      <td>clustered_population_4</td>
+      <td>Vector</td>
+      <td>clustered_population_4_17</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>195518</th>
+      <td>100.0</td>
+      <td>clustered_population_4</td>
+      <td>Vector</td>
+      <td>clustered_population_4_18</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>195519</th>
+      <td>100.0</td>
+      <td>clustered_population_4</td>
+      <td>Vector</td>
+      <td>clustered_population_4_19</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+<p>195520 rows × 7 columns</p>
+</div></div>
+</div>
+</section>
+<section id="id9">
+<h4>Creates a line or stacked line plot with dynamics of a compartment across populations in the model, with one line for each population.<a class="headerlink" href="#id9" title="Link to this heading"></a></h4>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">populationsPlot</span><span class="p">(</span> <span class="c1"># Plot infected hosts per population over time.</span>
+    <span class="s1">&#39;metapopulations_population_contact_example.png&#39;</span><span class="p">,</span>
+        <span class="c1"># Name of the file to save the plot to.</span>
+    <span class="n">data</span><span class="p">,</span>
+        <span class="c1"># Dataframe with model history.</span>
+    <span class="n">num_top_populations</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+        <span class="c1"># how many populations to count separately and include as columns, remainder will be</span>
+        <span class="c1"># counted under column “Other”</span>
+    <span class="n">track_specific_populations</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;isolated_population&#39;</span><span class="p">],</span>
+        <span class="c1"># Make sure to plot th isolated population totals if not in the top</span>
+        <span class="c1"># infected populations.</span>
+    <span class="n">y_label</span><span class="o">=</span><span class="s1">&#39;Infected hosts&#39;</span>
+        <span class="c1"># change y label</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/metapopulation_77_0.png" src="_images/metapopulation_77_0.png" />
+</div>
+</div>
+</section>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="intervention.html" class="btn btn-neutral float-left" title="Interventions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="vital_dynamics.html" class="btn btn-neutral float-right" title="Vital dynamics" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Pablo Cárdenas.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
