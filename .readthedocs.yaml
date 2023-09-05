@@ -30,5 +30,5 @@ sphinx:
 python:
    install:
    - method: pip
-     path: opqua
+     path: .
    - requirements: docs/requirements.txt
