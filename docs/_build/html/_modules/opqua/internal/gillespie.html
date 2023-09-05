@@ -46,8 +46,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../about.html">About</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../requirements_and_installation.html">Requirements and Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../model_documentation.html">Documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../model_documentation.html"><code class="docutils literal notranslate"><span class="pre">Model</span></code> Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../API.html">API</a></li>
 </ul>
 
         </div>
@@ -94,11 +94,8 @@
 <span class="sd">    according to the possible events and simulating a timecourse using the</span>
 <span class="sd">    Gillespie algorithm.</span>
 
-<span class="sd">    Methods:</span>
-<span class="sd">    getRates -- returns array containing rates for each event for a given system</span>
-<span class="sd">        state</span>
-<span class="sd">    doAction -- carries out an event, modifying system state</span>
-<span class="sd">    run -- simulates model for a specified length of time</span>
+<span class="sd">    Attributes:</span>
+<span class="sd">        model (Model object): the model this simulation belongs to.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># Event ID constants:</span>
@@ -151,7 +148,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a new Gillespie simulation object.</span>
 
 <span class="sd">        Arguments:</span>
-<span class="sd">        model -- the model this simulation belongs to (Model)</span>
+<span class="sd">            model (Model object): the model this simulation belongs to.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="nb">super</span><span class="p">(</span><span class="n">Gillespie</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span> <span class="c1"># initialize as parent class object</span>
@@ -184,12 +181,11 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Wrapper for calculating event rates as per current system state.</span>
 
 <span class="sd">        Arguments:</span>
-<span class="sd">        population_ids -- list with ids for every population in the model</span>
-<span class="sd">            (list of Strings)</span>
+<span class="sd">            population_ids (list of Strings): list with IDs for every population in the model.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">        Matrix with rates as values for events (rows) and populations (columns).</span>
-<span class="sd">        Populations in order given in argument.</span>
+<span class="sd">            Matrix with rates as values for events (rows) and populations (columns).</span>
+<span class="sd">            Populations in order given in argument.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">rates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span> <span class="p">[</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">evt_IDs</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">population_ids</span><span class="p">)</span> <span class="p">]</span> <span class="p">)</span>
@@ -420,12 +416,12 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Change system state according to act argument passed</span>
 
 <span class="sd">        Arguments:</span>
-<span class="sd">        act -- defines action to be taken, one of the event ID constants (int)</span>
-<span class="sd">        pop -- population action will happen in (Population)</span>
-<span class="sd">        rand -- random number used to define event (number 0-1)</span>
+<span class="sd">            act (int): defines action to be taken, one of the event ID constants.</span>
+<span class="sd">            pop (Population object): where the population action will happen in.</span>
+<span class="sd">            rand (number 0-1): random number used to define event.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">        whether or not the model has changed state (Boolean)</span>
+<span class="sd">            Boolean indicationg whether or not the model has changed state.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">changed</span> <span class="o">=</span> <span class="kc">False</span>
@@ -594,21 +590,21 @@
 <span class="sd">        Simulates a time series using the Gillespie algorithm.</span>
 
 <span class="sd">        Arguments:</span>
-<span class="sd">        t0 -- initial time point to start simulation at (number)</span>
-<span class="sd">        tf -- initial time point to end simulation at (number)</span>
-<span class="sd">        time_sampling -- how many events to skip before saving a snapshot of the</span>
-<span class="sd">            system state (saves all by default), if &lt;0, saves only final state</span>
-<span class="sd">            (int, default 0)</span>
-<span class="sd">        host_sampling -- how many hosts to skip before saving one in a snapshot</span>
-<span class="sd">            of the system state (saves all by default) (int, default 0)</span>
-<span class="sd">        vector_sampling -- how many vectors to skip before saving one in a</span>
-<span class="sd">            snapshot of the system state (saves all by default) (int, default 0)</span>
-<span class="sd">        print_every_n_events -- number of events a message is printed to console</span>
-<span class="sd">            (int&gt;0, default 1000)</span>
+<span class="sd">            t0 (number): initial time point to start simulation at.</span>
+<span class="sd">            tf (number): initial time point to end simulation at.</span>
+<span class="sd">        </span>
+<span class="sd">        Keyword arguments:</span>
+<span class="sd">            time_sampling (int): how many events to skip before saving a snapshot of the</span>
+<span class="sd">                system state (saves all by default), if &lt;0, saves only final state. Defaults to 0.</span>
+<span class="sd">            host_sampling (int): how many hosts to skip before saving one in a snapshot</span>
+<span class="sd">                of the system state (saves all by default). Defaults to 0.</span>
+<span class="sd">            vector_sampling (int): how many vectors to skip before saving one in a</span>
+<span class="sd">                snapshot of the system state (saves all by default). Defaults to 0.</span>
+<span class="sd">            print_every_n_events (int&gt;0): number of events a message is printed to console. Defaults to 1000.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">        dictionary containing model state history, with keys=times and</span>
-<span class="sd">            values=Model objects with model snapshot at that time point</span>
+<span class="sd">            dictionary containing model state history, with `keys`=`times` and</span>
+<span class="sd">                `values`=`Model` objects with model snapshot at that time point.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># Simulation variables</span>

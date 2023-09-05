@@ -1,4 +1,4 @@
-# Documentation
+# `Model` Documentation
 
 All usage is handled through the Opqua `Model` class.
 The `Model` class contains populations, setups, and interventions to be used

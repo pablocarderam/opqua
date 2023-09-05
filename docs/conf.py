@@ -25,9 +25,11 @@ extensions = ["myst_parser",
               "sphinx.ext.viewcode",
               "sphinx.ext.napoleon",
               "sphinx.ext.autosummary",
-            #   "autoapi.extension",
+              # "autoapi.extension",
               "nbsphinx",
               ]
+
+# autoapi_dirs = ['../opqua']
 
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']

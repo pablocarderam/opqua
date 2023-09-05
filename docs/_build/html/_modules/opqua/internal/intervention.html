@@ -15,6 +15,7 @@
         <script src="../../../_static/documentation_options.js?v=1ed6394b"></script>
         <script src="../../../_static/doctools.js?v=888ff710"></script>
         <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="author" title="About these documents" href="../../../about.html" />
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -45,8 +46,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../about.html">About</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../requirements_and_installation.html">Requirements and Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../model_documentation.html">Model Documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">opqua</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../model_documentation.html"><code class="docutils literal notranslate"><span class="pre">Model</span></code> Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../API.html">API</a></li>
 </ul>
 
         </div>
@@ -82,19 +83,23 @@
 <span class="k">class</span> <span class="nc">Intervention</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Class defines a new intervention to be done at a specified time.</span>
 
-<span class="sd">    Methods:</span>
-<span class="sd">    doIntervention -- executes intervention function with specified arguments</span>
+<span class="sd">    Attributes:</span>
+<span class="sd">        time (number): time at which intervention will take place.</span>
+<span class="sd">        method_name (String): intervention to be carried out, must correspond to the</span>
+<span class="sd">            name of a method of the Model object.</span>
+<span class="sd">        args (array-like): contains arguments for function in positinal order.</span>
+<span class="sd">        model (Model object): Model object this intervention is associated to.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">method_name</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a new Intervention.</span>
 
 <span class="sd">        Arguments:</span>
-<span class="sd">        time -- time at which intervention will take place (number)</span>
-<span class="sd">        method_name -- intervention to be carried out, must correspond to the</span>
-<span class="sd">            name of a method of the Model object (String)</span>
-<span class="sd">        args -- contains arguments for function in positinal order (array-like)</span>
-<span class="sd">        model -- Model object this intervention is associated to (Model)</span>
+<span class="sd">            time (number): time at which intervention will take place.</span>
+<span class="sd">            method_name (String): intervention to be carried out, must correspond to the</span>
+<span class="sd">                name of a method of the Model object.</span>
+<span class="sd">            args (array-like): contains arguments for function in positinal order.</span>
+<span class="sd">            model (Model object): Model object this intervention is associated to.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Intervention</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">time</span> <span class="o">=</span> <span class="n">time</span>

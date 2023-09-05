@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Documentation &mdash; Opqua 1.0.2 documentation</title>
+  <title>Model Documentation &mdash; Opqua 1.0.2 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -21,6 +21,7 @@
     <link rel="author" title="About these documents" href="about.html" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="API" href="API.html" />
     <link rel="prev" title="Usage" href="usage.html" /> 
 </head>
 
@@ -48,7 +49,7 @@
 <li class="toctree-l1"><a class="reference internal" href="about.html">About</a></li>
 <li class="toctree-l1"><a class="reference internal" href="requirements_and_installation.html">Requirements and Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Documentation</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">Model</span></code> Documentation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#model-class-attributes"><code class="docutils literal notranslate"><span class="pre">Model</span></code> class attributes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#model-class-methods-list"><code class="docutils literal notranslate"><span class="pre">Model</span></code> class methods list</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#model-initialization-and-simulation">Model initialization and simulation</a></li>
@@ -121,6 +122,7 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="API.html">API</a></li>
 </ul>
 
         </div>
@@ -137,7 +139,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Documentation</li>
+      <li class="breadcrumb-item active"><code class="docutils literal notranslate"><span class="pre">Model</span></code> Documentation</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/model_documentation.md.txt" rel="nofollow"> View page source</a>
       </li>
@@ -147,8 +149,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="documentation">
-<h1>Documentation<a class="headerlink" href="#documentation" title="Link to this heading"></a></h1>
+  <section id="model-documentation">
+<h1><code class="docutils literal notranslate"><span class="pre">Model</span></code> Documentation<a class="headerlink" href="#model-documentation" title="Link to this heading"></a></h1>
 <p>All usage is handled through the Opqua <code class="docutils literal notranslate"><span class="pre">Model</span></code> class.
 The <code class="docutils literal notranslate"><span class="pre">Model</span></code> class contains populations, setups, and interventions to be used
 in simulation. It also contains groups of hosts/vectors for manipulations and
@@ -593,7 +595,7 @@ sequences. Defaults to [].</p></li>
 positions to extract (e.g. genomic_positions=[ [0,3], [5,6] ]
 extracts positions 0, 1, 2, and 5 from each genome); if empty, takes
 full genomes. Defaults to [].</p></li>
-<li><p><strong>count_individuals_based_on_model</strong> (<em>None</em><em> or </em><a class="reference internal" href="#opqua.model.Model" title="opqua.model.Model"><em>Model</em></a>) – <cite>Model</cite> object with populations and
+<li><p><strong>count_individuals_based_on_model</strong> (<em>None</em><em> or </em><a class="reference internal" href="opqua.html#opqua.model.Model" title="opqua.model.Model"><em>Model</em></a>) – <cite>Model</cite> object with populations and
 fitness functions used to evaluate the most fit pathogen genome in
 each host/vector in order to count only a single pathogen per
 host/vector, as opposed to all pathogens within each host/vector; if
@@ -808,7 +810,7 @@ occurs if empty string. Defaults to “”.</p>
 protection sequences in data passed.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>dataframe</em>) – dataframe with model history as produced by <cite>saveToDf</cite> function.</p>
+<dd class="field-odd"><p><strong>data</strong> (<em>pandas DataFrame</em>) – dataframe with model history as produced by <cite>saveToDf</cite> function.</p>
 </dd>
 <dt class="field-even">Keyword Arguments<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>save_to_file</strong> (<em>String</em>) – file path and name to save model data under, no saving
@@ -1540,8 +1542,8 @@ with one host or vector per simulation time in each row, and columns:</p>
 <li><p>Population - ID of this host/vector’s population</p></li>
 <li><p>Organism - host/vector</p></li>
 <li><p>ID - ID of host/vector</p></li>
-<li><p>Pathogens - all genomes present in this host/vector separated by ;</p></li>
-<li><p>Protection - all genomes present in this host/vector separated by ;</p></li>
+<li><p>Pathogens - all genomes present in this host/vector separated by ‘;’</p></li>
+<li><p>Protection - all genomes present in this host/vector separated by ‘;’</p></li>
 <li><p>Alive - whether host/vector is alive at this time, True/False</p></li>
 </ul>
 <dl class="field-list simple">
@@ -1696,6 +1698,7 @@ from whole population. Defaults to “”.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="usage.html" class="btn btn-neutral float-left" title="Usage" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="API.html" class="btn btn-neutral float-right" title="API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

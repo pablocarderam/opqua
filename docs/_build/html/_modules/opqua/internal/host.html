@@ -15,6 +15,7 @@
         <script src="../../../_static/documentation_options.js?v=1ed6394b"></script>
         <script src="../../../_static/doctools.js?v=888ff710"></script>
         <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="author" title="About these documents" href="../../../about.html" />
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -45,8 +46,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../about.html">About</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../requirements_and_installation.html">Requirements and Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../model_documentation.html">Model Documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">opqua</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../model_documentation.html"><code class="docutils literal notranslate"><span class="pre">Model</span></code> Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../API.html">API</a></li>
 </ul>
 
         </div>
@@ -85,31 +86,23 @@
 <span class="k">class</span> <span class="nc">Host</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Class defines main entities to be infected by pathogens in model.</span>
 
-<span class="sd">    Methods:</span>
-<span class="sd">    copyState -- returns a slimmed-down version of the current host state</span>
-<span class="sd">    acquirePathogen -- adds given genome to this host&#39;s pathogens</span>
-<span class="sd">    infectHost -- infects given host with a sample of this host&#39;s pathogens</span>
-<span class="sd">    infectVector -- infects given vector with a sample of this host&#39;s pathogens</span>
-<span class="sd">    recover -- removes all infections</span>
-<span class="sd">    die -- kills this host</span>
-<span class="sd">    birth -- add a new host to population based on this host</span>
-<span class="sd">    applyTreatment -- removes all infections with genotypes susceptible to given</span>
-<span class="sd">        treatment</span>
-<span class="sd">    mutate -- mutate a single, random locus in a random pathogen</span>
-<span class="sd">    recombine -- recombine two random pathogen genomes at random locus</span>
-<span class="sd">    getWeightedRandomGenome -- returns index of element chosen from weights and</span>
-<span class="sd">        given random number</span>
+<span class="sd">    Attributes:</span>
+<span class="sd">        population (Population object): the population this host belongs to.</span>
+<span class="sd">        id (String): unique identifier for this host within population.</span>
+<span class="sd">        slim (Boolean): whether to create a slimmed-down representation of the</span>
+<span class="sd">            population for data storage (only ID, host and vector lists). Defaults to</span>
+<span class="sd">            False.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">population</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">slim</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a new Host.</span>
 
 <span class="sd">        Arguments:</span>
-<span class="sd">        population -- the population this host belongs to (Population)</span>
-<span class="sd">        id -- unique identifier for this host within population (String)</span>
-<span class="sd">        slim -- whether to create a slimmed-down representation of the</span>
-<span class="sd">            population for data storage (only ID, host and vector lists)</span>
-<span class="sd">            (Boolean, default False)</span>
+<span class="sd">            population (Population object): the population this host belongs to.</span>
+<span class="sd">            id (String): unique identifier for this host within population.</span>
+<span class="sd">            slim (Boolean): whether to create a slimmed-down representation of the</span>
+<span class="sd">                population for data storage (only ID, host and vector lists). Defaults to</span>
+<span class="sd">                False.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Host</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="nb">id</span>
@@ -138,7 +131,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a slimmed-down representation of the current host state.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">        Host object with current pathogens and protection_sequences.</span>
+<span class="sd">            Host object with current pathogens and protection_sequences.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">copy</span> <span class="o">=</span> <span class="n">Host</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">slim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -156,7 +149,7 @@
 <span class="sd">        Modifies event coefficient matrix accordingly.</span>
 
 <span class="sd">        Arguments:</span>
-<span class="sd">        genome -- the genome to be added (String)</span>
+<span class="sd">            genome (String): the genome to be added.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pathogens</span><span class="p">[</span><span class="n">genome</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">fitnessHost</span><span class="p">(</span><span class="n">genome</span><span class="p">)</span>
         <span class="n">old_sum_fitness</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sum_fitness</span>
@@ -212,10 +205,10 @@
 <span class="sd">        organism is included in the poplation&#39;s infected list if appropriate.</span>
 
 <span class="sd">        Arguments:</span>
-<span class="sd">        vector -- the vector to be infected (Vector)</span>
+<span class="sd">            vector (Vector object): the vector to be infected.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">        whether or not the model has changed state (Boolean)</span>
+<span class="sd">            Boolean indicating whether or not the model has changed state.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">changed</span> <span class="o">=</span> <span class="kc">False</span>
@@ -257,10 +250,10 @@
 <span class="sd">        organism is included in the poplation&#39;s infected list if appropriate.</span>
 
 <span class="sd">        Arguments:</span>
-<span class="sd">        vector -- the vector to be infected (Vector)</span>
+<span class="sd">            vector (Vector object): the vector to be infected.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">        whether or not the model has changed state (Boolean)</span>
+<span class="sd">            Boolean indicating whether or not the model has changed state.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">changed</span> <span class="o">=</span> <span class="kc">False</span>
@@ -360,8 +353,7 @@
 <span class="sd">        population infected list and adds to healthy list if appropriate.</span>
 
 <span class="sd">        Arguments:</span>
-<span class="sd">        resistance_seqs -- contains sequences required for treatment resistance</span>
-<span class="sd">            (list of Strings)</span>
+<span class="sd">            resistance_seqs (list of Strings): contains sequences required for treatment resistance.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">genomes_remaining</span> <span class="o">=</span> <span class="p">[]</span>
@@ -469,11 +461,11 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns index of element chosen from weights and given random number.</span>
 
 <span class="sd">        Arguments:</span>
-<span class="sd">        rand -- 0-1 random number (number)</span>
-<span class="sd">        r -- array with weights (numpy vector)</span>
+<span class="sd">            rand (number 0-1): random number.</span>
+<span class="sd">            r (numpy array): array with weights.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">        new 0-1 random number (number)</span>
+<span class="sd">            new 0-1 random number.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">r_tot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span> <span class="n">r</span> <span class="p">)</span>

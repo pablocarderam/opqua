@@ -15,6 +15,7 @@
         <script src="../../../_static/documentation_options.js?v=1ed6394b"></script>
         <script src="../../../_static/doctools.js?v=888ff710"></script>
         <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="author" title="About these documents" href="../../../about.html" />
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -45,8 +46,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../about.html">About</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../requirements_and_installation.html">Requirements and Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../model_documentation.html">Model Documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">opqua</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../model_documentation.html"><code class="docutils literal notranslate"><span class="pre">Model</span></code> Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../API.html">API</a></li>
 </ul>
 
         </div>
@@ -80,7 +81,125 @@
 <div class="viewcode-block" id="Setup">
 <a class="viewcode-back" href="../../../opqua.internal.html#opqua.internal.setup.Setup">[docs]</a>
 <span class="k">class</span> <span class="nc">Setup</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class defines a setup with population parameters.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class defines a setup with population parameters.</span>
+<span class="sd">    </span>
+<span class="sd">    Attributes:</span>
+<span class="sd">        id (String): key of the Setup inside model dictionary.</span>
+<span class="sd">        num_loci (int&gt;0): length of each pathogen genome string.</span>
+<span class="sd">        possible_alleles (String or list of Strings with num_loci elements): set of possible </span>
+<span class="sd">            characters in all genome string, or at each position in genome string. </span>
+<span class="sd">        fitnessHost (callable, takes a String argument and returns a number &gt;= 0): function </span>
+<span class="sd">            that evaluates relative fitness in head-to-head competition for different genomes </span>
+<span class="sd">            within the same host.</span>
+<span class="sd">        contactHost (callable, takes a String argument and returns a number 0-1): function that </span>
+<span class="sd">            returns coefficient modifying probability of a given host being chosen to be the </span>
+<span class="sd">            infector in a contact event, based on genome sequence of pathogen.</span>
+<span class="sd">        receiveContactHost (callable, takes a String argument and returns a number 0-1): function </span>
+<span class="sd">            that returns coefficient modifying probability of a given host being chosen to be </span>
+<span class="sd">            the infected in a contact event, based on genome sequence of pathogen.</span>
+<span class="sd">        mortalityHost (callable, takes a String argument and returns a number 0-1): function that </span>
+<span class="sd">            returns coefficient modifying death rate for a given host, based on genome sequence </span>
+<span class="sd">            of pathogen.</span>
+<span class="sd">        natalityHost (callable, takes a String argument and returns a number 0-1): function that </span>
+<span class="sd">            returns coefficient modifying birth rate for a given host, based on genome sequence </span>
+<span class="sd">            of pathogen.</span>
+<span class="sd">        recoveryHost (callable, takes a String argument and returns a number 0-1): function that </span>
+<span class="sd">            returns coefficient modifying recovery rate for a given host based on genome sequence </span>
+<span class="sd">            of pathogen.</span>
+<span class="sd">        migrationHost (callable, takes a String argument and returns a number 0-1): function that </span>
+<span class="sd">            returns coefficient modifying migration rate for a given host based on genome sequence </span>
+<span class="sd">            of pathogen.</span>
+<span class="sd">        populationContactHost (callable, takes a String argument and returns a number 0-1): function </span>
+<span class="sd">            that returns coefficient modifying population contact rate for a given host based on </span>
+<span class="sd">            genome sequence of pathogen.</span>
+<span class="sd">        mutationHost (callable, takes a String argument and returns a number 0-1): function that </span>
+<span class="sd">            returns coefficient modifying mutation rate for a given host based on genome sequence </span>
+<span class="sd">            of pathogen.</span>
+<span class="sd">        recombinationHost (callable, takes a String argument and returns a number 0-1): function </span>
+<span class="sd">            that returns coefficient modifying recombination rate for a given host based on genome </span>
+<span class="sd">            sequence of pathogen.</span>
+<span class="sd">        fitnessVector (callable, takes a String argument and returns a number &gt;=0): function that </span>
+<span class="sd">            evaluates relative fitness in head-to-head competition for different genomes within </span>
+<span class="sd">            the same vector.</span>
+<span class="sd">        contactVector (callable, takes a String argument and returns a number 0-1): function that </span>
+<span class="sd">            returns coefficient modifying probability of a given vector being chosen to be the </span>
+<span class="sd">            infector in a contact event, based on genome sequence of pathogen.</span>
+<span class="sd">        receiveContactVector (callable, takes a String argument and returns a number 0-1): function </span>
+<span class="sd">            that returns coefficient modifying probability of a given vector being chosen to be the </span>
+<span class="sd">            infected in a contact event, based on genome sequence of pathogen.</span>
+<span class="sd">        mortalityVector (callable, takes a String argument and returns a number 0-1): function that </span>
+<span class="sd">            returns coefficient modifying death rate for a given vector, based on genome sequence </span>
+<span class="sd">            of pathogen.</span>
+<span class="sd">        natalityVector (callable, takes a String argument and returns a number 0-1): function that </span>
+<span class="sd">            returns coefficient modifying birth rate for a given vector, based on genome sequence </span>
+<span class="sd">            of pathogen.</span>
+<span class="sd">        recoveryVector (callable, takes a String argument and returns a number 0-1): function that </span>
+<span class="sd">            returns coefficient modifying recovery rate for a given vector based on genome sequence </span>
+<span class="sd">            of pathogen.</span>
+<span class="sd">        migrationVector (callable, takes a String argument and returns a number 0-1): function that </span>
+<span class="sd">            returns coefficient modifying migration rate for a given vector based on genome sequence </span>
+<span class="sd">            of pathogen.</span>
+<span class="sd">        populationContactVector (callable, takes a String argument and returns a number 0-1): function </span>
+<span class="sd">            that returns coefficient modifying population contact rate for a given vector based on </span>
+<span class="sd">            genome sequence of pathogen.</span>
+<span class="sd">        mutationVector (callable, takes a String argument and returns a number 0-1): function that </span>
+<span class="sd">            returns coefficient modifying mutation rate for a given vector based on genome sequence </span>
+<span class="sd">            of pathogen.</span>
+<span class="sd">        recombinationVector (callable, takes a String argument and returns a number 0-1): function </span>
+<span class="sd">            that returns coefficient modifying recombination rate for a given vector based on genome </span>
+<span class="sd">            sequence of pathogen.</span>
+<span class="sd">        contact_rate_host_vector (number &gt;= 0): rate of host-vector contact events, not necessarily </span>
+<span class="sd">            transmission, assumes constant population density; evts/time.</span>
+<span class="sd">        transmission_efficiency_host_vector (float): fraction of host-vector contacts</span>
+<span class="sd">            that result in successful transmission.</span>
+<span class="sd">        transmission_efficiency_vector_host (float): fraction of vector-host contacts</span>
+<span class="sd">            that result in successful transmission.</span>
+<span class="sd">        contact_rate_host_host (number &gt;= 0): rate of host-host contact events, not</span>
+<span class="sd">            necessarily transmission, assumes constant population density; evts/time.</span>
+<span class="sd">        transmission_efficiency_host_host (float): fraction of host-host contacts</span>
+<span class="sd">                that result in successful transmission.</span>
+<span class="sd">        mean_inoculum_host (int &gt;= 0): mean number of pathogens that are transmitted from</span>
+<span class="sd">            a vector or host into a new host during a contact event.</span>
+<span class="sd">        mean_inoculum_vector (int &gt;= 0) mean number of pathogens that are transmitted</span>
+<span class="sd">            from a host to a vector during a contact event.</span>
+<span class="sd">        recovery_rate_host (number &gt;= 0): rate at which hosts clear all pathogens;</span>
+<span class="sd">            1/time.</span>
+<span class="sd">        recovery_rate_vector (number &gt;= 0): rate at which vectors clear all pathogens</span>
+<span class="sd">            1/time.</span>
+<span class="sd">        recovery_rate_vector (number &gt;= 0): rate at which vectors clear all pathogens</span>
+<span class="sd">            1/time.</span>
+<span class="sd">        mortality_rate_host (number 0-1): rate at which infected hosts die from disease.</span>
+<span class="sd">        mortality_rate_vector (number 0-1): rate at which infected vectors die from</span>
+<span class="sd">            disease.</span>
+<span class="sd">        recombine_in_host (number &gt;= 0): rate at which recombination occurs in host;</span>
+<span class="sd">            evts/time.</span>
+<span class="sd">        recombine_in_vector (number &gt;= 0): rate at which recombination occurs in vector;</span>
+<span class="sd">            evts/time.</span>
+<span class="sd">        num_crossover_host (number &gt;= 0): mean of a Poisson distribution modeling the number</span>
+<span class="sd">            of crossover events of host recombination events.</span>
+<span class="sd">        num_crossover_vector (number &gt;= 0): mean of a Poisson distribution modeling the</span>
+<span class="sd">            number of crossover events of vector recombination events.</span>
+<span class="sd">        mutate_in_host (number &gt;= 0): rate at which mutation occurs in host; evts/time.</span>
+<span class="sd">        mutate_in_vector (number &gt;= 0): rate at which mutation occurs in vector; evts/time.</span>
+<span class="sd">        death_rate_host (number &gt;= 0): natural host death rate; 1/time.</span>
+<span class="sd">        death_rate_vector (number &gt;= 0): natural vector death rate; 1/time.</span>
+<span class="sd">        birth_rate_host (number &gt;= 0): infected host birth rate; 1/time.</span>
+<span class="sd">        birth_rate_vector (number &gt;= 0): infected vector birth rate; 1/time.</span>
+<span class="sd">        vertical_transmission_host (number 0-1): probability that a host is infected by its</span>
+<span class="sd">            parent at birth.</span>
+<span class="sd">        vertical_transmission_vector (number 0-1): probability that a vector is infected by</span>
+<span class="sd">            its parent at birth.</span>
+<span class="sd">        inherit_protection_host (number 0-1): probability that a host inherits all</span>
+<span class="sd">            protection sequences from its parent.</span>
+<span class="sd">        inherit_protection_vector (number 0-1): probability that a vector inherits all</span>
+<span class="sd">            protection sequences from its parent.</span>
+<span class="sd">        protection_upon_recovery_host (None or array-like of length 2 with int 0-num_loci): defines </span>
+<span class="sd">            indexes in genome string that define substring to be added to host protection sequences </span>
+<span class="sd">            after recovery.</span>
+<span class="sd">        protection_upon_recovery_vector (None or array-like of length 2 with int 0-num_loci): defines </span>
+<span class="sd">            indexes in genome string that define substring to be added to vector protection sequences </span>
+<span class="sd">            after recovery.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
@@ -112,136 +231,121 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a new Setup.</span>
 
 <span class="sd">        Arguments:</span>
-<span class="sd">        id -- key of the Setup inside model dictionary (String)</span>
-<span class="sd">        num_loci -- length of each pathogen genome string (int &gt; 0)</span>
-<span class="sd">        possible_alleles -- set of possible characters in all genome string, or</span>
-<span class="sd">            at each position in genome string (String or list of Strings with</span>
-<span class="sd">            num_loci elements)</span>
-<span class="sd">        fitnessHost -- function that evaluates relative fitness in head-to-head</span>
-<span class="sd">            competition for different genomes within the same host</span>
-<span class="sd">            (function object, takes a String argument and returns a number &gt;= 0)</span>
-<span class="sd">        contactHost -- function that returns coefficient modifying probability</span>
-<span class="sd">            of a given host being chosen to be the infector in a contact event,</span>
-<span class="sd">            based on genome sequence of pathogen</span>
-<span class="sd">            (function object, takes a String argument and returns a number 0-1)</span>
-<span class="sd">        receiveContactHost -- function that returns coefficient modifying</span>
-<span class="sd">            probability of a given host being chosen to be the infected in</span>
-<span class="sd">            a contact event, based on genome sequence of pathogen</span>
-<span class="sd">            (function object, takes a String argument and returns a number 0-1)</span>
-<span class="sd">        mortalityHost -- function that returns coefficient modifying death rate</span>
-<span class="sd">            for a given host, based on genome sequence of pathogen</span>
-<span class="sd">            (function object, takes a String argument and returns a number 0-1)</span>
-<span class="sd">        natalityHost -- function that returns coefficient modifying birth rate</span>
-<span class="sd">            for a given host, based on genome sequence of pathogen</span>
-<span class="sd">            (function object, takes a String argument and returns a number 0-1)</span>
-<span class="sd">        recoveryHost -- function that returns coefficient modifying recovery</span>
-<span class="sd">            rate for a given host based on genome sequence of pathogen</span>
-<span class="sd">            (function object, takes a String argument and returns a number 0-1)</span>
-<span class="sd">        migrationHost -- function that returns coefficient modifying migration</span>
-<span class="sd">            rate for a given host based on genome sequence of pathogen</span>
-<span class="sd">            (function object, takes a String argument and returns a number 0-1)</span>
-<span class="sd">        populationContactHost -- function that returns coefficient modifying</span>
-<span class="sd">            population contact rate for a given host based on genome sequence of</span>
-<span class="sd">            pathogen</span>
-<span class="sd">            (function object, takes a String argument and returns a number 0-1)</span>
-<span class="sd">        mutationHost -- function that returns coefficient modifying mutation</span>
-<span class="sd">            rate for a given host based on genome sequence of pathogen</span>
-<span class="sd">            (function object, takes a String argument and returns a number 0-1)</span>
-<span class="sd">        recombinationHost -- function that returns coefficient modifying</span>
-<span class="sd">            recombination rate for a given host based on genome sequence of</span>
-<span class="sd">            pathogen</span>
-<span class="sd">            (function object, takes a String argument and returns a number 0-1)</span>
-<span class="sd">        fitnessVector -- function that evaluates relative fitness in head-to-</span>
-<span class="sd">            head competition for different genomes within the same vector</span>
-<span class="sd">            (function object, takes a String argument and returns a number &gt;= 0)</span>
-<span class="sd">        contactVector -- function that returns coefficient modifying probability</span>
-<span class="sd">            of a given vector being chosen to be the infector in a contact</span>
-<span class="sd">            event, based on genome sequence of pathogen</span>
-<span class="sd">            (function object, takes a String argument and returns a number 0-1)</span>
-<span class="sd">        receiveContactVector -- function that returns coefficient modifying</span>
-<span class="sd">            probability of a given vector being chosen to be the infected in</span>
-<span class="sd">            a contact event, based on genome sequence of pathogen</span>
-<span class="sd">            (function object, takes a String argument and returns a number 0-1)</span>
-<span class="sd">        mortalityVector -- function that returns coefficient modifying death</span>
-<span class="sd">            rate for a given vector, based on genome sequence of pathogen</span>
-<span class="sd">            (function object, takes a String argument and returns a number 0-1)</span>
-<span class="sd">        natalityVector -- function that returns coefficient modifying birth rate</span>
-<span class="sd">            for a given vector, based on genome sequence of pathogen</span>
-<span class="sd">            (function object, takes a String argument and returns a number 0-1)</span>
-<span class="sd">        recoveryVector -- function that returns coefficient modifying recovery</span>
-<span class="sd">            rate for a given vector based on genome sequence of pathogen</span>
-<span class="sd">            (function object, takes a String argument and returns a number 0-1)</span>
-<span class="sd">        migrationVector -- function that returns coefficient modifying migration</span>
-<span class="sd">            rate for a given vector based on genome sequence of pathogen</span>
-<span class="sd">            (function object, takes a String argument and returns a number 0-1)</span>
-<span class="sd">        populationContactVector -- function that returns coefficient modifying</span>
-<span class="sd">            population contact rate for a given vector based on genome sequence</span>
-<span class="sd">            of pathogen</span>
-<span class="sd">            (function object, takes a String argument and returns a number 0-1)</span>
-<span class="sd">        mutationVector -- function that returns coefficient modifying mutation</span>
-<span class="sd">            rate for a given vector based on genome sequence of pathogen</span>
-<span class="sd">            (function object, takes a String argument and returns a number 0-1)</span>
-<span class="sd">        recombinationVector -- function that returns coefficient modifying</span>
-<span class="sd">            recombination rate for a given vector based on genome sequence of</span>
-<span class="sd">            pathogen</span>
-<span class="sd">            (function object, takes a String argument and returns a number 0-1)</span>
-<span class="sd">        contact_rate_host_vector -- rate of host-vector contact events, not</span>
-<span class="sd">            necessarily transmission, assumes constant population density;</span>
-<span class="sd">            evts/time (number &gt;= 0)</span>
-<span class="sd">        transmission_efficiency_host_vector -- fraction of host-vector contacts</span>
-<span class="sd">            that result in successful transmission</span>
-<span class="sd">        transmission_efficiency_vector_host -- fraction of vector-host contacts</span>
-<span class="sd">            that result in successful transmission</span>
-<span class="sd">        contact_rate_host_host -- rate of host-host contact events, not</span>
-<span class="sd">            necessarily transmission, assumes constant population density;</span>
-<span class="sd">            evts/time (number &gt;= 0)</span>
-<span class="sd">        transmission_efficiency_host_host -- fraction of host-host contacts</span>
-<span class="sd">                that result in successful transmission</span>
-<span class="sd">        mean_inoculum_host -- mean number of pathogens that are transmitted from</span>
-<span class="sd">            a vector or host into a new host during a contact event (int &gt;= 0)</span>
-<span class="sd">        mean_inoculum_vector -- mean number of pathogens that are transmitted</span>
-<span class="sd">            from a host to a vector during a contact event (int &gt;= 0)</span>
-<span class="sd">        recovery_rate_host -- rate at which hosts clear all pathogens;</span>
-<span class="sd">            1/time (number &gt;= 0)</span>
-<span class="sd">        recovery_rate_vector -- rate at which vectors clear all pathogens</span>
-<span class="sd">            1/time (number &gt;= 0)</span>
-<span class="sd">        recovery_rate_vector -- rate at which vectors clear all pathogens</span>
-<span class="sd">            1/time (number &gt;= 0)</span>
-<span class="sd">        mortality_rate_host -- rate at which infected hosts die from disease</span>
-<span class="sd">            (number 0-1)</span>
-<span class="sd">        mortality_rate_vector -- rate at which infected vectors die from</span>
-<span class="sd">            disease (number 0-1)</span>
-<span class="sd">        recombine_in_host -- rate at which recombination occurs in host;</span>
-<span class="sd">            evts/time (number &gt;= 0)</span>
-<span class="sd">        recombine_in_vector -- rate at which recombination occurs in vector;</span>
-<span class="sd">            evts/time (number &gt;= 0)</span>
-<span class="sd">        num_crossover_host -- mean of a Poisson distribution modeling the number</span>
-<span class="sd">            of crossover events of host recombination events (number &gt;= 0)</span>
-<span class="sd">        num_crossover_vector -- mean of a Poisson distribution modeling the</span>
-<span class="sd">            number of crossover events of vector recombination events</span>
-<span class="sd">            (number &gt;= 0)</span>
-<span class="sd">        mutate_in_host -- rate at which mutation occurs in host; evts/time</span>
-<span class="sd">            (number &gt;= 0)</span>
-<span class="sd">        mutate_in_vector -- rate at which mutation occurs in vector; evts/time</span>
-<span class="sd">            (number &gt;= 0)</span>
-<span class="sd">        death_rate_host -- natural host death rate; 1/time (number &gt;= 0)</span>
-<span class="sd">        death_rate_vector -- natural vector death rate; 1/time (number &gt;= 0)</span>
-<span class="sd">        birth_rate_host -- infected host birth rate; 1/time (number &gt;= 0)</span>
-<span class="sd">        birth_rate_vector -- infected vector birth rate; 1/time (number &gt;= 0)</span>
-<span class="sd">        vertical_transmission_host -- probability that a host is infected by its</span>
-<span class="sd">            parent at birth (number 0-1)</span>
-<span class="sd">        vertical_transmission_vector -- probability that a vector is infected by</span>
-<span class="sd">            its parent at birth (number 0-1)</span>
-<span class="sd">        inherit_protection_host -- probability that a host inherits all</span>
-<span class="sd">            protection sequences from its parent (number 0-1)</span>
-<span class="sd">        inherit_protection_vector -- probability that a vector inherits all</span>
-<span class="sd">            protection sequences from its parent (number 0-1)</span>
-<span class="sd">        protection_upon_recovery_host -- defines indexes in genome string that</span>
-<span class="sd">            define substring to be added to host protection sequences after</span>
-<span class="sd">            recovery (None or array-like of length 2 with int 0-num_loci)</span>
-<span class="sd">        protection_upon_recovery_vector -- defines indexes in genome string that</span>
-<span class="sd">            define substring to be added to vector protection sequences after</span>
-<span class="sd">            recovery (None or array-like of length 2 with int 0-num_loci)</span>
+<span class="sd">            id (String): key of the Setup inside model dictionary.</span>
+<span class="sd">            num_loci (int&gt;0): length of each pathogen genome string.</span>
+<span class="sd">            possible_alleles (String or list of Strings with num_loci elements): set of possible </span>
+<span class="sd">                characters in all genome string, or at each position in genome string. </span>
+<span class="sd">            fitnessHost (callable, takes a String argument and returns a number &gt;= 0): function </span>
+<span class="sd">                that evaluates relative fitness in head-to-head competition for different genomes </span>
+<span class="sd">                within the same host.</span>
+<span class="sd">            contactHost (callable, takes a String argument and returns a number 0-1): function that </span>
+<span class="sd">                returns coefficient modifying probability of a given host being chosen to be the </span>
+<span class="sd">                infector in a contact event, based on genome sequence of pathogen.</span>
+<span class="sd">            receiveContactHost (callable, takes a String argument and returns a number 0-1): function </span>
+<span class="sd">                that returns coefficient modifying probability of a given host being chosen to be </span>
+<span class="sd">                the infected in a contact event, based on genome sequence of pathogen.</span>
+<span class="sd">            mortalityHost (callable, takes a String argument and returns a number 0-1): function that </span>
+<span class="sd">                returns coefficient modifying death rate for a given host, based on genome sequence </span>
+<span class="sd">                of pathogen.</span>
+<span class="sd">            natalityHost (callable, takes a String argument and returns a number 0-1): function that </span>
+<span class="sd">                returns coefficient modifying birth rate for a given host, based on genome sequence </span>
+<span class="sd">                of pathogen.</span>
+<span class="sd">            recoveryHost (callable, takes a String argument and returns a number 0-1): function that </span>
+<span class="sd">                returns coefficient modifying recovery rate for a given host based on genome sequence </span>
+<span class="sd">                of pathogen.</span>
+<span class="sd">            migrationHost (callable, takes a String argument and returns a number 0-1): function that </span>
+<span class="sd">                returns coefficient modifying migration rate for a given host based on genome sequence </span>
+<span class="sd">                of pathogen.</span>
+<span class="sd">            populationContactHost (callable, takes a String argument and returns a number 0-1): function </span>
+<span class="sd">                that returns coefficient modifying population contact rate for a given host based on </span>
+<span class="sd">                genome sequence of pathogen.</span>
+<span class="sd">            mutationHost (callable, takes a String argument and returns a number 0-1): function that </span>
+<span class="sd">                returns coefficient modifying mutation rate for a given host based on genome sequence </span>
+<span class="sd">                of pathogen.</span>
+<span class="sd">            recombinationHost (callable, takes a String argument and returns a number 0-1): function </span>
+<span class="sd">                that returns coefficient modifying recombination rate for a given host based on genome </span>
+<span class="sd">                sequence of pathogen.</span>
+<span class="sd">            fitnessVector (callable, takes a String argument and returns a number &gt;=0): function that </span>
+<span class="sd">                evaluates relative fitness in head-to-head competition for different genomes within </span>
+<span class="sd">                the same vector.</span>
+<span class="sd">            contactVector (callable, takes a String argument and returns a number 0-1): function that </span>
+<span class="sd">                returns coefficient modifying probability of a given vector being chosen to be the </span>
+<span class="sd">                infector in a contact event, based on genome sequence of pathogen.</span>
+<span class="sd">            receiveContactVector (callable, takes a String argument and returns a number 0-1): function </span>
+<span class="sd">                that returns coefficient modifying probability of a given vector being chosen to be the </span>
+<span class="sd">                infected in a contact event, based on genome sequence of pathogen.</span>
+<span class="sd">            mortalityVector (callable, takes a String argument and returns a number 0-1): function that </span>
+<span class="sd">                returns coefficient modifying death rate for a given vector, based on genome sequence </span>
+<span class="sd">                of pathogen.</span>
+<span class="sd">            natalityVector (callable, takes a String argument and returns a number 0-1): function that </span>
+<span class="sd">                returns coefficient modifying birth rate for a given vector, based on genome sequence </span>
+<span class="sd">                of pathogen.</span>
+<span class="sd">            recoveryVector (callable, takes a String argument and returns a number 0-1): function that </span>
+<span class="sd">                returns coefficient modifying recovery rate for a given vector based on genome sequence </span>
+<span class="sd">                of pathogen.</span>
+<span class="sd">            migrationVector (callable, takes a String argument and returns a number 0-1): function that </span>
+<span class="sd">                returns coefficient modifying migration rate for a given vector based on genome sequence </span>
+<span class="sd">                of pathogen.</span>
+<span class="sd">            populationContactVector (callable, takes a String argument and returns a number 0-1): function </span>
+<span class="sd">                that returns coefficient modifying population contact rate for a given vector based on </span>
+<span class="sd">                genome sequence of pathogen.</span>
+<span class="sd">            mutationVector (callable, takes a String argument and returns a number 0-1): function that </span>
+<span class="sd">                returns coefficient modifying mutation rate for a given vector based on genome sequence </span>
+<span class="sd">                of pathogen.</span>
+<span class="sd">            recombinationVector (callable, takes a String argument and returns a number 0-1): function </span>
+<span class="sd">                that returns coefficient modifying recombination rate for a given vector based on genome </span>
+<span class="sd">                sequence of pathogen.</span>
+<span class="sd">            contact_rate_host_vector (number &gt;= 0): rate of host-vector contact events, not necessarily </span>
+<span class="sd">                transmission, assumes constant population density; evts/time.</span>
+<span class="sd">            transmission_efficiency_host_vector (float): fraction of host-vector contacts</span>
+<span class="sd">                that result in successful transmission.</span>
+<span class="sd">            transmission_efficiency_vector_host (float): fraction of vector-host contacts</span>
+<span class="sd">                that result in successful transmission.</span>
+<span class="sd">            contact_rate_host_host (number &gt;= 0): rate of host-host contact events, not</span>
+<span class="sd">                necessarily transmission, assumes constant population density; evts/time.</span>
+<span class="sd">            transmission_efficiency_host_host (float): fraction of host-host contacts</span>
+<span class="sd">                    that result in successful transmission.</span>
+<span class="sd">            mean_inoculum_host (int &gt;= 0): mean number of pathogens that are transmitted from</span>
+<span class="sd">                a vector or host into a new host during a contact event.</span>
+<span class="sd">            mean_inoculum_vector (int &gt;= 0) mean number of pathogens that are transmitted</span>
+<span class="sd">                from a host to a vector during a contact event.</span>
+<span class="sd">            recovery_rate_host (number &gt;= 0): rate at which hosts clear all pathogens;</span>
+<span class="sd">                1/time.</span>
+<span class="sd">            recovery_rate_vector (number &gt;= 0): rate at which vectors clear all pathogens</span>
+<span class="sd">                1/time.</span>
+<span class="sd">            recovery_rate_vector (number &gt;= 0): rate at which vectors clear all pathogens</span>
+<span class="sd">                1/time.</span>
+<span class="sd">            mortality_rate_host (number 0-1): rate at which infected hosts die from disease.</span>
+<span class="sd">            mortality_rate_vector (number 0-1): rate at which infected vectors die from</span>
+<span class="sd">                disease.</span>
+<span class="sd">            recombine_in_host (number &gt;= 0): rate at which recombination occurs in host;</span>
+<span class="sd">                evts/time.</span>
+<span class="sd">            recombine_in_vector (number &gt;= 0): rate at which recombination occurs in vector;</span>
+<span class="sd">                evts/time.</span>
+<span class="sd">            num_crossover_host (number &gt;= 0): mean of a Poisson distribution modeling the number</span>
+<span class="sd">                of crossover events of host recombination events.</span>
+<span class="sd">            num_crossover_vector (number &gt;= 0): mean of a Poisson distribution modeling the</span>
+<span class="sd">                number of crossover events of vector recombination events.</span>
+<span class="sd">            mutate_in_host (number &gt;= 0): rate at which mutation occurs in host; evts/time.</span>
+<span class="sd">            mutate_in_vector (number &gt;= 0): rate at which mutation occurs in vector; evts/time.</span>
+<span class="sd">            death_rate_host (number &gt;= 0): natural host death rate; 1/time.</span>
+<span class="sd">            death_rate_vector (number &gt;= 0): natural vector death rate; 1/time.</span>
+<span class="sd">            birth_rate_host (number &gt;= 0): infected host birth rate; 1/time.</span>
+<span class="sd">            birth_rate_vector (number &gt;= 0): infected vector birth rate; 1/time.</span>
+<span class="sd">            vertical_transmission_host (number 0-1): probability that a host is infected by its</span>
+<span class="sd">                parent at birth.</span>
+<span class="sd">            vertical_transmission_vector (number 0-1): probability that a vector is infected by</span>
+<span class="sd">                its parent at birth.</span>
+<span class="sd">            inherit_protection_host (number 0-1): probability that a host inherits all</span>
+<span class="sd">                protection sequences from its parent.</span>
+<span class="sd">            inherit_protection_vector (number 0-1): probability that a vector inherits all</span>
+<span class="sd">                protection sequences from its parent.</span>
+<span class="sd">            protection_upon_recovery_host (None or array-like of length 2 with int 0-num_loci): defines </span>
+<span class="sd">                indexes in genome string that define substring to be added to host protection sequences </span>
+<span class="sd">                after recovery.</span>
+<span class="sd">            protection_upon_recovery_vector (None or array-like of length 2 with int 0-num_loci): defines </span>
+<span class="sd">                indexes in genome string that define substring to be added to vector protection sequences </span>
+<span class="sd">                after recovery.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="nb">super</span><span class="p">(</span><span class="n">Setup</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>

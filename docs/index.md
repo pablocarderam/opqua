@@ -1,7 +1,6 @@
-Opqua
+Opqua ![Opqua](../img/opqua_logo.png "opqua")
 =====
 
-<img align="right" src="../img/circle-header.png" width="400px" title="circle_header">
 
 [![DOI](https://zenodo.org/badge/249037110.svg)](https://zenodo.org/badge/latestdoi/249037110)
 
@@ -36,4 +35,5 @@ under an [MIT License](https://choosealicense.com/licenses/mit/).
    requirements_and_installation
    usage
    model_documentation
+   API
 ```

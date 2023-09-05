@@ -48,8 +48,8 @@
 <li class="toctree-l1"><a class="reference internal" href="about.html">About</a></li>
 <li class="toctree-l1"><a class="reference internal" href="requirements_and_installation.html">Requirements and Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="model_documentation.html">Documentation</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API</a><ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="model_documentation.html"><code class="docutils literal notranslate"><span class="pre">Model</span></code> Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="API.html">API</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="opqua.html">opqua package</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="opqua.html#subpackages">Subpackages</a><ul class="current">
 <li class="toctree-l4 current"><a class="current reference internal" href="#">opqua.internal package</a></li>
@@ -78,7 +78,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="modules.html">API</a></li>
+          <li class="breadcrumb-item"><a href="API.html">API</a></li>
           <li class="breadcrumb-item"><a href="opqua.html">opqua package</a></li>
       <li class="breadcrumb-item active">opqua.internal package</li>
       <li class="wy-breadcrumbs-aside">
@@ -106,21 +106,24 @@
 infected, recovered, dead) across selected populations in the model,
 with one time point in each row and columns for time as well as each
 compartment.</p>
-<p>Arguments:
-data – dataframe with model history as produced by saveToDf function</p>
-<p>Keyword arguments:
-populations – IDs of populations to include in analysis; if empty, uses all</p>
-<blockquote>
-<div><p>populations in model (default empty list; list of Strings)</p>
-</div></blockquote>
-<p>hosts – whether to count hosts (default True, Boolean)
-vectors – whether to count vectors (default False, Boolean)
-save_to_file – file path and name to save model data under, no saving</p>
-<blockquote>
-<div><p>occurs if empty string (default ‘’; String)</p>
-</div></blockquote>
-<p>Returns:
-pandas dataframe with model compartment dynamics as described above</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>pandas DataFrame</em>) – dataframe with model history as produced by <cite>saveToDf</cite> function.</p>
+</dd>
+<dt class="field-even">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>populations</strong> (<em>list</em><em> of </em><em>Strings</em>) – IDs of populations to include in analysis; if empty, uses all
+populations in model. Defaults to [].</p></li>
+<li><p><strong>hosts</strong> (<em>Boolean</em>) – whether to count hosts. Defaults to True.</p></li>
+<li><p><strong>vectors</strong> (<em>Boolean</em>) – whether to count vectors. Defaults to False.</p></li>
+<li><p><strong>save_to_file</strong> (<em>String</em>) – file path and name to save model data under, no saving
+occurs if empty string. Defaults to “”.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas DataFrame with model compartment dynamics as described above.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -134,67 +137,68 @@ protection sequences.</p>
 <p>Of note: sum of totals for all sequences in one time point does not
 necessarily equal the number of infected hosts and/or vectors, given
 multiple infections in the same host/vector are counted separately.</p>
-<p>Arguments:
-data – dataframe with model history as produced by saveToDf function</p>
-<p>Keyword arguments:
-populations – IDs of populations to include in analysis; if empty, uses all</p>
-<blockquote>
-<div><p>populations in model (default empty list; list of Strings)</p>
-</div></blockquote>
-<dl class="simple">
-<dt>type_of_composition – field of data to count totals of, can be either</dt><dd><p>‘Pathogens’ or ‘Protection’ (default ‘Pathogens’; String)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>pandas DataFrame</em>) – dataframe with model history as produced by <cite>saveToDf</cite> function.</p>
 </dd>
-</dl>
-<p>hosts – whether to count hosts (default True, Boolean)
-vectors – whether to count vectors (default False, Boolean)
-num_top_sequences – how many sequences to count separately and include</p>
-<blockquote>
-<div><p>as columns, remainder will be counted under column “Other”; if &lt;0,
-includes all genomes in model (default -1; int)</p>
-</div></blockquote>
-<dl class="simple">
-<dt>track_specific_sequences – contains specific sequences to have</dt><dd><p>as a separate column if not part of the top num_top_sequences
-sequences (default empty list; list of Strings)</p>
-</dd>
-<dt>genomic_positions – list in which each element is a list with loci</dt><dd><p>positions to extract (e.g. genomic_positions=[ [0,3], [5,6] ] extracts
-positions 0, 1, 2, and 5 from each genome); if empty, takes full genomes
-(default empty list; list of lists of int)</p>
-</dd>
-<dt>count_individuals_based_on_model – Model object with populations and</dt><dd><p>fitness functions used to evaluate the most fit pathogen genome in each
+<dt class="field-even">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>populations</strong> (<em>list</em><em> of </em><em>Strings</em>) – IDs of populations to include in analysis; if empty, uses all
+populations in model. Defaults to [].</p></li>
+<li><p><strong>type_of_composition</strong> (<em>String</em>) – field of data to count totals of, can be either
+‘Pathogens’ or ‘Protection’. Defaults to ‘Pathogens’.</p></li>
+<li><p><strong>hosts</strong> (<em>Boolean</em>) – whether to count hosts. Defaults to True.</p></li>
+<li><p><strong>vectors</strong> (<em>Boolean</em>) – whether to count vectors. Defaults to False.</p></li>
+<li><p><strong>num_top_sequences</strong> (<em>int</em>) – how many sequences to count separately and include
+as columns, remainder will be counted under column “Other”; if &lt;0,
+includes all genomes in model. Defaults to -1.</p></li>
+<li><p><strong>track_specific_sequences</strong> (<em>list</em><em> of </em><em>Strings</em>) – contains specific sequences to have
+as a separate column if not part of the top num_top_sequences
+sequences. Defaults to [].</p></li>
+<li><p><strong>genomic_positions</strong> (<em>list</em><em> of </em><em>lists</em><em> of </em><em>int</em>) – list in which each element is a list with loci
+positions to extract (e.g. genomic_positions=[ [0,3], [5,6] ] extracts
+positions 0, 1, 2, and 5 from each genome); if empty, takes full genomes. Defaults to [].</p></li>
+<li><p><strong>count_individuals_based_on_model</strong> (<em>None</em><em> or </em><a class="reference internal" href="opqua.html#opqua.model.Model" title="opqua.model.Model"><em>Model</em></a>) – Model object with populations and
+fitness functions used to evaluate the most fit pathogen genome in each
 host/vector in order to count only a single pathogen per host/vector, as
 opposed to all pathogens within each host/vector; if None, counts all
-pathogens (default None; None or Model)</p>
+pathogens. Defaults to None.</p></li>
+<li><p><strong>save_to_file</strong> (<em>String</em>) – file path and name to save model data under, no saving
+occurs if empty string. Defaults to “”.</p></li>
+<li><p><strong>n_cores</strong> (<em>int</em>) – number of cores to parallelize processing across, if 0, all
+cores available are used. Defaults to 0.</p></li>
+<li><p><strong>**kwargs</strong> – additional arguents for joblib multiprocessing.</p></li>
+</ul>
 </dd>
-<dt>save_to_file – file path and name to save model data under, no saving</dt><dd><p>occurs if empty string (default ‘’; String)</p>
-</dd>
-<dt>n_cores – number of cores to parallelize processing across, if 0, all</dt><dd><p>cores available are used (default 0; int)</p>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas DataFrame with model sequence composition dynamics as described above.</p>
 </dd>
 </dl>
-<p><a href="#id1"><span class="problematic" id="id2">**</span></a>kwargs – additional arguents for joblib multiprocessing</p>
-<p>Returns:
-pandas dataframe with model sequence composition dynamics as described above</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="opqua.internal.data.getGenomeTimesDf">
 <span class="sig-prename descclassname"><span class="pre">opqua.internal.data.</span></span><span class="sig-name descname"><span class="pre">getGenomeTimesDf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_to_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_cores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/internal/data.html#getGenomeTimesDf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.internal.data.getGenomeTimesDf" title="Link to this definition"></a></dt>
 <dd><p>Create DataFrame with times genomes first appeared during simulation.</p>
-<p>Arguments:
-data – dataframe with model history as produced by saveToDf function</p>
-<p>Keyword arguments:
-samples – how many timepoints to uniformly sample from the total</p>
-<blockquote>
-<div><p>timecourse; if &lt;0, takes all timepoints (default 1; int)</p>
-</div></blockquote>
-<dl class="simple">
-<dt>save_to_file – file path and name to save model data under, no saving</dt><dd><p>occurs if empty string (default ‘’; String)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>pandas DataFrame</em>) – dataframe with model history as produced by <cite>saveToDf</cite> function.</p>
 </dd>
-<dt>n_cores – number of cores to parallelize across, if 0, all cores available</dt><dd><p>are used (default 0; int)</p>
+<dt class="field-even">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>samples</strong> (<em>int</em>) – how many timepoints to uniformly sample from the total
+timecourse; if &lt;0, takes all timepoints. Defaults to 1.</p></li>
+<li><p><strong>save_to_file</strong> (<em>String</em>) – file path and name to save model data under, no saving
+occurs if empty string. Defaults to “”.</p></li>
+<li><p><strong>n_cores</strong> (<em>int</em>) – number of cores to parallelize across, if 0, all cores available
+are used. Defaults to 0.</p></li>
+<li><p><strong>**kwargs</strong> – additional arguents for joblib multiprocessing.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas DataFrame with genomes and times as described above.</p>
 </dd>
 </dl>
-<p><a href="#id3"><span class="problematic" id="id4">**</span></a>kwargs – additional arguents for joblib multiprocessing</p>
-<p>Returns:
-pandas dataframe with genomes and times as described above</p>
 </dd></dl>
 
 <dl class="py function">
@@ -203,65 +207,73 @@ pandas dataframe with genomes and times as described above</p>
 <dd><p>Create DataFrame with pairwise Hamming distances for pathogen sequences
 in data.</p>
 <p>DataFrame has indexes and columns named according to genomes or argument
-seq_names, if passed. Distance is measured as percent Hamming distance from
+<cite>seq_names</cite>, if passed. Distance is measured as percent Hamming distance from
 an optimal genome sequence.</p>
-<p>Arguments:
-data – dataframe with model history as produced by saveToDf function</p>
-<p>Keyword arguments:
-samples – how many timepoints to uniformly sample from the total</p>
-<blockquote>
-<div><p>timecourse; if &lt;0, takes all timepoints (default 1; int)</p>
-</div></blockquote>
-<dl class="simple">
-<dt>num_top_sequences – how many sequences to include in matrix; if &lt;0,</dt><dd><p>includes all genomes in data passed (default -1; int)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>pandas DataFrame</em>) – dataframe with model history as produced by <cite>saveToDf</cite> function</p>
 </dd>
-<dt>track_specific_sequences – contains specific sequences to include in matrix</dt><dd><p>if not part of the top num_top_sequences sequences (default empty list;
-list of Strings)</p>
+<dt class="field-even">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>samples</strong> (<em>int</em>) – how many timepoints to uniformly sample from the total
+timecourse; if &lt;0, takes all timepoints. Defaults to 1.</p></li>
+<li><p><strong>num_top_sequences</strong> (<em>int</em>) – how many sequences to include in matrix; if &lt;0,
+includes all genomes in data passed. Defaults to -1.</p></li>
+<li><p><strong>track_specific_sequences</strong> (<em>list</em><em> of </em><em>Strings</em>) – contains specific sequences to include in matrix
+if not part of the top num_top_sequences sequences. Defaults to [].</p></li>
+<li><p><strong>seq_names</strong> (<em>list</em><em> of </em><em>Strings</em>) – list with names to be used for sequence labels in matrix must
+be of same length as number of sequences to be displayed; if empty,
+uses sequences themselves. Defaults to [].</p></li>
+<li><p><strong>save_to_file</strong> (<em>String</em>) – file path and name to save model data under, no saving
+occurs if empty string. Defaults to “”.</p></li>
+<li><p><strong>n_cores</strong> (<em>int</em>) – number of cores to parallelize distance compute across, if 0, all
+cores available are used (default 0; int)</p></li>
+</ul>
 </dd>
-<dt>seq_names – list with names to be used for sequence labels in matrix must</dt><dd><p>be of same length as number of sequences to be displayed; if empty,
-uses sequences themselves (default empty list; list of Strings)</p>
-</dd>
-<dt>save_to_file – file path and name to save model data under, no saving</dt><dd><p>occurs if empty string (default ‘’; String)</p>
-</dd>
-<dt>n_cores – number of cores to parallelize distance compute across, if 0, all</dt><dd><p>cores available are used (default 0; int)</p>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas DataFrame with distance matrix as described above.</p>
 </dd>
 </dl>
-<p>Returns:
-pandas dataframe with distance matrix as described above</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="opqua.internal.data.getPathogens">
 <span class="sig-prename descclassname"><span class="pre">opqua.internal.data.</span></span><span class="sig-name descname"><span class="pre">getPathogens</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_to_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/internal/data.html#getPathogens"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.internal.data.getPathogens" title="Link to this definition"></a></dt>
 <dd><p>Create Dataframe with counts for all pathogen genomes in data.</p>
-<p>Returns sorted pandas Dataframe with counts for occurrences of all pathogen
+<p>Returns sorted pandas DataFrame with counts for occurrences of all pathogen
 genomes in data passed.</p>
-<p>Arguments:
-data – dataframe with model history as produced by saveToDf function</p>
-<p>Keyword arguments:
-save_to_file – file path and name to save model data under, no saving</p>
-<blockquote>
-<div><p>occurs if empty string (default ‘’; String)</p>
-</div></blockquote>
-<p>Returns:
-pandas dataframe with Series as described above</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>pandas DataFrame</em>) – dataframe with model history as produced by <cite>saveToDf</cite> function.</p>
+</dd>
+<dt class="field-even">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>save_to_file</strong> (<em>String</em>) – file path and name to save model data under, no saving
+occurs if empty string. Defaults to “”.</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas DataFrame with Series as described above.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="opqua.internal.data.getProtections">
 <span class="sig-prename descclassname"><span class="pre">opqua.internal.data.</span></span><span class="sig-name descname"><span class="pre">getProtections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_to_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/internal/data.html#getProtections"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.internal.data.getProtections" title="Link to this definition"></a></dt>
 <dd><p>Create Dataframe with counts for all protection sequences in data.</p>
-<p>Returns sorted pandas Dataframe with counts for occurrences of all
+<p>Returns sorted pandas DataFrame with counts for occurrences of all
 protection sequences in data passed.</p>
-<p>Arguments:
-data – dataframe with model history as produced by saveToDf function</p>
-<p>Keyword arguments:
-save_to_file – file path and name to save model data under, no saving</p>
-<blockquote>
-<div><p>occurs if empty string (default ‘’; String)</p>
-</div></blockquote>
-<p>Returns:
-pandas dataframe with Series as described above</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>pandas DataFrame</em>) – dataframe with model history as produced by <cite>saveToDf</cite> function.</p>
+</dd>
+<dt class="field-even">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>save_to_file</strong> (<em>String</em>) – file path and name to save model data under, no saving
+occurs if empty string. Defaults to “”.</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas DataFrame with Series as described above.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -270,29 +282,31 @@ pandas dataframe with Series as described above</p>
 <dd><p>Create DataFrame with pairwise Hamming distances for pathogen sequences
 in data.</p>
 <p>DataFrame has indexes and columns named according to genomes or argument
-seq_names, if passed. Distance is measured as percent Hamming distance from
+<cite>seq_names</cite>, if passed. Distance is measured as percent Hamming distance from
 an optimal genome sequence.</p>
-<p>Arguments:
-data – dataframe with model history as produced by saveToDf function</p>
-<p>Keyword arguments:
-num_top_sequences – how many sequences to include in matrix; if &lt;0,</p>
-<blockquote>
-<div><p>includes all genomes in data passed (default -1; int)</p>
-</div></blockquote>
-<dl class="simple">
-<dt>track_specific_sequences – contains specific sequences to include in matrix</dt><dd><p>if not part of the top num_top_sequences sequences (default empty list;
-list of Strings)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>pandas DataFrame</em>) – dataframe with model history as produced by <cite>saveToDf</cite> function.</p>
 </dd>
-<dt>seq_names – list with names to be used for sequence labels in matrix must</dt><dd><p>be of same length as number of sequences to be displayed; if empty,
-uses sequences themselves (default empty list; list of Strings)</p>
+<dt class="field-even">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>num_top_sequences</strong> (<em>int</em>) – how many sequences to include in matrix; if &lt;0,
+includes all genomes in data passed. Defaults to -1.</p></li>
+<li><p><strong>track_specific_sequences</strong> (<em>list</em><em> of </em><em>Strings</em>) – contains specific sequences to include in matrix
+if not part of the top num_top_sequences sequences. Defaults to [].</p></li>
+<li><p><strong>seq_names</strong> (<em>list</em><em> of </em><em>Strings</em>) – list with names to be used for sequence labels in matrix must
+be of same length as number of sequences to be displayed; if empty,
+uses sequences themselves. Defaults to [].</p></li>
+<li><p><strong>save_to_file</strong> (<em>String</em>) – file path and name to save model data under, no saving
+occurs if empty string. Defaults to “”.</p></li>
+<li><p><strong>n_cores</strong> (<em>int</em>) – number of cores to parallelize distance compute across, if 0, all
+cores available are used. Defaults to 0.</p></li>
+</ul>
 </dd>
-<dt>save_to_file – file path and name to save model data under, no saving</dt><dd><p>occurs if empty string (default ‘’; String)</p>
-</dd>
-<dt>n_cores – number of cores to parallelize distance compute across, if 0, all</dt><dd><p>cores available are used (default 0; int)</p>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas DataFrame with distance matrix as described above.</p>
 </dd>
 </dl>
-<p>Returns:
-pandas dataframe with distance matrix as described above</p>
 </dd></dl>
 
 <dl class="py function">
@@ -302,29 +316,30 @@ pandas dataframe with distance matrix as described above</p>
 <p>Creates a pandas Dataframe in long format with dynamics of a compartment
 across populations in the model, with one time point in each row and columns
 for time as well as each population.</p>
-<p>Arguments:
-data – dataframe with model history as produced by saveToDf function</p>
-<p>Keyword arguments:
-compartment – subset of hosts/vectors to count totals of, can be either</p>
-<blockquote>
-<div><p>‘Naive’,’Infected’,’Recovered’, or ‘Dead’ (default ‘Infected’; String)</p>
-</div></blockquote>
-<p>hosts – whether to count hosts (default True, Boolean)
-vectors – whether to count vectors (default False, Boolean)
-num_top_populations – how many populations to count separately and include</p>
-<blockquote>
-<div><p>as columns, remainder will be counted under column “Other”; if &lt;0,
-includes all populations in model (default -1; int)</p>
-</div></blockquote>
-<dl class="simple">
-<dt>track_specific_populations – contains IDs of specific populations to have</dt><dd><p>as a separate column if not part of the top num_top_populations
-populations (list of Strings)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>pandas DataFrame</em>) – </p>
 </dd>
-<dt>save_to_file – file path and name to save model data under, no saving</dt><dd><p>occurs if empty string (default ‘’; String)</p>
+<dt class="field-even">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>compartment</strong> (<em>String</em>) – subset of hosts/vectors to count totals of, can be either
+‘Naive’,’Infected’,’Recovered’, or ‘Dead’. Defaults to ‘Infected’.</p></li>
+<li><p><strong>hosts</strong> (<em>Boolean</em>) – whether to count hosts. Defaults to True.</p></li>
+<li><p><strong>vectors</strong> (<em>Boolean</em>) – whether to count vectors. Defaults to False.</p></li>
+<li><p><strong>num_top_populations</strong> (<em>int</em>) – how many populations to count separately and include
+as columns, remainder will be counted under column “Other”; if &lt;0,
+includes all populations in model. Defaults to -1.</p></li>
+<li><p><strong>track_specific_populations</strong> (<em>list</em><em> of </em><em>Strings</em>) – contains IDs of specific populations to have
+as a separate column if not part of the top num_top_populations
+populations. Defaults to [].</p></li>
+<li><p><strong>save_to_file</strong> (<em>String</em>) – file path and name to save model data under, no saving
+occurs if empty string. Defaults to “”.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas DataFrame with model population dynamics as described above.</p>
 </dd>
 </dl>
-<p>Returns:
-pandas dataframe with model population dynamics as described above</p>
 </dd></dl>
 
 <dl class="py function">
@@ -334,30 +349,37 @@ pandas dataframe with model population dynamics as described above</p>
 <p>Creates a pandas Dataframe in long format with the given model history, with
 one host or vector per simulation time in each row, and columns:</p>
 <blockquote>
-<div><p>Time - simulation time of entry
-Population - ID of this host/vector’s population
-Organism - host/vector
-ID - ID of host/vector
-Pathogens - all genomes present in this host/vector separated by ;
-Protection - all genomes present in this host/vector separated by ;
-Alive - whether host/vector is alive at this time, True/False</p>
+<div><ul class="simple">
+<li><p>Time - simulation time of entry</p></li>
+<li><p>Population - ID of this host/vector’s population</p></li>
+<li><p>Organism - host/vector</p></li>
+<li><p>ID - ID of host/vector</p></li>
+<li><p>Pathogens - all genomes present in this host/vector separated by ‘;’</p></li>
+<li><p>Protection - all genomes present in this host/vector separated by ‘;’</p></li>
+<li><p>Alive - whether host/vector is alive at this time, True/False</p></li>
+</ul>
 </div></blockquote>
 <p>Writing straight to a file and then reading into a pandas dataframe was
 actually more efficient than concatenating directly into a pd dataframe.</p>
-<p>Arguments:
-history – dictionary containing model state history, with keys=times and</p>
-<blockquote>
-<div><p>values=Model objects with model snapshot at that time point</p>
-</div></blockquote>
-<p>save_to_file – file path and name to save model data under (String)</p>
-<p>Keyword arguments:
-n_cores – number of cores to parallelize file export across, if 0, all</p>
-<blockquote>
-<div><p>cores available are used (default 0; int)</p>
-</div></blockquote>
-<p><a href="#id5"><span class="problematic" id="id6">**</span></a>kwargs – additional arguents for joblib multiprocessing</p>
-<p>Returns:
-pandas dataframe with model history as described above</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>history</strong> (<em>dict</em>) – dictionary containing model state history, with <cite>keys`=`times</cite> and
+<cite>values`=`Model</cite> objects with model snapshot at that time point.</p></li>
+<li><p><strong>save_to_file</strong> (<em>String</em>) – file path and name to save model data under.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>n_cores</strong> (<em>int</em>) – number of cores to parallelize file export across, if 0, all
+cores available are used. Defaults to 0.</p></li>
+<li><p><strong>**kwargs</strong> – additional arguents for joblib multiprocessing.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas DataFrame with model history as described above.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
@@ -372,13 +394,17 @@ pandas dataframe with model history as described above</p>
 <p>Class defines a model’s events and methods for changing system state
 according to the possible events and simulating a timecourse using the
 Gillespie algorithm.</p>
-<p>Methods:
-getRates – returns array containing rates for each event for a given system</p>
-<blockquote>
-<div><p>state</p>
-</div></blockquote>
-<p>doAction – carries out an event, modifying system state
-run – simulates model for a specified length of time</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.gillespie.Gillespie.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#opqua.internal.gillespie.Gillespie.model" title="Link to this definition"></a></dt>
+<dd><p>the model this simulation belongs to.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Model object</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="opqua.internal.gillespie.Gillespie.BIRTH_HOST">
 <span class="sig-name descname"><span class="pre">BIRTH_HOST</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">18</span></em><a class="headerlink" href="#opqua.internal.gillespie.Gillespie.BIRTH_HOST" title="Link to this definition"></a></dt>
@@ -488,26 +514,33 @@ run – simulates model for a specified length of time</p>
 <dt class="sig sig-object py" id="opqua.internal.gillespie.Gillespie.doAction">
 <span class="sig-name descname"><span class="pre">doAction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">act</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rand</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/internal/gillespie.html#Gillespie.doAction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.internal.gillespie.Gillespie.doAction" title="Link to this definition"></a></dt>
 <dd><p>Change system state according to act argument passed</p>
-<p>Arguments:
-act – defines action to be taken, one of the event ID constants (int)
-pop – population action will happen in (Population)
-rand – random number used to define event (number 0-1)</p>
-<p>Returns:
-whether or not the model has changed state (Boolean)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>act</strong> (<em>int</em>) – defines action to be taken, one of the event ID constants.</p></li>
+<li><p><strong>pop</strong> (<em>Population object</em>) – where the population action will happen in.</p></li>
+<li><p><strong>rand</strong> (<em>number 0-1</em>) – random number used to define event.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Boolean indicationg whether or not the model has changed state.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="opqua.internal.gillespie.Gillespie.getRates">
 <span class="sig-name descname"><span class="pre">getRates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">population_ids</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/internal/gillespie.html#Gillespie.getRates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.internal.gillespie.Gillespie.getRates" title="Link to this definition"></a></dt>
 <dd><p>Wrapper for calculating event rates as per current system state.</p>
-<p>Arguments:
-population_ids – list with ids for every population in the model</p>
-<blockquote>
-<div><p>(list of Strings)</p>
-</div></blockquote>
-<p>Returns:
-Matrix with rates as values for events (rows) and populations (columns).
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>population_ids</strong> (<em>list</em><em> of </em><em>Strings</em>) – list with IDs for every population in the model.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Matrix with rates as values for events (rows) and populations (columns).
 Populations in order given in argument.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -515,27 +548,32 @@ Populations in order given in argument.</p>
 <span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_sampling</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host_sampling</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vector_sampling</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_every_n_events</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/internal/gillespie.html#Gillespie.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.internal.gillespie.Gillespie.run" title="Link to this definition"></a></dt>
 <dd><p>Simulate model for a specified time between two time points.</p>
 <p>Simulates a time series using the Gillespie algorithm.</p>
-<p>Arguments:
-t0 – initial time point to start simulation at (number)
-tf – initial time point to end simulation at (number)
-time_sampling – how many events to skip before saving a snapshot of the</p>
-<blockquote>
-<div><p>system state (saves all by default), if &lt;0, saves only final state
-(int, default 0)</p>
-</div></blockquote>
-<dl class="simple">
-<dt>host_sampling – how many hosts to skip before saving one in a snapshot</dt><dd><p>of the system state (saves all by default) (int, default 0)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t0</strong> (<em>number</em>) – initial time point to start simulation at.</p></li>
+<li><p><strong>tf</strong> (<em>number</em>) – initial time point to end simulation at.</p></li>
+</ul>
 </dd>
-<dt>vector_sampling – how many vectors to skip before saving one in a</dt><dd><p>snapshot of the system state (saves all by default) (int, default 0)</p>
+<dt class="field-even">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>time_sampling</strong> (<em>int</em>) – how many events to skip before saving a snapshot of the
+system state (saves all by default), if &lt;0, saves only final state. Defaults to 0.</p></li>
+<li><p><strong>host_sampling</strong> (<em>int</em>) – how many hosts to skip before saving one in a snapshot
+of the system state (saves all by default). Defaults to 0.</p></li>
+<li><p><strong>vector_sampling</strong> (<em>int</em>) – how many vectors to skip before saving one in a
+snapshot of the system state (saves all by default). Defaults to 0.</p></li>
+<li><p><strong>print_every_n_events</strong> (<em>int&gt;0</em>) – number of events a message is printed to console. Defaults to 1000.</p></li>
+</ul>
 </dd>
-<dt>print_every_n_events – number of events a message is printed to console</dt><dd><p>(int&gt;0, default 1000)</p>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>dictionary containing model state history, with <cite>keys`=`times</cite> and</dt><dd><p><cite>values`=`Model</cite> objects with model snapshot at that time point.</p>
 </dd>
 </dl>
-<p>Returns:
-dictionary containing model state history, with keys=times and</p>
-<blockquote>
-<div><p>values=Model objects with model snapshot at that time point</p>
-</div></blockquote>
+</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -549,31 +587,51 @@ dictionary containing model state history, with keys=times and</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">opqua.internal.host.</span></span><span class="sig-name descname"><span class="pre">Host</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">population</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/internal/host.html#Host"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.internal.host.Host" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class defines main entities to be infected by pathogens in model.</p>
-<p>Methods:
-copyState – returns a slimmed-down version of the current host state
-acquirePathogen – adds given genome to this host’s pathogens
-infectHost – infects given host with a sample of this host’s pathogens
-infectVector – infects given vector with a sample of this host’s pathogens
-recover – removes all infections
-die – kills this host
-birth – add a new host to population based on this host
-applyTreatment – removes all infections with genotypes susceptible to given</p>
-<blockquote>
-<div><p>treatment</p>
-</div></blockquote>
-<p>mutate – mutate a single, random locus in a random pathogen
-recombine – recombine two random pathogen genomes at random locus
-getWeightedRandomGenome – returns index of element chosen from weights and</p>
-<blockquote>
-<div><p>given random number</p>
-</div></blockquote>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.host.Host.population">
+<span class="sig-name descname"><span class="pre">population</span></span><a class="headerlink" href="#opqua.internal.host.Host.population" title="Link to this definition"></a></dt>
+<dd><p>the population this host belongs to.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Population object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.host.Host.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#opqua.internal.host.Host.id" title="Link to this definition"></a></dt>
+<dd><p>unique identifier for this host within population.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>String</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.host.Host.slim">
+<span class="sig-name descname"><span class="pre">slim</span></span><a class="headerlink" href="#opqua.internal.host.Host.slim" title="Link to this definition"></a></dt>
+<dd><p>whether to create a slimmed-down representation of the
+population for data storage (only ID, host and vector lists). Defaults to
+False.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Boolean</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="opqua.internal.host.Host.acquirePathogen">
 <span class="sig-name descname"><span class="pre">acquirePathogen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">genome</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/internal/host.html#Host.acquirePathogen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.internal.host.Host.acquirePathogen" title="Link to this definition"></a></dt>
 <dd><p>Adds given genome to this host’s pathogens.</p>
 <p>Modifies event coefficient matrix accordingly.</p>
-<p>Arguments:
-genome – the genome to be added (String)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>genome</strong> (<em>String</em>) – the genome to be added.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -583,11 +641,11 @@ genome – the genome to be added (String)</p>
 <p>Pathogens are removed if they are missing at least one of the sequences
 in resistance_seqs from their genome. Removes this organism from
 population infected list and adds to healthy list if appropriate.</p>
-<p>Arguments:
-resistance_seqs – contains sequences required for treatment resistance</p>
-<blockquote>
-<div><p>(list of Strings)</p>
-</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>resistance_seqs</strong> (<em>list</em><em> of </em><em>Strings</em>) – contains sequences required for treatment resistance.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -600,8 +658,11 @@ resistance_seqs – contains sequences required for treatment resistance</p>
 <dt class="sig sig-object py" id="opqua.internal.host.Host.copyState">
 <span class="sig-name descname"><span class="pre">copyState</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/internal/host.html#Host.copyState"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.internal.host.Host.copyState" title="Link to this definition"></a></dt>
 <dd><p>Returns a slimmed-down representation of the current host state.</p>
-<p>Returns:
-Host object with current pathogens and protection_sequences.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Host object with current pathogens and protection_sequences.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -614,11 +675,17 @@ Host object with current pathogens and protection_sequences.</p>
 <dt class="sig sig-object py" id="opqua.internal.host.Host.getWeightedRandomGenome">
 <span class="sig-name descname"><span class="pre">getWeightedRandomGenome</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rand</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/internal/host.html#Host.getWeightedRandomGenome"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.internal.host.Host.getWeightedRandomGenome" title="Link to this definition"></a></dt>
 <dd><p>Returns index of element chosen from weights and given random number.</p>
-<p>Arguments:
-rand – 0-1 random number (number)
-r – array with weights (numpy vector)</p>
-<p>Returns:
-new 0-1 random number (number)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rand</strong> (<em>number 0-1</em>) – random number.</p></li>
+<li><p><strong>r</strong> (<em>numpy array</em>) – array with weights.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>new 0-1 random number.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -634,10 +701,14 @@ present in the inoculum will be added to the infected organism, if it
 does not have protection from the pathogen’s genome. Fitnesses are
 computed for the pathogens’ genomes in the infected organism, and the
 organism is included in the poplation’s infected list if appropriate.</p>
-<p>Arguments:
-vector – the vector to be infected (Vector)</p>
-<p>Returns:
-whether or not the model has changed state (Boolean)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>vector</strong> (<em>Vector object</em>) – the vector to be infected.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Boolean indicating whether or not the model has changed state.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -653,10 +724,14 @@ present in the inoculum will be added to the infected organism, if it
 does not have protection from the pathogen’s genome. Fitnesses are
 computed for the pathogens’ genomes in the infected organism, and the
 organism is included in the poplation’s infected list if appropriate.</p>
-<p>Arguments:
-vector – the vector to be infected (Vector)</p>
-<p>Returns:
-whether or not the model has changed state (Boolean)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>vector</strong> (<em>Vector object</em>) – the vector to be infected.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Boolean indicating whether or not the model has changed state.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -693,8 +768,51 @@ population infected list and add to healthy list.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">opqua.internal.intervention.</span></span><span class="sig-name descname"><span class="pre">Intervention</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/internal/intervention.html#Intervention"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.internal.intervention.Intervention" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class defines a new intervention to be done at a specified time.</p>
-<p>Methods:
-doIntervention – executes intervention function with specified arguments</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.intervention.Intervention.time">
+<span class="sig-name descname"><span class="pre">time</span></span><a class="headerlink" href="#opqua.internal.intervention.Intervention.time" title="Link to this definition"></a></dt>
+<dd><p>time at which intervention will take place.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>number</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.intervention.Intervention.method_name">
+<span class="sig-name descname"><span class="pre">method_name</span></span><a class="headerlink" href="#opqua.internal.intervention.Intervention.method_name" title="Link to this definition"></a></dt>
+<dd><p>intervention to be carried out, must correspond to the
+name of a method of the Model object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>String</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.intervention.Intervention.args">
+<span class="sig-name descname"><span class="pre">args</span></span><a class="headerlink" href="#opqua.internal.intervention.Intervention.args" title="Link to this definition"></a></dt>
+<dd><p>contains arguments for function in positinal order.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array-like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.intervention.Intervention.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#opqua.internal.intervention.Intervention.model" title="Link to this definition"></a></dt>
+<dd><p>Model object this intervention is associated to.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Model object</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="opqua.internal.intervention.Intervention.doIntervention">
 <span class="sig-name descname"><span class="pre">doIntervention</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/internal/intervention.html#Intervention.doIntervention"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.internal.intervention.Intervention.doIntervention" title="Link to this definition"></a></dt>
@@ -711,36 +829,38 @@ doIntervention – executes intervention function with specified arguments</p>
 <dt class="sig sig-object py" id="opqua.internal.plot.clustermap">
 <span class="sig-prename descclassname"><span class="pre">opqua.internal.plot.</span></span><span class="sig-name descname"><span class="pre">clustermap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_top_sequences=-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">track_specific_sequences=[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seq_names=[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_cores=0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method='weighted'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric='euclidean'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_data_to_file=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend_title='Distance'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend_values=[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize=(10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">10)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dpi=200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_map=&lt;matplotlib.colors.ListedColormap</span> <span class="pre">object&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/internal/plot.html#clustermap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.internal.plot.clustermap" title="Link to this definition"></a></dt>
 <dd><p>Create a heatmap and dendrogram for pathogen genomes in data passed.</p>
-<p>Arguments:
-file_name – file path, name, and extension to save plot under (String)
-data – dataframe with model history as produced by saveToDf function</p>
-<p>Keyword arguments:
-num_top_sequences – how many sequences to include in matrix; if &lt;0,</p>
-<blockquote>
-<div><p>includes all genomes in data passed (default -1; int)</p>
-</div></blockquote>
-<dl class="simple">
-<dt>track_specific_sequences – contains specific sequences to include in matrix</dt><dd><p>if not part of the top num_top_sequences sequences (default empty list;
-list of Strings)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file_name</strong> (<em>String</em>) – file path, name, and extension to save plot under.</p></li>
+<li><p><strong>data</strong> (<em>pandas DataFrame</em>) – dataframe with model history as produced by <cite>saveToDf</cite> function.</p></li>
+</ul>
 </dd>
-<dt>seq_names – list with names to be used for sequence labels in matrix must</dt><dd><p>be of same length as number of sequences to be displayed; if empty,
-uses sequences themselves (default empty list; list of Strings)</p>
+<dt class="field-even">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>num_top_sequences</strong> (<em>int</em>) – how many sequences to include in matrix; if &lt;0,
+includes all genomes in data passed. Deafults to -1.</p></li>
+<li><p><strong>track_specific_sequences</strong> (<em>list</em><em> of </em><em>Strings</em>) – contains specific sequences to include in matrix
+if not part of the top num_top_sequences sequences. Defaults to [].</p></li>
+<li><p><strong>seq_names</strong> (<em>list</em><em> of </em><em>Strings</em>) – list with names to be used for sequence labels in matrix must
+be of same length as number of sequences to be displayed; if empty,
+uses sequences themselves. Defaults to [].</p></li>
+<li><p><strong>n_cores</strong> (<em>int</em>) – number of cores to parallelize distance compute across, if 0, all
+cores available are used. Defaults to 0.</p></li>
+<li><p><strong>method</strong> (<em>String</em>) – clustering algorithm to use with seaborn clustermap. Defaults to ‘weighted’.</p></li>
+<li><p><strong>metric</strong> (<em>String</em>) – distance metric to use with seaborn clustermap. Defaults to ‘euclidean’.</p></li>
+<li><p><strong>save_data_to_file</strong> (<em>String</em>) – file path and name to save model data under, no saving
+occurs if empty string. Defaults to “”.</p></li>
+<li><p><strong>legend_title</strong> (<em>String</em>) – legend title. Defaults to ‘Distance’.</p></li>
+<li><p><strong>figsize</strong> (<em>array-like</em><em> of </em><em>two ints</em>) – dimensions of figure. Defaults to (8,4).</p></li>
+<li><p><strong>dpi</strong> (<em>int</em>) – figure resolution. Defaults to 200.</p></li>
+<li><p><strong>color_map</strong> (<em>cmap object</em>) – color map to use for traces. Defaults to <cite>DEF_CMAP</cite>.</p></li>
+</ul>
 </dd>
-<dt>n_cores – number of cores to parallelize distance compute across, if 0, all</dt><dd><p>cores available are used (default 0; int)</p>
-</dd>
-<dt>method – clustering algorithm to use with seaborn clustermap (default</dt><dd><p>‘weighted’; String)</p>
-</dd>
-<dt>metric – distance metric to use with seaborn clustermap (default</dt><dd><p>‘euclidean’; String)</p>
-</dd>
-<dt>save_data_to_file – file path and name to save model data under, no saving</dt><dd><p>occurs if empty string (default ‘’; String)</p>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>figure object for plot with heatmap and dendrogram as described.</p>
 </dd>
 </dl>
-<p>legend_title – legend title (default ‘Distance’, String)
-figsize – dimensions of figure (default (8,4), array-like of two ints)
-dpi – figure resolution (default 200, int)
-color_map – color map to use for traces (default DEF_CMAP, cmap object)</p>
-<p>Returns:
-figure object for plot with heatmap and dendrogram as described</p>
 </dd></dl>
 
 <dl class="py function">
@@ -750,42 +870,37 @@ figure object for plot with heatmap and dendrogram as described</p>
 <p>Creates a line or stacked line plot with dynamics of all compartments
 (naive, infected, recovered, dead) across selected populations in the model,
 with one line for each compartment.</p>
-<p>Arguments:
-file_name – file path, name, and extension to save plot under (String)
-data – dataframe with model history as produced by saveToDf function</p>
-<blockquote>
-<div><p>(DataFrame)</p>
-</div></blockquote>
-<p>Keyword arguments:
-populations – IDs of populations to include in analysis; if empty, uses all</p>
-<blockquote>
-<div><p>populations in model (default empty list; list of Strings)</p>
-</div></blockquote>
-<p>hosts – whether to count hosts (default True, Boolean)
-vectors – whether to count vectors (default False, Boolean)
-save_data_to_file – file path and name to save model data under, no saving</p>
-<blockquote>
-<div><p>occurs if empty string (default ‘’; String)</p>
-</div></blockquote>
-<p>x_label – X axis title (default ‘Time’, String)
-y_label – Y axis title (default ‘Hosts’, String)
-legend_title – legend title (default ‘Population’, String)
-legend_values – labels for each trace, if empty list, uses population IDs</p>
-<blockquote>
-<div><p>(default empty list, list of Strings)</p>
-</div></blockquote>
-<p>figsize – dimensions of figure (default (8,4), array-like of two ints)
-dpi – figure resolution (default 200, int)
-palette – color palette to use for traces (default CB_PALETTE, list of</p>
-<blockquote>
-<div><p>color Strings)</p>
-</div></blockquote>
-<dl class="simple">
-<dt>stacked – whether to draw a regular line plot instead of a stacked one</dt><dd><p>(default False, Boolean)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file_name</strong> (<em>String</em>) – file path, name, and extension to save plot under.</p></li>
+<li><p><strong>data</strong> (<em>pandas DataFrame</em>) – dataframe with model history as produced by <cite>saveToDf</cite> function.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>populations</strong> (<em>list</em><em> of </em><em>Strings</em>) – IDs of populations to include in analysis; if empty, uses all
+populations in model. Defaults to [].</p></li>
+<li><p><strong>hosts</strong> (<em>Boolean</em>) – whether to count hosts. Defaults to True.</p></li>
+<li><p><strong>vectors</strong> (<em>Boolean</em>) – whether to count vectors. Defaults to False.</p></li>
+<li><p><strong>save_data_to_file</strong> (<em>String</em>) – file path and name to save model data under, no saving
+occurs if empty string. Defaults to “”.</p></li>
+<li><p><strong>x_label</strong> (<em>String</em>) – X axis title. Defaults to ‘Time’.</p></li>
+<li><p><strong>y_label</strong> (<em>String</em>) – Y axis title. Defaults to ‘Hosts’.</p></li>
+<li><p><strong>legend_title</strong> (<em>String</em>) – legend title. Defaults to ‘Population’.</p></li>
+<li><p><strong>legend_values</strong> (<em>list</em><em> of </em><em>Strings</em>) – labels for each trace, if empty list, uses population IDs.
+Defaults to [].</p></li>
+<li><p><strong>figsize</strong> (<em>array-like</em><em> of </em><em>two ints</em>) – dimensions of figure. Defaults to (8,4).</p></li>
+<li><p><strong>dpi</strong> (<em>int</em>) – figure resolution. Defaults to 200.</p></li>
+<li><p><strong>palette</strong> (<em>list</em><em> of </em><em>color Strings</em>) – color palette to use for traces. Defaults to <cite>CB_PALETTE</cite>.</p></li>
+<li><p><strong>stacked</strong> (<em>Boolean</em>) – whether to draw a regular line plot instead of a stacked one.
+Defaults to False.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>axis object for plot with model compartment dynamics as described above.</p>
 </dd>
 </dl>
-<p>Returns:
-axis object for plot with model compartment dynamics as described above</p>
 </dd></dl>
 
 <dl class="py function">
@@ -798,67 +913,59 @@ with one line for each pathogen genome or protection sequence being shown.</p>
 <p>Of note: sum of totals for all sequences in one time point does not
 necessarily equal the number of infected hosts and/or vectors, given
 multiple infections in the same host/vector are counted separately.</p>
-<p>Arguments:
-file_name – file path, name, and extension to save plot under (String)
-data – dataframe with model history as produced by saveToDf function</p>
-<p>Keyword arguments:
-composition_dataframe – output of compositionDf() if already computed</p>
-<blockquote>
-<div><p>(Pandas DataFrame, None by default)</p>
-</div></blockquote>
-<dl class="simple">
-<dt>populations – IDs of populations to include in analysis; if empty, uses all</dt><dd><p>populations in model (default empty list; list of Strings)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file_name</strong> (<em>String</em>) – file path, name, and extension to save plot under.</p></li>
+<li><p><strong>data</strong> (<em>pandas DataFrame</em>) – dataframe with model history as produced by <cite>saveToDf</cite> function.</p></li>
+</ul>
 </dd>
-<dt>type_of_composition – field of data to count totals of, can be either</dt><dd><p>‘Pathogens’ or ‘Protection’ (default ‘Pathogens’; String)</p>
-</dd>
-</dl>
-<p>hosts – whether to count hosts (default True, Boolean)
-vectors – whether to count vectors (default False, Boolean)
-num_top_sequences – how many sequences to count separately and include</p>
-<blockquote>
-<div><p>as columns, remainder will be counted under column “Other”; if &lt;0,
-includes all genomes in model (default 7; int)</p>
-</div></blockquote>
-<dl class="simple">
-<dt>track_specific_sequences – contains specific sequences to have</dt><dd><p>as a separate column if not part of the top num_top_sequences
-sequences (default empty list; list of Strings)</p>
-</dd>
-<dt>genomic_positions – list in which each element is a list with loci</dt><dd><p>positions to extract (e.g. genomic_positions=[ [0,3], [5,6] ] extracts
-positions 0, 1, 2, and 5 from each genome); if empty, takes full genomes
-(default empty list; list of lists of int)</p>
-</dd>
-<dt>count_individuals_based_on_model – Model object with populations and</dt><dd><p>fitness functions used to evaluate the most fit pathogen genome in each
+<dt class="field-even">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>composition_dataframe</strong> (<em>Pandas DataFrame</em>) – output of compositionDf() if already computed.
+Defaults to None.</p></li>
+<li><p><strong>populations</strong> (<em>list</em><em> of </em><em>Strings</em>) – IDs of populations to include in analysis; if empty, uses all
+populations in model. Defaults to [].</p></li>
+<li><p><strong>type_of_composition</strong> (<em>String</em>) – field of data to count totals of, can be either
+‘Pathogens’ or ‘Protection’. Defaults to ‘Pathogens’.</p></li>
+<li><p><strong>hosts</strong> (<em>Boolean</em>) – whether to count hosts. Defaults to True.</p></li>
+<li><p><strong>vectors</strong> (<em>Boolean</em>) – whether to count vectors. Defaults to False.</p></li>
+<li><p><strong>num_top_sequences</strong> (<em>int</em>) – how many sequences to count separately and include
+as columns, remainder will be counted under column “Other”; if &lt;0,
+includes all genomes in model. Defaults to 7.</p></li>
+<li><p><strong>track_specific_sequences</strong> (<em>list</em><em> of </em><em>Strings</em>) – contains specific sequences to have
+as a separate column if not part of the top num_top_sequences
+sequences. Defaults to [].</p></li>
+<li><p><strong>genomic_positions</strong> (<em>list</em><em> of </em><em>lists</em><em> of </em><em>int</em>) – list in which each element is a list with loci
+positions to extract (e.g. genomic_positions=[ [0,3], [5,6] ] extracts
+positions 0, 1, 2, and 5 from each genome); if empty, takes full genomes. Defaults to [].</p></li>
+<li><p><strong>count_individuals_based_on_model</strong> (<em>None</em><em> or </em><a class="reference internal" href="opqua.html#opqua.model.Model" title="opqua.model.Model"><em>Model</em></a>) – Model object with populations and
+fitness functions used to evaluate the most fit pathogen genome in each
 host/vector in order to count only a single pathogen per host/vector, as
 opposed to all pathogens within each host/vector; if None, counts all
-pathogens (default None; None or Model)</p>
+pathogens. Defaults to None.</p></li>
+<li><p><strong>save_data_to_file</strong> (<em>String</em>) – file path and name to save model data under, no saving
+occurs if empty string. Defaults to “”.</p></li>
+<li><p><strong>x_label</strong> (<em>String</em>) – X axis title. Defaults to ‘Time’.</p></li>
+<li><p><strong>y_label</strong> (<em>String</em>) – Y axis title. Defaults to ‘Hosts’.</p></li>
+<li><p><strong>legend_title</strong> (<em>String</em>) – legend title. Defaults to ‘Population’.</p></li>
+<li><p><strong>legend_values</strong> (<em>list</em><em> of </em><em>Strings</em>) – labels for each trace, if empty list, uses population IDs.
+Defaults to [].</p></li>
+<li><p><strong>figsize</strong> (<em>int</em>) – dimensions of figure. Defaults to (8,4).</p></li>
+<li><p><strong>dpi</strong> (<em>int</em>) – figure resolution. Defaults to 200.</p></li>
+<li><p><strong>palette</strong> (<em>list</em><em> of </em><em>color Strings</em>) – color palette to use for traces. Defaults to <cite>CB_PALETTE</cite>.</p></li>
+<li><p><strong>stacked</strong> (<em>Boolean</em>) – whether to draw a regular line plot instead of a stacked one. Defaults to False.</p></li>
+<li><p><strong>remove_legend</strong> (<em>Boolean</em>) – whether to print the sequences on the figure legend instead
+of printing them on a separate csv file. Defaults to True.</p></li>
+<li><p><strong>population_fraction</strong> (<em>Boolean</em>) – whether to graph fractions of pathogen population
+instead of pathogen counts. Defaults to False.</p></li>
+<li><p><strong>**kwargs</strong> – additional arguents for joblib multiprocessing.</p></li>
+</ul>
 </dd>
-<dt>save_data_to_file – file path and name to save model data under, no saving</dt><dd><p>occurs if empty string (default ‘’; String)</p>
-</dd>
-</dl>
-<p>x_label – X axis title (default ‘Time’, String)
-y_label – Y axis title (default ‘Hosts’, String)
-legend_title – legend title (default ‘Population’, String)
-legend_values – labels for each trace, if empty list, uses population IDs</p>
-<blockquote>
-<div><p>(default empty list, list of Strings)</p>
-</div></blockquote>
-<p>figsize – dimensions of figure (default (8,4), array-like of two ints)
-dpi – figure resolution (default 200, int)
-palette – color palette to use for traces (default CB_PALETTE, list of</p>
-<blockquote>
-<div><p>color Strings)</p>
-</div></blockquote>
-<dl class="simple">
-<dt>stacked – whether to draw a regular line plot instead of a stacked one</dt><dd><p>(default False, Boolean).</p>
-</dd>
-<dt>remove_legend – whether to print the sequences on the figure legend instead</dt><dd><p>of printing them on a separate csv file (default True; Boolean)</p>
-</dd>
-<dt>population_fraction – whether to graph fractions of pathogen population</dt><dd><p>instead of pathogen counts (default False, Boolean)</p>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>axis object for plot with model sequence composition dynamics as described.</p>
 </dd>
 </dl>
-<p><a href="#id7"><span class="problematic" id="id8">**</span></a>kwargs – additional arguents for joblib multiprocessing</p>
-<p>Returns:
-axis object for plot with model sequence composition dynamics as described</p>
 </dd></dl>
 
 <dl class="py function">
@@ -867,50 +974,42 @@ axis object for plot with model sequence composition dynamics as described</p>
 <dd><p>Create plot with aggregated totals per population across time.</p>
 <p>Creates a line or stacked line plot with dynamics of a compartment
 across populations in the model, with one line for each population.</p>
-<p>Arguments:
-file_name – file path, name, and extension to save plot under (String)
-data – dataframe with model history as produced by saveToDf function</p>
-<blockquote>
-<div><p>(DataFrame)</p>
-</div></blockquote>
-<p>Keyword arguments:
-compartment – subset of hosts/vectors to count totals of, can be either</p>
-<blockquote>
-<div><p>‘Naive’,’Infected’,’Recovered’, or ‘Dead’ (default ‘Infected’; String)</p>
-</div></blockquote>
-<p>hosts – whether to count hosts (default True, Boolean)
-vectors – whether to count vectors (default False, Boolean)
-num_top_populations – how many populations to count separately and include</p>
-<blockquote>
-<div><p>as columns, remainder will be counted under column “Other”; if &lt;0,
-includes all populations in model (default 7; int)</p>
-</div></blockquote>
-<dl class="simple">
-<dt>track_specific_populations – contains IDs of specific populations to have</dt><dd><p>as a separate column if not part of the top num_top_populations
-populations (default empty list; list of Strings)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file_name</strong> (<em>String</em>) – file path, name, and extension to save plot under.</p></li>
+<li><p><strong>data</strong> (<em>pandas DataFrame</em>) – dataframe with model history as produced by <cite>saveToDf</cite> function.</p></li>
+</ul>
 </dd>
-<dt>save_data_to_file – file path and name to save model plot data under, no</dt><dd><p>saving occurs if empty string (default ‘’; String)</p>
+<dt class="field-even">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>compartment</strong> (<em>String</em>) – subset of hosts/vectors to count totals of, can be either
+‘Naive’,’Infected’,’Recovered’, or ‘Dead’. (default ‘Infected’)</p></li>
+<li><p><strong>hosts</strong> (<em>Boolean</em>) – whether to count hosts. Defaults to True.</p></li>
+<li><p><strong>vectors</strong> (<em>Boolean</em>) – whether to count vectors. Defaults to False.</p></li>
+<li><p><strong>num_top_populations</strong> (<em>int</em>) – how many populations to count separately and include
+as columns, remainder will be counted under column “Other”; if &lt;0,
+includes all populations in model. Defaults to 7.</p></li>
+<li><p><strong>track_specific_populations</strong> (<em>list</em><em> of </em><em>Strings</em>) – contains IDs of specific populations to have
+as a separate column if not part of the top num_top_populations
+populations. Defaults to [].</p></li>
+<li><p><strong>save_data_to_file</strong> (<em>String</em>) – file path and name to save model plot data under, no
+saving occurs if empty string. Defaults to “”.</p></li>
+<li><p><strong>x_label</strong> (<em>String</em>) – X axis title. Defaults to ‘Time’.</p></li>
+<li><p><strong>y_label</strong> (<em>String</em>) – Y axis title. Defaults to ‘Hosts’.</p></li>
+<li><p><strong>legend_title</strong> (<em>String</em>) – legend title. Defaults to ‘Population’.</p></li>
+<li><p><strong>legend_values</strong> (<em>list</em><em> of </em><em>Strings</em>) – labels for each trace, if empty list, uses population IDs.
+Defaults to [].</p></li>
+<li><p><strong>figsize</strong> (<em>array-like</em><em> of </em><em>two ints</em>) – dimensions of figure. Defaults to (8,4).</p></li>
+<li><p><strong>dpi</strong> (<em>int</em>) – figure resolution. Defaults to 200.</p></li>
+<li><p><strong>palette</strong> (<em>list</em><em> of </em><em>color Strings</em>) – color palette to use for traces. Defaults to <cite>CB_PALETTE</cite>.</p></li>
+<li><p><strong>stacked</strong> (<em>Boolean</em>) – whether to draw a regular line plot instead of a stacked one. Defaults to False.</p></li>
+</ul>
 </dd>
-</dl>
-<p>x_label – X axis title (default ‘Time’, String)
-y_label – Y axis title (default ‘Hosts’, String)
-legend_title – legend title (default ‘Population’, String)
-legend_values – labels for each trace, if empty list, uses population IDs</p>
-<blockquote>
-<div><p>(default empty list, list of Strings)</p>
-</div></blockquote>
-<p>figsize – dimensions of figure (default (8,4), array-like of two ints)
-dpi – figure resolution (default 200, int)
-palette – color palette to use for traces (default CB_PALETTE, list of</p>
-<blockquote>
-<div><p>color Strings)</p>
-</div></blockquote>
-<dl class="simple">
-<dt>stacked – whether to draw a regular line plot instead of a stacked one</dt><dd><p>(default False, Boolean)</p>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>axis object for plot with model population dynamics as described above.</p>
 </dd>
 </dl>
-<p>Returns:
-axis object for plot with model population dynamics as described above</p>
 </dd></dl>
 
 </section>
@@ -922,112 +1021,142 @@ axis object for plot with model population dynamics as described above</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">opqua.internal.population.</span></span><span class="sig-name descname"><span class="pre">Population</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">setup</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_hosts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_vectors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/internal/population.html#Population"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.internal.population.Population" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class defines a population with hosts, vectors, and specific parameters.</p>
-<p>Constants:
-# These all denote positions in coefficients_hosts and coefficients_vectors
-INFECTED – position of “infected” Boolean values for each individual inside</p>
-<blockquote>
-<div><p>coefficients array</p>
-</div></blockquote>
-<dl class="simple">
-<dt>CONTACT – position of intra-population aggregated contact rate for each</dt><dd><p>individual inside coefficients array</p>
-</dd>
-<dt>RECEIVE_CONTACT – position of intra-population aggregated receiving contact</dt><dd><p>rate for each individual inside coefficients array</p>
-</dd>
-<dt>LETHALITY – position of aggregated death rate for each individual inside</dt><dd><p>coefficients array</p>
-</dd>
-<dt>NATALITY – position of aggregated birth rate for each individual inside</dt><dd><p>coefficients array</p>
-</dd>
-<dt>RECOVERY – position of aggregated recovery rate for each individual inside</dt><dd><p>coefficients array</p>
-</dd>
-<dt>MIGRATION – position of aggregated inter-population migration rate for each</dt><dd><p>individual inside coefficients array</p>
-</dd>
-<dt>POPULATION_CONTACT – position of inter-population aggregated contact rate</dt><dd><p>for each individual inside coefficients array</p>
-</dd>
-<dt>RECEIVE_POPULATION_CONTACT – position of inter-population aggregated</dt><dd><p>receiving contact rate for each individual inside coefficients array</p>
-</dd>
-<dt>MUTATION – position of aggregated mutation rate for each individual inside</dt><dd><p>coefficients array</p>
-</dd>
-<dt>RECOMBINATION – position of aggregated recovery rate for each individual</dt><dd><p>inside coefficients array</p>
-</dd>
-<dt>NUM_COEFFICIENTS – total number of types of coefficients (columns) in</dt><dd><p>coefficient arrays</p>
-</dd>
-<dt>CHROMOSOME_SEPARATOR – character reserved to denote separate chromosomes in</dt><dd><p>genomes</p>
+<p><strong>CONSTANTS:</strong> These all denote positions in coefficients_hosts and coefficients_vectors</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt><cite>INFECTED</cite> – position of “infected” Boolean values for each individual inside</dt><dd><p>coefficients array.</p>
 </dd>
 </dl>
-<p>Methods:
-copyState – returns a slimmed-down version of the current population state
-setSetup – assigns a given set of parameters to this population
-addHosts – adds hosts to the population
-addVectors – adds vectors to the population
-newHostGroup – returns a list of random (healthy or any) hosts
-newVectorGroup – returns a list of random (healthy or any) vectors
-removeHosts – removes hosts from the population
-removeVectors – removes vectors from the population
-addPathogensToHosts – adds pathogens with specified genomes to hosts
-addPathogensToVectors – adds pathogens with specified genomes to vectors
-treatHosts – removes infections susceptible to given treatment from hosts
-treatVectors – removes infections susceptible to treatment from vectors
-protectHosts – adds protection sequence to hosts
-protectVectors – adds protection sequence to vectors
-wipeProtectionHosts – removes all protection sequences from hosts
-wipeProtectionVectors – removes all protection sequences from hosts
-setHostMigrationNeighbor – sets migration rate of hosts from this</p>
-<blockquote>
-<div><p>population towards another</p>
-</div></blockquote>
-<dl class="simple">
-<dt>setVectorMigrationNeighbor – sets migration rate of vectors from this</dt><dd><p>population towards another</p>
+</li>
+<li><dl class="simple">
+<dt><cite>CONTACT</cite> – position of intra-population aggregated contact rate for each</dt><dd><p>individual inside coefficients array.</p>
 </dd>
 </dl>
-<p>migrate – transfers hosts and/or vectors from this population to a neighbor
-setHostHostPopulationContactNeighbor – set host-host contact rate from this</p>
-<blockquote>
-<div><p>population towards another one</p>
-</div></blockquote>
-<dl class="simple">
-<dt>setHostVectorPopulationContactNeighbor – set host-vector contact rate from</dt><dd><p>this population towards another one</p>
-</dd>
-<dt>setVectorHostPopulationContactNeighbor – set vector-host contact rate from</dt><dd><p>this population towards another one</p>
-</dd>
-<dt>populationContact – contacts hosts and/or vectors from this population to</dt><dd><p>another</p>
+</li>
+<li><dl class="simple">
+<dt><cite>RECEIVE_CONTACT</cite> – position of intra-population aggregated receiving contact</dt><dd><p>rate for each individual inside coefficients array.</p>
 </dd>
 </dl>
-<p>contactHostHost – contact any two (weighted) random hosts in population
-contactHostVector – contact a (weighted) random host and vector in</p>
-<blockquote>
-<div><p>population</p>
-</div></blockquote>
-<dl class="simple">
-<dt>contactVectorHost – contact a (weighted) random vector and host in</dt><dd><p>population</p>
+</li>
+<li><dl class="simple">
+<dt><cite>LETHALITY</cite> – position of aggregated death rate for each individual inside</dt><dd><p>coefficients array.</p>
 </dd>
 </dl>
-<p>recoverHost –removes all infections from given host
-recoverVector – removes all infections from given vector
-killHost – add host at this index to dead list, remove it from alive ones
-killVector – add vector at this index to dead list, remove it from alive</p>
-<blockquote>
-<div><p>ones</p>
-</div></blockquote>
-<p>dieHost – remove host at this index from alive lists
-dieVector – remove vector at this index from alive lists
-birthHost – add host at this index to population, remove it from alive ones
-birthVector – add vector at this index to population, remove it from alive</p>
-<blockquote>
-<div><p>ones</p>
-</div></blockquote>
-<p>mutateHost – mutates a single locus in a random pathogen in a host
-mutateVector – mutates a single locus in a random pathogen in a vector
-recombineHost – recombines two random pathogens in a host
-recombineVector – recombines two random pathogens in a host
-updateHostCoefficients – updates event coefficients in population’s hosts
-updateVectorCoefficients – updates event coefficients in population’s</p>
-<blockquote>
-<div><p>vectors</p>
-</div></blockquote>
-<dl class="simple">
-<dt>getWeightedRandom – returns index of element chosen using weights from</dt><dd><p>coefficient array and a given random number</p>
+</li>
+<li><dl class="simple">
+<dt><cite>NATALITY</cite> – position of aggregated birth rate for each individual inside</dt><dd><p>coefficients array.</p>
 </dd>
 </dl>
+</li>
+<li><dl class="simple">
+<dt><cite>RECOVERY</cite> – position of aggregated recovery rate for each individual inside</dt><dd><p>coefficients array.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><cite>MIGRATION</cite> – position of aggregated inter-population migration rate for each</dt><dd><p>individual inside coefficients array.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><cite>POPULATION_CONTACT</cite> – position of inter-population aggregated contact rate</dt><dd><p>for each individual inside coefficients array.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><cite>RECEIVE_POPULATION_CONTACT</cite> – position of inter-population aggregated</dt><dd><p>receiving contact rate for each individual inside coefficients array.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><cite>MUTATION</cite> – position of aggregated mutation rate for each individual inside</dt><dd><p>coefficients array.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><cite>RECOMBINATION</cite> – position of aggregated recovery rate for each individual</dt><dd><p>inside coefficients array.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><cite>NUM_COEFFICIENTS</cite> – total number of types of coefficients (columns) in</dt><dd><p>coefficient arrays.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><cite>CHROMOSOME_SEPARATOR</cite> – character reserved to denote separate chromosomes in</dt><dd><p>genomes.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.population.Population.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#opqua.internal.population.Population.model" title="Link to this definition"></a></dt>
+<dd><p>parent model this population is a part of.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Model object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.population.Population.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#opqua.internal.population.Population.id" title="Link to this definition"></a></dt>
+<dd><p>unique identifier for this population in the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>String</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.population.Population.setup">
+<span class="sig-name descname"><span class="pre">setup</span></span><a class="headerlink" href="#opqua.internal.population.Population.setup" title="Link to this definition"></a></dt>
+<dd><p>setup object with parameters for this population.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>String</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.population.Population.num_hosts">
+<span class="sig-name descname"><span class="pre">num_hosts</span></span><a class="headerlink" href="#opqua.internal.population.Population.num_hosts" title="Link to this definition"></a></dt>
+<dd><p>number of hosts to initialize population with.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.population.Population.num_vectors">
+<span class="sig-name descname"><span class="pre">num_vectors</span></span><a class="headerlink" href="#opqua.internal.population.Population.num_vectors" title="Link to this definition"></a></dt>
+<dd><p>number of hosts to initialize population with.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.population.Population.slim">
+<span class="sig-name descname"><span class="pre">slim</span></span><a class="headerlink" href="#opqua.internal.population.Population.slim" title="Link to this definition"></a></dt>
+<dd><p>whether to create a slimmed-down representation of the
+population for data storage (only ID, host and vector lists).
+Defaults to False.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Boolean</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="opqua.internal.population.Population.CHROMOSOME_SEPARATOR">
 <span class="sig-name descname"><span class="pre">CHROMOSOME_SEPARATOR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'/'</span></em><a class="headerlink" href="#opqua.internal.population.Population.CHROMOSOME_SEPARATOR" title="Link to this definition"></a></dt>
@@ -1097,76 +1226,86 @@ updateVectorCoefficients – updates event coefficients in population’s</p>
 <dt class="sig sig-object py" id="opqua.internal.population.Population.addHosts">
 <span class="sig-name descname"><span class="pre">addHosts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_hosts</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/internal/population.html#Population.addHosts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.internal.population.Population.addHosts" title="Link to this definition"></a></dt>
 <dd><p>Add a number of healthy hosts to population, return list with them.</p>
-<p>Arguments:
-num_hosts – number of hosts to be added (int)</p>
-<p>Returns:
-list containing new hosts</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>num_hosts</strong> (<em>int</em>) – number of hosts to be added.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>list containing new hosts.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="opqua.internal.population.Population.addPathogensToHosts">
 <span class="sig-name descname"><span class="pre">addPathogensToHosts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">genomes_numbers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hosts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/internal/population.html#Population.addPathogensToHosts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.internal.population.Population.addPathogensToHosts" title="Link to this definition"></a></dt>
 <dd><p>Add specified pathogens to random hosts, optionally from a list.</p>
-<p>Arguments:
-genomes_numbers – dictionary conatining pathogen genomes to add as keys</p>
-<blockquote>
-<div><p>and number of hosts each one will be added to as values (dict with
-keys=Strings, values=int)</p>
-</div></blockquote>
-<p>Keyword arguments:
-hosts – list of specific hosts to sample from, if empty, samples from</p>
-<blockquote>
-<div><p>whole population (default empty list; empty)</p>
-</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>genomes_numbers</strong> (<em>dict with keys=Strings</em><em>, </em><em>values=int</em>) – dictionary conatining
+pathogen genomes to add as keys  and number of hosts each one will be
+added to as values.</p>
+</dd>
+<dt class="field-even">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>hosts</strong> (<em>list</em><em> of </em><em>Host objects</em>) – list of specific hosts to sample from, if empty, samples from
+whole population. Defaults to [].</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="opqua.internal.population.Population.addPathogensToVectors">
 <span class="sig-name descname"><span class="pre">addPathogensToVectors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">genomes_numbers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vectors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/internal/population.html#Population.addPathogensToVectors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.internal.population.Population.addPathogensToVectors" title="Link to this definition"></a></dt>
 <dd><p>Add specified pathogens to random vectors, optionally from a list.</p>
-<p>Arguments:
-genomes_numbers – dictionary conatining pathogen genomes to add as keys</p>
-<blockquote>
-<div><p>and number of vectors each one will be added to as values (dict with
-keys=Strings, values=int)</p>
-</div></blockquote>
-<p>Keyword arguments:
-vectors – list of specific vectors to sample from, if empty, samples</p>
-<blockquote>
-<div><p>from whole population (default empty list; empty)</p>
-</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>genomes_numbers</strong> (<em>dict with keys=Strings</em><em>, </em><em>values=int</em>) – dictionary conatining
+pathogen genomes to add as keys and number of vectors each one will be
+added to as values.</p>
+</dd>
+<dt class="field-even">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>vectors</strong> (<em>list</em><em> of </em><em>Vector objects</em>) – list of specific vectors to sample from, if empty, samples
+from whole population. Defaults to [].</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="opqua.internal.population.Population.addVectors">
 <span class="sig-name descname"><span class="pre">addVectors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_vectors</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/internal/population.html#Population.addVectors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.internal.population.Population.addVectors" title="Link to this definition"></a></dt>
 <dd><p>Add a number of healthy vectors to population, return list with them.</p>
-<p>Arguments:
-num_vectors – number of vectors to be added (int)</p>
-<p>Returns:
-list containing new vectors</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>num_vectors</strong> (<em>int</em>) – number of vectors to be added.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>list containing new vectors</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="opqua.internal.population.Population.birthHost">
 <span class="sig-name descname"><span class="pre">birthHost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rand</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/internal/population.html#Population.birthHost"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.internal.population.Population.birthHost" title="Link to this definition"></a></dt>
 <dd><p>Add host at this index to population, remove it from alive ones.</p>
-<p>Arguments:
-rand – uniform random number from 0 to 1 to use when choosing</p>
-<blockquote>
-<div><p>individual to make parent</p>
-</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>rand</strong> (<em>number</em>) – uniform random number from 0 to 1 to use when choosing
+individual to make parent.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="opqua.internal.population.Population.birthVector">
 <span class="sig-name descname"><span class="pre">birthVector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rand</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/internal/population.html#Population.birthVector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.internal.population.Population.birthVector" title="Link to this definition"></a></dt>
 <dd><p>Add host at this index to population, remove it from alive ones.</p>
-<p>Arguments:
-rand – uniform random number from 0 to 1 to use when choosing</p>
-<blockquote>
-<div><p>individual to make parent</p>
-</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>rand</strong> (<em>number</em>) – uniform random number from 0 to 1 to use when choosing
+individual to make parent.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -1175,13 +1314,15 @@ rand – uniform random number from 0 to 1 to use when choosing</p>
 <dd><p>Contact any two (weighted) random hosts in population.</p>
 <p>Carries out possible infection events from the first organism into the
 second.</p>
-<p>Arguments:
-rand – uniform random number from 0 to 1 to use when choosing</p>
-<blockquote>
-<div><p>individuals to contact</p>
-</div></blockquote>
-<p>Returns:
-whether or not the model has changed state (Boolean)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>rand</strong> (<em>number</em>) – uniform random number from 0 to 1 to use when choosing
+individuals to contact.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Boolean indicating whether or not the model has changed state.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -1191,12 +1332,15 @@ whether or not the model has changed state (Boolean)</p>
 <p>Carries out possible infection events from the first organism into the
 second.</p>
 <p>Arguments:
-rand – uniform random number from 0 to 1 to use when choosing</p>
+rand (number): uniform random number from 0 to 1 to use when choosing</p>
 <blockquote>
-<div><p>individuals to contact</p>
+<div><p>individuals to contact.</p>
 </div></blockquote>
-<p>Returns:
-whether or not the model has changed state (Boolean)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Boolean indicating whether or not the model has changed state.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -1205,52 +1349,57 @@ whether or not the model has changed state (Boolean)</p>
 <dd><p>Contact a (weighted) random vector and host in population.</p>
 <p>Carries out possible infection events from the first organism into the
 second.</p>
-<p>Arguments:
-rand – uniform random number from 0 to 1 to use when choosing</p>
-<blockquote>
-<div><p>individuals to contact</p>
-</div></blockquote>
-<p>Returns:
-whether or not the model has changed state (Boolean)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>rand</strong> (<em>number</em>) – individuals to contact.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Boolean indicating whether or not the model has changed state.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="opqua.internal.population.Population.copyState">
 <span class="sig-name descname"><span class="pre">copyState</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">host_sampling</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vector_sampling</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/internal/population.html#Population.copyState"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.internal.population.Population.copyState" title="Link to this definition"></a></dt>
 <dd><p>Returns a slimmed-down version of the current population state.</p>
-<p>Arguments:
-host_sampling – how many hosts to skip before saving one in a snapshot</p>
-<blockquote>
-<div><p>of the system state (saves all by default) (int, default 0)</p>
-</div></blockquote>
-<dl class="simple">
-<dt>vector_sampling – how many vectors to skip before saving one in a</dt><dd><p>snapshot of the system state (saves all by default) (int, default 0)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>host_sampling</strong> (<em>int</em>) – how many hosts to skip before saving one in a snapshot
+of the system state (saves all by default). Defaults to 0.</p></li>
+<li><p><strong>vector_sampling</strong> (<em>int</em>) – how many vectors to skip before saving one in a
+snapshot of the system state (saves all by default). Defaults to 0.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Population object with current host and vector lists.</p>
 </dd>
 </dl>
-<p>Returns:
-Population object with current host and vector lists.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="opqua.internal.population.Population.dieHost">
 <span class="sig-name descname"><span class="pre">dieHost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rand</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/internal/population.html#Population.dieHost"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.internal.population.Population.dieHost" title="Link to this definition"></a></dt>
 <dd><p>Remove host at this index from alive lists.</p>
-<p>Arguments:
-rand – uniform random number from 0 to 1 to use when choosing</p>
-<blockquote>
-<div><p>individual to kill</p>
-</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>rand</strong> (<em>number</em>) – uniform random number from 0 to 1 to use when choosing
+individual to kill.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="opqua.internal.population.Population.dieVector">
 <span class="sig-name descname"><span class="pre">dieVector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rand</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/internal/population.html#Population.dieVector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.internal.population.Population.dieVector" title="Link to this definition"></a></dt>
 <dd><p>Remove vector at this index from alive lists.</p>
-<p>Arguments:
-rand – uniform random number from 0 to 1 to use when choosing</p>
-<blockquote>
-<div><p>individual to kill</p>
-</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>rand</strong> (<em>number</em>) – uniform random number from 0 to 1 to use when choosing
+individual to kill.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -1259,11 +1408,17 @@ rand – uniform random number from 0 to 1 to use when choosing</p>
 <dd><p>Returns index of element chosen from weights and given random number.</p>
 <p>Since sampling from coefficient arrays which contain a dummy first row,
 index is decreased by 1.</p>
-<p>Arguments:
-rand – 0-1 random number (number)
-r – array with weights (numpy vector)</p>
-<p>Returns:
-new 0-1 random number (number)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rand</strong> (<em>number</em>) – 0-1 random number.</p></li>
+<li><p><strong>r</strong> (<em>numpy array</em>) – array with weights.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>new 0-1 random number.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -1276,40 +1431,45 @@ new 0-1 random number (number)</p>
 <dt class="sig sig-object py" id="opqua.internal.population.Population.killHost">
 <span class="sig-name descname"><span class="pre">killHost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rand</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/internal/population.html#Population.killHost"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.internal.population.Population.killHost" title="Link to this definition"></a></dt>
 <dd><p>Add host at this index to dead list, remove it from alive ones.</p>
-<p>Arguments:
-rand – uniform random number from 0 to 1 to use when choosing</p>
-<blockquote>
-<div><p>individual to kill</p>
-</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>rand</strong> (<em>number</em>) – uniform random number from 0 to 1 to use when choosing
+individual to kill.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="opqua.internal.population.Population.killVector">
 <span class="sig-name descname"><span class="pre">killVector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rand</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/internal/population.html#Population.killVector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.internal.population.Population.killVector" title="Link to this definition"></a></dt>
 <dd><p>Add host at this index to dead list, remove it from alive ones.</p>
-<p>Arguments:
-rand – uniform random number from 0 to 1 to use when choosing</p>
-<blockquote>
-<div><p>individual to kill</p>
-</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>rand</strong> (<em>number</em>) – uniform random number from 0 to 1 to use when choosing
+individual to kill.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="opqua.internal.population.Population.migrate">
 <span class="sig-name descname"><span class="pre">migrate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_pop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_hosts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_vectors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rand</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/internal/population.html#Population.migrate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.internal.population.Population.migrate" title="Link to this definition"></a></dt>
 <dd><p>Transfer hosts and/or vectors from this population to another.</p>
-<p>Arguments:
-target_pop – population towards which migration will occur (Population)
-num_hosts – number of hosts to transfer (int)
-num_vectors – number of vectors to transfer (int)</p>
-<p>Keyword arguments:
-rand – uniform random number from 0 to 1 to use when choosing</p>
-<blockquote>
-<div><p>individuals to migrate; if None, generates new random number to
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target_pop</strong> (<em>Population objects</em>) – population towards which migration will occur.</p></li>
+<li><p><strong>num_hosts</strong> (<em>int</em>) – number of hosts to transfer.</p></li>
+<li><p><strong>num_vectors</strong> (<em>int</em>) – number of vectors to transfer.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>rand</strong> (<em>number 0-1</em>) – uniform random number from 0 to 1 to use when choosing
+individuals to migrate; if None, generates new random number to
 choose (through numpy), otherwise, assumes event is happening
-through Gillespie class call and migrates a single host or vector
-(default None; 0-1 number)</p>
-</div></blockquote>
+through Gillespie class call and migrates a single host or vector. Defaults to None.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -1317,11 +1477,12 @@ through Gillespie class call and migrates a single host or vector
 <span class="sig-name descname"><span class="pre">mutateHost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rand</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/internal/population.html#Population.mutateHost"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.internal.population.Population.mutateHost" title="Link to this definition"></a></dt>
 <dd><p>Mutate a single, random locus in a random pathogen in the given host.</p>
 <p>Creates a new genotype from a de novo mutation event in the host given.</p>
-<p>Arguments:
-rand – uniform random number from 0 to 1 to use when choosing</p>
-<blockquote>
-<div><p>individual in which to choose a pathogen to mutate</p>
-</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>rand</strong> (<em>number</em>) – uniform random number from 0 to 1 to use when choosing
+individual in which to choose a pathogen to mutate.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -1330,69 +1491,73 @@ rand – uniform random number from 0 to 1 to use when choosing</p>
 <dd><p>Mutate a single, random locus in a random pathogen in given vector.</p>
 <p>Creates a new genotype from a de novo mutation event in the vector
 given.</p>
-<p>Arguments:
-rand – uniform random number from 0 to 1 to use when choosing</p>
-<blockquote>
-<div><p>individual in which to choose a pathogen to mutate</p>
-</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>rand</strong> (<em>number</em>) – uniform random number from 0 to 1 to use when choosing
+individual in which to choose a pathogen to mutate.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="opqua.internal.population.Population.newHostGroup">
 <span class="sig-name descname"><span class="pre">newHostGroup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hosts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'any'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/internal/population.html#Population.newHostGroup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.internal.population.Population.newHostGroup" title="Link to this definition"></a></dt>
 <dd><p>Return a list of random hosts in population.</p>
-<p>Arguments:
-hosts – number of hosts to be sampled randomly: if &lt;0, samples from</p>
-<blockquote>
-<div><p>whole population; if &lt;1, takes that fraction of population; if &gt;=1,
-samples that integer number of hosts (default -1, number)</p>
-</div></blockquote>
-<p>Keyword arguments:
-type – whether to sample healthy hosts only, infected hosts only, or</p>
-<blockquote>
-<div><p>any hosts (default ‘any’; String = {‘healthy’, ‘infected’, ‘any’})</p>
-</div></blockquote>
-<p>Returns:
-list containing sampled hosts</p>
+<dl class="field-list simple">
+<dt class="field-odd">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hosts</strong> (<em>number</em>) – number of hosts to be sampled randomly: if &lt;0, samples from
+whole population; if &lt;1, takes that fraction of population; if &gt;=1,
+samples that integer number of hosts. Defaults to -1.</p></li>
+<li><p><strong>type</strong> (<em>String = {'healthy'</em><em>, </em><em>'infected'</em><em>, </em><em>'any'}</em>) – whether to sample healthy hosts
+only, infected hosts only, or any hosts. Defaults to ‘any’.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>list containing sampled hosts.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="opqua.internal.population.Population.newVectorGroup">
 <span class="sig-name descname"><span class="pre">newVectorGroup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vectors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'any'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/internal/population.html#Population.newVectorGroup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.internal.population.Population.newVectorGroup" title="Link to this definition"></a></dt>
 <dd><p>Return a list of random vectors in population.</p>
-<p>Arguments:
-vectors – number of vectors to be sampled randomly: if &lt;0, samples from</p>
-<blockquote>
-<div><p>whole population; if &lt;1, takes that fraction of population; if &gt;=1,
-samples that integer number of vectors (default -1, number)</p>
-</div></blockquote>
-<p>Keyword arguments:
-type – whether to sample healthy vectors only, infected vectors</p>
-<blockquote>
-<div><p>only, or any vectors (default ‘any’; String = {‘healthy’,
-‘infected’, ‘any’})</p>
-</div></blockquote>
-<p>Returns:
-list containing sampled vectors</p>
+<dl class="field-list simple">
+<dt class="field-odd">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vectors</strong> (<em>number</em>) – number of vectors to be sampled randomly: if &lt;0, samples from
+whole population; if &lt;1, takes that fraction of population; if &gt;=1,
+samples that integer number of vectors. Defaults to -1.</p></li>
+<li><p><strong>type</strong> (<em>String = {'healthy'</em><em>, </em><em>'infected'</em><em>, </em><em>'any'}</em>) – whether to sample healthy vectors
+only, infected vectors. Defaults to ‘any’.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>list containing sampled vectors.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="opqua.internal.population.Population.populationContact">
 <span class="sig-name descname"><span class="pre">populationContact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_pop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rand</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host_origin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host_target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/internal/population.html#Population.populationContact"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.internal.population.Population.populationContact" title="Link to this definition"></a></dt>
 <dd><p>Contacts hosts and/or vectors from this population to another.</p>
-<p>Arguments:
-target_pop – population towards which migration will occur (Population)
-rand – uniform random number from 0 to 1 to use when choosing</p>
-<blockquote>
-<div><p>individuals to contact</p>
-</div></blockquote>
-<p>Keyword arguments:
-host_origin – whether to draw from hosts in the origin population</p>
-<blockquote>
-<div><p>(as opposed to vectors) (Boolean)</p>
-</div></blockquote>
-<dl class="simple">
-<dt>host_target – whether to draw from hosts in the target population</dt><dd><p>(as opposed to vectors) (Boolean)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target_pop</strong> (<em>Population object</em>) – population towards which migration will occur.</p></li>
+<li><p><strong>rand</strong> (<em>number</em>) – uniform random number from 0 to 1 to use when choosing
+individuals to contact.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>host_origin</strong> (<em>Boolean</em>) – whether to draw from hosts in the origin population
+(as opposed to vectors). Defaults to True.</p></li>
+<li><p><strong>host_target</strong> (<em>Boolean</em>) – whether to draw from hosts in the target population
+(as opposed to vectors). Defaults to True.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -1403,17 +1568,18 @@ host_origin – whether to draw from hosts in the origin population</p>
 <dd><p>Protect a random fraction of infected hosts against some infection.</p>
 <p>Adds protection sequence specified to a random fraction of the hosts
 specified. Does not cure them if they are already infected.</p>
-<p>Arguments:
-frac_hosts – fraction of hosts considered to be randomly selected</p>
-<blockquote>
-<div><p>(number between 0 and 1)</p>
-</div></blockquote>
-<p>protection_sequence – sequence against which to protect (String)</p>
-<p>Keyword arguments:
-hosts – list of specific hosts to sample from, if empty, samples from</p>
-<blockquote>
-<div><p>whole population (default empty list; empty)</p>
-</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frac_hosts</strong> (<em>number 0-1</em>) – fraction of hosts considered to be randomly selected.</p></li>
+<li><p><strong>protection_sequence</strong> (<em>String</em>) – sequence against which to protect.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>hosts</strong> (<em>list</em><em> of </em><em>Host objects</em>) – list of specific hosts to sample from, if empty, samples from
+whole population. Defaults to [].</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -1422,17 +1588,18 @@ hosts – list of specific hosts to sample from, if empty, samples from</p>
 <dd><p>Protect a random fraction of infected vectors against some infection.</p>
 <p>Adds protection sequence specified to a random fraction of the vectors
 specified. Does not cure them if they are already infected.</p>
-<p>Arguments:
-frac_vectors – fraction of vectors considered to be randomly selected</p>
-<blockquote>
-<div><p>(number between 0 and 1)</p>
-</div></blockquote>
-<p>protection_sequence – sequence against which to protect (String)</p>
-<p>Keyword arguments:
-vectors – list of specific vectors to sample from, if empty, samples</p>
-<blockquote>
-<div><p>from whole population (default empty list; empty)</p>
-</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frac_vectors</strong> (<em>number 0-1</em>) – fraction of vectors considered to be randomly selected.</p></li>
+<li><p><strong>protection_sequence</strong> (<em>String</em>) – sequence against which to protect.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>vectors</strong> (<em>list</em><em> of </em><em>Vector objects</em>) – list of specific vectors to sample from, if empty, samples
+from whole population. Defaults to [].</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -1441,11 +1608,12 @@ vectors – list of specific vectors to sample from, if empty, samples</p>
 <dd><p>Recombine 2 random pathogen genomes at random locus in given host.</p>
 <p>Creates a new genotype from two random possible pathogens in the host
 given.</p>
-<p>Arguments:
-rand – uniform random number from 0 to 1 to use when choosing</p>
-<blockquote>
-<div><p>individual in which to choose pathogens to recombine</p>
-</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>rand</strong> (<em>number</em>) – uniform random number from 0 to 1 to use when choosing
+individual in which to choose pathogens to recombine.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -1454,11 +1622,12 @@ rand – uniform random number from 0 to 1 to use when choosing</p>
 <dd><p>Recombine 2 random pathogen genomes at random locus in given vector.</p>
 <p>Creates a new genotype from two random possible pathogens in the vector
 given.</p>
-<p>Arguments:
-rand – uniform random number from 0 to 1 to use when choosing</p>
-<blockquote>
-<div><p>individual in which to choose pathogens to recombine</p>
-</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>rand</strong> (<em>number</em>) – uniform random number from 0 to 1 to use when choosing
+individual in which to choose pathogens to recombine.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -1468,11 +1637,12 @@ rand – uniform random number from 0 to 1 to use when choosing</p>
 <p>If model is protecting upon recovery, add protecion sequence as defined
 by the indexes in the corresponding model parameter. Remove from
 population infected list and add to healthy list.</p>
-<p>Arguments:
-rand – uniform random number from 0 to 1 to use when choosing</p>
-<blockquote>
-<div><p>individual to recover</p>
-</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>rand</strong> (<em>number</em>) – uniform random number from 0 to 1 to use when choosing
+individual to recover.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -1482,91 +1652,104 @@ rand – uniform random number from 0 to 1 to use when choosing</p>
 <p>If model is protecting upon recovery, add protecion sequence as defined
 by the indexes in the corresponding model parameter. Remove from
 population infected list and add to healthy list.</p>
-<p>Arguments:
-rand – uniform random number from 0 to 1 to use when choosing</p>
-<blockquote>
-<div><p>individual to recover</p>
-</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>rand</strong> (<em>number</em>) – uniform random number from 0 to 1 to use when choosing
+individual to recover.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="opqua.internal.population.Population.removeHosts">
 <span class="sig-name descname"><span class="pre">removeHosts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_hosts_or_list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/internal/population.html#Population.removeHosts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.internal.population.Population.removeHosts" title="Link to this definition"></a></dt>
 <dd><p>Remove a number of specified or random hosts from population.</p>
-<p>Arguments:
-num_hosts_or_list – number of hosts to be sampled randomly for removal</p>
-<blockquote>
-<div><p>or list of hosts to be removed, must be hosts in this population
-(int or list of Hosts)</p>
-</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>num_hosts_or_list</strong> (<em>int</em><em> or </em><em>list</em><em> of </em><em>Host objects</em>) – number of hosts to be sampled randomly for removal
+or list of hosts to be removed, must be hosts in this population.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="opqua.internal.population.Population.removeVectors">
 <span class="sig-name descname"><span class="pre">removeVectors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_vectors_or_list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/internal/population.html#Population.removeVectors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.internal.population.Population.removeVectors" title="Link to this definition"></a></dt>
 <dd><p>Remove a number of specified or random vectors from population.</p>
-<p>Arguments:
-num_vectors_or_list – number of vectors to be sampled randomly for</p>
-<blockquote>
-<div><p>removal or list of vectors to be removed, must be vectors in this
-population (int or list of Vectors)</p>
-</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>num_vectors_or_list</strong> (<em>int</em><em> or </em><em>list</em><em> of </em><em>Vector objects</em>) – number of vectors to be sampled randomly for
+removal or list of vectors to be removed, must be vectors in this
+population.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="opqua.internal.population.Population.setHostHostPopulationContactNeighbor">
 <span class="sig-name descname"><span class="pre">setHostHostPopulationContactNeighbor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">neighbor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rate</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/internal/population.html#Population.setHostHostPopulationContactNeighbor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.internal.population.Population.setHostHostPopulationContactNeighbor" title="Link to this definition"></a></dt>
 <dd><p>Set host-host contact rate from this population towards another one.</p>
-<p>Arguments:
-neighbor – population towards which migration rate will be specified</p>
-<blockquote>
-<div><p>(Population)</p>
-</div></blockquote>
-<p>rate – migration rate from this population to the neighbor (number)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>neighbor</strong> (<em>Population object</em>) – population towards which migration rate will be specified.</p></li>
+<li><p><strong>rate</strong> (<em>number</em>) – migration rate from this population to the neighbor.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="opqua.internal.population.Population.setHostMigrationNeighbor">
 <span class="sig-name descname"><span class="pre">setHostMigrationNeighbor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">neighbor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rate</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/internal/population.html#Population.setHostMigrationNeighbor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.internal.population.Population.setHostMigrationNeighbor" title="Link to this definition"></a></dt>
 <dd><p>Set host migration rate from this population towards another one.</p>
-<p>Arguments:
-neighbor – population towards which migration rate will be specified</p>
-<blockquote>
-<div><p>(Population)</p>
-</div></blockquote>
-<p>rate – migration rate from this population to the neighbor (number)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>neighbor</strong> (<em>Population object</em>) – population towards which migration rate will be specified.</p></li>
+<li><p><strong>rate</strong> (<em>number</em>) – migration rate from this population to the neighbor.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="opqua.internal.population.Population.setHostVectorPopulationContactNeighbor">
 <span class="sig-name descname"><span class="pre">setHostVectorPopulationContactNeighbor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">neighbor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rate</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/internal/population.html#Population.setHostVectorPopulationContactNeighbor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.internal.population.Population.setHostVectorPopulationContactNeighbor" title="Link to this definition"></a></dt>
 <dd><p>Set host-vector contact rate from this population to another one.</p>
-<p>Arguments:
-neighbor – population towards which migration rate will be specified</p>
-<blockquote>
-<div><p>(Population)</p>
-</div></blockquote>
-<p>rate – migration rate from this population to the neighbor (number)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>neighbor</strong> (<em>Population object</em>) – population towards which migration rate will be specified.</p></li>
+<li><p><strong>rate</strong> (<em>number</em>) – migration rate from this population to the neighbor.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="opqua.internal.population.Population.setSetup">
 <span class="sig-name descname"><span class="pre">setSetup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">setup</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/internal/population.html#Population.setSetup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.internal.population.Population.setSetup" title="Link to this definition"></a></dt>
 <dd><p>Assign parameters stored in Setup object to this population.</p>
-<p>Arguments:
-setup – the setup to be assigned (Setup)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>setup</strong> (<em>Setup object</em>) – the setup to be assigned.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="opqua.internal.population.Population.setVectorHostPopulationContactNeighbor">
 <span class="sig-name descname"><span class="pre">setVectorHostPopulationContactNeighbor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">neighbor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rate</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/internal/population.html#Population.setVectorHostPopulationContactNeighbor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.internal.population.Population.setVectorHostPopulationContactNeighbor" title="Link to this definition"></a></dt>
 <dd><p>Set vector-host contact rate from this population to another one.</p>
-<p>Arguments:
-neighbor – population towards which migration rate will be specified</p>
-<blockquote>
-<div><p>(Population)</p>
-</div></blockquote>
-<p>rate – migration rate from this population to the neighbor (number)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>neighbor</strong> (<em>Population object</em>) – population towards which migration rate will be specified.</p></li>
+<li><p><strong>rate</strong> (<em>number</em>) – migration rate from this population to the neighbor.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -1574,11 +1757,8 @@ neighbor – population towards which migration rate will be specified</p>
 <span class="sig-name descname"><span class="pre">setVectorMigrationNeighbor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">neighbor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rate</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/internal/population.html#Population.setVectorMigrationNeighbor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.internal.population.Population.setVectorMigrationNeighbor" title="Link to this definition"></a></dt>
 <dd><p>Set vector migration rate from this population towards another one.</p>
 <p>Arguments:
-neighbor – population towards which migration rate will be specified</p>
-<blockquote>
-<div><p>(Population)</p>
-</div></blockquote>
-<p>rate – migration rate from this population to the neighbor (number)</p>
+neighbor (Population object): population towards which migration rate will be specified.
+rate (number): migration rate from this population to the neighbor.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -1589,19 +1769,18 @@ neighbor – population towards which migration rate will be specified</p>
 Pathogens are removed if they are missing at least one of the sequences
 in resistance_seqs from their genome. Removes this organism from
 population infected list and adds to healthy list if appropriate.</p>
-<p>Arguments:
-frac_hosts – fraction of hosts considered to be randomly selected</p>
-<blockquote>
-<div><p>(number between 0 and 1)</p>
-</div></blockquote>
-<dl class="simple">
-<dt>resistance_seqs – contains sequences required for treatment resistance</dt><dd><p>(list of Strings)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frac_hosts</strong> (<em>number 0-1</em>) – fraction of hosts considered to be randomly selected.</p></li>
+<li><p><strong>resistance_seqs</strong> (<em>list</em><em> of </em><em>Strings</em>) – contains sequences required for treatment resistance.</p></li>
+</ul>
 </dd>
 </dl>
 <p>Keyword arguments:
-hosts – list of specific hosts to sample from, if empty, samples from</p>
+hosts (list of Host objects): list of specific hosts to sample from, if empty, samples from</p>
 <blockquote>
-<div><p>whole population (default empty list; empty)</p>
+<div><p>whole population. Defaults to [].</p>
 </div></blockquote>
 </dd></dl>
 
@@ -1613,20 +1792,18 @@ hosts – list of specific hosts to sample from, if empty, samples from</p>
 Pathogens are removed if they are missing at least one of the sequences
 in resistance_seqs from their genome. Removes this organism from
 population infected list and adds to healthy list if appropriate.</p>
-<p>Arguments:
-frac_vectors – fraction of vectors considered to be randomly selected</p>
-<blockquote>
-<div><p>(number between 0 and 1)</p>
-</div></blockquote>
-<dl class="simple">
-<dt>resistance_seqs – contains sequences required for treatment resistance</dt><dd><p>(list of Strings)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frac_vectors</strong> (<em>number 0-1</em>) – fraction of vectors considered to be randomly selected.</p></li>
+<li><p><strong>resistance_seqs</strong> (<em>list</em><em> of </em><em>Strings</em>) – contains sequences required for treatment resistance.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>vectors</strong> (<em>list</em><em> of </em><em>Vector objects</em>) – list of specific vectors to sample from, if empty, samples
+from whole population. Defaults to [].</p>
 </dd>
 </dl>
-<p>Keyword arguments:
-vectors – list of specific vectors to sample from, if empty, samples</p>
-<blockquote>
-<div><p>from whole population (default empty list; empty)</p>
-</div></blockquote>
 </dd></dl>
 
 <dl class="py method">
@@ -1645,22 +1822,24 @@ vectors – list of specific vectors to sample from, if empty, samples</p>
 <dt class="sig sig-object py" id="opqua.internal.population.Population.wipeProtectionHosts">
 <span class="sig-name descname"><span class="pre">wipeProtectionHosts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hosts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/internal/population.html#Population.wipeProtectionHosts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.internal.population.Population.wipeProtectionHosts" title="Link to this definition"></a></dt>
 <dd><p>Removes all protection sequences from hosts.</p>
-<p>Keyword arguments:
-hosts – list of specific hosts to sample from, if empty, samples from</p>
-<blockquote>
-<div><p>whole population (default empty list; empty)</p>
-</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>hosts</strong> (<em>list</em><em> of </em><em>Host objects</em>) – list of specific hosts to sample from, if empty, samples from
+whole population. Defaults to [].</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="opqua.internal.population.Population.wipeProtectionVectors">
 <span class="sig-name descname"><span class="pre">wipeProtectionVectors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vectors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/internal/population.html#Population.wipeProtectionVectors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.internal.population.Population.wipeProtectionVectors" title="Link to this definition"></a></dt>
 <dd><p>Removes all protection sequences from vectors.</p>
-<p>Keyword arguments:
-vectors – list of specific vectors to sample from, if empty, samples from</p>
-<blockquote>
-<div><p>whole population (default empty list; empty)</p>
-</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>vectors</strong> (<em>list</em><em> of </em><em>Vector objects</em>) – list of specific vectors to sample from, if empty, samples from
+whole population. Defaults to [].</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -1674,6 +1853,630 @@ vectors – list of specific vectors to sample from, if empty, samples from</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">opqua.internal.setup.</span></span><span class="sig-name descname"><span class="pre">Setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_loci</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">possible_alleles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fitnessHost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contactHost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">receiveContactHost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mortalityHost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">natalityHost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recoveryHost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">migrationHost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">populationContactHost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">receivePopulationContactHost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutationHost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recombinationHost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fitnessVector</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contactVector</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">receiveContactVector</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mortalityVector</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">natalityVector</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recoveryVector</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">migrationVector</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">populationContactVector</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">receivePopulationContactVector</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutationVector</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recombinationVector</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contact_rate_host_vector</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transmission_efficiency_host_vector</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transmission_efficiency_vector_host</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contact_rate_host_host</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transmission_efficiency_host_host</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean_inoculum_host</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean_inoculum_vector</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recovery_rate_host</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recovery_rate_vector</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mortality_rate_host</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mortality_rate_vector</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recombine_in_host</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recombine_in_vector</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_crossover_host</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_crossover_vector</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutate_in_host</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutate_in_vector</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">death_rate_host</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">death_rate_vector</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">birth_rate_host</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">birth_rate_vector</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vertical_transmission_host</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vertical_transmission_vector</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inherit_protection_host</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inherit_protection_vector</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">protection_upon_recovery_host</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">protection_upon_recovery_vector</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/internal/setup.html#Setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.internal.setup.Setup" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class defines a setup with population parameters.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.setup.Setup.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#opqua.internal.setup.Setup.id" title="Link to this definition"></a></dt>
+<dd><p>key of the Setup inside model dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>String</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.setup.Setup.num_loci">
+<span class="sig-name descname"><span class="pre">num_loci</span></span><a class="headerlink" href="#opqua.internal.setup.Setup.num_loci" title="Link to this definition"></a></dt>
+<dd><p>length of each pathogen genome string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int&gt;0</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.setup.Setup.possible_alleles">
+<span class="sig-name descname"><span class="pre">possible_alleles</span></span><a class="headerlink" href="#opqua.internal.setup.Setup.possible_alleles" title="Link to this definition"></a></dt>
+<dd><p>set of possible
+characters in all genome string, or at each position in genome string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>String or list of Strings with num_loci elements</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.setup.Setup.fitnessHost">
+<span class="sig-name descname"><span class="pre">fitnessHost</span></span><a class="headerlink" href="#opqua.internal.setup.Setup.fitnessHost" title="Link to this definition"></a></dt>
+<dd><p>function
+that evaluates relative fitness in head-to-head competition for different genomes
+within the same host.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>callable, takes a String argument and returns a number &gt;= 0</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.setup.Setup.contactHost">
+<span class="sig-name descname"><span class="pre">contactHost</span></span><a class="headerlink" href="#opqua.internal.setup.Setup.contactHost" title="Link to this definition"></a></dt>
+<dd><p>function that
+returns coefficient modifying probability of a given host being chosen to be the
+infector in a contact event, based on genome sequence of pathogen.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>callable, takes a String argument and returns a number 0-1</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.setup.Setup.receiveContactHost">
+<span class="sig-name descname"><span class="pre">receiveContactHost</span></span><a class="headerlink" href="#opqua.internal.setup.Setup.receiveContactHost" title="Link to this definition"></a></dt>
+<dd><p>function
+that returns coefficient modifying probability of a given host being chosen to be
+the infected in a contact event, based on genome sequence of pathogen.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>callable, takes a String argument and returns a number 0-1</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.setup.Setup.mortalityHost">
+<span class="sig-name descname"><span class="pre">mortalityHost</span></span><a class="headerlink" href="#opqua.internal.setup.Setup.mortalityHost" title="Link to this definition"></a></dt>
+<dd><p>function that
+returns coefficient modifying death rate for a given host, based on genome sequence
+of pathogen.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>callable, takes a String argument and returns a number 0-1</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.setup.Setup.natalityHost">
+<span class="sig-name descname"><span class="pre">natalityHost</span></span><a class="headerlink" href="#opqua.internal.setup.Setup.natalityHost" title="Link to this definition"></a></dt>
+<dd><p>function that
+returns coefficient modifying birth rate for a given host, based on genome sequence
+of pathogen.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>callable, takes a String argument and returns a number 0-1</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.setup.Setup.recoveryHost">
+<span class="sig-name descname"><span class="pre">recoveryHost</span></span><a class="headerlink" href="#opqua.internal.setup.Setup.recoveryHost" title="Link to this definition"></a></dt>
+<dd><p>function that
+returns coefficient modifying recovery rate for a given host based on genome sequence
+of pathogen.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>callable, takes a String argument and returns a number 0-1</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.setup.Setup.migrationHost">
+<span class="sig-name descname"><span class="pre">migrationHost</span></span><a class="headerlink" href="#opqua.internal.setup.Setup.migrationHost" title="Link to this definition"></a></dt>
+<dd><p>function that
+returns coefficient modifying migration rate for a given host based on genome sequence
+of pathogen.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>callable, takes a String argument and returns a number 0-1</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.setup.Setup.populationContactHost">
+<span class="sig-name descname"><span class="pre">populationContactHost</span></span><a class="headerlink" href="#opqua.internal.setup.Setup.populationContactHost" title="Link to this definition"></a></dt>
+<dd><p>function
+that returns coefficient modifying population contact rate for a given host based on
+genome sequence of pathogen.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>callable, takes a String argument and returns a number 0-1</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.setup.Setup.mutationHost">
+<span class="sig-name descname"><span class="pre">mutationHost</span></span><a class="headerlink" href="#opqua.internal.setup.Setup.mutationHost" title="Link to this definition"></a></dt>
+<dd><p>function that
+returns coefficient modifying mutation rate for a given host based on genome sequence
+of pathogen.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>callable, takes a String argument and returns a number 0-1</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.setup.Setup.recombinationHost">
+<span class="sig-name descname"><span class="pre">recombinationHost</span></span><a class="headerlink" href="#opqua.internal.setup.Setup.recombinationHost" title="Link to this definition"></a></dt>
+<dd><p>function
+that returns coefficient modifying recombination rate for a given host based on genome
+sequence of pathogen.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>callable, takes a String argument and returns a number 0-1</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.setup.Setup.fitnessVector">
+<span class="sig-name descname"><span class="pre">fitnessVector</span></span><a class="headerlink" href="#opqua.internal.setup.Setup.fitnessVector" title="Link to this definition"></a></dt>
+<dd><p>function that
+evaluates relative fitness in head-to-head competition for different genomes within
+the same vector.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>callable, takes a String argument and returns a number &gt;=0</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.setup.Setup.contactVector">
+<span class="sig-name descname"><span class="pre">contactVector</span></span><a class="headerlink" href="#opqua.internal.setup.Setup.contactVector" title="Link to this definition"></a></dt>
+<dd><p>function that
+returns coefficient modifying probability of a given vector being chosen to be the
+infector in a contact event, based on genome sequence of pathogen.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>callable, takes a String argument and returns a number 0-1</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.setup.Setup.receiveContactVector">
+<span class="sig-name descname"><span class="pre">receiveContactVector</span></span><a class="headerlink" href="#opqua.internal.setup.Setup.receiveContactVector" title="Link to this definition"></a></dt>
+<dd><p>function
+that returns coefficient modifying probability of a given vector being chosen to be the
+infected in a contact event, based on genome sequence of pathogen.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>callable, takes a String argument and returns a number 0-1</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.setup.Setup.mortalityVector">
+<span class="sig-name descname"><span class="pre">mortalityVector</span></span><a class="headerlink" href="#opqua.internal.setup.Setup.mortalityVector" title="Link to this definition"></a></dt>
+<dd><p>function that
+returns coefficient modifying death rate for a given vector, based on genome sequence
+of pathogen.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>callable, takes a String argument and returns a number 0-1</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.setup.Setup.natalityVector">
+<span class="sig-name descname"><span class="pre">natalityVector</span></span><a class="headerlink" href="#opqua.internal.setup.Setup.natalityVector" title="Link to this definition"></a></dt>
+<dd><p>function that
+returns coefficient modifying birth rate for a given vector, based on genome sequence
+of pathogen.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>callable, takes a String argument and returns a number 0-1</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.setup.Setup.recoveryVector">
+<span class="sig-name descname"><span class="pre">recoveryVector</span></span><a class="headerlink" href="#opqua.internal.setup.Setup.recoveryVector" title="Link to this definition"></a></dt>
+<dd><p>function that
+returns coefficient modifying recovery rate for a given vector based on genome sequence
+of pathogen.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>callable, takes a String argument and returns a number 0-1</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.setup.Setup.migrationVector">
+<span class="sig-name descname"><span class="pre">migrationVector</span></span><a class="headerlink" href="#opqua.internal.setup.Setup.migrationVector" title="Link to this definition"></a></dt>
+<dd><p>function that
+returns coefficient modifying migration rate for a given vector based on genome sequence
+of pathogen.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>callable, takes a String argument and returns a number 0-1</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.setup.Setup.populationContactVector">
+<span class="sig-name descname"><span class="pre">populationContactVector</span></span><a class="headerlink" href="#opqua.internal.setup.Setup.populationContactVector" title="Link to this definition"></a></dt>
+<dd><p>function
+that returns coefficient modifying population contact rate for a given vector based on
+genome sequence of pathogen.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>callable, takes a String argument and returns a number 0-1</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.setup.Setup.mutationVector">
+<span class="sig-name descname"><span class="pre">mutationVector</span></span><a class="headerlink" href="#opqua.internal.setup.Setup.mutationVector" title="Link to this definition"></a></dt>
+<dd><p>function that
+returns coefficient modifying mutation rate for a given vector based on genome sequence
+of pathogen.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>callable, takes a String argument and returns a number 0-1</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.setup.Setup.recombinationVector">
+<span class="sig-name descname"><span class="pre">recombinationVector</span></span><a class="headerlink" href="#opqua.internal.setup.Setup.recombinationVector" title="Link to this definition"></a></dt>
+<dd><p>function
+that returns coefficient modifying recombination rate for a given vector based on genome
+sequence of pathogen.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>callable, takes a String argument and returns a number 0-1</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.setup.Setup.contact_rate_host_vector">
+<span class="sig-name descname"><span class="pre">contact_rate_host_vector</span></span><a class="headerlink" href="#opqua.internal.setup.Setup.contact_rate_host_vector" title="Link to this definition"></a></dt>
+<dd><p>rate of host-vector contact events, not necessarily
+transmission, assumes constant population density; evts/time.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>number &gt;= 0</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.setup.Setup.transmission_efficiency_host_vector">
+<span class="sig-name descname"><span class="pre">transmission_efficiency_host_vector</span></span><a class="headerlink" href="#opqua.internal.setup.Setup.transmission_efficiency_host_vector" title="Link to this definition"></a></dt>
+<dd><p>fraction of host-vector contacts
+that result in successful transmission.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.setup.Setup.transmission_efficiency_vector_host">
+<span class="sig-name descname"><span class="pre">transmission_efficiency_vector_host</span></span><a class="headerlink" href="#opqua.internal.setup.Setup.transmission_efficiency_vector_host" title="Link to this definition"></a></dt>
+<dd><p>fraction of vector-host contacts
+that result in successful transmission.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.setup.Setup.contact_rate_host_host">
+<span class="sig-name descname"><span class="pre">contact_rate_host_host</span></span><a class="headerlink" href="#opqua.internal.setup.Setup.contact_rate_host_host" title="Link to this definition"></a></dt>
+<dd><p>rate of host-host contact events, not
+necessarily transmission, assumes constant population density; evts/time.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>number &gt;= 0</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.setup.Setup.transmission_efficiency_host_host">
+<span class="sig-name descname"><span class="pre">transmission_efficiency_host_host</span></span><a class="headerlink" href="#opqua.internal.setup.Setup.transmission_efficiency_host_host" title="Link to this definition"></a></dt>
+<dd><p>fraction of host-host contacts
+that result in successful transmission.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.setup.Setup.mean_inoculum_host">
+<span class="sig-name descname"><span class="pre">mean_inoculum_host</span></span><a class="headerlink" href="#opqua.internal.setup.Setup.mean_inoculum_host" title="Link to this definition"></a></dt>
+<dd><p>mean number of pathogens that are transmitted from
+a vector or host into a new host during a contact event.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int &gt;= 0</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.setup.Setup.mean_inoculum_vector">
+<span class="sig-name descname"><span class="pre">mean_inoculum_vector</span></span><a class="headerlink" href="#opqua.internal.setup.Setup.mean_inoculum_vector" title="Link to this definition"></a></dt>
+<dd><p>from a host to a vector during a contact event.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int &gt;= 0</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.setup.Setup.recovery_rate_host">
+<span class="sig-name descname"><span class="pre">recovery_rate_host</span></span><a class="headerlink" href="#opqua.internal.setup.Setup.recovery_rate_host" title="Link to this definition"></a></dt>
+<dd><p>rate at which hosts clear all pathogens;
+1/time.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>number &gt;= 0</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.setup.Setup.recovery_rate_vector">
+<span class="sig-name descname"><span class="pre">recovery_rate_vector</span></span><a class="headerlink" href="#opqua.internal.setup.Setup.recovery_rate_vector" title="Link to this definition"></a></dt>
+<dd><p>rate at which vectors clear all pathogens
+1/time.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>number &gt;= 0</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id0">
+<span class="sig-name descname"><span class="pre">recovery_rate_vector</span></span><a class="headerlink" href="#id0" title="Link to this definition"></a></dt>
+<dd><p>rate at which vectors clear all pathogens
+1/time.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>number &gt;= 0</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.setup.Setup.mortality_rate_host">
+<span class="sig-name descname"><span class="pre">mortality_rate_host</span></span><a class="headerlink" href="#opqua.internal.setup.Setup.mortality_rate_host" title="Link to this definition"></a></dt>
+<dd><p>rate at which infected hosts die from disease.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>number 0-1</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.setup.Setup.mortality_rate_vector">
+<span class="sig-name descname"><span class="pre">mortality_rate_vector</span></span><a class="headerlink" href="#opqua.internal.setup.Setup.mortality_rate_vector" title="Link to this definition"></a></dt>
+<dd><p>rate at which infected vectors die from
+disease.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>number 0-1</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.setup.Setup.recombine_in_host">
+<span class="sig-name descname"><span class="pre">recombine_in_host</span></span><a class="headerlink" href="#opqua.internal.setup.Setup.recombine_in_host" title="Link to this definition"></a></dt>
+<dd><p>rate at which recombination occurs in host;
+evts/time.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>number &gt;= 0</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.setup.Setup.recombine_in_vector">
+<span class="sig-name descname"><span class="pre">recombine_in_vector</span></span><a class="headerlink" href="#opqua.internal.setup.Setup.recombine_in_vector" title="Link to this definition"></a></dt>
+<dd><p>rate at which recombination occurs in vector;
+evts/time.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>number &gt;= 0</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.setup.Setup.num_crossover_host">
+<span class="sig-name descname"><span class="pre">num_crossover_host</span></span><a class="headerlink" href="#opqua.internal.setup.Setup.num_crossover_host" title="Link to this definition"></a></dt>
+<dd><p>mean of a Poisson distribution modeling the number
+of crossover events of host recombination events.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>number &gt;= 0</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.setup.Setup.num_crossover_vector">
+<span class="sig-name descname"><span class="pre">num_crossover_vector</span></span><a class="headerlink" href="#opqua.internal.setup.Setup.num_crossover_vector" title="Link to this definition"></a></dt>
+<dd><p>mean of a Poisson distribution modeling the
+number of crossover events of vector recombination events.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>number &gt;= 0</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.setup.Setup.mutate_in_host">
+<span class="sig-name descname"><span class="pre">mutate_in_host</span></span><a class="headerlink" href="#opqua.internal.setup.Setup.mutate_in_host" title="Link to this definition"></a></dt>
+<dd><p>rate at which mutation occurs in host; evts/time.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>number &gt;= 0</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.setup.Setup.mutate_in_vector">
+<span class="sig-name descname"><span class="pre">mutate_in_vector</span></span><a class="headerlink" href="#opqua.internal.setup.Setup.mutate_in_vector" title="Link to this definition"></a></dt>
+<dd><p>rate at which mutation occurs in vector; evts/time.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>number &gt;= 0</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.setup.Setup.death_rate_host">
+<span class="sig-name descname"><span class="pre">death_rate_host</span></span><a class="headerlink" href="#opqua.internal.setup.Setup.death_rate_host" title="Link to this definition"></a></dt>
+<dd><p>natural host death rate; 1/time.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>number &gt;= 0</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.setup.Setup.death_rate_vector">
+<span class="sig-name descname"><span class="pre">death_rate_vector</span></span><a class="headerlink" href="#opqua.internal.setup.Setup.death_rate_vector" title="Link to this definition"></a></dt>
+<dd><p>natural vector death rate; 1/time.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>number &gt;= 0</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.setup.Setup.birth_rate_host">
+<span class="sig-name descname"><span class="pre">birth_rate_host</span></span><a class="headerlink" href="#opqua.internal.setup.Setup.birth_rate_host" title="Link to this definition"></a></dt>
+<dd><p>infected host birth rate; 1/time.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>number &gt;= 0</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.setup.Setup.birth_rate_vector">
+<span class="sig-name descname"><span class="pre">birth_rate_vector</span></span><a class="headerlink" href="#opqua.internal.setup.Setup.birth_rate_vector" title="Link to this definition"></a></dt>
+<dd><p>infected vector birth rate; 1/time.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>number &gt;= 0</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.setup.Setup.vertical_transmission_host">
+<span class="sig-name descname"><span class="pre">vertical_transmission_host</span></span><a class="headerlink" href="#opqua.internal.setup.Setup.vertical_transmission_host" title="Link to this definition"></a></dt>
+<dd><p>probability that a host is infected by its
+parent at birth.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>number 0-1</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.setup.Setup.vertical_transmission_vector">
+<span class="sig-name descname"><span class="pre">vertical_transmission_vector</span></span><a class="headerlink" href="#opqua.internal.setup.Setup.vertical_transmission_vector" title="Link to this definition"></a></dt>
+<dd><p>probability that a vector is infected by
+its parent at birth.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>number 0-1</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.setup.Setup.inherit_protection_host">
+<span class="sig-name descname"><span class="pre">inherit_protection_host</span></span><a class="headerlink" href="#opqua.internal.setup.Setup.inherit_protection_host" title="Link to this definition"></a></dt>
+<dd><p>probability that a host inherits all
+protection sequences from its parent.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>number 0-1</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.setup.Setup.inherit_protection_vector">
+<span class="sig-name descname"><span class="pre">inherit_protection_vector</span></span><a class="headerlink" href="#opqua.internal.setup.Setup.inherit_protection_vector" title="Link to this definition"></a></dt>
+<dd><p>probability that a vector inherits all
+protection sequences from its parent.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>number 0-1</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.setup.Setup.protection_upon_recovery_host">
+<span class="sig-name descname"><span class="pre">protection_upon_recovery_host</span></span><a class="headerlink" href="#opqua.internal.setup.Setup.protection_upon_recovery_host" title="Link to this definition"></a></dt>
+<dd><p>defines
+indexes in genome string that define substring to be added to host protection sequences
+after recovery.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None or array-like of length 2 with int 0-num_loci</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.setup.Setup.protection_upon_recovery_vector">
+<span class="sig-name descname"><span class="pre">protection_upon_recovery_vector</span></span><a class="headerlink" href="#opqua.internal.setup.Setup.protection_upon_recovery_vector" title="Link to this definition"></a></dt>
+<dd><p>defines
+indexes in genome string that define substring to be added to vector protection sequences
+after recovery.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None or array-like of length 2 with int 0-num_loci</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -1686,33 +2489,53 @@ vectors – list of specific vectors to sample from, if empty, samples from</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class defines vector entities to be infected by pathogens in model.</p>
 <p>These can infect hosts, the main entities in the model.</p>
-<p>Methods:
-copyState – returns a slimmed-down version of the current vector state
-acquirePathogen – adds given genome to this vector’s pathogens
-infectHost – infects given host with a sample of this vector’s pathogens
-infectVector – infects given vector with a sample of this vector’s pathogens
-recover – removes all infections
-die – kills this vector
-birth – add a new vector to population based on this vector
-applyTreatment – removes all infections with genotypes susceptible to given</p>
-<blockquote>
-<div><p>treatment</p>
-</div></blockquote>
-<p>mutate – mutate a single, random locus in a random pathogen
-recombine – recombine two random pathogen genomes at random locus
-getWeightedRandomGenome – returns index of element chosen from weights and</p>
-<blockquote>
-<div><p>given random number</p>
-</div></blockquote>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.vector.Vector.population">
+<span class="sig-name descname"><span class="pre">population</span></span><a class="headerlink" href="#opqua.internal.vector.Vector.population" title="Link to this definition"></a></dt>
+<dd><p>the population this vector belongs to.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Population object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.vector.Vector.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#opqua.internal.vector.Vector.id" title="Link to this definition"></a></dt>
+<dd><p>unique identifier for this vector within population.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>String</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.internal.vector.Vector.slim">
+<span class="sig-name descname"><span class="pre">slim</span></span><a class="headerlink" href="#opqua.internal.vector.Vector.slim" title="Link to this definition"></a></dt>
+<dd><p>whether to create a slimmed-down representation of the
+population for data storage (only ID, host and vector lists). Defaults to False.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Boolean</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="opqua.internal.vector.Vector.acquirePathogen">
 <span class="sig-name descname"><span class="pre">acquirePathogen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">genome</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/internal/vector.html#Vector.acquirePathogen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.internal.vector.Vector.acquirePathogen" title="Link to this definition"></a></dt>
 <dd><p>Adds given genome to this vector’s pathogens.</p>
 <p>Modifies event coefficient matrix accordingly.</p>
-<p>Arguments:
-genome – the genome to be added (String)</p>
-<p>Returns:
-whether or not the model has changed state (Boolean)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>genome</strong> (<em>String</em>) – the genome to be added.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Boolean indicating whether or not the model has changed state.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -1722,11 +2545,11 @@ whether or not the model has changed state (Boolean)</p>
 <p>Pathogens are removed if they are missing at least one of the sequences
 in resistance_seqs from their genome. Removes this organism from
 population infected list and adds to healthy list if appropriate.</p>
-<p>Arguments:
-resistance_seqs – contains sequences required for treatment resistance</p>
-<blockquote>
-<div><p>(list of Strings)</p>
-</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>resistance_seqs</strong> (<em>list</em><em> of </em><em>Strings</em>) – contains sequences required for treatment resistance.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -1739,8 +2562,11 @@ resistance_seqs – contains sequences required for treatment resistance</p>
 <dt class="sig sig-object py" id="opqua.internal.vector.Vector.copyState">
 <span class="sig-name descname"><span class="pre">copyState</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/internal/vector.html#Vector.copyState"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.internal.vector.Vector.copyState" title="Link to this definition"></a></dt>
 <dd><p>Returns a slimmed-down representation of the current vector state.</p>
-<p>Returns:
-Vector object with current pathogens and protection_sequences.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Vector object with current pathogens and protection_sequences.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -1753,11 +2579,17 @@ Vector object with current pathogens and protection_sequences.</p>
 <dt class="sig sig-object py" id="opqua.internal.vector.Vector.getWeightedRandomGenome">
 <span class="sig-name descname"><span class="pre">getWeightedRandomGenome</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rand</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/internal/vector.html#Vector.getWeightedRandomGenome"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.internal.vector.Vector.getWeightedRandomGenome" title="Link to this definition"></a></dt>
 <dd><p>Returns index of element chosen from weights and given random number.</p>
-<p>Arguments:
-rand – 0-1 random number (number)
-r – array with weights (numpy vector)</p>
-<p>Returns:
-new 0-1 random number (number)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rand</strong> (<em>number</em>) – 0-1 random number.</p></li>
+<li><p><strong>r</strong> (<em>numpy array</em>) – array with weights.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>new 0-1 random number.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -1773,10 +2605,14 @@ present in the inoculum will be added to the infected organism, if it
 does not have protection from the pathogen’s genome. Fitnesses are
 computed for the pathogens’ genomes in the infected organism, and the
 organism is included in the poplation’s infected list if appropriate.</p>
-<p>Arguments:
-vector – the vector to be infected (Vector)</p>
-<p>Returns:
-whether or not the model has changed state (Boolean)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>vector</strong> (<em>Vector object</em>) – the vector to be infected.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Boolean indicating whether or not the model has changed state.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -1792,10 +2628,14 @@ present in the inoculum will be added to the infected organism, if it
 does not have protection from the pathogen’s genome. Fitnesses are
 computed for the pathogens’ genomes in the infected organism, and the
 organism is included in the poplation’s infected list if appropriate.</p>
-<p>Arguments:
-vector – the vector to be infected (Vector)</p>
-<p>Returns:
-whether or not the model has changed state (Boolean)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>vector</strong> (<em>Vector object</em>) – the vector to be infected.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Boolean indicating whether or not the model has changed state.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">

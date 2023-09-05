@@ -15,11 +15,8 @@ class Gillespie(object):
     according to the possible events and simulating a timecourse using the
     Gillespie algorithm.
 
-    Methods:
-    getRates -- returns array containing rates for each event for a given system
-        state
-    doAction -- carries out an event, modifying system state
-    run -- simulates model for a specified length of time
+    Attributes:
+        model (Model object): the model this simulation belongs to.
     """
 
     # Event ID constants:
@@ -72,7 +69,7 @@ class Gillespie(object):
         """Create a new Gillespie simulation object.
 
         Arguments:
-        model -- the model this simulation belongs to (Model)
+            model (Model object): the model this simulation belongs to.
         """
 
         super(Gillespie, self).__init__() # initialize as parent class object
@@ -103,12 +100,11 @@ class Gillespie(object):
         """Wrapper for calculating event rates as per current system state.
 
         Arguments:
-        population_ids -- list with ids for every population in the model
-            (list of Strings)
+            population_ids (list of Strings): list with IDs for every population in the model.
 
         Returns:
-        Matrix with rates as values for events (rows) and populations (columns).
-        Populations in order given in argument.
+            Matrix with rates as values for events (rows) and populations (columns).
+            Populations in order given in argument.
         """
 
         rates = np.zeros( [ len(self.evt_IDs), len(population_ids) ] )
@@ -336,12 +332,12 @@ class Gillespie(object):
         """Change system state according to act argument passed
 
         Arguments:
-        act -- defines action to be taken, one of the event ID constants (int)
-        pop -- population action will happen in (Population)
-        rand -- random number used to define event (number 0-1)
+            act (int): defines action to be taken, one of the event ID constants.
+            pop (Population object): where the population action will happen in.
+            rand (number 0-1): random number used to define event.
 
         Returns:
-        whether or not the model has changed state (Boolean)
+            Boolean indicationg whether or not the model has changed state.
         """
 
         changed = False
@@ -507,21 +503,21 @@ class Gillespie(object):
         Simulates a time series using the Gillespie algorithm.
 
         Arguments:
-        t0 -- initial time point to start simulation at (number)
-        tf -- initial time point to end simulation at (number)
-        time_sampling -- how many events to skip before saving a snapshot of the
-            system state (saves all by default), if <0, saves only final state
-            (int, default 0)
-        host_sampling -- how many hosts to skip before saving one in a snapshot
-            of the system state (saves all by default) (int, default 0)
-        vector_sampling -- how many vectors to skip before saving one in a
-            snapshot of the system state (saves all by default) (int, default 0)
-        print_every_n_events -- number of events a message is printed to console
-            (int>0, default 1000)
+            t0 (number): initial time point to start simulation at.
+            tf (number): initial time point to end simulation at.
+        
+        Keyword arguments:
+            time_sampling (int): how many events to skip before saving a snapshot of the
+                system state (saves all by default), if <0, saves only final state. Defaults to 0.
+            host_sampling (int): how many hosts to skip before saving one in a snapshot
+                of the system state (saves all by default). Defaults to 0.
+            vector_sampling (int): how many vectors to skip before saving one in a
+                snapshot of the system state (saves all by default). Defaults to 0.
+            print_every_n_events (int>0): number of events a message is printed to console. Defaults to 1000.
 
         Returns:
-        dictionary containing model state history, with keys=times and
-            values=Model objects with model snapshot at that time point
+            dictionary containing model state history, with `keys`=`times` and
+                `values`=`Model` objects with model snapshot at that time point.
         """
 
         # Simulation variables

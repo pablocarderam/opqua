@@ -32,37 +32,34 @@ def populationsPlot(
     across populations in the model, with one line for each population.
 
     Arguments:
-    file_name -- file path, name, and extension to save plot under (String)
-    data -- dataframe with model history as produced by saveToDf function
-        (DataFrame)
+        file_name (String): file path, name, and extension to save plot under.
+        data (pandas DataFrame): dataframe with model history as produced by `saveToDf` function.
 
     Keyword arguments:
-    compartment -- subset of hosts/vectors to count totals of, can be either
-        'Naive','Infected','Recovered', or 'Dead' (default 'Infected'; String)
-    hosts -- whether to count hosts (default True, Boolean)
-    vectors -- whether to count vectors (default False, Boolean)
-    num_top_populations -- how many populations to count separately and include
-        as columns, remainder will be counted under column "Other"; if <0,
-        includes all populations in model (default 7; int)
-    track_specific_populations -- contains IDs of specific populations to have
-        as a separate column if not part of the top num_top_populations
-        populations (default empty list; list of Strings)
-    save_data_to_file -- file path and name to save model plot data under, no
-        saving occurs if empty string (default ''; String)
-    x_label -- X axis title (default 'Time', String)
-    y_label -- Y axis title (default 'Hosts', String)
-    legend_title -- legend title (default 'Population', String)
-    legend_values -- labels for each trace, if empty list, uses population IDs
-        (default empty list, list of Strings)
-    figsize -- dimensions of figure (default (8,4), array-like of two ints)
-    dpi -- figure resolution (default 200, int)
-    palette -- color palette to use for traces (default CB_PALETTE, list of
-        color Strings)
-    stacked -- whether to draw a regular line plot instead of a stacked one
-        (default False, Boolean)
+        compartment (String): subset of hosts/vectors to count totals of, can be either
+            'Naive','Infected','Recovered', or 'Dead'. (default 'Infected')
+        hosts (Boolean): whether to count hosts. Defaults to True.
+        vectors (Boolean): whether to count vectors. Defaults to False.
+        num_top_populations (int): how many populations to count separately and include
+            as columns, remainder will be counted under column "Other"; if <0,
+            includes all populations in model. Defaults to 7.
+        track_specific_populations (list of Strings): contains IDs of specific populations to have
+            as a separate column if not part of the top num_top_populations
+            populations. Defaults to [].
+        save_data_to_file (String): file path and name to save model plot data under, no
+            saving occurs if empty string. Defaults to "".
+        x_label(String): X axis title. Defaults to 'Time'.
+        y_label (String): Y axis title. Defaults to 'Hosts'.
+        legend_title (String): legend title. Defaults to 'Population'.
+        legend_values (list of Strings): labels for each trace, if empty list, uses population IDs.
+            Defaults to [].
+        figsize (array-like of two ints): dimensions of figure. Defaults to (8,4).
+        dpi (int): figure resolution. Defaults to 200.
+        palette (list of color Strings): color palette to use for traces. Defaults to `CB_PALETTE`.
+        stacked (Boolean): whether to draw a regular line plot instead of a stacked one. Defaults to False.
 
     Returns:
-    axis object for plot with model population dynamics as described above
+        axis object for plot with model population dynamics as described above.
     """
 
     pops = populationsDf(
@@ -129,31 +126,29 @@ def compartmentPlot(
     with one line for each compartment.
 
     Arguments:
-    file_name -- file path, name, and extension to save plot under (String)
-    data -- dataframe with model history as produced by saveToDf function
-        (DataFrame)
+        file_name (String): file path, name, and extension to save plot under.
+        data (pandas DataFrame): dataframe with model history as produced by `saveToDf` function.
 
     Keyword arguments:
-    populations -- IDs of populations to include in analysis; if empty, uses all
-        populations in model (default empty list; list of Strings)
-    hosts -- whether to count hosts (default True, Boolean)
-    vectors -- whether to count vectors (default False, Boolean)
-    save_data_to_file -- file path and name to save model data under, no saving
-        occurs if empty string (default ''; String)
-    x_label -- X axis title (default 'Time', String)
-    y_label -- Y axis title (default 'Hosts', String)
-    legend_title -- legend title (default 'Population', String)
-    legend_values -- labels for each trace, if empty list, uses population IDs
-        (default empty list, list of Strings)
-    figsize -- dimensions of figure (default (8,4), array-like of two ints)
-    dpi -- figure resolution (default 200, int)
-    palette -- color palette to use for traces (default CB_PALETTE, list of
-        color Strings)
-    stacked -- whether to draw a regular line plot instead of a stacked one
-        (default False, Boolean)
+        populations (list of Strings): IDs of populations to include in analysis; if empty, uses all
+            populations in model. Defaults to [].
+        hosts (Boolean): whether to count hosts. Defaults to True.
+        vectors (Boolean): whether to count vectors. Defaults to False.
+        save_data_to_file (String): file path and name to save model data under, no saving
+            occurs if empty string. Defaults to "".
+        x_label (String): X axis title. Defaults to 'Time'.
+        y_label (String): Y axis title. Defaults to 'Hosts'.
+        legend_title (String): legend title. Defaults to 'Population'.
+        legend_values (list of Strings): labels for each trace, if empty list, uses population IDs. 
+            Defaults to [].
+        figsize (array-like of two ints): dimensions of figure. Defaults to (8,4).
+        dpi (int): figure resolution. Defaults to 200.
+        palette (list of color Strings): color palette to use for traces. Defaults to `CB_PALETTE`.
+        stacked (Boolean): whether to draw a regular line plot instead of a stacked one. 
+            Defaults to False.
 
     Returns:
-    axis object for plot with model compartment dynamics as described above
+        axis object for plot with model compartment dynamics as described above.
     """
 
     comp = compartmentDf(data, populations=populations, hosts=hosts,
@@ -223,54 +218,51 @@ def compositionPlot(
     multiple infections in the same host/vector are counted separately.
 
     Arguments:
-    file_name -- file path, name, and extension to save plot under (String)
-    data -- dataframe with model history as produced by saveToDf function
+        file_name (String): file path, name, and extension to save plot under.
+        data (pandas DataFrame): dataframe with model history as produced by `saveToDf` function.
 
     Keyword arguments:
-    composition_dataframe -- output of compositionDf() if already computed
-        (Pandas DataFrame, None by default)
-    populations -- IDs of populations to include in analysis; if empty, uses all
-        populations in model (default empty list; list of Strings)
-    type_of_composition -- field of data to count totals of, can be either
-        'Pathogens' or 'Protection' (default 'Pathogens'; String)
-    hosts -- whether to count hosts (default True, Boolean)
-    vectors -- whether to count vectors (default False, Boolean)
-    num_top_sequences -- how many sequences to count separately and include
-        as columns, remainder will be counted under column "Other"; if <0,
-        includes all genomes in model (default 7; int)
-    track_specific_sequences -- contains specific sequences to have
-        as a separate column if not part of the top num_top_sequences
-        sequences (default empty list; list of Strings)
-    genomic_positions -- list in which each element is a list with loci
-        positions to extract (e.g. genomic_positions=[ [0,3], [5,6] ] extracts
-        positions 0, 1, 2, and 5 from each genome); if empty, takes full genomes
-        (default empty list; list of lists of int)
-    count_individuals_based_on_model -- Model object with populations and
-        fitness functions used to evaluate the most fit pathogen genome in each
-        host/vector in order to count only a single pathogen per host/vector, as
-        opposed to all pathogens within each host/vector; if None, counts all
-        pathogens (default None; None or Model)
-    save_data_to_file -- file path and name to save model data under, no saving
-        occurs if empty string (default ''; String)
-    x_label -- X axis title (default 'Time', String)
-    y_label -- Y axis title (default 'Hosts', String)
-    legend_title -- legend title (default 'Population', String)
-    legend_values -- labels for each trace, if empty list, uses population IDs
-        (default empty list, list of Strings)
-    figsize -- dimensions of figure (default (8,4), array-like of two ints)
-    dpi -- figure resolution (default 200, int)
-    palette -- color palette to use for traces (default CB_PALETTE, list of
-        color Strings)
-    stacked -- whether to draw a regular line plot instead of a stacked one
-        (default False, Boolean).
-    remove_legend -- whether to print the sequences on the figure legend instead
-        of printing them on a separate csv file (default True; Boolean)
-    population_fraction -- whether to graph fractions of pathogen population
-        instead of pathogen counts (default False, Boolean)
-    **kwargs -- additional arguents for joblib multiprocessing
+        composition_dataframe (Pandas DataFrame): output of compositionDf() if already computed. 
+            Defaults to None.
+        populations (list of Strings): IDs of populations to include in analysis; if empty, uses all
+            populations in model. Defaults to [].
+        type_of_composition (String): field of data to count totals of, can be either
+            'Pathogens' or 'Protection'. Defaults to 'Pathogens'.
+        hosts (Boolean): whether to count hosts. Defaults to True.
+        vectors (Boolean): whether to count vectors. Defaults to False.
+        num_top_sequences (int): how many sequences to count separately and include
+            as columns, remainder will be counted under column "Other"; if <0,
+            includes all genomes in model. Defaults to 7.
+        track_specific_sequences (list of Strings): contains specific sequences to have
+            as a separate column if not part of the top num_top_sequences
+            sequences. Defaults to [].
+        genomic_positions (list of lists of int): list in which each element is a list with loci
+            positions to extract (e.g. genomic_positions=[ [0,3], [5,6] ] extracts
+            positions 0, 1, 2, and 5 from each genome); if empty, takes full genomes. Defaults to [].
+        count_individuals_based_on_model (None or Model): Model object with populations and
+            fitness functions used to evaluate the most fit pathogen genome in each
+            host/vector in order to count only a single pathogen per host/vector, as
+            opposed to all pathogens within each host/vector; if None, counts all
+            pathogens. Defaults to None.
+        save_data_to_file (String): file path and name to save model data under, no saving
+            occurs if empty string. Defaults to "".
+        x_label (String): X axis title. Defaults to 'Time'.
+        y_label (String): Y axis title. Defaults to 'Hosts'.
+        legend_title (String): legend title. Defaults to 'Population'.
+        legend_values (list of Strings): labels for each trace, if empty list, uses population IDs. 
+            Defaults to [].
+        figsize (int): dimensions of figure. Defaults to (8,4).
+        dpi (int): figure resolution. Defaults to 200.
+        palette (list of color Strings): color palette to use for traces. Defaults to `CB_PALETTE`.
+        stacked (Boolean): whether to draw a regular line plot instead of a stacked one. Defaults to False.
+        remove_legend (Boolean): whether to print the sequences on the figure legend instead
+            of printing them on a separate csv file. Defaults to True.
+        population_fraction (Boolean): whether to graph fractions of pathogen population
+            instead of pathogen counts. Defaults to False.
+        **kwargs: additional arguents for joblib multiprocessing.
 
     Returns:
-    axis object for plot with model sequence composition dynamics as described
+        axis object for plot with model sequence composition dynamics as described.
     """
 
     if composition_dataframe is None:
@@ -349,33 +341,30 @@ def clustermap(
     """Create a heatmap and dendrogram for pathogen genomes in data passed.
 
     Arguments:
-    file_name -- file path, name, and extension to save plot under (String)
-    data -- dataframe with model history as produced by saveToDf function
+        file_name (String): file path, name, and extension to save plot under.
+        data (pandas DataFrame): dataframe with model history as produced by `saveToDf` function.
 
     Keyword arguments:
-    num_top_sequences -- how many sequences to include in matrix; if <0,
-        includes all genomes in data passed (default -1; int)
-    track_specific_sequences -- contains specific sequences to include in matrix
-        if not part of the top num_top_sequences sequences (default empty list;
-        list of Strings)
-    seq_names -- list with names to be used for sequence labels in matrix must
-        be of same length as number of sequences to be displayed; if empty,
-        uses sequences themselves (default empty list; list of Strings)
-    n_cores -- number of cores to parallelize distance compute across, if 0, all
-        cores available are used (default 0; int)
-    method -- clustering algorithm to use with seaborn clustermap (default
-        'weighted'; String)
-    metric -- distance metric to use with seaborn clustermap (default
-        'euclidean'; String)
-    save_data_to_file -- file path and name to save model data under, no saving
-        occurs if empty string (default ''; String)
-    legend_title -- legend title (default 'Distance', String)
-    figsize -- dimensions of figure (default (8,4), array-like of two ints)
-    dpi -- figure resolution (default 200, int)
-    color_map -- color map to use for traces (default DEF_CMAP, cmap object)
+        num_top_sequences (int): how many sequences to include in matrix; if <0,
+            includes all genomes in data passed. Deafults to -1.
+        track_specific_sequences (list of Strings): contains specific sequences to include in matrix
+            if not part of the top num_top_sequences sequences. Defaults to [].
+        seq_names (list of Strings): list with names to be used for sequence labels in matrix must
+            be of same length as number of sequences to be displayed; if empty,
+            uses sequences themselves. Defaults to [].
+        n_cores (int): number of cores to parallelize distance compute across, if 0, all
+            cores available are used. Defaults to 0.
+        method (String): clustering algorithm to use with seaborn clustermap. Defaults to 'weighted'.
+        metric (String): distance metric to use with seaborn clustermap. Defaults to 'euclidean'.
+        save_data_to_file (String): file path and name to save model data under, no saving
+            occurs if empty string. Defaults to "".
+        legend_title (String): legend title. Defaults to 'Distance'.
+        figsize (array-like of two ints): dimensions of figure. Defaults to (8,4).
+        dpi (int): figure resolution. Defaults to 200.
+        color_map (cmap object): color map to use for traces. Defaults to `DEF_CMAP`.
 
     Returns:
-    figure object for plot with heatmap and dendrogram as described
+        figure object for plot with heatmap and dendrogram as described.
     """
 
     dis = pathogenDistanceDf(

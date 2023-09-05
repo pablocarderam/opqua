@@ -15,6 +15,7 @@
         <script src="../../../_static/documentation_options.js?v=1ed6394b"></script>
         <script src="../../../_static/doctools.js?v=888ff710"></script>
         <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="author" title="About these documents" href="../../../about.html" />
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -45,8 +46,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../about.html">About</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../requirements_and_installation.html">Requirements and Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../model_documentation.html">Model Documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">opqua</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../model_documentation.html"><code class="docutils literal notranslate"><span class="pre">Model</span></code> Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../API.html">API</a></li>
 </ul>
 
         </div>
@@ -110,37 +111,34 @@
 <span class="sd">    across populations in the model, with one line for each population.</span>
 
 <span class="sd">    Arguments:</span>
-<span class="sd">    file_name -- file path, name, and extension to save plot under (String)</span>
-<span class="sd">    data -- dataframe with model history as produced by saveToDf function</span>
-<span class="sd">        (DataFrame)</span>
+<span class="sd">        file_name (String): file path, name, and extension to save plot under.</span>
+<span class="sd">        data (pandas DataFrame): dataframe with model history as produced by `saveToDf` function.</span>
 
 <span class="sd">    Keyword arguments:</span>
-<span class="sd">    compartment -- subset of hosts/vectors to count totals of, can be either</span>
-<span class="sd">        &#39;Naive&#39;,&#39;Infected&#39;,&#39;Recovered&#39;, or &#39;Dead&#39; (default &#39;Infected&#39;; String)</span>
-<span class="sd">    hosts -- whether to count hosts (default True, Boolean)</span>
-<span class="sd">    vectors -- whether to count vectors (default False, Boolean)</span>
-<span class="sd">    num_top_populations -- how many populations to count separately and include</span>
-<span class="sd">        as columns, remainder will be counted under column &quot;Other&quot;; if &lt;0,</span>
-<span class="sd">        includes all populations in model (default 7; int)</span>
-<span class="sd">    track_specific_populations -- contains IDs of specific populations to have</span>
-<span class="sd">        as a separate column if not part of the top num_top_populations</span>
-<span class="sd">        populations (default empty list; list of Strings)</span>
-<span class="sd">    save_data_to_file -- file path and name to save model plot data under, no</span>
-<span class="sd">        saving occurs if empty string (default &#39;&#39;; String)</span>
-<span class="sd">    x_label -- X axis title (default &#39;Time&#39;, String)</span>
-<span class="sd">    y_label -- Y axis title (default &#39;Hosts&#39;, String)</span>
-<span class="sd">    legend_title -- legend title (default &#39;Population&#39;, String)</span>
-<span class="sd">    legend_values -- labels for each trace, if empty list, uses population IDs</span>
-<span class="sd">        (default empty list, list of Strings)</span>
-<span class="sd">    figsize -- dimensions of figure (default (8,4), array-like of two ints)</span>
-<span class="sd">    dpi -- figure resolution (default 200, int)</span>
-<span class="sd">    palette -- color palette to use for traces (default CB_PALETTE, list of</span>
-<span class="sd">        color Strings)</span>
-<span class="sd">    stacked -- whether to draw a regular line plot instead of a stacked one</span>
-<span class="sd">        (default False, Boolean)</span>
+<span class="sd">        compartment (String): subset of hosts/vectors to count totals of, can be either</span>
+<span class="sd">            &#39;Naive&#39;,&#39;Infected&#39;,&#39;Recovered&#39;, or &#39;Dead&#39;. (default &#39;Infected&#39;)</span>
+<span class="sd">        hosts (Boolean): whether to count hosts. Defaults to True.</span>
+<span class="sd">        vectors (Boolean): whether to count vectors. Defaults to False.</span>
+<span class="sd">        num_top_populations (int): how many populations to count separately and include</span>
+<span class="sd">            as columns, remainder will be counted under column &quot;Other&quot;; if &lt;0,</span>
+<span class="sd">            includes all populations in model. Defaults to 7.</span>
+<span class="sd">        track_specific_populations (list of Strings): contains IDs of specific populations to have</span>
+<span class="sd">            as a separate column if not part of the top num_top_populations</span>
+<span class="sd">            populations. Defaults to [].</span>
+<span class="sd">        save_data_to_file (String): file path and name to save model plot data under, no</span>
+<span class="sd">            saving occurs if empty string. Defaults to &quot;&quot;.</span>
+<span class="sd">        x_label(String): X axis title. Defaults to &#39;Time&#39;.</span>
+<span class="sd">        y_label (String): Y axis title. Defaults to &#39;Hosts&#39;.</span>
+<span class="sd">        legend_title (String): legend title. Defaults to &#39;Population&#39;.</span>
+<span class="sd">        legend_values (list of Strings): labels for each trace, if empty list, uses population IDs.</span>
+<span class="sd">            Defaults to [].</span>
+<span class="sd">        figsize (array-like of two ints): dimensions of figure. Defaults to (8,4).</span>
+<span class="sd">        dpi (int): figure resolution. Defaults to 200.</span>
+<span class="sd">        palette (list of color Strings): color palette to use for traces. Defaults to `CB_PALETTE`.</span>
+<span class="sd">        stacked (Boolean): whether to draw a regular line plot instead of a stacked one. Defaults to False.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">    axis object for plot with model population dynamics as described above</span>
+<span class="sd">        axis object for plot with model population dynamics as described above.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">pops</span> <span class="o">=</span> <span class="n">populationsDf</span><span class="p">(</span>
@@ -210,31 +208,29 @@
 <span class="sd">    with one line for each compartment.</span>
 
 <span class="sd">    Arguments:</span>
-<span class="sd">    file_name -- file path, name, and extension to save plot under (String)</span>
-<span class="sd">    data -- dataframe with model history as produced by saveToDf function</span>
-<span class="sd">        (DataFrame)</span>
+<span class="sd">        file_name (String): file path, name, and extension to save plot under.</span>
+<span class="sd">        data (pandas DataFrame): dataframe with model history as produced by `saveToDf` function.</span>
 
 <span class="sd">    Keyword arguments:</span>
-<span class="sd">    populations -- IDs of populations to include in analysis; if empty, uses all</span>
-<span class="sd">        populations in model (default empty list; list of Strings)</span>
-<span class="sd">    hosts -- whether to count hosts (default True, Boolean)</span>
-<span class="sd">    vectors -- whether to count vectors (default False, Boolean)</span>
-<span class="sd">    save_data_to_file -- file path and name to save model data under, no saving</span>
-<span class="sd">        occurs if empty string (default &#39;&#39;; String)</span>
-<span class="sd">    x_label -- X axis title (default &#39;Time&#39;, String)</span>
-<span class="sd">    y_label -- Y axis title (default &#39;Hosts&#39;, String)</span>
-<span class="sd">    legend_title -- legend title (default &#39;Population&#39;, String)</span>
-<span class="sd">    legend_values -- labels for each trace, if empty list, uses population IDs</span>
-<span class="sd">        (default empty list, list of Strings)</span>
-<span class="sd">    figsize -- dimensions of figure (default (8,4), array-like of two ints)</span>
-<span class="sd">    dpi -- figure resolution (default 200, int)</span>
-<span class="sd">    palette -- color palette to use for traces (default CB_PALETTE, list of</span>
-<span class="sd">        color Strings)</span>
-<span class="sd">    stacked -- whether to draw a regular line plot instead of a stacked one</span>
-<span class="sd">        (default False, Boolean)</span>
+<span class="sd">        populations (list of Strings): IDs of populations to include in analysis; if empty, uses all</span>
+<span class="sd">            populations in model. Defaults to [].</span>
+<span class="sd">        hosts (Boolean): whether to count hosts. Defaults to True.</span>
+<span class="sd">        vectors (Boolean): whether to count vectors. Defaults to False.</span>
+<span class="sd">        save_data_to_file (String): file path and name to save model data under, no saving</span>
+<span class="sd">            occurs if empty string. Defaults to &quot;&quot;.</span>
+<span class="sd">        x_label (String): X axis title. Defaults to &#39;Time&#39;.</span>
+<span class="sd">        y_label (String): Y axis title. Defaults to &#39;Hosts&#39;.</span>
+<span class="sd">        legend_title (String): legend title. Defaults to &#39;Population&#39;.</span>
+<span class="sd">        legend_values (list of Strings): labels for each trace, if empty list, uses population IDs. </span>
+<span class="sd">            Defaults to [].</span>
+<span class="sd">        figsize (array-like of two ints): dimensions of figure. Defaults to (8,4).</span>
+<span class="sd">        dpi (int): figure resolution. Defaults to 200.</span>
+<span class="sd">        palette (list of color Strings): color palette to use for traces. Defaults to `CB_PALETTE`.</span>
+<span class="sd">        stacked (Boolean): whether to draw a regular line plot instead of a stacked one. </span>
+<span class="sd">            Defaults to False.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">    axis object for plot with model compartment dynamics as described above</span>
+<span class="sd">        axis object for plot with model compartment dynamics as described above.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">comp</span> <span class="o">=</span> <span class="n">compartmentDf</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">populations</span><span class="o">=</span><span class="n">populations</span><span class="p">,</span> <span class="n">hosts</span><span class="o">=</span><span class="n">hosts</span><span class="p">,</span>
@@ -307,54 +303,51 @@
 <span class="sd">    multiple infections in the same host/vector are counted separately.</span>
 
 <span class="sd">    Arguments:</span>
-<span class="sd">    file_name -- file path, name, and extension to save plot under (String)</span>
-<span class="sd">    data -- dataframe with model history as produced by saveToDf function</span>
+<span class="sd">        file_name (String): file path, name, and extension to save plot under.</span>
+<span class="sd">        data (pandas DataFrame): dataframe with model history as produced by `saveToDf` function.</span>
 
 <span class="sd">    Keyword arguments:</span>
-<span class="sd">    composition_dataframe -- output of compositionDf() if already computed</span>
-<span class="sd">        (Pandas DataFrame, None by default)</span>
-<span class="sd">    populations -- IDs of populations to include in analysis; if empty, uses all</span>
-<span class="sd">        populations in model (default empty list; list of Strings)</span>
-<span class="sd">    type_of_composition -- field of data to count totals of, can be either</span>
-<span class="sd">        &#39;Pathogens&#39; or &#39;Protection&#39; (default &#39;Pathogens&#39;; String)</span>
-<span class="sd">    hosts -- whether to count hosts (default True, Boolean)</span>
-<span class="sd">    vectors -- whether to count vectors (default False, Boolean)</span>
-<span class="sd">    num_top_sequences -- how many sequences to count separately and include</span>
-<span class="sd">        as columns, remainder will be counted under column &quot;Other&quot;; if &lt;0,</span>
-<span class="sd">        includes all genomes in model (default 7; int)</span>
-<span class="sd">    track_specific_sequences -- contains specific sequences to have</span>
-<span class="sd">        as a separate column if not part of the top num_top_sequences</span>
-<span class="sd">        sequences (default empty list; list of Strings)</span>
-<span class="sd">    genomic_positions -- list in which each element is a list with loci</span>
-<span class="sd">        positions to extract (e.g. genomic_positions=[ [0,3], [5,6] ] extracts</span>
-<span class="sd">        positions 0, 1, 2, and 5 from each genome); if empty, takes full genomes</span>
-<span class="sd">        (default empty list; list of lists of int)</span>
-<span class="sd">    count_individuals_based_on_model -- Model object with populations and</span>
-<span class="sd">        fitness functions used to evaluate the most fit pathogen genome in each</span>
-<span class="sd">        host/vector in order to count only a single pathogen per host/vector, as</span>
-<span class="sd">        opposed to all pathogens within each host/vector; if None, counts all</span>
-<span class="sd">        pathogens (default None; None or Model)</span>
-<span class="sd">    save_data_to_file -- file path and name to save model data under, no saving</span>
-<span class="sd">        occurs if empty string (default &#39;&#39;; String)</span>
-<span class="sd">    x_label -- X axis title (default &#39;Time&#39;, String)</span>
-<span class="sd">    y_label -- Y axis title (default &#39;Hosts&#39;, String)</span>
-<span class="sd">    legend_title -- legend title (default &#39;Population&#39;, String)</span>
-<span class="sd">    legend_values -- labels for each trace, if empty list, uses population IDs</span>
-<span class="sd">        (default empty list, list of Strings)</span>
-<span class="sd">    figsize -- dimensions of figure (default (8,4), array-like of two ints)</span>
-<span class="sd">    dpi -- figure resolution (default 200, int)</span>
-<span class="sd">    palette -- color palette to use for traces (default CB_PALETTE, list of</span>
-<span class="sd">        color Strings)</span>
-<span class="sd">    stacked -- whether to draw a regular line plot instead of a stacked one</span>
-<span class="sd">        (default False, Boolean).</span>
-<span class="sd">    remove_legend -- whether to print the sequences on the figure legend instead</span>
-<span class="sd">        of printing them on a separate csv file (default True; Boolean)</span>
-<span class="sd">    population_fraction -- whether to graph fractions of pathogen population</span>
-<span class="sd">        instead of pathogen counts (default False, Boolean)</span>
-<span class="sd">    **kwargs -- additional arguents for joblib multiprocessing</span>
+<span class="sd">        composition_dataframe (Pandas DataFrame): output of compositionDf() if already computed. </span>
+<span class="sd">            Defaults to None.</span>
+<span class="sd">        populations (list of Strings): IDs of populations to include in analysis; if empty, uses all</span>
+<span class="sd">            populations in model. Defaults to [].</span>
+<span class="sd">        type_of_composition (String): field of data to count totals of, can be either</span>
+<span class="sd">            &#39;Pathogens&#39; or &#39;Protection&#39;. Defaults to &#39;Pathogens&#39;.</span>
+<span class="sd">        hosts (Boolean): whether to count hosts. Defaults to True.</span>
+<span class="sd">        vectors (Boolean): whether to count vectors. Defaults to False.</span>
+<span class="sd">        num_top_sequences (int): how many sequences to count separately and include</span>
+<span class="sd">            as columns, remainder will be counted under column &quot;Other&quot;; if &lt;0,</span>
+<span class="sd">            includes all genomes in model. Defaults to 7.</span>
+<span class="sd">        track_specific_sequences (list of Strings): contains specific sequences to have</span>
+<span class="sd">            as a separate column if not part of the top num_top_sequences</span>
+<span class="sd">            sequences. Defaults to [].</span>
+<span class="sd">        genomic_positions (list of lists of int): list in which each element is a list with loci</span>
+<span class="sd">            positions to extract (e.g. genomic_positions=[ [0,3], [5,6] ] extracts</span>
+<span class="sd">            positions 0, 1, 2, and 5 from each genome); if empty, takes full genomes. Defaults to [].</span>
+<span class="sd">        count_individuals_based_on_model (None or Model): Model object with populations and</span>
+<span class="sd">            fitness functions used to evaluate the most fit pathogen genome in each</span>
+<span class="sd">            host/vector in order to count only a single pathogen per host/vector, as</span>
+<span class="sd">            opposed to all pathogens within each host/vector; if None, counts all</span>
+<span class="sd">            pathogens. Defaults to None.</span>
+<span class="sd">        save_data_to_file (String): file path and name to save model data under, no saving</span>
+<span class="sd">            occurs if empty string. Defaults to &quot;&quot;.</span>
+<span class="sd">        x_label (String): X axis title. Defaults to &#39;Time&#39;.</span>
+<span class="sd">        y_label (String): Y axis title. Defaults to &#39;Hosts&#39;.</span>
+<span class="sd">        legend_title (String): legend title. Defaults to &#39;Population&#39;.</span>
+<span class="sd">        legend_values (list of Strings): labels for each trace, if empty list, uses population IDs. </span>
+<span class="sd">            Defaults to [].</span>
+<span class="sd">        figsize (int): dimensions of figure. Defaults to (8,4).</span>
+<span class="sd">        dpi (int): figure resolution. Defaults to 200.</span>
+<span class="sd">        palette (list of color Strings): color palette to use for traces. Defaults to `CB_PALETTE`.</span>
+<span class="sd">        stacked (Boolean): whether to draw a regular line plot instead of a stacked one. Defaults to False.</span>
+<span class="sd">        remove_legend (Boolean): whether to print the sequences on the figure legend instead</span>
+<span class="sd">            of printing them on a separate csv file. Defaults to True.</span>
+<span class="sd">        population_fraction (Boolean): whether to graph fractions of pathogen population</span>
+<span class="sd">            instead of pathogen counts. Defaults to False.</span>
+<span class="sd">        **kwargs: additional arguents for joblib multiprocessing.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">    axis object for plot with model sequence composition dynamics as described</span>
+<span class="sd">        axis object for plot with model sequence composition dynamics as described.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="n">composition_dataframe</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -436,33 +429,30 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a heatmap and dendrogram for pathogen genomes in data passed.</span>
 
 <span class="sd">    Arguments:</span>
-<span class="sd">    file_name -- file path, name, and extension to save plot under (String)</span>
-<span class="sd">    data -- dataframe with model history as produced by saveToDf function</span>
+<span class="sd">        file_name (String): file path, name, and extension to save plot under.</span>
+<span class="sd">        data (pandas DataFrame): dataframe with model history as produced by `saveToDf` function.</span>
 
 <span class="sd">    Keyword arguments:</span>
-<span class="sd">    num_top_sequences -- how many sequences to include in matrix; if &lt;0,</span>
-<span class="sd">        includes all genomes in data passed (default -1; int)</span>
-<span class="sd">    track_specific_sequences -- contains specific sequences to include in matrix</span>
-<span class="sd">        if not part of the top num_top_sequences sequences (default empty list;</span>
-<span class="sd">        list of Strings)</span>
-<span class="sd">    seq_names -- list with names to be used for sequence labels in matrix must</span>
-<span class="sd">        be of same length as number of sequences to be displayed; if empty,</span>
-<span class="sd">        uses sequences themselves (default empty list; list of Strings)</span>
-<span class="sd">    n_cores -- number of cores to parallelize distance compute across, if 0, all</span>
-<span class="sd">        cores available are used (default 0; int)</span>
-<span class="sd">    method -- clustering algorithm to use with seaborn clustermap (default</span>
-<span class="sd">        &#39;weighted&#39;; String)</span>
-<span class="sd">    metric -- distance metric to use with seaborn clustermap (default</span>
-<span class="sd">        &#39;euclidean&#39;; String)</span>
-<span class="sd">    save_data_to_file -- file path and name to save model data under, no saving</span>
-<span class="sd">        occurs if empty string (default &#39;&#39;; String)</span>
-<span class="sd">    legend_title -- legend title (default &#39;Distance&#39;, String)</span>
-<span class="sd">    figsize -- dimensions of figure (default (8,4), array-like of two ints)</span>
-<span class="sd">    dpi -- figure resolution (default 200, int)</span>
-<span class="sd">    color_map -- color map to use for traces (default DEF_CMAP, cmap object)</span>
+<span class="sd">        num_top_sequences (int): how many sequences to include in matrix; if &lt;0,</span>
+<span class="sd">            includes all genomes in data passed. Deafults to -1.</span>
+<span class="sd">        track_specific_sequences (list of Strings): contains specific sequences to include in matrix</span>
+<span class="sd">            if not part of the top num_top_sequences sequences. Defaults to [].</span>
+<span class="sd">        seq_names (list of Strings): list with names to be used for sequence labels in matrix must</span>
+<span class="sd">            be of same length as number of sequences to be displayed; if empty,</span>
+<span class="sd">            uses sequences themselves. Defaults to [].</span>
+<span class="sd">        n_cores (int): number of cores to parallelize distance compute across, if 0, all</span>
+<span class="sd">            cores available are used. Defaults to 0.</span>
+<span class="sd">        method (String): clustering algorithm to use with seaborn clustermap. Defaults to &#39;weighted&#39;.</span>
+<span class="sd">        metric (String): distance metric to use with seaborn clustermap. Defaults to &#39;euclidean&#39;.</span>
+<span class="sd">        save_data_to_file (String): file path and name to save model data under, no saving</span>
+<span class="sd">            occurs if empty string. Defaults to &quot;&quot;.</span>
+<span class="sd">        legend_title (String): legend title. Defaults to &#39;Distance&#39;.</span>
+<span class="sd">        figsize (array-like of two ints): dimensions of figure. Defaults to (8,4).</span>
+<span class="sd">        dpi (int): figure resolution. Defaults to 200.</span>
+<span class="sd">        color_map (cmap object): color map to use for traces. Defaults to `DEF_CMAP`.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">    figure object for plot with heatmap and dendrogram as described</span>
+<span class="sd">        figure object for plot with heatmap and dendrogram as described.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">dis</span> <span class="o">=</span> <span class="n">pathogenDistanceDf</span><span class="p">(</span>

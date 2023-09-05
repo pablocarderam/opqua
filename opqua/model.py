@@ -1004,8 +1004,8 @@ class Model(object):
         - Population - ID of this host/vector's population
         - Organism - host/vector
         - ID - ID of host/vector
-        - Pathogens - all genomes present in this host/vector separated by ;
-        - Protection - all genomes present in this host/vector separated by ;
+        - Pathogens - all genomes present in this host/vector separated by ';'
+        - Protection - all genomes present in this host/vector separated by ';'
         - Alive - whether host/vector is alive at this time, True/False
 
         Arguments:
@@ -1052,7 +1052,7 @@ class Model(object):
         protection sequences in data passed.
 
         Arguments:
-            data (dataframe): dataframe with model history as produced by `saveToDf` function.
+            data (pandas DataFrame): dataframe with model history as produced by `saveToDf` function.
 
         Keyword arguments:
             save_to_file (String): file path and name to save model data under, no saving

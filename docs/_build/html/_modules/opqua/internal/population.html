@@ -15,6 +15,7 @@
         <script src="../../../_static/documentation_options.js?v=1ed6394b"></script>
         <script src="../../../_static/doctools.js?v=888ff710"></script>
         <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="author" title="About these documents" href="../../../about.html" />
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -45,8 +46,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../about.html">About</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../requirements_and_installation.html">Requirements and Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../model_documentation.html">Model Documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">opqua</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../model_documentation.html"><code class="docutils literal notranslate"><span class="pre">Model</span></code> Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../API.html">API</a></li>
 </ul>
 
         </div>
@@ -89,89 +90,44 @@
 <span class="k">class</span> <span class="nc">Population</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Class defines a population with hosts, vectors, and specific parameters.</span>
 
-<span class="sd">    Constants:</span>
-<span class="sd">    # These all denote positions in coefficients_hosts and coefficients_vectors</span>
-<span class="sd">    INFECTED -- position of &quot;infected&quot; Boolean values for each individual inside</span>
-<span class="sd">        coefficients array</span>
-<span class="sd">    CONTACT -- position of intra-population aggregated contact rate for each</span>
-<span class="sd">        individual inside coefficients array</span>
-<span class="sd">    RECEIVE_CONTACT -- position of intra-population aggregated receiving contact</span>
-<span class="sd">        rate for each individual inside coefficients array</span>
-<span class="sd">    LETHALITY -- position of aggregated death rate for each individual inside</span>
-<span class="sd">        coefficients array</span>
-<span class="sd">    NATALITY -- position of aggregated birth rate for each individual inside</span>
-<span class="sd">        coefficients array</span>
-<span class="sd">    RECOVERY -- position of aggregated recovery rate for each individual inside</span>
-<span class="sd">        coefficients array</span>
-<span class="sd">    MIGRATION -- position of aggregated inter-population migration rate for each</span>
-<span class="sd">        individual inside coefficients array</span>
-<span class="sd">    POPULATION_CONTACT -- position of inter-population aggregated contact rate</span>
-<span class="sd">        for each individual inside coefficients array</span>
-<span class="sd">    RECEIVE_POPULATION_CONTACT -- position of inter-population aggregated</span>
-<span class="sd">        receiving contact rate for each individual inside coefficients array</span>
-<span class="sd">    MUTATION -- position of aggregated mutation rate for each individual inside</span>
-<span class="sd">        coefficients array</span>
-<span class="sd">    RECOMBINATION -- position of aggregated recovery rate for each individual</span>
-<span class="sd">        inside coefficients array</span>
-<span class="sd">    NUM_COEFFICIENTS -- total number of types of coefficients (columns) in</span>
-<span class="sd">        coefficient arrays</span>
-<span class="sd">    CHROMOSOME_SEPARATOR -- character reserved to denote separate chromosomes in</span>
-<span class="sd">        genomes</span>
+<span class="sd">    **CONSTANTS:** These all denote positions in coefficients_hosts and coefficients_vectors</span>
 
-<span class="sd">    Methods:</span>
-<span class="sd">    copyState -- returns a slimmed-down version of the current population state</span>
-<span class="sd">    setSetup -- assigns a given set of parameters to this population</span>
-<span class="sd">    addHosts -- adds hosts to the population</span>
-<span class="sd">    addVectors -- adds vectors to the population</span>
-<span class="sd">    newHostGroup -- returns a list of random (healthy or any) hosts</span>
-<span class="sd">    newVectorGroup -- returns a list of random (healthy or any) vectors</span>
-<span class="sd">    removeHosts -- removes hosts from the population</span>
-<span class="sd">    removeVectors -- removes vectors from the population</span>
-<span class="sd">    addPathogensToHosts -- adds pathogens with specified genomes to hosts</span>
-<span class="sd">    addPathogensToVectors -- adds pathogens with specified genomes to vectors</span>
-<span class="sd">    treatHosts -- removes infections susceptible to given treatment from hosts</span>
-<span class="sd">    treatVectors -- removes infections susceptible to treatment from vectors</span>
-<span class="sd">    protectHosts -- adds protection sequence to hosts</span>
-<span class="sd">    protectVectors -- adds protection sequence to vectors</span>
-<span class="sd">    wipeProtectionHosts -- removes all protection sequences from hosts</span>
-<span class="sd">    wipeProtectionVectors -- removes all protection sequences from hosts</span>
-<span class="sd">    setHostMigrationNeighbor -- sets migration rate of hosts from this</span>
-<span class="sd">        population towards another</span>
-<span class="sd">    setVectorMigrationNeighbor -- sets migration rate of vectors from this</span>
-<span class="sd">        population towards another</span>
-<span class="sd">    migrate -- transfers hosts and/or vectors from this population to a neighbor</span>
-<span class="sd">    setHostHostPopulationContactNeighbor -- set host-host contact rate from this</span>
-<span class="sd">        population towards another one</span>
-<span class="sd">    setHostVectorPopulationContactNeighbor -- set host-vector contact rate from</span>
-<span class="sd">        this population towards another one</span>
-<span class="sd">    setVectorHostPopulationContactNeighbor -- set vector-host contact rate from</span>
-<span class="sd">        this population towards another one</span>
-<span class="sd">    populationContact -- contacts hosts and/or vectors from this population to</span>
-<span class="sd">        another</span>
-<span class="sd">    contactHostHost -- contact any two (weighted) random hosts in population</span>
-<span class="sd">    contactHostVector -- contact a (weighted) random host and vector in</span>
-<span class="sd">        population</span>
-<span class="sd">    contactVectorHost -- contact a (weighted) random vector and host in</span>
-<span class="sd">        population</span>
-<span class="sd">    recoverHost --removes all infections from given host</span>
-<span class="sd">    recoverVector -- removes all infections from given vector</span>
-<span class="sd">    killHost -- add host at this index to dead list, remove it from alive ones</span>
-<span class="sd">    killVector -- add vector at this index to dead list, remove it from alive</span>
-<span class="sd">        ones</span>
-<span class="sd">    dieHost -- remove host at this index from alive lists</span>
-<span class="sd">    dieVector -- remove vector at this index from alive lists</span>
-<span class="sd">    birthHost -- add host at this index to population, remove it from alive ones</span>
-<span class="sd">    birthVector -- add vector at this index to population, remove it from alive</span>
-<span class="sd">        ones</span>
-<span class="sd">    mutateHost -- mutates a single locus in a random pathogen in a host</span>
-<span class="sd">    mutateVector -- mutates a single locus in a random pathogen in a vector</span>
-<span class="sd">    recombineHost -- recombines two random pathogens in a host</span>
-<span class="sd">    recombineVector -- recombines two random pathogens in a host</span>
-<span class="sd">    updateHostCoefficients -- updates event coefficients in population&#39;s hosts</span>
-<span class="sd">    updateVectorCoefficients -- updates event coefficients in population&#39;s</span>
-<span class="sd">        vectors</span>
-<span class="sd">    getWeightedRandom -- returns index of element chosen using weights from</span>
-<span class="sd">        coefficient array and a given random number</span>
+<span class="sd">    - `INFECTED` -- position of &quot;infected&quot; Boolean values for each individual inside</span>
+<span class="sd">        coefficients array.</span>
+<span class="sd">    - `CONTACT` -- position of intra-population aggregated contact rate for each</span>
+<span class="sd">        individual inside coefficients array.</span>
+<span class="sd">    - `RECEIVE_CONTACT` -- position of intra-population aggregated receiving contact</span>
+<span class="sd">        rate for each individual inside coefficients array.</span>
+<span class="sd">    - `LETHALITY` -- position of aggregated death rate for each individual inside</span>
+<span class="sd">        coefficients array.</span>
+<span class="sd">    - `NATALITY` -- position of aggregated birth rate for each individual inside</span>
+<span class="sd">        coefficients array.</span>
+<span class="sd">    - `RECOVERY` -- position of aggregated recovery rate for each individual inside</span>
+<span class="sd">        coefficients array.</span>
+<span class="sd">    - `MIGRATION` -- position of aggregated inter-population migration rate for each</span>
+<span class="sd">        individual inside coefficients array.</span>
+<span class="sd">    - `POPULATION_CONTACT` -- position of inter-population aggregated contact rate</span>
+<span class="sd">        for each individual inside coefficients array.</span>
+<span class="sd">    - `RECEIVE_POPULATION_CONTACT` -- position of inter-population aggregated</span>
+<span class="sd">        receiving contact rate for each individual inside coefficients array.</span>
+<span class="sd">    - `MUTATION` -- position of aggregated mutation rate for each individual inside</span>
+<span class="sd">        coefficients array.</span>
+<span class="sd">    - `RECOMBINATION` -- position of aggregated recovery rate for each individual</span>
+<span class="sd">        inside coefficients array.</span>
+<span class="sd">    - `NUM_COEFFICIENTS` -- total number of types of coefficients (columns) in</span>
+<span class="sd">        coefficient arrays.</span>
+<span class="sd">    - `CHROMOSOME_SEPARATOR` -- character reserved to denote separate chromosomes in</span>
+<span class="sd">        genomes.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        model (Model object): parent model this population is a part of.</span>
+<span class="sd">        id (String): unique identifier for this population in the model.</span>
+<span class="sd">        setup (String): setup object with parameters for this population.</span>
+<span class="sd">        num_hosts (int): number of hosts to initialize population with.</span>
+<span class="sd">        num_vectors (int): number of hosts to initialize population with.</span>
+<span class="sd">        slim (Boolean): whether to create a slimmed-down representation of the</span>
+<span class="sd">            population for data storage (only ID, host and vector lists). </span>
+<span class="sd">            Defaults to False.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">INFECTED</span> <span class="o">=</span> <span class="mi">0</span>
@@ -194,16 +150,16 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a new Population.</span>
 
 <span class="sd">        Arguments:</span>
-<span class="sd">        model -- parent model this population is a part of (Model)</span>
-<span class="sd">        id -- unique identifier for this population in the model (String)</span>
-<span class="sd">        setup -- setup object with parameters for this population (Setup)</span>
-<span class="sd">        num_hosts -- number of hosts to initialize population with (int)</span>
-<span class="sd">        num_vectors -- number of hosts to initialize population with (int)</span>
+<span class="sd">            model (Model object): parent model this population is a part of.</span>
+<span class="sd">            id (String): unique identifier for this population in the model.</span>
+<span class="sd">            setup (String): setup object with parameters for this population.</span>
+<span class="sd">            num_hosts (int): number of hosts to initialize population with.</span>
+<span class="sd">            num_vectors (int): number of hosts to initialize population with.</span>
 
 <span class="sd">        Keyword arguments:</span>
-<span class="sd">        slim -- whether to create a slimmed-down representation of the</span>
-<span class="sd">            population for data storage (only ID, host and vector lists)</span>
-<span class="sd">            (Boolean, default False)</span>
+<span class="sd">            slim (Boolean): whether to create a slimmed-down representation of the</span>
+<span class="sd">                population for data storage (only ID, host and vector lists). </span>
+<span class="sd">                Defaults to False.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Population</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
@@ -289,13 +245,13 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a slimmed-down version of the current population state.</span>
 
 <span class="sd">        Arguments:</span>
-<span class="sd">        host_sampling -- how many hosts to skip before saving one in a snapshot</span>
-<span class="sd">            of the system state (saves all by default) (int, default 0)</span>
-<span class="sd">        vector_sampling -- how many vectors to skip before saving one in a</span>
-<span class="sd">            snapshot of the system state (saves all by default) (int, default 0)</span>
+<span class="sd">            host_sampling (int): how many hosts to skip before saving one in a snapshot</span>
+<span class="sd">                of the system state (saves all by default). Defaults to 0.</span>
+<span class="sd">            vector_sampling (int): how many vectors to skip before saving one in a</span>
+<span class="sd">                snapshot of the system state (saves all by default). Defaults to 0.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">        Population object with current host and vector lists.</span>
+<span class="sd">            Population object with current host and vector lists.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">copy</span> <span class="o">=</span> <span class="n">Population</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">slim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -334,7 +290,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Assign parameters stored in Setup object to this population.</span>
 
 <span class="sd">        Arguments:</span>
-<span class="sd">        setup -- the setup to be assigned (Setup)</span>
+<span class="sd">            setup (Setup object): the setup to be assigned.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">setup</span> <span class="o">=</span> <span class="n">setup</span>
@@ -409,10 +365,10 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a number of healthy hosts to population, return list with them.</span>
 
 <span class="sd">        Arguments:</span>
-<span class="sd">        num_hosts -- number of hosts to be added (int)</span>
+<span class="sd">            num_hosts (int): number of hosts to be added.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">        list containing new hosts</span>
+<span class="sd">            list containing new hosts.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">new_hosts</span> <span class="o">=</span> <span class="p">[</span>
@@ -432,10 +388,10 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a number of healthy vectors to population, return list with them.</span>
 
 <span class="sd">        Arguments:</span>
-<span class="sd">        num_vectors -- number of vectors to be added (int)</span>
+<span class="sd">            num_vectors (int): number of vectors to be added.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">        list containing new vectors</span>
+<span class="sd">            list containing new vectors</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">new_vectors</span> <span class="o">=</span> <span class="p">[</span>
@@ -453,17 +409,15 @@
     <span class="k">def</span> <span class="nf">newHostGroup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hosts</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;any&#39;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a list of random hosts in population.</span>
 
-<span class="sd">        Arguments:</span>
-<span class="sd">        hosts -- number of hosts to be sampled randomly: if &lt;0, samples from</span>
-<span class="sd">            whole population; if &lt;1, takes that fraction of population; if &gt;=1,</span>
-<span class="sd">            samples that integer number of hosts (default -1, number)</span>
-
 <span class="sd">        Keyword arguments:</span>
-<span class="sd">        type -- whether to sample healthy hosts only, infected hosts only, or</span>
-<span class="sd">            any hosts (default &#39;any&#39;; String = {&#39;healthy&#39;, &#39;infected&#39;, &#39;any&#39;})</span>
+<span class="sd">            hosts (number): number of hosts to be sampled randomly: if &lt;0, samples from</span>
+<span class="sd">                    whole population; if &lt;1, takes that fraction of population; if &gt;=1,</span>
+<span class="sd">                    samples that integer number of hosts. Defaults to -1.</span>
+<span class="sd">            type (String = {&#39;healthy&#39;, &#39;infected&#39;, &#39;any&#39;}): whether to sample healthy hosts </span>
+<span class="sd">                only, infected hosts only, or any hosts. Defaults to &#39;any&#39;.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">        list containing sampled hosts</span>
+<span class="sd">            list containing sampled hosts.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">possible_hosts</span> <span class="o">=</span> <span class="p">[]</span>
@@ -503,18 +457,15 @@
     <span class="k">def</span> <span class="nf">newVectorGroup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vectors</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;any&#39;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a list of random vectors in population.</span>
 
-<span class="sd">        Arguments:</span>
-<span class="sd">        vectors -- number of vectors to be sampled randomly: if &lt;0, samples from</span>
-<span class="sd">            whole population; if &lt;1, takes that fraction of population; if &gt;=1,</span>
-<span class="sd">            samples that integer number of vectors (default -1, number)</span>
-
 <span class="sd">        Keyword arguments:</span>
-<span class="sd">        type -- whether to sample healthy vectors only, infected vectors</span>
-<span class="sd">            only, or any vectors (default &#39;any&#39;; String = {&#39;healthy&#39;,</span>
-<span class="sd">            &#39;infected&#39;, &#39;any&#39;})</span>
+<span class="sd">            vectors (number): number of vectors to be sampled randomly: if &lt;0, samples from</span>
+<span class="sd">                whole population; if &lt;1, takes that fraction of population; if &gt;=1,</span>
+<span class="sd">                samples that integer number of vectors. Defaults to -1.</span>
+<span class="sd">            type (String = {&#39;healthy&#39;, &#39;infected&#39;, &#39;any&#39;}): whether to sample healthy vectors </span>
+<span class="sd">                only, infected vectors. Defaults to &#39;any&#39;.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">        list containing sampled vectors</span>
+<span class="sd">            list containing sampled vectors.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">possible_vectors</span> <span class="o">=</span> <span class="p">[]</span>
@@ -558,9 +509,8 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove a number of specified or random hosts from population.</span>
 
 <span class="sd">        Arguments:</span>
-<span class="sd">        num_hosts_or_list -- number of hosts to be sampled randomly for removal</span>
-<span class="sd">            or list of hosts to be removed, must be hosts in this population</span>
-<span class="sd">            (int or list of Hosts)</span>
+<span class="sd">            num_hosts_or_list (int or list of Host objects): number of hosts to be sampled randomly for removal</span>
+<span class="sd">                or list of hosts to be removed, must be hosts in this population.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">num_hosts_or_list</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
@@ -605,9 +555,9 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove a number of specified or random vectors from population.</span>
 
 <span class="sd">        Arguments:</span>
-<span class="sd">        num_vectors_or_list -- number of vectors to be sampled randomly for</span>
-<span class="sd">            removal or list of vectors to be removed, must be vectors in this</span>
-<span class="sd">            population (int or list of Vectors)</span>
+<span class="sd">            num_vectors_or_list (int or list of Vector objects): number of vectors to be sampled randomly for</span>
+<span class="sd">                removal or list of vectors to be removed, must be vectors in this</span>
+<span class="sd">                population.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">num_vectors_or_list</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
@@ -648,13 +598,13 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Add specified pathogens to random hosts, optionally from a list.</span>
 
 <span class="sd">        Arguments:</span>
-<span class="sd">        genomes_numbers -- dictionary conatining pathogen genomes to add as keys</span>
-<span class="sd">            and number of hosts each one will be added to as values (dict with</span>
-<span class="sd">            keys=Strings, values=int)</span>
+<span class="sd">            genomes_numbers (dict with keys=Strings, values=int): dictionary conatining </span>
+<span class="sd">                pathogen genomes to add as keys  and number of hosts each one will be </span>
+<span class="sd">                added to as values.</span>
 
 <span class="sd">        Keyword arguments:</span>
-<span class="sd">        hosts -- list of specific hosts to sample from, if empty, samples from</span>
-<span class="sd">            whole population (default empty list; empty)</span>
+<span class="sd">            hosts (list of Host objects): list of specific hosts to sample from, if empty, samples from</span>
+<span class="sd">                whole population. Defaults to [].</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">hosts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -690,13 +640,13 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Add specified pathogens to random vectors, optionally from a list.</span>
 
 <span class="sd">        Arguments:</span>
-<span class="sd">        genomes_numbers -- dictionary conatining pathogen genomes to add as keys</span>
-<span class="sd">            and number of vectors each one will be added to as values (dict with</span>
-<span class="sd">            keys=Strings, values=int)</span>
+<span class="sd">            genomes_numbers (dict with keys=Strings, values=int): dictionary conatining </span>
+<span class="sd">                pathogen genomes to add as keys and number of vectors each one will be </span>
+<span class="sd">                added to as values.</span>
 
 <span class="sd">        Keyword arguments:</span>
-<span class="sd">        vectors -- list of specific vectors to sample from, if empty, samples</span>
-<span class="sd">            from whole population (default empty list; empty)</span>
+<span class="sd">            vectors (list of Vector objects): list of specific vectors to sample from, if empty, samples</span>
+<span class="sd">                from whole population. Defaults to [].</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vectors</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -736,14 +686,12 @@
 <span class="sd">        population infected list and adds to healthy list if appropriate.</span>
 
 <span class="sd">        Arguments:</span>
-<span class="sd">        frac_hosts -- fraction of hosts considered to be randomly selected</span>
-<span class="sd">            (number between 0 and 1)</span>
-<span class="sd">        resistance_seqs -- contains sequences required for treatment resistance</span>
-<span class="sd">            (list of Strings)</span>
+<span class="sd">            frac_hosts (number 0-1): fraction of hosts considered to be randomly selected.</span>
+<span class="sd">            resistance_seqs (list of Strings): contains sequences required for treatment resistance.</span>
 
 <span class="sd">        Keyword arguments:</span>
-<span class="sd">        hosts -- list of specific hosts to sample from, if empty, samples from</span>
-<span class="sd">            whole population (default empty list; empty)</span>
+<span class="sd">        hosts (list of Host objects): list of specific hosts to sample from, if empty, samples from</span>
+<span class="sd">            whole population. Defaults to [].</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">hosts_to_consider</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hosts</span>
@@ -774,14 +722,12 @@
 <span class="sd">        population infected list and adds to healthy list if appropriate.</span>
 
 <span class="sd">        Arguments:</span>
-<span class="sd">        frac_vectors -- fraction of vectors considered to be randomly selected</span>
-<span class="sd">            (number between 0 and 1)</span>
-<span class="sd">        resistance_seqs -- contains sequences required for treatment resistance</span>
-<span class="sd">            (list of Strings)</span>
+<span class="sd">            frac_vectors (number 0-1): fraction of vectors considered to be randomly selected.</span>
+<span class="sd">            resistance_seqs (list of Strings): contains sequences required for treatment resistance.</span>
 
 <span class="sd">        Keyword arguments:</span>
-<span class="sd">        vectors -- list of specific vectors to sample from, if empty, samples</span>
-<span class="sd">            from whole population (default empty list; empty)</span>
+<span class="sd">            vectors (list of Vector objects): list of specific vectors to sample from, if empty, samples</span>
+<span class="sd">                from whole population. Defaults to [].</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">vectors_to_consider</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vectors</span>
@@ -811,13 +757,12 @@
 <span class="sd">        specified. Does not cure them if they are already infected.</span>
 
 <span class="sd">        Arguments:</span>
-<span class="sd">        frac_hosts -- fraction of hosts considered to be randomly selected</span>
-<span class="sd">            (number between 0 and 1)</span>
-<span class="sd">        protection_sequence -- sequence against which to protect (String)</span>
+<span class="sd">            frac_hosts (number 0-1): fraction of hosts considered to be randomly selected.</span>
+<span class="sd">            protection_sequence (String): sequence against which to protect.</span>
 
 <span class="sd">        Keyword arguments:</span>
-<span class="sd">        hosts -- list of specific hosts to sample from, if empty, samples from</span>
-<span class="sd">            whole population (default empty list; empty)</span>
+<span class="sd">            hosts (list of Host objects): list of specific hosts to sample from, if empty, samples from</span>
+<span class="sd">                whole population. Defaults to [].</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">hosts_to_consider</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hosts</span>
@@ -841,13 +786,12 @@
 <span class="sd">        specified. Does not cure them if they are already infected.</span>
 
 <span class="sd">        Arguments:</span>
-<span class="sd">        frac_vectors -- fraction of vectors considered to be randomly selected</span>
-<span class="sd">            (number between 0 and 1)</span>
-<span class="sd">        protection_sequence -- sequence against which to protect (String)</span>
+<span class="sd">            frac_vectors (number 0-1): fraction of vectors considered to be randomly selected.</span>
+<span class="sd">            protection_sequence (String): sequence against which to protect.</span>
 
 <span class="sd">        Keyword arguments:</span>
-<span class="sd">        vectors -- list of specific vectors to sample from, if empty, samples</span>
-<span class="sd">            from whole population (default empty list; empty)</span>
+<span class="sd">            vectors (list of Vector objects): list of specific vectors to sample from, if empty, samples</span>
+<span class="sd">                from whole population. Defaults to [].</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">vectors_to_consider</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vectors</span>
@@ -868,8 +812,8 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Removes all protection sequences from hosts.</span>
 
 <span class="sd">        Keyword arguments:</span>
-<span class="sd">        hosts -- list of specific hosts to sample from, if empty, samples from</span>
-<span class="sd">            whole population (default empty list; empty)</span>
+<span class="sd">            hosts (list of Host objects): list of specific hosts to sample from, if empty, samples from</span>
+<span class="sd">                whole population. Defaults to [].</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">hosts_to_consider</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hosts</span>
@@ -886,8 +830,8 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Removes all protection sequences from vectors.</span>
 
 <span class="sd">        Keyword arguments:</span>
-<span class="sd">        vectors -- list of specific vectors to sample from, if empty, samples from</span>
-<span class="sd">            whole population (default empty list; empty)</span>
+<span class="sd">            vectors (list of Vector objects): list of specific vectors to sample from, if empty, samples from</span>
+<span class="sd">                whole population. Defaults to [].</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">vectors_to_consider</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vectors</span>
@@ -904,9 +848,8 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set host migration rate from this population towards another one.</span>
 
 <span class="sd">         Arguments:</span>
-<span class="sd">         neighbor -- population towards which migration rate will be specified</span>
-<span class="sd">            (Population)</span>
-<span class="sd">         rate -- migration rate from this population to the neighbor (number)</span>
+<span class="sd">            neighbor (Population object): population towards which migration rate will be specified.</span>
+<span class="sd">            rate (number): migration rate from this population to the neighbor.</span>
 <span class="sd">         &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">neighbor</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_hosts</span><span class="p">:</span>
@@ -922,9 +865,8 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set vector migration rate from this population towards another one.</span>
 
 <span class="sd">         Arguments:</span>
-<span class="sd">         neighbor -- population towards which migration rate will be specified</span>
-<span class="sd">            (Population)</span>
-<span class="sd">         rate -- migration rate from this population to the neighbor (number)</span>
+<span class="sd">         neighbor (Population object): population towards which migration rate will be specified.</span>
+<span class="sd">         rate (number): migration rate from this population to the neighbor.</span>
 <span class="sd">         &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">neighbor</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_vectors</span><span class="p">:</span>
@@ -940,16 +882,15 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Transfer hosts and/or vectors from this population to another.</span>
 
 <span class="sd">        Arguments:</span>
-<span class="sd">        target_pop -- population towards which migration will occur (Population)</span>
-<span class="sd">        num_hosts -- number of hosts to transfer (int)</span>
-<span class="sd">        num_vectors -- number of vectors to transfer (int)</span>
+<span class="sd">            target_pop (Population objects): population towards which migration will occur.</span>
+<span class="sd">            num_hosts (int): number of hosts to transfer.</span>
+<span class="sd">            num_vectors (int): number of vectors to transfer.</span>
 
 <span class="sd">        Keyword arguments:</span>
-<span class="sd">        rand -- uniform random number from 0 to 1 to use when choosing</span>
-<span class="sd">            individuals to migrate; if None, generates new random number to</span>
-<span class="sd">            choose (through numpy), otherwise, assumes event is happening</span>
-<span class="sd">            through Gillespie class call and migrates a single host or vector</span>
-<span class="sd">            (default None; 0-1 number)</span>
+<span class="sd">            rand (number 0-1): uniform random number from 0 to 1 to use when choosing</span>
+<span class="sd">                individuals to migrate; if None, generates new random number to</span>
+<span class="sd">                choose (through numpy), otherwise, assumes event is happening</span>
+<span class="sd">                through Gillespie class call and migrates a single host or vector. Defaults to None.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">rand</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -996,9 +937,8 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set host-host contact rate from this population towards another one.</span>
 
 <span class="sd">         Arguments:</span>
-<span class="sd">         neighbor -- population towards which migration rate will be specified</span>
-<span class="sd">            (Population)</span>
-<span class="sd">         rate -- migration rate from this population to the neighbor (number)</span>
+<span class="sd">            neighbor (Population object): population towards which migration rate will be specified.</span>
+<span class="sd">            rate (number): migration rate from this population to the neighbor.</span>
 <span class="sd">         &quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_contact_hosts_hosts</span><span class="p">[</span><span class="n">neighbor</span><span class="p">]</span> <span class="o">=</span> <span class="n">rate</span></div>
@@ -1010,9 +950,8 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set host-vector contact rate from this population to another one.</span>
 
 <span class="sd">         Arguments:</span>
-<span class="sd">         neighbor -- population towards which migration rate will be specified</span>
-<span class="sd">            (Population)</span>
-<span class="sd">         rate -- migration rate from this population to the neighbor (number)</span>
+<span class="sd">            neighbor (Population object): population towards which migration rate will be specified.</span>
+<span class="sd">            rate (number): migration rate from this population to the neighbor.</span>
 <span class="sd">         &quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_contact_hosts_vectors</span><span class="p">[</span><span class="n">neighbor</span><span class="p">]</span> <span class="o">=</span> <span class="n">rate</span></div>
@@ -1024,9 +963,8 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set vector-host contact rate from this population to another one.</span>
 
 <span class="sd">         Arguments:</span>
-<span class="sd">         neighbor -- population towards which migration rate will be specified</span>
-<span class="sd">            (Population)</span>
-<span class="sd">         rate -- migration rate from this population to the neighbor (number)</span>
+<span class="sd">            neighbor (Population object): population towards which migration rate will be specified.</span>
+<span class="sd">            rate (number): migration rate from this population to the neighbor.</span>
 <span class="sd">         &quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">neighbors_contact_vectors_hosts</span><span class="p">[</span><span class="n">neighbor</span><span class="p">]</span> <span class="o">=</span> <span class="n">rate</span></div>
@@ -1039,15 +977,15 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Contacts hosts and/or vectors from this population to another.</span>
 
 <span class="sd">        Arguments:</span>
-<span class="sd">        target_pop -- population towards which migration will occur (Population)</span>
-<span class="sd">        rand -- uniform random number from 0 to 1 to use when choosing</span>
-<span class="sd">            individuals to contact</span>
+<span class="sd">            target_pop (Population object): population towards which migration will occur.</span>
+<span class="sd">            rand (number): uniform random number from 0 to 1 to use when choosing</span>
+<span class="sd">                individuals to contact.</span>
 
 <span class="sd">        Keyword arguments:</span>
-<span class="sd">        host_origin -- whether to draw from hosts in the origin population</span>
-<span class="sd">            (as opposed to vectors) (Boolean)</span>
-<span class="sd">        host_target -- whether to draw from hosts in the target population</span>
-<span class="sd">            (as opposed to vectors) (Boolean)</span>
+<span class="sd">            host_origin (Boolean): whether to draw from hosts in the origin population</span>
+<span class="sd">                (as opposed to vectors). Defaults to True.</span>
+<span class="sd">            host_target (Boolean): whether to draw from hosts in the target population</span>
+<span class="sd">                (as opposed to vectors). Defaults to True.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">host_origin</span><span class="p">:</span>
@@ -1094,11 +1032,11 @@
 <span class="sd">        second.</span>
 
 <span class="sd">        Arguments:</span>
-<span class="sd">        rand -- uniform random number from 0 to 1 to use when choosing</span>
-<span class="sd">            individuals to contact</span>
+<span class="sd">            rand (number): uniform random number from 0 to 1 to use when choosing</span>
+<span class="sd">                individuals to contact.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">        whether or not the model has changed state (Boolean)</span>
+<span class="sd">            Boolean indicating whether or not the model has changed state.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">index_host</span><span class="p">,</span><span class="n">rand</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getWeightedRandom</span><span class="p">(</span>
@@ -1127,11 +1065,11 @@
 <span class="sd">        second.</span>
 
 <span class="sd">        Arguments:</span>
-<span class="sd">        rand -- uniform random number from 0 to 1 to use when choosing</span>
-<span class="sd">            individuals to contact</span>
+<span class="sd">        rand (number): uniform random number from 0 to 1 to use when choosing</span>
+<span class="sd">            individuals to contact.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">        whether or not the model has changed state (Boolean)</span>
+<span class="sd">            Boolean indicating whether or not the model has changed state.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">index_host</span><span class="p">,</span><span class="n">rand</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getWeightedRandom</span><span class="p">(</span>
@@ -1159,11 +1097,11 @@
 <span class="sd">        second.</span>
 
 <span class="sd">        Arguments:</span>
-<span class="sd">        rand -- uniform random number from 0 to 1 to use when choosing</span>
-<span class="sd">            individuals to contact</span>
+<span class="sd">            rand (number) uniform random number from 0 to 1 to use when choosing</span>
+<span class="sd">                individuals to contact.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">        whether or not the model has changed state (Boolean)</span>
+<span class="sd">            Boolean indicating whether or not the model has changed state.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">index_vector</span><span class="p">,</span><span class="n">rand</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getWeightedRandom</span><span class="p">(</span>
@@ -1193,8 +1131,8 @@
 <span class="sd">        population infected list and add to healthy list.</span>
 
 <span class="sd">        Arguments:</span>
-<span class="sd">        rand -- uniform random number from 0 to 1 to use when choosing</span>
-<span class="sd">            individual to recover</span>
+<span class="sd">            rand (number): uniform random number from 0 to 1 to use when choosing</span>
+<span class="sd">                individual to recover.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">index_host</span><span class="p">,</span><span class="n">rand</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getWeightedRandom</span><span class="p">(</span>
@@ -1214,8 +1152,8 @@
 <span class="sd">        population infected list and add to healthy list.</span>
 
 <span class="sd">        Arguments:</span>
-<span class="sd">        rand -- uniform random number from 0 to 1 to use when choosing</span>
-<span class="sd">            individual to recover</span>
+<span class="sd">            rand (number): uniform random number from 0 to 1 to use when choosing</span>
+<span class="sd">                individual to recover.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">index_vector</span><span class="p">,</span><span class="n">rand</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getWeightedRandom</span><span class="p">(</span>
@@ -1231,8 +1169,8 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Add host at this index to dead list, remove it from alive ones.</span>
 
 <span class="sd">        Arguments:</span>
-<span class="sd">        rand -- uniform random number from 0 to 1 to use when choosing</span>
-<span class="sd">            individual to kill</span>
+<span class="sd">            rand (number): uniform random number from 0 to 1 to use when choosing</span>
+<span class="sd">                individual to kill.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">index_host</span><span class="p">,</span><span class="n">rand</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getWeightedRandom</span><span class="p">(</span>
@@ -1250,8 +1188,8 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Add host at this index to dead list, remove it from alive ones.</span>
 
 <span class="sd">        Arguments:</span>
-<span class="sd">        rand -- uniform random number from 0 to 1 to use when choosing</span>
-<span class="sd">            individual to kill</span>
+<span class="sd">            rand (number): uniform random number from 0 to 1 to use when choosing</span>
+<span class="sd">                individual to kill.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">index_vector</span><span class="p">,</span><span class="n">rand</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getWeightedRandom</span><span class="p">(</span>
@@ -1269,8 +1207,8 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove host at this index from alive lists.</span>
 
 <span class="sd">        Arguments:</span>
-<span class="sd">        rand -- uniform random number from 0 to 1 to use when choosing</span>
-<span class="sd">            individual to kill</span>
+<span class="sd">            rand (number): uniform random number from 0 to 1 to use when choosing</span>
+<span class="sd">                individual to kill.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">index_host</span><span class="p">,</span><span class="n">rand</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getWeightedRandom</span><span class="p">(</span>
@@ -1286,8 +1224,8 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove vector at this index from alive lists.</span>
 
 <span class="sd">        Arguments:</span>
-<span class="sd">        rand -- uniform random number from 0 to 1 to use when choosing</span>
-<span class="sd">            individual to kill</span>
+<span class="sd">            rand (number): uniform random number from 0 to 1 to use when choosing</span>
+<span class="sd">                individual to kill.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">index_vector</span><span class="p">,</span><span class="n">rand</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getWeightedRandom</span><span class="p">(</span>
@@ -1303,8 +1241,8 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Add host at this index to population, remove it from alive ones.</span>
 
 <span class="sd">        Arguments:</span>
-<span class="sd">        rand -- uniform random number from 0 to 1 to use when choosing</span>
-<span class="sd">            individual to make parent</span>
+<span class="sd">            rand (number): uniform random number from 0 to 1 to use when choosing</span>
+<span class="sd">                individual to make parent.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">index_host</span><span class="p">,</span><span class="n">rand</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getWeightedRandom</span><span class="p">(</span>
@@ -1320,8 +1258,8 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Add host at this index to population, remove it from alive ones.</span>
 
 <span class="sd">        Arguments:</span>
-<span class="sd">        rand -- uniform random number from 0 to 1 to use when choosing</span>
-<span class="sd">            individual to make parent</span>
+<span class="sd">            rand (number): uniform random number from 0 to 1 to use when choosing</span>
+<span class="sd">                individual to make parent.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">index_vector</span><span class="p">,</span><span class="n">rand</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getWeightedRandom</span><span class="p">(</span>
@@ -1339,8 +1277,8 @@
 <span class="sd">        Creates a new genotype from a de novo mutation event in the host given.</span>
 
 <span class="sd">        Arguments:</span>
-<span class="sd">        rand -- uniform random number from 0 to 1 to use when choosing</span>
-<span class="sd">            individual in which to choose a pathogen to mutate</span>
+<span class="sd">            rand (number): uniform random number from 0 to 1 to use when choosing</span>
+<span class="sd">                individual in which to choose a pathogen to mutate.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">index_host</span><span class="p">,</span><span class="n">rand</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getWeightedRandom</span><span class="p">(</span>
@@ -1360,8 +1298,8 @@
 <span class="sd">        given.</span>
 
 <span class="sd">        Arguments:</span>
-<span class="sd">        rand -- uniform random number from 0 to 1 to use when choosing</span>
-<span class="sd">            individual in which to choose a pathogen to mutate</span>
+<span class="sd">            rand (number): uniform random number from 0 to 1 to use when choosing</span>
+<span class="sd">                individual in which to choose a pathogen to mutate.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">index_vector</span><span class="p">,</span><span class="n">rand</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getWeightedRandom</span><span class="p">(</span>
@@ -1381,8 +1319,8 @@
 <span class="sd">        given.</span>
 
 <span class="sd">        Arguments:</span>
-<span class="sd">        rand -- uniform random number from 0 to 1 to use when choosing</span>
-<span class="sd">            individual in which to choose pathogens to recombine</span>
+<span class="sd">            rand (number): uniform random number from 0 to 1 to use when choosing</span>
+<span class="sd">                individual in which to choose pathogens to recombine.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">index_host</span><span class="p">,</span><span class="n">rand</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getWeightedRandom</span><span class="p">(</span>
@@ -1402,8 +1340,8 @@
 <span class="sd">        given.</span>
 
 <span class="sd">        Arguments:</span>
-<span class="sd">        rand -- uniform random number from 0 to 1 to use when choosing</span>
-<span class="sd">            individual in which to choose pathogens to recombine</span>
+<span class="sd">            rand (number): uniform random number from 0 to 1 to use when choosing</span>
+<span class="sd">                individual in which to choose pathogens to recombine.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">index_vector</span><span class="p">,</span><span class="n">rand</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getWeightedRandom</span><span class="p">(</span>
@@ -1473,11 +1411,11 @@
 <span class="sd">        index is decreased by 1.</span>
 
 <span class="sd">        Arguments:</span>
-<span class="sd">        rand -- 0-1 random number (number)</span>
-<span class="sd">        r -- array with weights (numpy vector)</span>
+<span class="sd">            rand (number): 0-1 random number.</span>
+<span class="sd">            r (numpy array): array with weights.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">        new 0-1 random number (number)</span>
+<span class="sd">            new 0-1 random number.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">r_tot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span> <span class="n">r</span> <span class="p">)</span>

@@ -4,19 +4,23 @@
 class Intervention(object):
     """Class defines a new intervention to be done at a specified time.
 
-    Methods:
-    doIntervention -- executes intervention function with specified arguments
+    Attributes:
+        time (number): time at which intervention will take place.
+        method_name (String): intervention to be carried out, must correspond to the
+            name of a method of the Model object.
+        args (array-like): contains arguments for function in positinal order.
+        model (Model object): Model object this intervention is associated to.
     """
 
     def __init__(self, time, method_name, args, model):
         """Create a new Intervention.
 
         Arguments:
-        time -- time at which intervention will take place (number)
-        method_name -- intervention to be carried out, must correspond to the
-            name of a method of the Model object (String)
-        args -- contains arguments for function in positinal order (array-like)
-        model -- Model object this intervention is associated to (Model)
+            time (number): time at which intervention will take place.
+            method_name (String): intervention to be carried out, must correspond to the
+                name of a method of the Model object.
+            args (array-like): contains arguments for function in positinal order.
+            model (Model object): Model object this intervention is associated to.
         """
         super(Intervention, self).__init__()
         self.time = time
