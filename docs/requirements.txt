@@ -12,3 +12,9 @@ scipy==1.7.1
 seaborn==0.11.2
 six==1.16.0
 textdistance==4.2.1
+# Sphinx requirements
+sphinx_rtd_theme
+myst_parser
+nbsphinx
+sphinx==7.2.4
+sphinx-autoapi
