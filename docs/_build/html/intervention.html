@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Interventions &mdash; Opqua 1.0.2 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/nbsphinx-code-cells.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=1ed6394b"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="about.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Metapopulation" href="metapopulation.html" />
+    <link rel="prev" title="Evolution" href="evolution.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Opqua
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="about.html">About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="requirements_and_installation.html">Requirements and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="tutorials.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="basic_usage.html">Basic usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="evolution.html">Evolution</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Interventions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#A.-Several-interventions">A. Several interventions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Model-initialization-and-setup">Model initialization and setup</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Create-a-new-Model-object">Create a new <code class="docutils literal notranslate"><span class="pre">Model</span></code> object</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Model-simulation">Model simulation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Output-data-manipulation-and-visualization">Output data manipulation and visualization</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="metapopulation.html">Metapopulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vital_dynamics.html">Vital dynamics</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="model_documentation.html"><code class="docutils literal notranslate"><span class="pre">Model</span></code> Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="API.html">API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Opqua</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="tutorials.html">Tutorials</a></li>
+      <li class="breadcrumb-item active">Interventions</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/intervention.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Interventions">
+<h1>Interventions<a class="headerlink" href="#Interventions" title="Link to this heading"></a></h1>
+<section id="A.-Several-interventions">
+<h2>A. Several interventions<a class="headerlink" href="#A.-Several-interventions" title="Link to this heading"></a></h2>
+<p>Vector-borne model with susceptible and infected hosts and vectors in a single population scenario, showing the effect of various interventions done at different time points.</p>
+<p>For more information on how each intervention function works, check out the documentation for each function fed into <code class="docutils literal notranslate"><span class="pre">newIntervention()</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">opqua.model</span> <span class="kn">import</span> <span class="n">Model</span>
+</pre></div>
+</div>
+</div>
+<section id="Model-initialization-and-setup">
+<h3>Model initialization and setup<a class="headerlink" href="#Model-initialization-and-setup" title="Link to this heading"></a></h3>
+</section>
+<section id="Create-a-new-Model-object">
+<h3>Create a new <code class="docutils literal notranslate"><span class="pre">Model</span></code> object<a class="headerlink" href="#Create-a-new-Model-object" title="Link to this heading"></a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">()</span> <span class="c1"># Make a new model object.</span>
+</pre></div>
+</div>
+</div>
+<section id="Define-a-Setup-for-our-system">
+<h4>Define a Setup for our system<a class="headerlink" href="#Define-a-Setup-for-our-system" title="Link to this heading"></a></h4>
+<p>Create a new set of parameters called <code class="docutils literal notranslate"><span class="pre">my_setup</span></code> to be used to simulate a population in the model. Use the default parameter set for a <em>vector-borne</em> model.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">newSetup</span><span class="p">(</span>     <span class="c1"># Create a new Setup.</span>
+    <span class="s1">&#39;my_setup&#39;</span><span class="p">,</span>
+        <span class="c1"># Name of the setup.</span>
+    <span class="n">preset</span><span class="o">=</span><span class="s1">&#39;vector-borne&#39;</span>
+        <span class="c1"># Use default &#39;vector-borne&#39; parameters.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>We make a second setup called <code class="docutils literal notranslate"><span class="pre">my_setup_2</span></code> with the same parameters, but duplicate the contact rate.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">newSetup</span><span class="p">(</span>    <span class="c1"># Create a new Setup.</span>
+    <span class="s1">&#39;my_setup_2&#39;</span><span class="p">,</span>
+        <span class="c1"># Name of the setup.</span>
+    <span class="n">preset</span><span class="o">=</span><span class="s1">&#39;vector-borne&#39;</span><span class="p">,</span>
+        <span class="c1"># Use default &#39;vector-borne&#39; parameters.</span>
+    <span class="n">contact_rate_host_vector</span><span class="o">=</span><span class="mf">4e-1</span><span class="p">,</span>
+        <span class="c1"># rate of host-vector contact events, not necessarily transmission, assumes</span>
+        <span class="c1"># constant population density.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Create-a-population-in-our-model">
+<h4>Create a population in our model<a class="headerlink" href="#Create-a-population-in-our-model" title="Link to this heading"></a></h4>
+<p>Create a new population of 100 hosts and 100 vectors called <code class="docutils literal notranslate"><span class="pre">my_population</span></code>. The population uses parameters stored in <code class="docutils literal notranslate"><span class="pre">my_setup</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">newPopulation</span><span class="p">(</span>        <span class="c1"># Create a new Population.</span>
+    <span class="s1">&#39;my_population&#39;</span><span class="p">,</span>
+        <span class="c1"># Unique identifier for this population in the model.</span>
+    <span class="s1">&#39;my_setup&#39;</span><span class="p">,</span>
+        <span class="c1"># Predefined Setup object with parameters for this population.</span>
+     <span class="n">num_hosts</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+        <span class="c1"># Number of hosts in the population with.</span>
+     <span class="n">num_vectors</span><span class="o">=</span><span class="mi">100</span>
+        <span class="c1"># Number of vectors in the population with.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Manipulate-hosts-and-vectors-in-the-population">
+<h4>Manipulate hosts and vectors in the population<a class="headerlink" href="#Manipulate-hosts-and-vectors-in-the-population" title="Link to this heading"></a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">my_population</span></code> starts with <em>AAAAAAAAAA</em> genotype pathogens.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">addPathogensToHosts</span><span class="p">(</span>  <span class="c1"># Add specified pathogens to random hosts.</span>
+    <span class="s1">&#39;my_population&#39;</span><span class="p">,</span>
+        <span class="c1"># ID of population to be modified.</span>
+    <span class="p">{</span><span class="s1">&#39;AAAAAAAAAA&#39;</span><span class="p">:</span><span class="mi">20</span><span class="p">}</span>
+        <span class="c1"># Dictionary containing pathogen genomes to add as keys and</span>
+        <span class="c1"># number of hosts each one will be added to as values.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Define-the-interventions">
+<h4>Define the interventions<a class="headerlink" href="#Define-the-interventions" title="Link to this heading"></a></h4>
+<ol class="arabic simple">
+<li><p>At time 20, adds pathogens of genomes <em>TTTTTTTTTT</em> and <em>CCCCCCCCCC</em> to 5 random hosts each.</p></li>
+</ol>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">newIntervention</span><span class="p">(</span>  <span class="c1"># Create a new Intervention.</span>
+    <span class="mi">20</span><span class="p">,</span>
+        <span class="c1"># time at which intervention will take place.</span>
+    <span class="s1">&#39;addPathogensToHosts&#39;</span><span class="p">,</span>
+        <span class="c1"># intervention to be carried out, must correspond to the name of a method of</span>
+        <span class="c1"># the Model object.</span>
+    <span class="p">[</span> <span class="s1">&#39;my_population&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;TTTTTTTTTT&#39;</span><span class="p">:</span><span class="mi">5</span><span class="p">,</span> <span class="s1">&#39;CCCCCCCCCC&#39;</span><span class="p">:</span><span class="mi">5</span><span class="p">,</span> <span class="p">}</span> <span class="p">]</span>
+        <span class="c1"># arguments to be passed to the intervention method.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>At time 50, adds 10 healthy vectors to population.</p></li>
+</ol>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">newIntervention</span><span class="p">(</span>  <span class="c1"># Create a new Intervention.</span>
+    <span class="mi">50</span><span class="p">,</span>
+        <span class="c1"># time at which intervention will take place.</span>
+    <span class="s1">&#39;addVectors&#39;</span><span class="p">,</span>
+        <span class="c1"># intervention to be carried out, must correspond to the name of a method of</span>
+        <span class="c1"># the Model object.</span>
+    <span class="p">[</span> <span class="s1">&#39;my_population&#39;</span><span class="p">,</span> <span class="mi">10</span> <span class="p">]</span>
+        <span class="c1"># arguments to be passed to the intervention method.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p>At time 50, selects 10 healthy vectors from population <code class="docutils literal notranslate"><span class="pre">my_population</span></code> and stores them under the group ID <code class="docutils literal notranslate"><span class="pre">10_new_vectors</span></code>.</p></li>
+</ol>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">newIntervention</span><span class="p">(</span>  <span class="c1"># Create a new Intervention.</span>
+    <span class="mi">50</span><span class="p">,</span>
+        <span class="c1"># time at which intervention will take place.</span>
+    <span class="s1">&#39;newVectorGroup&#39;</span><span class="p">,</span>
+        <span class="c1"># intervention to be carried out, must correspond to the name of a method of</span>
+        <span class="c1"># the Model object.</span>
+    <span class="p">[</span> <span class="s1">&#39;my_population&#39;</span><span class="p">,</span> <span class="s1">&#39;10_new_vectors&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="s1">&#39;healthy&#39;</span> <span class="p">]</span>
+        <span class="c1"># arguments to be passed to the intervention method.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<ol class="arabic simple" start="4">
+<li><p>At time 50, adds pathogens of genomes <em>GGGGGGGGGG</em> to 10 random hosts in the <code class="docutils literal notranslate"><span class="pre">10_new_vectors</span></code> group (so, all 10 of them). The last <code class="docutils literal notranslate"><span class="pre">10_new_vectors</span></code> argument specifies which group to sample from (if not specified, sampling occurs from whole population).</p></li>
+</ol>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">newIntervention</span><span class="p">(</span>  <span class="c1"># Create a new Intervention.</span>
+    <span class="mi">50</span><span class="p">,</span>
+        <span class="c1"># time at which intervention will take place.</span>
+    <span class="s1">&#39;addPathogensToVectors&#39;</span><span class="p">,</span>
+        <span class="c1"># intervention to be carried out, must correspond to the name of a method of</span>
+        <span class="c1"># the Model object.</span>
+    <span class="p">[</span> <span class="s1">&#39;my_population&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;GGGGGGGGGG&#39;</span><span class="p">:</span><span class="mi">10</span><span class="p">},</span> <span class="s1">&#39;10_new_vectors&#39;</span> <span class="p">]</span>
+        <span class="c1"># arguments to be passed to the intervention method.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<ol class="arabic simple" start="5">
+<li><p>At time 100, changes the parameters of my_population to those in <code class="docutils literal notranslate"><span class="pre">my_setup_2</span></code>, with twice the contact rate.</p></li>
+</ol>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">newIntervention</span><span class="p">(</span>  <span class="c1"># Create a new Intervention.</span>
+    <span class="mi">100</span><span class="p">,</span>
+        <span class="c1"># time at which intervention will take place.</span>
+    <span class="s1">&#39;setSetup&#39;</span><span class="p">,</span>
+        <span class="c1"># intervention to be carried out, must correspond to the name of a method of</span>
+        <span class="c1"># the Model object.</span>
+    <span class="p">[</span> <span class="s1">&#39;my_population&#39;</span><span class="p">,</span> <span class="s1">&#39;my_setup_2&#39;</span> <span class="p">]</span>
+        <span class="c1"># arguments to be passed to the intervention method.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<ol class="arabic simple" start="6">
+<li><p>At time 150, selects 100% of infected hosts and stores them under the group ID <code class="docutils literal notranslate"><span class="pre">treated_hosts</span></code>. The third argument selects all hosts available when set to -1, as above.</p></li>
+</ol>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">newIntervention</span><span class="p">(</span>  <span class="c1"># Create a new Intervention.</span>
+    <span class="mi">150</span><span class="p">,</span>
+        <span class="c1"># time at which intervention will take place.</span>
+    <span class="s1">&#39;newHostGroup&#39;</span><span class="p">,</span>
+        <span class="c1"># intervention to be carried out, must correspond to the name of a method of</span>
+        <span class="c1"># the Model object.</span>
+    <span class="p">[</span> <span class="s1">&#39;my_population&#39;</span><span class="p">,</span> <span class="s1">&#39;treated_hosts&#39;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;infected&#39;</span> <span class="p">]</span>
+        <span class="c1"># arguments to be passed to the intervention method.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<ol class="arabic simple" start="7">
+<li><p>At time 150, selects 100% of infected vectors and stores them under the group ID <code class="docutils literal notranslate"><span class="pre">treated_vectors</span></code>. The third argument selects all vectors available when set to -1, as above.</p></li>
+</ol>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">newIntervention</span><span class="p">(</span>  <span class="c1"># Create a new Intervention.</span>
+    <span class="mi">150</span><span class="p">,</span>
+        <span class="c1"># time at which intervention will take place.</span>
+    <span class="s1">&#39;newVectorGroup&#39;</span><span class="p">,</span>
+        <span class="c1"># intervention to be carried out, must correspond to the name of a method of</span>
+        <span class="c1"># the Model object.</span>
+    <span class="p">[</span> <span class="s1">&#39;my_population&#39;</span><span class="p">,</span> <span class="s1">&#39;treated_vectors&#39;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;infected&#39;</span> <span class="p">]</span>
+        <span class="c1"># arguments to be passed to the intervention method.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<ol class="arabic simple" start="8">
+<li><p>At time 150, treat 100% of the <code class="docutils literal notranslate"><span class="pre">treated_hosts</span></code> population with a treatment that kills pathogens unless they contain a <em>GGGGGGGGGG</em> sequence in their genome.</p></li>
+</ol>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">newIntervention</span><span class="p">(</span>  <span class="c1"># Create a new Intervention.</span>
+    <span class="mi">150</span><span class="p">,</span>
+        <span class="c1"># time at which intervention will take place.</span>
+    <span class="s1">&#39;treatHosts&#39;</span><span class="p">,</span>
+        <span class="c1"># intervention to be carried out, must correspond to the name of a method of</span>
+        <span class="c1"># the Model object.</span>
+    <span class="p">[</span> <span class="s1">&#39;my_population&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;GGGGGGGGGG&#39;</span><span class="p">,</span> <span class="s1">&#39;treated_hosts&#39;</span> <span class="p">]</span>
+        <span class="c1"># arguments to be passed to the intervention method.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<ol class="arabic simple" start="9">
+<li><p>At time 150, treat 100% of the <code class="docutils literal notranslate"><span class="pre">treated_vectors</span></code> population with a treatment that kills pathogens unless they contain a <em>GGGGGGGGGG</em> sequence in their genome.</p></li>
+</ol>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">newIntervention</span><span class="p">(</span>  <span class="c1"># Create a new Intervention.</span>
+    <span class="mi">150</span><span class="p">,</span>
+        <span class="c1"># time at which intervention will take place.</span>
+    <span class="s1">&#39;treatVectors&#39;</span><span class="p">,</span>
+        <span class="c1"># intervention to be carried out, must correspond to the name of a method of</span>
+        <span class="c1"># the Model object.</span>
+    <span class="p">[</span> <span class="s1">&#39;my_population&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;GGGGGGGGGG&#39;</span><span class="p">,</span> <span class="s1">&#39;treated_vectors&#39;</span> <span class="p">]</span>
+        <span class="c1"># arguments to be passed to the intervention method.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<ol class="arabic simple" start="10">
+<li><p>At time 250, selects 85% of random hosts and stores them under the group ID <code class="docutils literal notranslate"><span class="pre">vaccinated</span></code>. They may be healthy or infected.</p></li>
+</ol>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">newIntervention</span><span class="p">(</span>  <span class="c1"># Create a new Intervention.</span>
+    <span class="mi">250</span><span class="p">,</span>
+        <span class="c1"># time at which intervention will take place.</span>
+    <span class="s1">&#39;newHostGroup&#39;</span><span class="p">,</span>
+        <span class="c1"># intervention to be carried out, must correspond to the name of a method of</span>
+        <span class="c1"># the Model object.</span>
+    <span class="p">[</span> <span class="s1">&#39;my_population&#39;</span><span class="p">,</span> <span class="s1">&#39;vaccinated&#39;</span><span class="p">,</span> <span class="mf">0.85</span><span class="p">,</span> <span class="s1">&#39;any&#39;</span> <span class="p">]</span>
+        <span class="c1"># arguments to be passed to the intervention method.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<ol class="arabic simple" start="11">
+<li><p>At time 250, protects 100% of the vaccinated group from pathogens with a <em>GGGGGGGGGG</em> sequence in their genome.</p></li>
+</ol>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">newIntervention</span><span class="p">(</span>  <span class="c1"># Create a new Intervention.</span>
+    <span class="mi">250</span><span class="p">,</span>
+        <span class="c1"># time at which intervention will take place.</span>
+    <span class="s1">&#39;protectHosts&#39;</span><span class="p">,</span>
+        <span class="c1"># intervention to be carried out, must correspond to the name of a method of</span>
+        <span class="c1"># the Model object.</span>
+    <span class="p">[</span> <span class="s1">&#39;my_population&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;GGGGGGGGGG&#39;</span><span class="p">,</span> <span class="s1">&#39;vaccinated&#39;</span> <span class="p">]</span>
+        <span class="c1"># arguments to be passed to the intervention method.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="Model-simulation">
+<h3>Model simulation<a class="headerlink" href="#Model-simulation" title="Link to this heading"></a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>  <span class="c1"># Simulate model for a specified time between two time points.</span>
+    <span class="mi">0</span><span class="p">,</span>      <span class="c1"># Initial time point.</span>
+    <span class="mi">400</span>     <span class="c1"># Final time point.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Simulating time: 47.82778878187784, event: RECOVER_VECTOR
+Simulating time: 78.3366736929209, event: RECOVER_VECTOR
+Simulating time: 105.91879303271841, event: CONTACT_HOST_VECTOR
+Simulating time: 118.47279407649962, event: RECOVER_HOST
+Simulating time: 131.35992383183006, event: CONTACT_VECTOR_HOST
+Simulating time: 142.51592961651278, event: CONTACT_HOST_VECTOR
+Simulating time: 155.0493103157924, event: CONTACT_HOST_VECTOR
+Simulating time: 166.15922138729405, event: CONTACT_VECTOR_HOST
+Simulating time: 178.45033758585132, event: CONTACT_HOST_VECTOR
+Simulating time: 191.46530199493813, event: CONTACT_HOST_VECTOR
+Simulating time: 202.95353967543554, event: CONTACT_VECTOR_HOST
+Simulating time: 215.14396460201561, event: RECOVER_VECTOR
+Simulating time: 227.37567502659184, event: CONTACT_VECTOR_HOST
+Simulating time: 239.10997595769174, event: CONTACT_VECTOR_HOST
+Simulating time: 251.43868107426454, event: RECOVER_VECTOR
+Simulating time: 270.88105008645147, event: CONTACT_HOST_VECTOR
+Simulating time: 307.90286561294283, event: CONTACT_VECTOR_HOST
+Simulating time: 357.4327138889326, event: CONTACT_VECTOR_HOST
+Simulating time: 400.04897821206066 END
+</pre></div></div>
+</div>
+</section>
+<section id="Output-data-manipulation-and-visualization">
+<h3>Output data manipulation and visualization<a class="headerlink" href="#Output-data-manipulation-and-visualization" title="Link to this heading"></a></h3>
+<section id="Create-a-table-with-the-results-of-the-given-model-history">
+<h4>Create a table with the results of the given model history<a class="headerlink" href="#Create-a-table-with-the-results-of-the-given-model-history" title="Link to this heading"></a></h4>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">saveToDataFrame</span><span class="p">(</span>
+        <span class="c1"># Creates a pandas Dataframe in long format with the given model history,</span>
+        <span class="c1"># with one host or vector per simulation time in each row.</span>
+    <span class="s1">&#39;intervention_examples.csv&#39;</span>
+        <span class="c1"># Name of the file to save the data to.</span>
+    <span class="p">)</span>
+<span class="n">data</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Saving file...
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+[Parallel(n_jobs=8)]: Using backend LokyBackend with 8 concurrent workers.
+[Parallel(n_jobs=8)]: Done   2 tasks      | elapsed:    0.4s
+[Parallel(n_jobs=8)]: Batch computation too fast (0.18432052612304692s.) Setting batch_size=2.
+[Parallel(n_jobs=8)]: Done   9 tasks      | elapsed:    0.4s
+[Parallel(n_jobs=8)]: Done  16 tasks      | elapsed:    0.4s
+[Parallel(n_jobs=8)]: Batch computation too fast (0.016484975814819336s.) Setting batch_size=4.
+[Parallel(n_jobs=8)]: Done  26 tasks      | elapsed:    0.4s
+[Parallel(n_jobs=8)]: Done  44 tasks      | elapsed:    0.5s
+[Parallel(n_jobs=8)]: Batch computation too fast (0.030623912811279297s.) Setting batch_size=8.
+[Parallel(n_jobs=8)]: Done  76 tasks      | elapsed:    0.5s
+[Parallel(n_jobs=8)]: Done 120 tasks      | elapsed:    0.5s
+[Parallel(n_jobs=8)]: Batch computation too fast (0.043166160583496094s.) Setting batch_size=16.
+[Parallel(n_jobs=8)]: Done 224 tasks      | elapsed:    0.6s
+[Parallel(n_jobs=8)]: Batch computation too fast (0.04822254180908203s.) Setting batch_size=32.
+[Parallel(n_jobs=8)]: Done 408 tasks      | elapsed:    0.8s
+[Parallel(n_jobs=8)]: Batch computation too fast (0.08920669555664062s.) Setting batch_size=64.
+[Parallel(n_jobs=8)]: Done 792 tasks      | elapsed:    0.9s
+[Parallel(n_jobs=8)]: Batch computation too fast (0.16597485542297363s.) Setting batch_size=128.
+[Parallel(n_jobs=8)]: Done 1528 tasks      | elapsed:    1.4s
+[Parallel(n_jobs=8)]: Done 3192 tasks      | elapsed:    2.2s
+[Parallel(n_jobs=8)]: Done 5368 tasks      | elapsed:    3.2s
+[Parallel(n_jobs=8)]: Done 7449 tasks      | elapsed:    3.6s
+[Parallel(n_jobs=8)]: Done 8243 tasks      | elapsed:    3.6s
+[Parallel(n_jobs=8)]: Done 8591 tasks      | elapsed:    3.6s
+[Parallel(n_jobs=8)]: Done 8822 tasks      | elapsed:    3.6s
+[Parallel(n_jobs=8)]: Done 9064 out of 9079 | elapsed:    3.6s remaining:    0.0s
+[Parallel(n_jobs=8)]: Done 9079 out of 9079 | elapsed:    3.6s finished
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+...file saved.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/acs98/miniconda3/envs/opqua/lib/python3.9/site-packages/opqua/model.py:1008: DtypeWarning: Columns (5) have mixed types.Specify dtype option on import or set low_memory=False.
+  data = saveToDf(
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Time</th>
+      <th>Population</th>
+      <th>Organism</th>
+      <th>ID</th>
+      <th>Pathogens</th>
+      <th>Protection</th>
+      <th>Alive</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.0</td>
+      <td>my_population</td>
+      <td>Host</td>
+      <td>my_population_0</td>
+      <td>AAAAAAAAAA</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.0</td>
+      <td>my_population</td>
+      <td>Host</td>
+      <td>my_population_1</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.0</td>
+      <td>my_population</td>
+      <td>Host</td>
+      <td>my_population_2</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.0</td>
+      <td>my_population</td>
+      <td>Host</td>
+      <td>my_population_3</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.0</td>
+      <td>my_population</td>
+      <td>Host</td>
+      <td>my_population_4</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>1898145</th>
+      <td>400.0</td>
+      <td>my_population</td>
+      <td>Vector</td>
+      <td>my_population_105</td>
+      <td>GGGGGGGGGG</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>1898146</th>
+      <td>400.0</td>
+      <td>my_population</td>
+      <td>Vector</td>
+      <td>my_population_106</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>1898147</th>
+      <td>400.0</td>
+      <td>my_population</td>
+      <td>Vector</td>
+      <td>my_population_107</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>1898148</th>
+      <td>400.0</td>
+      <td>my_population</td>
+      <td>Vector</td>
+      <td>my_population_108</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>1898149</th>
+      <td>400.0</td>
+      <td>my_population</td>
+      <td>Vector</td>
+      <td>my_population_109</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+<p>1898150 rows × 7 columns</p>
+</div></div>
+</div>
+</section>
+<section id="Create-a-plot-to-track-pathogen-genotypes-across-time">
+<h4>Create a plot to track pathogen genotypes across time<a class="headerlink" href="#Create-a-plot-to-track-pathogen-genotypes-across-time" title="Link to this heading"></a></h4>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_composition</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">compositionPlot</span><span class="p">(</span>
+        <span class="c1"># Create a plot to track pathogen genotypes across time.</span>
+    <span class="s1">&#39;intervention_examples_composition.png&#39;</span><span class="p">,</span>
+        <span class="c1"># Name of the file to save the plot to.</span>
+    <span class="n">data</span>
+        <span class="c1"># Dataframe with model history.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+1 / 4 genotypes processed.
+2 / 4 genotypes processed.
+3 / 4 genotypes processed.
+4 / 4 genotypes processed.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/intervention_47_1.png" src="_images/intervention_47_1.png" />
+</div>
+</div>
+</section>
+<section id="Create-a-compartment-plot">
+<h4>Create a compartment plot<a class="headerlink" href="#Create-a-compartment-plot" title="Link to this heading"></a></h4>
+<p>Plot the number of susceptible and infected hosts in the model over time.</p>
+<p>Notice the total number of infections in the composition plot can exceed the number of infected hosts in the compartment plot. This happens because a single host infected by multiple genotypes is counted twice in the former, but not the latter.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_compartments</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">compartmentPlot</span><span class="p">(</span>
+        <span class="c1"># Create plot with number of naive, infected, recovered, dead hosts/vectors vs. time.</span>
+    <span class="s1">&#39;intervention_examples_compartments.png&#39;</span><span class="p">,</span>
+        <span class="c1"># File path, name, and extension to save plot under.</span>
+    <span class="n">data</span>
+        <span class="c1"># Dataframe with model history.</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/intervention_49_0.png" src="_images/intervention_49_0.png" />
+</div>
+</div>
+</section>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="evolution.html" class="btn btn-neutral float-left" title="Evolution" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="metapopulation.html" class="btn btn-neutral float-right" title="Metapopulation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Pablo Cárdenas.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

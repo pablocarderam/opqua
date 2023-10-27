@@ -11,89 +11,44 @@ from opqua.internal.vector import Vector
 class Population(object):
     """Class defines a population with hosts, vectors, and specific parameters.
 
-    Constants:
-    # These all denote positions in coefficients_hosts and coefficients_vectors
-    INFECTED -- position of "infected" Boolean values for each individual inside
-        coefficients array
-    CONTACT -- position of intra-population aggregated contact rate for each
-        individual inside coefficients array
-    RECEIVE_CONTACT -- position of intra-population aggregated receiving contact
-        rate for each individual inside coefficients array
-    LETHALITY -- position of aggregated death rate for each individual inside
-        coefficients array
-    NATALITY -- position of aggregated birth rate for each individual inside
-        coefficients array
-    RECOVERY -- position of aggregated recovery rate for each individual inside
-        coefficients array
-    MIGRATION -- position of aggregated inter-population migration rate for each
-        individual inside coefficients array
-    POPULATION_CONTACT -- position of inter-population aggregated contact rate
-        for each individual inside coefficients array
-    RECEIVE_POPULATION_CONTACT -- position of inter-population aggregated
-        receiving contact rate for each individual inside coefficients array
-    MUTATION -- position of aggregated mutation rate for each individual inside
-        coefficients array
-    RECOMBINATION -- position of aggregated recovery rate for each individual
-        inside coefficients array
-    NUM_COEFFICIENTS -- total number of types of coefficients (columns) in
-        coefficient arrays
-    CHROMOSOME_SEPARATOR -- character reserved to denote separate chromosomes in
-        genomes
+    **CONSTANTS:** These all denote positions in coefficients_hosts and coefficients_vectors
 
-    Methods:
-    copyState -- returns a slimmed-down version of the current population state
-    setSetup -- assigns a given set of parameters to this population
-    addHosts -- adds hosts to the population
-    addVectors -- adds vectors to the population
-    newHostGroup -- returns a list of random (healthy or any) hosts
-    newVectorGroup -- returns a list of random (healthy or any) vectors
-    removeHosts -- removes hosts from the population
-    removeVectors -- removes vectors from the population
-    addPathogensToHosts -- adds pathogens with specified genomes to hosts
-    addPathogensToVectors -- adds pathogens with specified genomes to vectors
-    treatHosts -- removes infections susceptible to given treatment from hosts
-    treatVectors -- removes infections susceptible to treatment from vectors
-    protectHosts -- adds protection sequence to hosts
-    protectVectors -- adds protection sequence to vectors
-    wipeProtectionHosts -- removes all protection sequences from hosts
-    wipeProtectionVectors -- removes all protection sequences from hosts
-    setHostMigrationNeighbor -- sets migration rate of hosts from this
-        population towards another
-    setVectorMigrationNeighbor -- sets migration rate of vectors from this
-        population towards another
-    migrate -- transfers hosts and/or vectors from this population to a neighbor
-    setHostHostPopulationContactNeighbor -- set host-host contact rate from this
-        population towards another one
-    setHostVectorPopulationContactNeighbor -- set host-vector contact rate from
-        this population towards another one
-    setVectorHostPopulationContactNeighbor -- set vector-host contact rate from
-        this population towards another one
-    populationContact -- contacts hosts and/or vectors from this population to
-        another
-    contactHostHost -- contact any two (weighted) random hosts in population
-    contactHostVector -- contact a (weighted) random host and vector in
-        population
-    contactVectorHost -- contact a (weighted) random vector and host in
-        population
-    recoverHost --removes all infections from given host
-    recoverVector -- removes all infections from given vector
-    killHost -- add host at this index to dead list, remove it from alive ones
-    killVector -- add vector at this index to dead list, remove it from alive
-        ones
-    dieHost -- remove host at this index from alive lists
-    dieVector -- remove vector at this index from alive lists
-    birthHost -- add host at this index to population, remove it from alive ones
-    birthVector -- add vector at this index to population, remove it from alive
-        ones
-    mutateHost -- mutates a single locus in a random pathogen in a host
-    mutateVector -- mutates a single locus in a random pathogen in a vector
-    recombineHost -- recombines two random pathogens in a host
-    recombineVector -- recombines two random pathogens in a host
-    updateHostCoefficients -- updates event coefficients in population's hosts
-    updateVectorCoefficients -- updates event coefficients in population's
-        vectors
-    getWeightedRandom -- returns index of element chosen using weights from
-        coefficient array and a given random number
+    - `INFECTED` -- position of "infected" Boolean values for each individual inside
+        coefficients array.
+    - `CONTACT` -- position of intra-population aggregated contact rate for each
+        individual inside coefficients array.
+    - `RECEIVE_CONTACT` -- position of intra-population aggregated receiving contact
+        rate for each individual inside coefficients array.
+    - `LETHALITY` -- position of aggregated death rate for each individual inside
+        coefficients array.
+    - `NATALITY` -- position of aggregated birth rate for each individual inside
+        coefficients array.
+    - `RECOVERY` -- position of aggregated recovery rate for each individual inside
+        coefficients array.
+    - `MIGRATION` -- position of aggregated inter-population migration rate for each
+        individual inside coefficients array.
+    - `POPULATION_CONTACT` -- position of inter-population aggregated contact rate
+        for each individual inside coefficients array.
+    - `RECEIVE_POPULATION_CONTACT` -- position of inter-population aggregated
+        receiving contact rate for each individual inside coefficients array.
+    - `MUTATION` -- position of aggregated mutation rate for each individual inside
+        coefficients array.
+    - `RECOMBINATION` -- position of aggregated recovery rate for each individual
+        inside coefficients array.
+    - `NUM_COEFFICIENTS` -- total number of types of coefficients (columns) in
+        coefficient arrays.
+    - `CHROMOSOME_SEPARATOR` -- character reserved to denote separate chromosomes in
+        genomes.
+
+    Attributes:
+        model (Model object): parent model this population is a part of.
+        id (String): unique identifier for this population in the model.
+        setup (String): setup object with parameters for this population.
+        num_hosts (int): number of hosts to initialize population with.
+        num_vectors (int): number of hosts to initialize population with.
+        slim (Boolean): whether to create a slimmed-down representation of the
+            population for data storage (only ID, host and vector lists). 
+            Defaults to False.
     """
 
     INFECTED = 0
@@ -116,16 +71,16 @@ class Population(object):
         """Create a new Population.
 
         Arguments:
-        model -- parent model this population is a part of (Model)
-        id -- unique identifier for this population in the model (String)
-        setup -- setup object with parameters for this population (Setup)
-        num_hosts -- number of hosts to initialize population with (int)
-        num_vectors -- number of hosts to initialize population with (int)
+            model (Model object): parent model this population is a part of.
+            id (String): unique identifier for this population in the model.
+            setup (String): setup object with parameters for this population.
+            num_hosts (int): number of hosts to initialize population with.
+            num_vectors (int): number of hosts to initialize population with.
 
         Keyword arguments:
-        slim -- whether to create a slimmed-down representation of the
-            population for data storage (only ID, host and vector lists)
-            (Boolean, default False)
+            slim (Boolean): whether to create a slimmed-down representation of the
+                population for data storage (only ID, host and vector lists). 
+                Defaults to False.
         """
         super(Population, self).__init__()
 
@@ -209,13 +164,13 @@ class Population(object):
         """Returns a slimmed-down version of the current population state.
 
         Arguments:
-        host_sampling -- how many hosts to skip before saving one in a snapshot
-            of the system state (saves all by default) (int, default 0)
-        vector_sampling -- how many vectors to skip before saving one in a
-            snapshot of the system state (saves all by default) (int, default 0)
+            host_sampling (int): how many hosts to skip before saving one in a snapshot
+                of the system state (saves all by default). Defaults to 0.
+            vector_sampling (int): how many vectors to skip before saving one in a
+                snapshot of the system state (saves all by default). Defaults to 0.
 
         Returns:
-        Population object with current host and vector lists.
+            Population object with current host and vector lists.
         """
 
         copy = Population(self.model, self.id, None, 0, 0, slim=True)
@@ -251,7 +206,7 @@ class Population(object):
         """Assign parameters stored in Setup object to this population.
 
         Arguments:
-        setup -- the setup to be assigned (Setup)
+            setup (Setup object): the setup to be assigned.
         """
 
         self.setup = setup
@@ -323,10 +278,10 @@ class Population(object):
         """Add a number of healthy hosts to population, return list with them.
 
         Arguments:
-        num_hosts -- number of hosts to be added (int)
+            num_hosts (int): number of hosts to be added.
 
         Returns:
-        list containing new hosts
+            list containing new hosts.
         """
 
         new_hosts = [
@@ -343,10 +298,10 @@ class Population(object):
         """Add a number of healthy vectors to population, return list with them.
 
         Arguments:
-        num_vectors -- number of vectors to be added (int)
+            num_vectors (int): number of vectors to be added.
 
         Returns:
-        list containing new vectors
+            list containing new vectors
         """
 
         new_vectors = [
@@ -361,17 +316,15 @@ class Population(object):
     def newHostGroup(self, hosts=-1, type='any'):
         """Return a list of random hosts in population.
 
-        Arguments:
-        hosts -- number of hosts to be sampled randomly: if <0, samples from
-            whole population; if <1, takes that fraction of population; if >=1,
-            samples that integer number of hosts (default -1, number)
-
         Keyword arguments:
-        type -- whether to sample healthy hosts only, infected hosts only, or
-            any hosts (default 'any'; String = {'healthy', 'infected', 'any'})
+            hosts (number): number of hosts to be sampled randomly: if <0, samples from
+                    whole population; if <1, takes that fraction of population; if >=1,
+                    samples that integer number of hosts. Defaults to -1.
+            type (String = {'healthy', 'infected', 'any'}): whether to sample healthy hosts 
+                only, infected hosts only, or any hosts. Defaults to 'any'.
 
         Returns:
-        list containing sampled hosts
+            list containing sampled hosts.
         """
 
         possible_hosts = []
@@ -408,18 +361,15 @@ class Population(object):
     def newVectorGroup(self, vectors=-1, type='any'):
         """Return a list of random vectors in population.
 
-        Arguments:
-        vectors -- number of vectors to be sampled randomly: if <0, samples from
-            whole population; if <1, takes that fraction of population; if >=1,
-            samples that integer number of vectors (default -1, number)
-
         Keyword arguments:
-        type -- whether to sample healthy vectors only, infected vectors
-            only, or any vectors (default 'any'; String = {'healthy',
-            'infected', 'any'})
+            vectors (number): number of vectors to be sampled randomly: if <0, samples from
+                whole population; if <1, takes that fraction of population; if >=1,
+                samples that integer number of vectors. Defaults to -1.
+            type (String = {'healthy', 'infected', 'any'}): whether to sample healthy vectors 
+                only, infected vectors. Defaults to 'any'.
 
         Returns:
-        list containing sampled vectors
+            list containing sampled vectors.
         """
 
         possible_vectors = []
@@ -460,9 +410,8 @@ class Population(object):
         """Remove a number of specified or random hosts from population.
 
         Arguments:
-        num_hosts_or_list -- number of hosts to be sampled randomly for removal
-            or list of hosts to be removed, must be hosts in this population
-            (int or list of Hosts)
+            num_hosts_or_list (int or list of Host objects): number of hosts to be sampled randomly for removal
+                or list of hosts to be removed, must be hosts in this population.
         """
 
         if isinstance(num_hosts_or_list, list):
@@ -504,9 +453,9 @@ class Population(object):
         """Remove a number of specified or random vectors from population.
 
         Arguments:
-        num_vectors_or_list -- number of vectors to be sampled randomly for
-            removal or list of vectors to be removed, must be vectors in this
-            population (int or list of Vectors)
+            num_vectors_or_list (int or list of Vector objects): number of vectors to be sampled randomly for
+                removal or list of vectors to be removed, must be vectors in this
+                population.
         """
 
         if isinstance(num_vectors_or_list, list):
@@ -544,13 +493,13 @@ class Population(object):
         """Add specified pathogens to random hosts, optionally from a list.
 
         Arguments:
-        genomes_numbers -- dictionary conatining pathogen genomes to add as keys
-            and number of hosts each one will be added to as values (dict with
-            keys=Strings, values=int)
+            genomes_numbers (dict with keys=Strings, values=int): dictionary conatining 
+                pathogen genomes to add as keys  and number of hosts each one will be 
+                added to as values.
 
         Keyword arguments:
-        hosts -- list of specific hosts to sample from, if empty, samples from
-            whole population (default empty list; empty)
+            hosts (list of Host objects): list of specific hosts to sample from, if empty, samples from
+                whole population. Defaults to [].
         """
 
         if len(hosts) == 0:
@@ -583,13 +532,13 @@ class Population(object):
         """Add specified pathogens to random vectors, optionally from a list.
 
         Arguments:
-        genomes_numbers -- dictionary conatining pathogen genomes to add as keys
-            and number of vectors each one will be added to as values (dict with
-            keys=Strings, values=int)
+            genomes_numbers (dict with keys=Strings, values=int): dictionary conatining 
+                pathogen genomes to add as keys and number of vectors each one will be 
+                added to as values.
 
         Keyword arguments:
-        vectors -- list of specific vectors to sample from, if empty, samples
-            from whole population (default empty list; empty)
+            vectors (list of Vector objects): list of specific vectors to sample from, if empty, samples
+                from whole population. Defaults to [].
         """
 
         if len(vectors) == 0:
@@ -626,14 +575,12 @@ class Population(object):
         population infected list and adds to healthy list if appropriate.
 
         Arguments:
-        frac_hosts -- fraction of hosts considered to be randomly selected
-            (number between 0 and 1)
-        resistance_seqs -- contains sequences required for treatment resistance
-            (list of Strings)
+            frac_hosts (number 0-1): fraction of hosts considered to be randomly selected.
+            resistance_seqs (list of Strings): contains sequences required for treatment resistance.
 
         Keyword arguments:
-        hosts -- list of specific hosts to sample from, if empty, samples from
-            whole population (default empty list; empty)
+        hosts (list of Host objects): list of specific hosts to sample from, if empty, samples from
+            whole population. Defaults to [].
         """
 
         hosts_to_consider = self.hosts
@@ -661,14 +608,12 @@ class Population(object):
         population infected list and adds to healthy list if appropriate.
 
         Arguments:
-        frac_vectors -- fraction of vectors considered to be randomly selected
-            (number between 0 and 1)
-        resistance_seqs -- contains sequences required for treatment resistance
-            (list of Strings)
+            frac_vectors (number 0-1): fraction of vectors considered to be randomly selected.
+            resistance_seqs (list of Strings): contains sequences required for treatment resistance.
 
         Keyword arguments:
-        vectors -- list of specific vectors to sample from, if empty, samples
-            from whole population (default empty list; empty)
+            vectors (list of Vector objects): list of specific vectors to sample from, if empty, samples
+                from whole population. Defaults to [].
         """
 
         vectors_to_consider = self.vectors
@@ -695,13 +640,12 @@ class Population(object):
         specified. Does not cure them if they are already infected.
 
         Arguments:
-        frac_hosts -- fraction of hosts considered to be randomly selected
-            (number between 0 and 1)
-        protection_sequence -- sequence against which to protect (String)
+            frac_hosts (number 0-1): fraction of hosts considered to be randomly selected.
+            protection_sequence (String): sequence against which to protect.
 
         Keyword arguments:
-        hosts -- list of specific hosts to sample from, if empty, samples from
-            whole population (default empty list; empty)
+            hosts (list of Host objects): list of specific hosts to sample from, if empty, samples from
+                whole population. Defaults to [].
         """
 
         hosts_to_consider = self.hosts
@@ -722,13 +666,12 @@ class Population(object):
         specified. Does not cure them if they are already infected.
 
         Arguments:
-        frac_vectors -- fraction of vectors considered to be randomly selected
-            (number between 0 and 1)
-        protection_sequence -- sequence against which to protect (String)
+            frac_vectors (number 0-1): fraction of vectors considered to be randomly selected.
+            protection_sequence (String): sequence against which to protect.
 
         Keyword arguments:
-        vectors -- list of specific vectors to sample from, if empty, samples
-            from whole population (default empty list; empty)
+            vectors (list of Vector objects): list of specific vectors to sample from, if empty, samples
+                from whole population. Defaults to [].
         """
 
         vectors_to_consider = self.vectors
@@ -746,8 +689,8 @@ class Population(object):
         """Removes all protection sequences from hosts.
 
         Keyword arguments:
-        hosts -- list of specific hosts to sample from, if empty, samples from
-            whole population (default empty list; empty)
+            hosts (list of Host objects): list of specific hosts to sample from, if empty, samples from
+                whole population. Defaults to [].
         """
 
         hosts_to_consider = self.hosts
@@ -761,8 +704,8 @@ class Population(object):
         """Removes all protection sequences from vectors.
 
         Keyword arguments:
-        vectors -- list of specific vectors to sample from, if empty, samples from
-            whole population (default empty list; empty)
+            vectors (list of Vector objects): list of specific vectors to sample from, if empty, samples from
+                whole population. Defaults to [].
         """
 
         vectors_to_consider = self.vectors
@@ -776,9 +719,8 @@ class Population(object):
         """Set host migration rate from this population towards another one.
 
          Arguments:
-         neighbor -- population towards which migration rate will be specified
-            (Population)
-         rate -- migration rate from this population to the neighbor (number)
+            neighbor (Population object): population towards which migration rate will be specified.
+            rate (number): migration rate from this population to the neighbor.
          """
 
         if neighbor in self.neighbors_hosts:
@@ -791,9 +733,8 @@ class Population(object):
         """Set vector migration rate from this population towards another one.
 
          Arguments:
-         neighbor -- population towards which migration rate will be specified
-            (Population)
-         rate -- migration rate from this population to the neighbor (number)
+         neighbor (Population object): population towards which migration rate will be specified.
+         rate (number): migration rate from this population to the neighbor.
          """
 
         if neighbor in self.neighbors_vectors:
@@ -806,16 +747,15 @@ class Population(object):
         """Transfer hosts and/or vectors from this population to another.
 
         Arguments:
-        target_pop -- population towards which migration will occur (Population)
-        num_hosts -- number of hosts to transfer (int)
-        num_vectors -- number of vectors to transfer (int)
+            target_pop (Population objects): population towards which migration will occur.
+            num_hosts (int): number of hosts to transfer.
+            num_vectors (int): number of vectors to transfer.
 
         Keyword arguments:
-        rand -- uniform random number from 0 to 1 to use when choosing
-            individuals to migrate; if None, generates new random number to
-            choose (through numpy), otherwise, assumes event is happening
-            through Gillespie class call and migrates a single host or vector
-            (default None; 0-1 number)
+            rand (number 0-1): uniform random number from 0 to 1 to use when choosing
+                individuals to migrate; if None, generates new random number to
+                choose (through numpy), otherwise, assumes event is happening
+                through Gillespie class call and migrates a single host or vector. Defaults to None.
         """
 
         if rand is None:
@@ -859,9 +799,8 @@ class Population(object):
         """Set host-host contact rate from this population towards another one.
 
          Arguments:
-         neighbor -- population towards which migration rate will be specified
-            (Population)
-         rate -- migration rate from this population to the neighbor (number)
+            neighbor (Population object): population towards which migration rate will be specified.
+            rate (number): migration rate from this population to the neighbor.
          """
 
         self.neighbors_contact_hosts_hosts[neighbor] = rate
@@ -870,9 +809,8 @@ class Population(object):
         """Set host-vector contact rate from this population to another one.
 
          Arguments:
-         neighbor -- population towards which migration rate will be specified
-            (Population)
-         rate -- migration rate from this population to the neighbor (number)
+            neighbor (Population object): population towards which migration rate will be specified.
+            rate (number): migration rate from this population to the neighbor.
          """
 
         self.neighbors_contact_hosts_vectors[neighbor] = rate
@@ -881,9 +819,8 @@ class Population(object):
         """Set vector-host contact rate from this population to another one.
 
          Arguments:
-         neighbor -- population towards which migration rate will be specified
-            (Population)
-         rate -- migration rate from this population to the neighbor (number)
+            neighbor (Population object): population towards which migration rate will be specified.
+            rate (number): migration rate from this population to the neighbor.
          """
 
         self.neighbors_contact_vectors_hosts[neighbor] = rate
@@ -893,15 +830,15 @@ class Population(object):
         """Contacts hosts and/or vectors from this population to another.
 
         Arguments:
-        target_pop -- population towards which migration will occur (Population)
-        rand -- uniform random number from 0 to 1 to use when choosing
-            individuals to contact
+            target_pop (Population object): population towards which migration will occur.
+            rand (number): uniform random number from 0 to 1 to use when choosing
+                individuals to contact.
 
         Keyword arguments:
-        host_origin -- whether to draw from hosts in the origin population
-            (as opposed to vectors) (Boolean)
-        host_target -- whether to draw from hosts in the target population
-            (as opposed to vectors) (Boolean)
+            host_origin (Boolean): whether to draw from hosts in the origin population
+                (as opposed to vectors). Defaults to True.
+            host_target (Boolean): whether to draw from hosts in the target population
+                (as opposed to vectors). Defaults to True.
         """
 
         if host_origin:
@@ -945,11 +882,11 @@ class Population(object):
         second.
 
         Arguments:
-        rand -- uniform random number from 0 to 1 to use when choosing
-            individuals to contact
+            rand (number): uniform random number from 0 to 1 to use when choosing
+                individuals to contact.
 
         Returns:
-        whether or not the model has changed state (Boolean)
+            Boolean indicating whether or not the model has changed state.
         """
 
         index_host,rand = self.getWeightedRandom(
@@ -975,11 +912,11 @@ class Population(object):
         second.
 
         Arguments:
-        rand -- uniform random number from 0 to 1 to use when choosing
-            individuals to contact
+        rand (number): uniform random number from 0 to 1 to use when choosing
+            individuals to contact.
 
         Returns:
-        whether or not the model has changed state (Boolean)
+            Boolean indicating whether or not the model has changed state.
         """
 
         index_host,rand = self.getWeightedRandom(
@@ -1004,11 +941,11 @@ class Population(object):
         second.
 
         Arguments:
-        rand -- uniform random number from 0 to 1 to use when choosing
-            individuals to contact
+            rand (number) uniform random number from 0 to 1 to use when choosing
+                individuals to contact.
 
         Returns:
-        whether or not the model has changed state (Boolean)
+            Boolean indicating whether or not the model has changed state.
         """
 
         index_vector,rand = self.getWeightedRandom(
@@ -1035,8 +972,8 @@ class Population(object):
         population infected list and add to healthy list.
 
         Arguments:
-        rand -- uniform random number from 0 to 1 to use when choosing
-            individual to recover
+            rand (number): uniform random number from 0 to 1 to use when choosing
+                individual to recover.
         """
 
         index_host,rand = self.getWeightedRandom(
@@ -1053,8 +990,8 @@ class Population(object):
         population infected list and add to healthy list.
 
         Arguments:
-        rand -- uniform random number from 0 to 1 to use when choosing
-            individual to recover
+            rand (number): uniform random number from 0 to 1 to use when choosing
+                individual to recover.
         """
 
         index_vector,rand = self.getWeightedRandom(
@@ -1067,8 +1004,8 @@ class Population(object):
         """Add host at this index to dead list, remove it from alive ones.
 
         Arguments:
-        rand -- uniform random number from 0 to 1 to use when choosing
-            individual to kill
+            rand (number): uniform random number from 0 to 1 to use when choosing
+                individual to kill.
         """
 
         index_host,rand = self.getWeightedRandom(
@@ -1083,8 +1020,8 @@ class Population(object):
         """Add host at this index to dead list, remove it from alive ones.
 
         Arguments:
-        rand -- uniform random number from 0 to 1 to use when choosing
-            individual to kill
+            rand (number): uniform random number from 0 to 1 to use when choosing
+                individual to kill.
         """
 
         index_vector,rand = self.getWeightedRandom(
@@ -1099,8 +1036,8 @@ class Population(object):
         """Remove host at this index from alive lists.
 
         Arguments:
-        rand -- uniform random number from 0 to 1 to use when choosing
-            individual to kill
+            rand (number): uniform random number from 0 to 1 to use when choosing
+                individual to kill.
         """
 
         index_host,rand = self.getWeightedRandom(
@@ -1113,8 +1050,8 @@ class Population(object):
         """Remove vector at this index from alive lists.
 
         Arguments:
-        rand -- uniform random number from 0 to 1 to use when choosing
-            individual to kill
+            rand (number): uniform random number from 0 to 1 to use when choosing
+                individual to kill.
         """
 
         index_vector,rand = self.getWeightedRandom(
@@ -1127,8 +1064,8 @@ class Population(object):
         """Add host at this index to population, remove it from alive ones.
 
         Arguments:
-        rand -- uniform random number from 0 to 1 to use when choosing
-            individual to make parent
+            rand (number): uniform random number from 0 to 1 to use when choosing
+                individual to make parent.
         """
 
         index_host,rand = self.getWeightedRandom(
@@ -1141,8 +1078,8 @@ class Population(object):
         """Add host at this index to population, remove it from alive ones.
 
         Arguments:
-        rand -- uniform random number from 0 to 1 to use when choosing
-            individual to make parent
+            rand (number): uniform random number from 0 to 1 to use when choosing
+                individual to make parent.
         """
 
         index_vector,rand = self.getWeightedRandom(
@@ -1157,8 +1094,8 @@ class Population(object):
         Creates a new genotype from a de novo mutation event in the host given.
 
         Arguments:
-        rand -- uniform random number from 0 to 1 to use when choosing
-            individual in which to choose a pathogen to mutate
+            rand (number): uniform random number from 0 to 1 to use when choosing
+                individual in which to choose a pathogen to mutate.
         """
 
         index_host,rand = self.getWeightedRandom(
@@ -1175,8 +1112,8 @@ class Population(object):
         given.
 
         Arguments:
-        rand -- uniform random number from 0 to 1 to use when choosing
-            individual in which to choose a pathogen to mutate
+            rand (number): uniform random number from 0 to 1 to use when choosing
+                individual in which to choose a pathogen to mutate.
         """
 
         index_vector,rand = self.getWeightedRandom(
@@ -1193,8 +1130,8 @@ class Population(object):
         given.
 
         Arguments:
-        rand -- uniform random number from 0 to 1 to use when choosing
-            individual in which to choose pathogens to recombine
+            rand (number): uniform random number from 0 to 1 to use when choosing
+                individual in which to choose pathogens to recombine.
         """
 
         index_host,rand = self.getWeightedRandom(
@@ -1211,8 +1148,8 @@ class Population(object):
         given.
 
         Arguments:
-        rand -- uniform random number from 0 to 1 to use when choosing
-            individual in which to choose pathogens to recombine
+            rand (number): uniform random number from 0 to 1 to use when choosing
+                individual in which to choose pathogens to recombine.
         """
 
         index_vector,rand = self.getWeightedRandom(
@@ -1270,11 +1207,11 @@ class Population(object):
         index is decreased by 1.
 
         Arguments:
-        rand -- 0-1 random number (number)
-        r -- array with weights (numpy vector)
+            rand (number): 0-1 random number.
+            r (numpy array): array with weights.
 
         Returns:
-        new 0-1 random number (number)
+            new 0-1 random number.
         """
 
         r_tot = np.sum( r )

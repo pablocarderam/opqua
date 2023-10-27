@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>opqua.internal.vector &mdash; Opqua 1.0.2 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=1ed6394b"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Opqua
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../about.html">About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../requirements_and_installation.html">Requirements and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../model_documentation.html"><code class="docutils literal notranslate"><span class="pre">Model</span></code> Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../API.html">API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Opqua</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">opqua.internal.vector</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for opqua.internal.vector</h1><div class="highlight"><pre>
+<span></span>
+<span class="sd">&quot;&quot;&quot;Contains class Vector.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">copy</span> <span class="k">as</span> <span class="nn">cp</span>
+
+<div class="viewcode-block" id="Vector">
+<a class="viewcode-back" href="../../../opqua.internal.html#opqua.internal.vector.Vector">[docs]</a>
+<span class="k">class</span> <span class="nc">Vector</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class defines vector entities to be infected by pathogens in model.</span>
+
+<span class="sd">    These can infect hosts, the main entities in the model.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        population (Population object): the population this vector belongs to.</span>
+<span class="sd">        id (String): unique identifier for this vector within population.</span>
+<span class="sd">        slim (Boolean): whether to create a slimmed-down representation of the</span>
+<span class="sd">            population for data storage (only ID, host and vector lists). Defaults to False.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">population</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">slim</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a new Vector.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            population (Population object): the population this vector belongs to.</span>
+<span class="sd">            id (String): unique identifier for this vector within population.</span>
+<span class="sd">            slim (Boolean): whether to create a slimmed-down representation of the</span>
+<span class="sd">                population for data storage (only ID, host and vector lists). Defaults to False.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Vector</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="nb">id</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">slim</span><span class="p">:</span>
+                <span class="c1"># if not slimmed down for data storage, save other attributes</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pathogens</span> <span class="o">=</span> <span class="p">{}</span> <span class="c1"># Dictionary with all current infections in this</span>
+                <span class="c1"># vector, with keys=genome strings, values=fitness numbers</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">protection_sequences</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># A list of strings this vector is</span>
+                <span class="c1"># immune to. If a pathogen&#39;s genome contains one of these</span>
+                <span class="c1"># values, it cannot infect this vector.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">population</span> <span class="o">=</span> <span class="n">population</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sum_fitness</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="c1"># sum of all pathogen fitnesses within this vector</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">coefficient_index</span> <span class="o">=</span> <span class="n">population</span><span class="o">.</span><span class="n">coefficients_vectors</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="n">population</span><span class="o">.</span><span class="n">coefficients_vectors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span> <span class="p">(</span>
+                <span class="n">population</span><span class="o">.</span><span class="n">coefficients_vectors</span><span class="p">,</span>
+                <span class="n">population</span><span class="o">.</span><span class="n">healthyCoefficientRow</span><span class="p">()</span>
+                <span class="p">)</span> <span class="p">)</span> <span class="c1"># adds a row to coefficient array</span>
+
+<div class="viewcode-block" id="Vector.copyState">
+<a class="viewcode-back" href="../../../opqua.internal.html#opqua.internal.vector.Vector.copyState">[docs]</a>
+    <span class="k">def</span> <span class="nf">copyState</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a slimmed-down representation of the current vector state.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Vector object with current pathogens and protection_sequences.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">copy</span> <span class="o">=</span> <span class="n">Vector</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">slim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">copy</span><span class="o">.</span><span class="n">pathogens</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pathogens</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">copy</span><span class="o">.</span><span class="n">protection_sequences</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">protection_sequences</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">copy</span></div>
+
+
+<div class="viewcode-block" id="Vector.acquirePathogen">
+<a class="viewcode-back" href="../../../opqua.internal.html#opqua.internal.vector.Vector.acquirePathogen">[docs]</a>
+    <span class="k">def</span> <span class="nf">acquirePathogen</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">genome</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Adds given genome to this vector&#39;s pathogens.</span>
+
+<span class="sd">        Modifies event coefficient matrix accordingly.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            genome (String): the genome to be added.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Boolean indicating whether or not the model has changed state.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pathogens</span><span class="p">[</span><span class="n">genome</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">fitnessVector</span><span class="p">(</span><span class="n">genome</span><span class="p">)</span>
+        <span class="n">old_sum_fitness</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sum_fitness</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sum_fitness</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pathogens</span><span class="p">[</span><span class="n">genome</span><span class="p">]</span>
+        <span class="n">sum_fitness_denom</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sum_fitness</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sum_fitness</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">coefficients_vectors</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">coefficient_index</span><span class="p">,:]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">coefficients_vectors</span><span class="p">[</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">coefficient_index</span><span class="p">,:</span>
+                <span class="p">]</span>
+            <span class="o">*</span> <span class="n">old_sum_fitness</span> <span class="o">/</span> <span class="n">sum_fitness_denom</span> <span class="p">)</span> <span class="o">+</span> <span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+                    <span class="c1"># positions dependent on class constants</span>
+                <span class="mi">0</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">contactVector</span><span class="p">(</span><span class="n">genome</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">receiveContactVector</span><span class="p">(</span><span class="n">genome</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">mortalityVector</span><span class="p">(</span><span class="n">genome</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">natalityVector</span><span class="p">(</span><span class="n">genome</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">recoveryVector</span><span class="p">(</span><span class="n">genome</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">migrationVector</span><span class="p">(</span><span class="n">genome</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">populationContactVector</span><span class="p">(</span><span class="n">genome</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">receivePopulationContactVector</span><span class="p">(</span><span class="n">genome</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">mutationVector</span><span class="p">(</span><span class="n">genome</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">recombinationVector</span><span class="p">(</span><span class="n">genome</span><span class="p">)</span>
+            <span class="p">])</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">pathogens</span><span class="p">[</span><span class="n">genome</span><span class="p">]</span> <span class="o">/</span> <span class="n">sum_fitness_denom</span> <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">coefficients_vectors</span><span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">coefficient_index</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">RECOMBINATION</span>
+            <span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">coefficients_vectors</span><span class="p">[</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">coefficient_index</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">RECOMBINATION</span>
+                <span class="p">]</span> <span class="o">*</span> <span class="p">(</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pathogens</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">coefficients_vectors</span><span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">coefficient_index</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">INFECTED</span>
+            <span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="bp">self</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">infected_vectors</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">infected_vectors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Vector.infectHost">
+<a class="viewcode-back" href="../../../opqua.internal.html#opqua.internal.vector.Vector.infectHost">[docs]</a>
+    <span class="k">def</span> <span class="nf">infectHost</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Infect given host with a sample of this vector&#39;s pathogens.</span>
+
+<span class="sd">        Each pathogen in the infector is sampled as present or absent in the</span>
+<span class="sd">        inoculum by drawing from a Poisson distribution with a mean equal to the</span>
+<span class="sd">        mean inoculum size of the organism being infected weighted by each</span>
+<span class="sd">        genome&#39;s fitness as a fraction of the total in the infector as the</span>
+<span class="sd">        probability of each trial (minimum 1 pathogen transfered). Each pathogen</span>
+<span class="sd">        present in the inoculum will be added to the infected organism, if it</span>
+<span class="sd">        does not have protection from the pathogen&#39;s genome. Fitnesses are</span>
+<span class="sd">        computed for the pathogens&#39; genomes in the infected organism, and the</span>
+<span class="sd">        organism is included in the poplation&#39;s infected list if appropriate.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            vector (Vector object): the vector to be infected.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Boolean indicating whether or not the model has changed state.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">changed</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="n">genomes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">pathogens</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="p">)</span>
+        <span class="n">fitness_weights</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pathogens</span><span class="p">[</span><span class="n">g</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">sum_fitness</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">genomes</span>
+            <span class="p">]</span>
+
+        <span class="n">genomes_inoculated</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span>
+            <span class="n">genomes</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">fitness_weights</span><span class="p">,</span>
+            <span class="n">size</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">poisson</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">mean_inoculum_host</span> <span class="p">),</span> <span class="mi">1</span>
+                <span class="p">)</span>
+            <span class="p">)</span> <span class="p">)</span>
+        <span class="k">for</span> <span class="n">genome</span> <span class="ow">in</span> <span class="n">genomes_inoculated</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">genome</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">host</span><span class="o">.</span><span class="n">pathogens</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span>
+                    <span class="p">[</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">genome</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">host</span><span class="o">.</span><span class="n">protection_sequences</span> <span class="p">]</span>
+                    <span class="p">):</span>
+                <span class="n">host</span><span class="o">.</span><span class="n">acquirePathogen</span><span class="p">(</span><span class="n">genome</span><span class="p">)</span>
+                <span class="n">changed</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">return</span> <span class="n">changed</span></div>
+
+
+<div class="viewcode-block" id="Vector.infectVector">
+<a class="viewcode-back" href="../../../opqua.internal.html#opqua.internal.vector.Vector.infectVector">[docs]</a>
+    <span class="k">def</span> <span class="nf">infectVector</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vector</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Infect given host with a sample of this vector&#39;s pathogens.</span>
+
+<span class="sd">        Each pathogen in the infector is sampled as present or absent in the</span>
+<span class="sd">        inoculum by drawing from a Poisson distribution with a mean equal to the</span>
+<span class="sd">        mean inoculum size of the organism being infected weighted by each</span>
+<span class="sd">        genome&#39;s fitness as a fraction of the total in the infector as the</span>
+<span class="sd">        probability of each trial (minimum 1 pathogen transfered). Each pathogen</span>
+<span class="sd">        present in the inoculum will be added to the infected organism, if it</span>
+<span class="sd">        does not have protection from the pathogen&#39;s genome. Fitnesses are</span>
+<span class="sd">        computed for the pathogens&#39; genomes in the infected organism, and the</span>
+<span class="sd">        organism is included in the poplation&#39;s infected list if appropriate.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            vector (Vector object): the vector to be infected.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Boolean indicating whether or not the model has changed state.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">changed</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="n">genomes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">pathogens</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="p">)</span>
+        <span class="n">fitness_weights</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pathogens</span><span class="p">[</span><span class="n">g</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">sum_fitness</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">genomes</span>
+            <span class="p">]</span>
+
+        <span class="n">genomes_inoculated</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span>
+            <span class="n">genomes</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">fitness_weights</span><span class="p">,</span>
+            <span class="n">size</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">poisson</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">mean_inoculum_vector</span> <span class="p">),</span> <span class="mi">1</span>
+                <span class="p">)</span>
+            <span class="p">)</span> <span class="p">)</span>
+        <span class="k">for</span> <span class="n">genome</span> <span class="ow">in</span> <span class="n">genomes_inoculated</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">genome</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">vector</span><span class="o">.</span><span class="n">pathogens</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span>
+                    <span class="p">[</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">genome</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">vector</span><span class="o">.</span><span class="n">protection_sequences</span> <span class="p">]</span>
+                    <span class="p">):</span>
+                <span class="n">vector</span><span class="o">.</span><span class="n">acquirePathogen</span><span class="p">(</span><span class="n">genome</span><span class="p">)</span>
+                <span class="n">changed</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">return</span> <span class="n">changed</span></div>
+
+
+<div class="viewcode-block" id="Vector.recover">
+<a class="viewcode-back" href="../../../opqua.internal.html#opqua.internal.vector.Vector.recover">[docs]</a>
+    <span class="k">def</span> <span class="nf">recover</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove all infections from this vector.</span>
+
+<span class="sd">        If model is protecting upon recovery, add protection sequence as defined</span>
+<span class="sd">        by the indexes in the corresponding model parameter. Remove from</span>
+<span class="sd">        population infected list and add to healthy list.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">infected_vectors</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">protection_upon_recovery_vector</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">genome</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pathogens</span><span class="p">:</span>
+                    <span class="n">seq</span> <span class="o">=</span> <span class="n">genome</span><span class="p">[</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">protection_upon_recovery_vector</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                        <span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">protection_upon_recovery_vector</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                        <span class="p">]</span>
+                    <span class="k">if</span> <span class="n">seq</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">protection_sequences</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">protection_sequences</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">pathogens</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sum_fitness</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">coefficients_vectors</span><span class="p">[</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">coefficient_index</span><span class="p">,:</span>
+                <span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">healthyCoefficientRow</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">infected_vectors</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Vector.die">
+<a class="viewcode-back" href="../../../opqua.internal.html#opqua.internal.vector.Vector.die">[docs]</a>
+    <span class="k">def</span> <span class="nf">die</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add vector to population&#39;s dead list, remove it from alive ones.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">infected_vectors</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">infected_vectors</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">vectors</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">coefficient_index</span><span class="p">:]:</span>
+            <span class="n">v</span><span class="o">.</span><span class="n">coefficient_index</span> <span class="o">-=</span> <span class="mi">1</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">coefficients_vectors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">coefficients_vectors</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">coefficient_index</span><span class="p">,</span> <span class="mi">0</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">vectors</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Vector.birth">
+<a class="viewcode-back" href="../../../opqua.internal.html#opqua.internal.vector.Vector.birth">[docs]</a>
+    <span class="k">def</span> <span class="nf">birth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rand</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add vector to population based on this vector.&quot;&quot;&quot;</span>
+
+        <span class="n">vector_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">addVectors</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">vector</span> <span class="o">=</span> <span class="n">vector_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">vertical_transmission_vector</span> <span class="o">&gt;</span> <span class="n">rand</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">infectVector</span><span class="p">(</span><span class="n">vector</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">inherit_protection_vector</span> <span class="o">&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">():</span>
+            <span class="n">vector</span><span class="o">.</span><span class="n">protection_sequences</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">protection_sequences</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Vector.applyTreatment">
+<a class="viewcode-back" href="../../../opqua.internal.html#opqua.internal.vector.Vector.applyTreatment">[docs]</a>
+    <span class="k">def</span> <span class="nf">applyTreatment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resistance_seqs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove all infections with genotypes susceptible to given treatment.</span>
+
+<span class="sd">        Pathogens are removed if they are missing at least one of the sequences</span>
+<span class="sd">        in resistance_seqs from their genome. Removes this organism from</span>
+<span class="sd">        population infected list and adds to healthy list if appropriate.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            resistance_seqs (list of Strings): contains sequences required for treatment resistance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">genomes_remaining</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">genome</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pathogens</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">seq</span> <span class="ow">in</span> <span class="n">resistance_seqs</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">seq</span> <span class="ow">in</span> <span class="n">genome</span><span class="p">:</span>
+                    <span class="n">genomes_remaining</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">genome</span><span class="p">)</span>
+                    <span class="k">break</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">genomes_remaining</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">recover</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pathogens</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sum_fitness</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">coefficients_vectors</span><span class="p">[</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">coefficient_index</span><span class="p">,:</span>
+                <span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">healthyCoefficientRow</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">genome</span> <span class="ow">in</span> <span class="n">genomes_remaining</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">acquirePathogen</span><span class="p">(</span><span class="n">genome</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Vector.mutate">
+<a class="viewcode-back" href="../../../opqua.internal.html#opqua.internal.vector.Vector.mutate">[docs]</a>
+    <span class="k">def</span> <span class="nf">mutate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">rand</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Mutate a single, random locus in a random pathogen.</span>
+
+<span class="sd">        Creates a new genotype from a de novo mutation event.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">genomes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">pathogens</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="p">)</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">mutationVector</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+            <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">fitnessVector</span><span class="p">(</span><span class="n">g</span><span class="p">)</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">genomes</span>
+            <span class="p">]</span>
+        <span class="n">index_genome</span><span class="p">,</span><span class="n">rand</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getWeightedRandomGenome</span><span class="p">(</span> <span class="n">rand</span><span class="p">,</span><span class="n">weights</span> <span class="p">)</span>
+
+        <span class="n">old_genome</span> <span class="o">=</span> <span class="n">genomes</span><span class="p">[</span><span class="n">index_genome</span><span class="p">]</span>
+        <span class="n">mut_index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span> <span class="n">rand</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">num_loci</span> <span class="p">)</span>
+        <span class="k">if</span> <span class="n">old_genome</span><span class="p">[</span><span class="n">mut_index</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">CHROMOSOME_SEPARATOR</span><span class="p">:</span>
+            <span class="n">new_genome</span> <span class="o">=</span> <span class="n">old_genome</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">mut_index</span><span class="p">]</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span>
+                <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">possible_alleles</span><span class="p">[</span><span class="n">mut_index</span><span class="p">])</span>
+                <span class="p">)</span> <span class="o">+</span> <span class="n">old_genome</span><span class="p">[</span><span class="n">mut_index</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="k">if</span> <span class="n">new_genome</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pathogens</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">acquirePathogen</span><span class="p">(</span><span class="n">new_genome</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">new_genome</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">global_trackers</span><span class="p">[</span><span class="s1">&#39;genomes_seen&#39;</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">global_trackers</span><span class="p">[</span><span class="s1">&#39;genomes_seen&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_genome</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Vector.recombine">
+<a class="viewcode-back" href="../../../opqua.internal.html#opqua.internal.vector.Vector.recombine">[docs]</a>
+    <span class="k">def</span> <span class="nf">recombine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">rand</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Recombine two random pathogen genomes at random locus.</span>
+
+<span class="sd">        Creates a new genotype from two random possible pathogens.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">genomes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">pathogens</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="p">)</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">recombinationVector</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+            <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">fitnessVector</span><span class="p">(</span><span class="n">g</span><span class="p">)</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">genomes</span>
+            <span class="p">]</span>
+        <span class="n">index_genome</span><span class="p">,</span><span class="n">rand</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getWeightedRandomGenome</span><span class="p">(</span> <span class="n">rand</span><span class="p">,</span><span class="n">weights</span> <span class="p">)</span>
+        <span class="n">index_other_genome</span><span class="p">,</span><span class="n">rand</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getWeightedRandomGenome</span><span class="p">(</span> <span class="n">rand</span><span class="p">,</span><span class="n">weights</span> <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">index_genome</span> <span class="o">!=</span> <span class="n">index_other_genome</span><span class="p">:</span>
+            <span class="n">num_evts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">poisson</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">num_crossover_vector</span> <span class="p">)</span>
+            <span class="n">loci</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">num_loci</span><span class="p">,</span> <span class="n">num_evts</span> <span class="p">)</span>
+
+            <span class="n">children</span> <span class="o">=</span> <span class="p">[</span> <span class="n">genomes</span><span class="p">[</span><span class="n">index_genome</span><span class="p">],</span> <span class="n">genomes</span><span class="p">[</span><span class="n">index_other_genome</span><span class="p">]</span> <span class="p">]</span>
+
+            <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">loci</span><span class="p">:</span>
+                <span class="n">temp_child_0</span> <span class="o">=</span> <span class="n">children</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">children</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">children</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="n">l</span><span class="p">]</span> <span class="o">+</span> <span class="n">children</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">l</span><span class="p">:]</span>
+                <span class="n">children</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">children</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="n">l</span><span class="p">]</span> <span class="o">+</span> <span class="n">temp_child_0</span><span class="p">[</span><span class="n">l</span><span class="p">:]</span>
+
+            <span class="n">children</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">genome</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">CHROMOSOME_SEPARATOR</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">genome</span> <span class="ow">in</span> <span class="n">children</span>
+                <span class="p">]</span>
+            <span class="n">parent</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span> <span class="n">children</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">)</span> <span class="p">)</span>
+
+            <span class="n">children</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">CHROMOSOME_SEPARATOR</span><span class="o">.</span><span class="n">join</span><span class="p">([</span>
+                    <span class="n">children</span><span class="p">[</span> <span class="n">parent</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="p">][</span><span class="n">i</span><span class="p">]</span>
+                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span> <span class="nb">len</span><span class="p">(</span> <span class="n">children</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">)</span> <span class="p">)</span>
+                    <span class="p">]),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">CHROMOSOME_SEPARATOR</span><span class="o">.</span><span class="n">join</span><span class="p">([</span>
+                    <span class="n">children</span><span class="p">[</span> <span class="ow">not</span> <span class="n">parent</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="p">][</span><span class="n">i</span><span class="p">]</span>
+                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span> <span class="nb">len</span><span class="p">(</span> <span class="n">children</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="p">)</span> <span class="p">)</span>
+                    <span class="p">])</span>
+                <span class="p">]</span>
+
+            <span class="k">for</span> <span class="n">new_genome</span> <span class="ow">in</span> <span class="n">children</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">new_genome</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pathogens</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">acquirePathogen</span><span class="p">(</span><span class="n">new_genome</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">new_genome</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">global_trackers</span><span class="p">[</span><span class="s1">&#39;genomes_seen&#39;</span><span class="p">]:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">global_trackers</span><span class="p">[</span><span class="s1">&#39;genomes_seen&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_genome</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Vector.getWeightedRandomGenome">
+<a class="viewcode-back" href="../../../opqua.internal.html#opqua.internal.vector.Vector.getWeightedRandomGenome">[docs]</a>
+    <span class="k">def</span> <span class="nf">getWeightedRandomGenome</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rand</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns index of element chosen from weights and given random number.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            rand (number): 0-1 random number.</span>
+<span class="sd">            r (numpy array): array with weights.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            new 0-1 random number.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">r_tot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span> <span class="n">r</span> <span class="p">)</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="n">rand</span> <span class="o">*</span> <span class="n">r_tot</span> <span class="c1"># random uniform number between 0 and total rate</span>
+        <span class="n">r_cum</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">e</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">r</span><span class="p">):</span> <span class="c1"># for every possible event,</span>
+            <span class="n">r_cum</span> <span class="o">+=</span> <span class="n">e</span> <span class="c1"># add this event&#39;s rate to cumulative rate</span>
+            <span class="k">if</span> <span class="n">u</span> <span class="o">&lt;</span> <span class="n">r_cum</span><span class="p">:</span> <span class="c1"># if random number is under cumulative rate</span>
+                <span class="k">return</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span> <span class="p">(</span> <span class="n">u</span> <span class="o">-</span> <span class="n">r_cum</span> <span class="o">+</span> <span class="n">e</span> <span class="p">)</span> <span class="o">/</span> <span class="n">e</span> <span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Pablo Cárdenas.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

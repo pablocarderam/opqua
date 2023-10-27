@@ -9,31 +9,21 @@ class Vector(object):
 
     These can infect hosts, the main entities in the model.
 
-    Methods:
-    copyState -- returns a slimmed-down version of the current vector state
-    acquirePathogen -- adds given genome to this vector's pathogens
-    infectHost -- infects given host with a sample of this vector's pathogens
-    infectVector -- infects given vector with a sample of this vector's pathogens
-    recover -- removes all infections
-    die -- kills this vector
-    birth -- add a new vector to population based on this vector
-    applyTreatment -- removes all infections with genotypes susceptible to given
-        treatment
-    mutate -- mutate a single, random locus in a random pathogen
-    recombine -- recombine two random pathogen genomes at random locus
-    getWeightedRandomGenome -- returns index of element chosen from weights and
-        given random number
+    Attributes:
+        population (Population object): the population this vector belongs to.
+        id (String): unique identifier for this vector within population.
+        slim (Boolean): whether to create a slimmed-down representation of the
+            population for data storage (only ID, host and vector lists). Defaults to False.
     """
 
     def __init__(self, population, id, slim=False):
         """Create a new Vector.
 
         Arguments:
-        population -- the population this vector belongs to (Population)
-        id -- unique identifier for this vector within population (String)
-        slim -- whether to create a slimmed-down representation of the
-            population for data storage (only ID, host and vector lists)
-            (Boolean, default False)
+            population (Population object): the population this vector belongs to.
+            id (String): unique identifier for this vector within population.
+            slim (Boolean): whether to create a slimmed-down representation of the
+                population for data storage (only ID, host and vector lists). Defaults to False.
         """
         super(Vector, self).__init__()
         self.id = id
@@ -59,7 +49,7 @@ class Vector(object):
         """Returns a slimmed-down representation of the current vector state.
 
         Returns:
-        Vector object with current pathogens and protection_sequences.
+            Vector object with current pathogens and protection_sequences.
         """
 
         copy = Vector(None, self.id, slim=True)
@@ -74,10 +64,10 @@ class Vector(object):
         Modifies event coefficient matrix accordingly.
 
         Arguments:
-        genome -- the genome to be added (String)
+            genome (String): the genome to be added.
 
         Returns:
-        whether or not the model has changed state (Boolean)
+            Boolean indicating whether or not the model has changed state.
         """
 
         self.pathogens[genome] = self.population.fitnessVector(genome)
@@ -130,10 +120,10 @@ class Vector(object):
         organism is included in the poplation's infected list if appropriate.
 
         Arguments:
-        vector -- the vector to be infected (Vector)
+            vector (Vector object): the vector to be infected.
 
         Returns:
-        whether or not the model has changed state (Boolean)
+            Boolean indicating whether or not the model has changed state.
         """
 
         changed = False
@@ -172,10 +162,10 @@ class Vector(object):
         organism is included in the poplation's infected list if appropriate.
 
         Arguments:
-        vector -- the vector to be infected (Vector)
+            vector (Vector object): the vector to be infected.
 
         Returns:
-        whether or not the model has changed state (Boolean)
+            Boolean indicating whether or not the model has changed state.
         """
 
         changed = False
@@ -260,8 +250,7 @@ class Vector(object):
         population infected list and adds to healthy list if appropriate.
 
         Arguments:
-        resistance_seqs -- contains sequences required for treatment resistance
-            (list of Strings)
+            resistance_seqs (list of Strings): contains sequences required for treatment resistance.
         """
 
         genomes_remaining = []
@@ -360,11 +349,11 @@ class Vector(object):
         """Returns index of element chosen from weights and given random number.
 
         Arguments:
-        rand -- 0-1 random number (number)
-        r -- array with weights (numpy vector)
+            rand (number): 0-1 random number.
+            r (numpy array): array with weights.
 
         Returns:
-        new 0-1 random number (number)
+            new 0-1 random number.
         """
 
         r_tot = np.sum( r )

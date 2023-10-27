@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>opqua.internal.gillespie &mdash; Opqua 1.0.2 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=1ed6394b"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Opqua
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../about.html">About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../requirements_and_installation.html">Requirements and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../model_documentation.html"><code class="docutils literal notranslate"><span class="pre">Model</span></code> Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../API.html">API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Opqua</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">opqua.internal.gillespie</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for opqua.internal.gillespie</h1><div class="highlight"><pre>
+<span></span>
+<span class="sd">&quot;&quot;&quot;Contains class Population.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">copy</span> <span class="k">as</span> <span class="nn">cp</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">joblib</span> <span class="k">as</span> <span class="nn">jl</span>
+
+<span class="kn">from</span> <span class="nn">opqua.model</span> <span class="kn">import</span> <span class="o">*</span>
+
+<div class="viewcode-block" id="Gillespie">
+<a class="viewcode-back" href="../../../opqua.internal.html#opqua.internal.gillespie.Gillespie">[docs]</a>
+<span class="k">class</span> <span class="nc">Gillespie</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class contains methods for simulating model with Gillespie algorithm.</span>
+
+<span class="sd">    Class defines a model&#39;s events and methods for changing system state</span>
+<span class="sd">    according to the possible events and simulating a timecourse using the</span>
+<span class="sd">    Gillespie algorithm.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        model (Model object): the model this simulation belongs to.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Event ID constants:</span>
+
+    <span class="n">MIGRATE_HOST</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">MIGRATE_VECTOR</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">POPULATION_CONTACT_HOST_HOST</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">POPULATION_CONTACT_HOST_VECTOR</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">POPULATION_CONTACT_VECTOR_HOST</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">CONTACT_HOST_HOST</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">CONTACT_HOST_VECTOR</span> <span class="o">=</span> <span class="mi">6</span>
+    <span class="n">CONTACT_VECTOR_HOST</span> <span class="o">=</span> <span class="mi">7</span>
+    <span class="n">RECOVER_HOST</span> <span class="o">=</span> <span class="mi">8</span>
+    <span class="n">RECOVER_VECTOR</span> <span class="o">=</span> <span class="mi">9</span>
+    <span class="n">MUTATE_HOST</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="n">MUTATE_VECTOR</span> <span class="o">=</span> <span class="mi">11</span>
+    <span class="n">RECOMBINE_HOST</span> <span class="o">=</span> <span class="mi">12</span>
+    <span class="n">RECOMBINE_VECTOR</span> <span class="o">=</span> <span class="mi">13</span>
+    <span class="n">KILL_HOST</span> <span class="o">=</span> <span class="mi">14</span>
+    <span class="n">KILL_VECTOR</span> <span class="o">=</span> <span class="mi">15</span>
+    <span class="n">DIE_HOST</span> <span class="o">=</span> <span class="mi">16</span>
+    <span class="n">DIE_VECTOR</span> <span class="o">=</span> <span class="mi">17</span>
+    <span class="n">BIRTH_HOST</span> <span class="o">=</span> <span class="mi">18</span>
+    <span class="n">BIRTH_VECTOR</span> <span class="o">=</span> <span class="mi">19</span>
+
+    <span class="n">EVENT_IDS</span> <span class="o">=</span> <span class="p">{</span> <span class="c1"># must match above</span>
+        <span class="mi">0</span><span class="p">:</span><span class="s1">&#39;MIGRATE_HOST&#39;</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">:</span><span class="s1">&#39;MIGRATE_VECTOR&#39;</span><span class="p">,</span>
+        <span class="mi">2</span><span class="p">:</span><span class="s1">&#39;POPULATION_CONTACT_HOST_HOST&#39;</span><span class="p">,</span>
+        <span class="mi">3</span><span class="p">:</span><span class="s1">&#39;POPULATION_CONTACT_HOST_VECTOR&#39;</span><span class="p">,</span>
+        <span class="mi">4</span><span class="p">:</span><span class="s1">&#39;POPULATION_CONTACT_VECTOR_HOST&#39;</span><span class="p">,</span>
+        <span class="mi">5</span><span class="p">:</span><span class="s1">&#39;CONTACT_HOST_HOST&#39;</span><span class="p">,</span>
+        <span class="mi">6</span><span class="p">:</span><span class="s1">&#39;CONTACT_HOST_VECTOR&#39;</span><span class="p">,</span>
+        <span class="mi">7</span><span class="p">:</span><span class="s1">&#39;CONTACT_VECTOR_HOST&#39;</span><span class="p">,</span>
+        <span class="mi">8</span><span class="p">:</span><span class="s1">&#39;RECOVER_HOST&#39;</span><span class="p">,</span>
+        <span class="mi">9</span><span class="p">:</span><span class="s1">&#39;RECOVER_VECTOR&#39;</span><span class="p">,</span>
+        <span class="mi">10</span><span class="p">:</span><span class="s1">&#39;MUTATE_HOST&#39;</span><span class="p">,</span>
+        <span class="mi">11</span><span class="p">:</span><span class="s1">&#39;MUTATE_VECTOR&#39;</span><span class="p">,</span>
+        <span class="mi">12</span><span class="p">:</span><span class="s1">&#39;RECOMBINE_HOST&#39;</span><span class="p">,</span>
+        <span class="mi">13</span><span class="p">:</span><span class="s1">&#39;RECOMBINE_VECTOR&#39;</span><span class="p">,</span>
+        <span class="mi">14</span><span class="p">:</span><span class="s1">&#39;KILL_HOST&#39;</span><span class="p">,</span>
+        <span class="mi">15</span><span class="p">:</span><span class="s1">&#39;KILL_VECTOR&#39;</span><span class="p">,</span>
+        <span class="mi">16</span><span class="p">:</span><span class="s1">&#39;DIE_HOST&#39;</span><span class="p">,</span>
+        <span class="mi">17</span><span class="p">:</span><span class="s1">&#39;DIE_VECTOR&#39;</span><span class="p">,</span>
+        <span class="mi">18</span><span class="p">:</span><span class="s1">&#39;BIRTH_HOST&#39;</span><span class="p">,</span>
+        <span class="mi">19</span><span class="p">:</span><span class="s1">&#39;BIRTH_VECTOR&#39;</span>
+        <span class="p">}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a new Gillespie simulation object.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            model (Model object): the model this simulation belongs to.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">Gillespie</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span> <span class="c1"># initialize as parent class object</span>
+
+        <span class="c1"># Event IDs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">evt_IDs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">MIGRATE_HOST</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">MIGRATE_VECTOR</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">POPULATION_CONTACT_HOST_HOST</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">POPULATION_CONTACT_HOST_VECTOR</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">POPULATION_CONTACT_VECTOR_HOST</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">CONTACT_HOST_HOST</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONTACT_HOST_VECTOR</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">CONTACT_VECTOR_HOST</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">RECOVER_HOST</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">RECOVER_VECTOR</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">MUTATE_HOST</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">MUTATE_VECTOR</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">RECOMBINE_HOST</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">RECOMBINE_VECTOR</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">KILL_HOST</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">KILL_VECTOR</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">DIE_HOST</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">DIE_VECTOR</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">BIRTH_HOST</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">BIRTH_VECTOR</span>
+            <span class="p">]</span>
+            <span class="c1"># event IDs in specific order to be used</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_population_contact_rate_host</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_population_contact_rate_vector</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+
+<div class="viewcode-block" id="Gillespie.getRates">
+<a class="viewcode-back" href="../../../opqua.internal.html#opqua.internal.gillespie.Gillespie.getRates">[docs]</a>
+    <span class="k">def</span> <span class="nf">getRates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">population_ids</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Wrapper for calculating event rates as per current system state.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            population_ids (list of Strings): list with IDs for every population in the model.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Matrix with rates as values for events (rows) and populations (columns).</span>
+<span class="sd">            Populations in order given in argument.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">rates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span> <span class="p">[</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">evt_IDs</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">population_ids</span><span class="p">)</span> <span class="p">]</span> <span class="p">)</span>
+            <span class="c1"># rate array size of event space</span>
+
+        <span class="c1"># Contact rates assume scaling area: large populations are equally</span>
+        <span class="c1"># dense as small ones, so contact is constant with both host and</span>
+        <span class="c1"># vector populations. If you don&#39;t want this to happen, modify each</span>
+        <span class="c1"># population&#39;s base contact rate accordingly.</span>
+
+        <span class="c1"># Now for each population...</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="nb">id</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">population_ids</span><span class="p">):</span>
+            <span class="c1"># Calculate the rates:</span>
+            <span class="n">rates</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">MIGRATE_HOST</span><span class="p">,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">total_migration_rate_hosts</span>
+                <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">coefficients_hosts</span><span class="p">[</span>
+                    <span class="p">:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">MIGRATION</span>
+                    <span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+                <span class="p">)</span>
+
+            <span class="n">rates</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">MIGRATE_VECTOR</span><span class="p">,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">total_migration_rate_vectors</span>
+                <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">coefficients_vectors</span><span class="p">[</span>
+                    <span class="p">:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">MIGRATION</span>
+                    <span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+                <span class="p">)</span>
+
+            <span class="n">rates</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">POPULATION_CONTACT_HOST_HOST</span><span class="p">,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span> <span class="nb">list</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">neighbors_contact_hosts_hosts</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+                    <span class="p">)</span> <span class="p">])</span>
+                <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">coefficients_hosts</span><span class="p">[</span>
+                        <span class="p">:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">POPULATION_CONTACT</span>
+                        <span class="p">],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">coefficients_hosts</span><span class="p">[</span>
+                        <span class="p">:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">INFECTED</span>
+                        <span class="p">]</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span> <span class="nb">len</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">hosts</span> <span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span>
+                    <span class="n">neighbor</span><span class="o">.</span><span class="n">neighbors_contact_hosts_hosts</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]]</span>
+                    <span class="o">*</span> <span class="n">neighbor</span><span class="o">.</span><span class="n">coefficients_hosts</span><span class="p">[</span>
+                        <span class="p">:,</span> <span class="n">neighbor</span><span class="o">.</span><span class="n">RECEIVE_POPULATION_CONTACT</span>
+                        <span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+                    <span class="k">for</span> <span class="n">neighbor</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">neighbors_contact_hosts_hosts</span>
+                    <span class="p">])</span>
+                <span class="p">)</span>
+
+            <span class="n">rates</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">POPULATION_CONTACT_HOST_VECTOR</span><span class="p">,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span> <span class="nb">list</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">neighbors_contact_hosts_vectors</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+                    <span class="p">)</span> <span class="p">])</span>
+                <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">coefficients_hosts</span><span class="p">[</span>
+                        <span class="p">:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">POPULATION_CONTACT</span>
+                        <span class="p">],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">coefficients_hosts</span><span class="p">[</span>
+                        <span class="p">:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">INFECTED</span>
+                        <span class="p">]</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span> <span class="nb">len</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">hosts</span> <span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span>
+                    <span class="n">neighbor</span><span class="o">.</span><span class="n">neighbors_contact_vectors_hosts</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]]</span>
+                    <span class="o">*</span> <span class="n">neighbor</span><span class="o">.</span><span class="n">coefficients_vectors</span><span class="p">[</span>
+                        <span class="p">:,</span> <span class="n">neighbor</span><span class="o">.</span><span class="n">RECEIVE_POPULATION_CONTACT</span>
+                        <span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+                    <span class="k">for</span> <span class="n">neighbor</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">neighbors_contact_hosts_vectors</span>
+                    <span class="p">])</span>
+                <span class="p">)</span>
+
+            <span class="n">rates</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">POPULATION_CONTACT_VECTOR_HOST</span><span class="p">,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span> <span class="nb">list</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">neighbors_contact_vectors_hosts</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+                    <span class="p">)</span> <span class="p">])</span>
+                <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">coefficients_vectors</span><span class="p">[</span>
+                        <span class="p">:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">POPULATION_CONTACT</span>
+                        <span class="p">],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">coefficients_vectors</span><span class="p">[</span>
+                        <span class="p">:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">INFECTED</span>
+                        <span class="p">]</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+                <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span>
+                    <span class="n">neighbor</span><span class="o">.</span><span class="n">neighbors_contact_hosts_vectors</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]]</span>
+                    <span class="o">*</span> <span class="n">neighbor</span><span class="o">.</span><span class="n">coefficients_hosts</span><span class="p">[</span>
+                        <span class="p">:,</span> <span class="n">neighbor</span><span class="o">.</span><span class="n">RECEIVE_POPULATION_CONTACT</span>
+                        <span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span> <span class="nb">len</span><span class="p">(</span> <span class="n">neighbor</span><span class="o">.</span><span class="n">hosts</span> <span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">neighbor</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">neighbors_contact_vectors_hosts</span>
+                    <span class="p">])</span>
+                <span class="p">)</span>
+
+            <span class="n">rates</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">CONTACT_HOST_HOST</span><span class="p">,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">contact_rate_host_host</span>
+                <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">coefficients_hosts</span><span class="p">[</span>
+                        <span class="p">:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">CONTACT</span>
+                        <span class="p">],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">coefficients_hosts</span><span class="p">[</span>
+                        <span class="p">:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">INFECTED</span>
+                        <span class="p">]</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+                <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">transmission_efficiency_host_host</span>
+                <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">coefficients_hosts</span><span class="p">[</span>
+                    <span class="p">:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">RECEIVE_CONTACT</span>
+                    <span class="p">]</span> <span class="p">)</span>
+                <span class="o">/</span> <span class="nb">max</span><span class="p">(</span> <span class="nb">len</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">hosts</span> <span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="p">)</span>
+
+            <span class="n">rates</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">CONTACT_HOST_VECTOR</span><span class="p">,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">contact_rate_host_vector</span>
+                <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">coefficients_hosts</span><span class="p">[</span>
+                        <span class="p">:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">CONTACT</span>
+                        <span class="p">],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">coefficients_hosts</span><span class="p">[</span>
+                        <span class="p">:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">INFECTED</span>
+                        <span class="p">]</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+                <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">transmission_efficiency_host_vector</span>
+                <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">coefficients_vectors</span><span class="p">[</span>
+                    <span class="p">:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">RECEIVE_CONTACT</span>
+                    <span class="p">]</span> <span class="p">)</span>
+                <span class="o">/</span> <span class="nb">max</span><span class="p">(</span> <span class="nb">len</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">hosts</span> <span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="p">)</span>
+
+            <span class="n">rates</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">CONTACT_VECTOR_HOST</span><span class="p">,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">contact_rate_host_vector</span>
+                <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">coefficients_vectors</span><span class="p">[</span>
+                        <span class="p">:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">CONTACT</span>
+                        <span class="p">],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">coefficients_vectors</span><span class="p">[</span>
+                        <span class="p">:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">INFECTED</span>
+                        <span class="p">]</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+                <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">transmission_efficiency_vector_host</span>
+                <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">coefficients_hosts</span><span class="p">[</span>
+                    <span class="p">:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">RECEIVE_CONTACT</span>
+                    <span class="p">])</span>
+                <span class="o">/</span> <span class="nb">max</span><span class="p">(</span> <span class="nb">len</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">hosts</span> <span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="p">)</span>
+
+            <span class="n">rates</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">RECOVER_HOST</span><span class="p">,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">recovery_rate_host</span>
+                <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">coefficients_hosts</span><span class="p">[</span>
+                    <span class="p">:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">RECOVERY</span>
+                    <span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+                <span class="p">)</span>
+
+            <span class="n">rates</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">RECOVER_VECTOR</span><span class="p">,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">recovery_rate_vector</span>
+                <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">coefficients_vectors</span><span class="p">[</span>
+                    <span class="p">:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">RECOVERY</span>
+                    <span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+                <span class="p">)</span>
+
+            <span class="n">rates</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">MUTATE_HOST</span><span class="p">,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">mutate_in_host</span>
+                <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">coefficients_hosts</span><span class="p">[</span>
+                    <span class="p">:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">MUTATION</span>
+                    <span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+                <span class="p">)</span>
+
+            <span class="n">rates</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">MUTATE_VECTOR</span><span class="p">,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">mutate_in_vector</span>
+                <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">coefficients_vectors</span><span class="p">[</span>
+                    <span class="p">:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">MUTATION</span>
+                    <span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+                <span class="p">)</span>
+
+            <span class="n">rates</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">RECOMBINE_HOST</span><span class="p">,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">recombine_in_host</span>
+                <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">coefficients_hosts</span><span class="p">[</span>
+                    <span class="p">:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">RECOMBINATION</span>
+                    <span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+                <span class="p">)</span>
+
+            <span class="n">rates</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">RECOMBINE_VECTOR</span><span class="p">,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">recombine_in_vector</span>
+                <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">coefficients_vectors</span><span class="p">[</span>
+                    <span class="p">:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">RECOMBINATION</span>
+                    <span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+                <span class="p">)</span>
+
+            <span class="n">rates</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">KILL_HOST</span><span class="p">,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">mortality_rate_host</span>
+                <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">coefficients_hosts</span><span class="p">[</span>
+                    <span class="p">:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">LETHALITY</span>
+                    <span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+                <span class="p">)</span>
+
+            <span class="n">rates</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">KILL_VECTOR</span><span class="p">,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">mortality_rate_vector</span>
+                <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">coefficients_vectors</span><span class="p">[</span>
+                    <span class="p">:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">LETHALITY</span>
+                    <span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+                <span class="p">)</span>
+
+            <span class="n">rates</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">DIE_HOST</span><span class="p">,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">death_rate_host</span>
+                <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">hosts</span><span class="p">)</span>
+                <span class="p">)</span>
+
+            <span class="n">rates</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">DIE_VECTOR</span><span class="p">,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">death_rate_vector</span>
+                <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">vectors</span><span class="p">)</span>
+                <span class="p">)</span>
+
+            <span class="n">rates</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">BIRTH_HOST</span><span class="p">,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">birth_rate_host</span>
+                <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">coefficients_hosts</span><span class="p">[</span>
+                    <span class="p">:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">NATALITY</span>
+                    <span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+                <span class="p">)</span>
+
+            <span class="n">rates</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">BIRTH_VECTOR</span><span class="p">,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">birth_rate_vector</span>
+                <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">coefficients_vectors</span><span class="p">[</span>
+                    <span class="p">:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">NATALITY</span>
+                    <span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+                <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">rates</span></div>
+
+
+<div class="viewcode-block" id="Gillespie.doAction">
+<a class="viewcode-back" href="../../../opqua.internal.html#opqua.internal.gillespie.Gillespie.doAction">[docs]</a>
+    <span class="k">def</span> <span class="nf">doAction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">act</span><span class="p">,</span><span class="n">pop</span><span class="p">,</span><span class="n">rand</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Change system state according to act argument passed</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            act (int): defines action to be taken, one of the event ID constants.</span>
+<span class="sd">            pop (Population object): where the population action will happen in.</span>
+<span class="sd">            rand (number 0-1): random number used to define event.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Boolean indicationg whether or not the model has changed state.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">changed</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="n">act</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">MIGRATE_HOST</span><span class="p">:</span>
+            <span class="n">rand</span> <span class="o">=</span> <span class="n">rand</span> <span class="o">*</span> <span class="n">pop</span><span class="o">.</span><span class="n">total_migration_rate_hosts</span>
+            <span class="n">r_cum</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">neighbor</span> <span class="ow">in</span> <span class="n">pop</span><span class="o">.</span><span class="n">neighbors_hosts</span><span class="p">:</span>
+                <span class="n">r_cum</span> <span class="o">+=</span> <span class="n">pop</span><span class="o">.</span><span class="n">neighbors_hosts</span><span class="p">[</span><span class="n">neighbor</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">r_cum</span> <span class="o">&gt;</span> <span class="n">rand</span><span class="p">:</span>
+                    <span class="n">pop</span><span class="o">.</span><span class="n">migrate</span><span class="p">(</span><span class="n">neighbor</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span> <span class="n">rand</span><span class="o">=</span><span class="p">(</span>
+                        <span class="p">(</span> <span class="n">rand</span> <span class="o">-</span> <span class="n">r_cum</span> <span class="o">+</span> <span class="n">pop</span><span class="o">.</span><span class="n">neighbors_hosts</span><span class="p">[</span><span class="n">neighbor</span><span class="p">]</span> <span class="p">)</span>
+                        <span class="o">/</span> <span class="n">pop</span><span class="o">.</span><span class="n">neighbors_hosts</span><span class="p">[</span><span class="n">neighbor</span><span class="p">]</span> <span class="p">)</span> <span class="p">)</span>
+                    <span class="n">changed</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">break</span>
+
+        <span class="k">elif</span> <span class="n">act</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">MIGRATE_VECTOR</span><span class="p">:</span>
+            <span class="n">rand</span> <span class="o">=</span> <span class="n">rand</span> <span class="o">*</span> <span class="n">pop</span><span class="o">.</span><span class="n">total_migration_rate_vectors</span>
+            <span class="n">r_cum</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">neighbor</span> <span class="ow">in</span> <span class="n">pop</span><span class="o">.</span><span class="n">neighbors_vectors</span><span class="p">:</span>
+                <span class="n">r_cum</span> <span class="o">+=</span> <span class="n">pop</span><span class="o">.</span><span class="n">neighbors_vectors</span><span class="p">[</span><span class="n">neighbor</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">r_cum</span> <span class="o">&gt;</span> <span class="n">rand</span><span class="p">:</span>
+                    <span class="n">pop</span><span class="o">.</span><span class="n">migrate</span><span class="p">(</span><span class="n">neighbor</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span> <span class="n">rand</span><span class="o">=</span><span class="p">(</span>
+                        <span class="p">(</span> <span class="n">rand</span> <span class="o">-</span> <span class="n">r_cum</span> <span class="o">+</span> <span class="n">pop</span><span class="o">.</span><span class="n">neighbors_vectors</span><span class="p">[</span><span class="n">neighbor</span><span class="p">]</span> <span class="p">)</span>
+                        <span class="o">/</span> <span class="n">pop</span><span class="o">.</span><span class="n">neighbors_vectors</span><span class="p">[</span><span class="n">neighbor</span><span class="p">]</span> <span class="p">)</span> <span class="p">)</span>
+                    <span class="n">changed</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">break</span>
+
+        <span class="k">elif</span> <span class="n">act</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">POPULATION_CONTACT_HOST_HOST</span><span class="p">:</span>
+            <span class="n">neighbors</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span> <span class="n">pop</span><span class="o">.</span><span class="n">neighbors_contact_hosts_hosts</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="p">)</span>
+            <span class="n">neighbor_rates</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">pop</span><span class="o">.</span><span class="n">neighbors_contact_hosts_hosts</span><span class="p">[</span><span class="n">neighbor</span><span class="p">]</span>
+                <span class="o">*</span> <span class="n">neighbor</span><span class="o">.</span><span class="n">neighbors_contact_hosts_hosts</span><span class="p">[</span><span class="n">pop</span><span class="p">]</span>
+                <span class="o">*</span> <span class="n">neighbor</span><span class="o">.</span><span class="n">coefficients_hosts</span><span class="p">[</span>
+                    <span class="p">:,</span> <span class="n">neighbor</span><span class="o">.</span><span class="n">RECEIVE_POPULATION_CONTACT</span>
+                    <span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+                <span class="o">/</span> <span class="nb">max</span><span class="p">(</span> <span class="nb">len</span><span class="p">(</span> <span class="n">pop</span><span class="o">.</span><span class="n">hosts</span> <span class="p">),</span> <span class="mi">1</span><span class="p">)</span> <span class="c1"># technically unnecessary</span>
+                <span class="k">for</span> <span class="n">neighbor</span> <span class="ow">in</span> <span class="n">neighbors</span>
+                <span class="p">]</span>
+            <span class="n">rand</span> <span class="o">=</span> <span class="n">rand</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">neighbor_rates</span><span class="p">)</span>
+            <span class="n">r_cum</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">neighbor_i</span><span class="p">,</span><span class="n">neighbor_r</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">neighbor_rates</span><span class="p">):</span>
+                <span class="n">r_cum</span> <span class="o">+=</span> <span class="n">neighbor_r</span>
+                <span class="k">if</span> <span class="n">r_cum</span> <span class="o">&gt;</span> <span class="n">rand</span><span class="p">:</span>
+                    <span class="n">changed</span> <span class="o">=</span> <span class="n">pop</span><span class="o">.</span><span class="n">populationContact</span><span class="p">(</span>
+                        <span class="n">neighbors</span><span class="p">[</span><span class="n">neighbor_i</span><span class="p">],</span>
+                        <span class="p">(</span> <span class="n">rand</span> <span class="o">-</span> <span class="n">r_cum</span> <span class="o">+</span> <span class="n">neighbor_r</span> <span class="p">)</span> <span class="o">/</span> <span class="n">neighbor_r</span><span class="p">,</span>
+                        <span class="n">host_origin</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">host_target</span><span class="o">=</span><span class="kc">True</span>
+                        <span class="p">)</span>
+                    <span class="k">break</span>
+
+        <span class="k">elif</span> <span class="n">act</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">POPULATION_CONTACT_HOST_VECTOR</span><span class="p">:</span>
+            <span class="n">neighbors</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span> <span class="n">pop</span><span class="o">.</span><span class="n">neighbors_contact_hosts_vectors</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="p">)</span>
+            <span class="n">neighbor_rates</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">pop</span><span class="o">.</span><span class="n">neighbors_contact_hosts_vectors</span><span class="p">[</span><span class="n">neighbor</span><span class="p">]</span>
+                <span class="o">*</span> <span class="n">neighbor</span><span class="o">.</span><span class="n">neighbors_contact_vectors_hosts</span><span class="p">[</span><span class="n">pop</span><span class="p">]</span>
+                <span class="o">*</span> <span class="n">neighbor</span><span class="o">.</span><span class="n">coefficients_vectors</span><span class="p">[</span>
+                    <span class="p">:,</span> <span class="n">neighbor</span><span class="o">.</span><span class="n">RECEIVE_POPULATION_CONTACT</span>
+                    <span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+                <span class="o">/</span> <span class="nb">max</span><span class="p">(</span> <span class="nb">len</span><span class="p">(</span> <span class="n">pop</span><span class="o">.</span><span class="n">hosts</span> <span class="p">),</span> <span class="mi">1</span><span class="p">)</span> <span class="c1"># technically unnecessary</span>
+                <span class="k">for</span> <span class="n">neighbor</span> <span class="ow">in</span> <span class="n">neighbors</span>
+                <span class="p">]</span>
+            <span class="n">rand</span> <span class="o">=</span> <span class="n">rand</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">neighbor_rates</span><span class="p">)</span>
+            <span class="n">r_cum</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">neighbor_i</span><span class="p">,</span><span class="n">neighbor_r</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">neighbor_rates</span><span class="p">):</span>
+                <span class="n">r_cum</span> <span class="o">+=</span> <span class="n">neighbor_r</span>
+                <span class="k">if</span> <span class="n">r_cum</span> <span class="o">&gt;</span> <span class="n">rand</span><span class="p">:</span>
+                    <span class="n">changed</span> <span class="o">=</span> <span class="n">pop</span><span class="o">.</span><span class="n">populationContact</span><span class="p">(</span>
+                        <span class="n">neighbors</span><span class="p">[</span><span class="n">neighbor_i</span><span class="p">],</span>
+                        <span class="p">(</span> <span class="n">rand</span> <span class="o">-</span> <span class="n">r_cum</span> <span class="o">+</span> <span class="n">neighbor_r</span> <span class="p">)</span> <span class="o">/</span> <span class="n">neighbor_r</span><span class="p">,</span>
+                        <span class="n">host_origin</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">host_target</span><span class="o">=</span><span class="kc">False</span>
+                        <span class="p">)</span>
+                    <span class="k">break</span>
+
+        <span class="k">elif</span> <span class="n">act</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">POPULATION_CONTACT_VECTOR_HOST</span><span class="p">:</span>
+            <span class="n">neighbors</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span> <span class="n">pop</span><span class="o">.</span><span class="n">neighbors_contact_vectors_hosts</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="p">)</span>
+            <span class="n">neighbor_rates</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">pop</span><span class="o">.</span><span class="n">neighbors_contact_vectors_hosts</span><span class="p">[</span><span class="n">neighbor</span><span class="p">]</span>
+                <span class="o">*</span> <span class="n">neighbor</span><span class="o">.</span><span class="n">neighbors_contact_hosts_vectors</span><span class="p">[</span><span class="n">pop</span><span class="p">]</span>
+                <span class="o">*</span> <span class="n">neighbor</span><span class="o">.</span><span class="n">coefficients_hosts</span><span class="p">[</span>
+                    <span class="p">:,</span> <span class="n">neighbor</span><span class="o">.</span><span class="n">RECEIVE_POPULATION_CONTACT</span>
+                    <span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+                <span class="o">/</span> <span class="nb">max</span><span class="p">(</span> <span class="nb">len</span><span class="p">(</span> <span class="n">neighbor</span><span class="o">.</span><span class="n">hosts</span> <span class="p">),</span> <span class="mi">1</span><span class="p">)</span> <span class="c1"># necessary!</span>
+                <span class="k">for</span> <span class="n">neighbor</span> <span class="ow">in</span> <span class="n">neighbors</span>
+                <span class="p">]</span>
+            <span class="n">rand</span> <span class="o">=</span> <span class="n">rand</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">neighbor_rates</span><span class="p">)</span>
+            <span class="n">r_cum</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">neighbor_i</span><span class="p">,</span><span class="n">neighbor_r</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">neighbor_rates</span><span class="p">):</span>
+                <span class="n">r_cum</span> <span class="o">+=</span> <span class="n">neighbor_r</span>
+                <span class="k">if</span> <span class="n">r_cum</span> <span class="o">&gt;</span> <span class="n">rand</span><span class="p">:</span>
+                    <span class="n">changed</span> <span class="o">=</span> <span class="n">pop</span><span class="o">.</span><span class="n">populationContact</span><span class="p">(</span>
+                        <span class="n">neighbors</span><span class="p">[</span><span class="n">neighbor_i</span><span class="p">],</span>
+                        <span class="p">(</span> <span class="n">rand</span> <span class="o">-</span> <span class="n">r_cum</span> <span class="o">+</span> <span class="n">neighbor_r</span> <span class="p">)</span> <span class="o">/</span> <span class="n">neighbor_r</span><span class="p">,</span>
+                        <span class="n">host_origin</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">host_target</span><span class="o">=</span><span class="kc">True</span>
+                        <span class="p">)</span>
+                    <span class="k">break</span>
+
+        <span class="k">elif</span> <span class="n">act</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONTACT_HOST_HOST</span><span class="p">:</span>
+            <span class="n">changed</span> <span class="o">=</span> <span class="n">pop</span><span class="o">.</span><span class="n">contactHostHost</span><span class="p">(</span><span class="n">rand</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">act</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONTACT_HOST_VECTOR</span><span class="p">:</span>
+            <span class="n">changed</span> <span class="o">=</span> <span class="n">pop</span><span class="o">.</span><span class="n">contactHostVector</span><span class="p">(</span><span class="n">rand</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">act</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONTACT_VECTOR_HOST</span><span class="p">:</span>
+            <span class="n">changed</span> <span class="o">=</span> <span class="n">pop</span><span class="o">.</span><span class="n">contactVectorHost</span><span class="p">(</span><span class="n">rand</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">act</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">RECOVER_HOST</span><span class="p">:</span>
+            <span class="n">pop</span><span class="o">.</span><span class="n">recoverHost</span><span class="p">(</span><span class="n">rand</span><span class="p">)</span>
+            <span class="n">changed</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">elif</span> <span class="n">act</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">RECOVER_VECTOR</span><span class="p">:</span>
+            <span class="n">pop</span><span class="o">.</span><span class="n">recoverVector</span><span class="p">(</span><span class="n">rand</span><span class="p">)</span>
+            <span class="n">changed</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">elif</span> <span class="n">act</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">MUTATE_HOST</span><span class="p">:</span>
+            <span class="n">pop</span><span class="o">.</span><span class="n">mutateHost</span><span class="p">(</span><span class="n">rand</span><span class="p">)</span>
+            <span class="n">changed</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">elif</span> <span class="n">act</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">MUTATE_VECTOR</span><span class="p">:</span>
+            <span class="n">pop</span><span class="o">.</span><span class="n">mutateVector</span><span class="p">(</span><span class="n">rand</span><span class="p">)</span>
+            <span class="n">changed</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">elif</span> <span class="n">act</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">RECOMBINE_HOST</span><span class="p">:</span>
+            <span class="n">pop</span><span class="o">.</span><span class="n">recombineHost</span><span class="p">(</span><span class="n">rand</span><span class="p">)</span>
+            <span class="n">changed</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">elif</span> <span class="n">act</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">RECOMBINE_VECTOR</span><span class="p">:</span>
+            <span class="n">pop</span><span class="o">.</span><span class="n">recombineVector</span><span class="p">(</span><span class="n">rand</span><span class="p">)</span>
+            <span class="n">changed</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">elif</span> <span class="n">act</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">KILL_HOST</span><span class="p">:</span>
+            <span class="n">pop</span><span class="o">.</span><span class="n">killHost</span><span class="p">(</span><span class="n">rand</span><span class="p">)</span>
+            <span class="n">changed</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">elif</span> <span class="n">act</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">KILL_VECTOR</span><span class="p">:</span>
+            <span class="n">pop</span><span class="o">.</span><span class="n">killVector</span><span class="p">(</span><span class="n">rand</span><span class="p">)</span>
+            <span class="n">changed</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">elif</span> <span class="n">act</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">DIE_HOST</span><span class="p">:</span>
+            <span class="n">pop</span><span class="o">.</span><span class="n">dieHost</span><span class="p">(</span><span class="n">rand</span><span class="p">)</span>
+            <span class="n">changed</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">elif</span> <span class="n">act</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">DIE_VECTOR</span><span class="p">:</span>
+            <span class="n">pop</span><span class="o">.</span><span class="n">dieVector</span><span class="p">(</span><span class="n">rand</span><span class="p">)</span>
+            <span class="n">changed</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">elif</span> <span class="n">act</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">BIRTH_HOST</span><span class="p">:</span>
+            <span class="n">pop</span><span class="o">.</span><span class="n">birthHost</span><span class="p">(</span><span class="n">rand</span><span class="p">)</span>
+            <span class="n">changed</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">elif</span> <span class="n">act</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">BIRTH_VECTOR</span><span class="p">:</span>
+            <span class="n">pop</span><span class="o">.</span><span class="n">birthVector</span><span class="p">(</span><span class="n">rand</span><span class="p">)</span>
+            <span class="n">changed</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">global_trackers</span><span class="p">[</span><span class="s1">&#39;num_events&#39;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">EVENT_IDS</span><span class="p">[</span><span class="n">act</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">return</span> <span class="n">changed</span></div>
+
+
+<div class="viewcode-block" id="Gillespie.run">
+<a class="viewcode-back" href="../../../opqua.internal.html#opqua.internal.gillespie.Gillespie.run">[docs]</a>
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">t0</span><span class="p">,</span><span class="n">tf</span><span class="p">,</span><span class="n">time_sampling</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">host_sampling</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">vector_sampling</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">print_every_n_events</span><span class="o">=</span><span class="mi">1000</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Simulate model for a specified time between two time points.</span>
+
+<span class="sd">        Simulates a time series using the Gillespie algorithm.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            t0 (number): initial time point to start simulation at.</span>
+<span class="sd">            tf (number): initial time point to end simulation at.</span>
+<span class="sd">        </span>
+<span class="sd">        Keyword arguments:</span>
+<span class="sd">            time_sampling (int): how many events to skip before saving a snapshot of the</span>
+<span class="sd">                system state (saves all by default), if &lt;0, saves only final state. Defaults to 0.</span>
+<span class="sd">            host_sampling (int): how many hosts to skip before saving one in a snapshot</span>
+<span class="sd">                of the system state (saves all by default). Defaults to 0.</span>
+<span class="sd">            vector_sampling (int): how many vectors to skip before saving one in a</span>
+<span class="sd">                snapshot of the system state (saves all by default). Defaults to 0.</span>
+<span class="sd">            print_every_n_events (int&gt;0): number of events a message is printed to console. Defaults to 1000.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dictionary containing model state history, with `keys`=`times` and</span>
+<span class="sd">                `values`=`Model` objects with model snapshot at that time point.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Simulation variables</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">t_var</span> <span class="o">=</span> <span class="n">t0</span> <span class="c1"># keeps track of time</span>
+        <span class="n">history</span> <span class="o">=</span> <span class="p">{</span> <span class="mi">0</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">copyState</span><span class="p">(</span>
+            <span class="n">host_sampling</span><span class="o">=</span><span class="n">host_sampling</span><span class="p">,</span>
+            <span class="n">vector_sampling</span><span class="o">=</span><span class="n">vector_sampling</span>
+            <span class="p">)</span> <span class="p">}</span>
+        <span class="n">intervention_tracker</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="c1"># keeps track of what the next intervention should be</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">interventions</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">interventions</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">i</span><span class="p">:</span> <span class="n">i</span><span class="o">.</span><span class="n">time</span>
+            <span class="p">)</span>
+
+        <span class="n">print_counter</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1"># only used to track when to print</span>
+        <span class="n">sampling_counter</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1"># used to track when to save a snapshot</span>
+
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">t_var</span> <span class="o">&lt;</span> <span class="n">tf</span><span class="p">:</span> <span class="c1"># repeat until t reaches end of timecourse</span>
+            <span class="n">population_ids</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="p">)</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getRates</span><span class="p">(</span><span class="n">population_ids</span><span class="p">)</span> <span class="c1"># get event rates in this state</span>
+            <span class="n">r_tot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="c1"># sum of all rates</span>
+
+            <span class="c1"># Time handling</span>
+            <span class="k">if</span> <span class="n">r_tot</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">dt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">exponential</span><span class="p">(</span> <span class="mi">1</span><span class="o">/</span><span class="n">r_tot</span> <span class="p">)</span> <span class="c1"># time until next event</span>
+
+                <span class="k">if</span> <span class="p">(</span><span class="n">intervention_tracker</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">interventions</span><span class="p">)</span>
+                    <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">t_var</span> <span class="o">+</span> <span class="n">dt</span>
+                    <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">interventions</span><span class="p">[</span><span class="n">intervention_tracker</span><span class="p">]</span><span class="o">.</span><span class="n">time</span><span class="p">):</span>
+                    <span class="c1"># if there are any interventions left and if it is time</span>
+                    <span class="c1"># to make one,</span>
+                    <span class="k">while</span> <span class="p">(</span> <span class="n">intervention_tracker</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">interventions</span><span class="p">)</span>
+                        <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">t_var</span> <span class="o">+</span> <span class="n">dt</span>
+                        <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">interventions</span><span class="p">[</span><span class="n">intervention_tracker</span><span class="p">]</span><span class="o">.</span><span class="n">time</span>
+                        <span class="ow">or</span> <span class="n">r_tot</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">t_var</span> <span class="o">&lt;</span> <span class="n">tf</span> <span class="p">):</span>
+                            <span class="c1"># carry out all interventions at this time point,</span>
+                            <span class="c1"># and additional timepoints if no events will happen</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">t_var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">interventions</span><span class="p">[</span>
+                            <span class="n">intervention_tracker</span>
+                            <span class="p">]</span><span class="o">.</span><span class="n">time</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">interventions</span><span class="p">[</span>
+                            <span class="n">intervention_tracker</span>
+                            <span class="p">]</span><span class="o">.</span><span class="n">doIntervention</span><span class="p">()</span>
+                        <span class="n">intervention_tracker</span> <span class="o">+=</span> <span class="mi">1</span> <span class="c1"># advance the tracker</span>
+
+                        <span class="c1"># save snapshot at this timepoint</span>
+                        <span class="n">sampling_counter</span> <span class="o">=</span> <span class="mi">0</span>
+                        <span class="n">history</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">t_var</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">copyState</span><span class="p">()</span>
+
+                        <span class="c1"># now recalculate rates</span>
+                        <span class="n">population_ids</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="p">)</span>
+                        <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getRates</span><span class="p">(</span><span class="n">population_ids</span><span class="p">)</span>
+                            <span class="c1"># get event rates in this state</span>
+                        <span class="n">r_tot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="c1"># sum of all rates</span>
+
+                    <span class="k">if</span> <span class="n">r_tot</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span> <span class="c1"># if no more events happening,</span>
+                        <span class="n">dt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">exponential</span><span class="p">(</span> <span class="mi">1</span><span class="o">/</span><span class="n">r_tot</span> <span class="p">)</span>
+                            <span class="c1"># time until next event</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">t_var</span> <span class="o">=</span> <span class="n">tf</span> <span class="c1"># go to end</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">t_var</span> <span class="o">+=</span> <span class="n">dt</span> <span class="c1"># add time step to main timer</span>
+
+                <span class="c1"># Event handling</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">t_var</span> <span class="o">&lt;</span> <span class="n">tf</span><span class="p">:</span> <span class="c1"># if still within max time</span>
+                    <span class="n">u</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">*</span> <span class="n">r_tot</span>
+                        <span class="c1"># random uniform number between 0 and total rate</span>
+                    <span class="n">r_cum</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1"># cumulative rate</span>
+                    <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span> <span class="c1"># for every possible event,</span>
+                        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+                            <span class="c1"># for every possible population,</span>
+                            <span class="n">r_cum</span> <span class="o">+=</span> <span class="n">r</span><span class="p">[</span><span class="n">e</span><span class="p">,</span><span class="n">p</span><span class="p">]</span>
+                                <span class="c1"># add this event&#39;s rate to cumulative rate</span>
+                            <span class="k">if</span> <span class="n">u</span> <span class="o">&lt;</span> <span class="n">r_cum</span><span class="p">:</span>
+                                <span class="c1"># if random number is under cumulative rate</span>
+
+                                <span class="c1"># print every n events</span>
+                                <span class="n">print_counter</span> <span class="o">+=</span> <span class="mi">1</span>
+                                <span class="k">if</span> <span class="n">print_counter</span> <span class="o">==</span> <span class="n">print_every_n_events</span><span class="p">:</span>
+                                    <span class="n">print_counter</span> <span class="o">=</span> <span class="mi">0</span>
+                                    <span class="nb">print</span><span class="p">(</span>
+                                        <span class="s1">&#39;Simulating time: &#39;</span>
+                                        <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">t_var</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;, event: &#39;</span>
+                                        <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">EVENT_IDS</span><span class="p">[</span><span class="n">e</span><span class="p">]</span>
+                                        <span class="p">)</span>
+
+                                <span class="n">changed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">doAction</span><span class="p">(</span>
+                                    <span class="n">e</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span>
+                                        <span class="n">population_ids</span><span class="p">[</span><span class="n">p</span><span class="p">]</span>
+                                        <span class="p">],</span> <span class="p">(</span> <span class="n">u</span> <span class="o">-</span> <span class="n">r_cum</span> <span class="o">+</span> <span class="n">r</span><span class="p">[</span><span class="n">e</span><span class="p">,</span><span class="n">p</span><span class="p">]</span> <span class="p">)</span> <span class="o">/</span> <span class="n">r</span><span class="p">[</span><span class="n">e</span><span class="p">,</span><span class="n">p</span><span class="p">]</span>
+                                    <span class="p">)</span> <span class="c1"># do corresponding action,</span>
+                                      <span class="c1"># feed in renormalized random number</span>
+
+                                <span class="k">if</span> <span class="n">changed</span><span class="p">:</span> <span class="c1"># if model state changed</span>
+                                    <span class="c1"># update custom condition trackers</span>
+                                    <span class="k">for</span> <span class="n">condition</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">custom_condition_trackers</span><span class="p">:</span>
+                                        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">custom_condition_trackers</span><span class="p">[</span><span class="n">condition</span><span class="p">](</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">):</span>
+                                            <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">global_trackers</span><span class="p">[</span><span class="s1">&#39;custom_conditions&#39;</span><span class="p">][</span><span class="n">condition</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">t_var</span><span class="p">)</span>
+
+                                    <span class="k">if</span> <span class="n">time_sampling</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                                            <span class="c1"># if state changed and saving history,</span>
+                                            <span class="c1"># saves history at correct intervals</span>
+                                        <span class="n">sampling_counter</span> <span class="o">+=</span> <span class="mi">1</span>
+                                        <span class="k">if</span> <span class="n">sampling_counter</span> <span class="o">&gt;</span> <span class="n">time_sampling</span><span class="p">:</span>
+                                            <span class="n">sampling_counter</span> <span class="o">=</span> <span class="mi">0</span>
+                                            <span class="n">history</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">t_var</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">copyState</span><span class="p">(</span>
+                                                <span class="n">host_sampling</span><span class="o">=</span><span class="n">host_sampling</span><span class="p">,</span>
+                                                <span class="n">vector_sampling</span><span class="o">=</span><span class="n">vector_sampling</span>
+                                                <span class="p">)</span>
+
+                                <span class="k">break</span> <span class="c1"># exit event loop</span>
+
+                        <span class="k">else</span><span class="p">:</span> <span class="c1"># if the inner loop wasn&#39;t broken,</span>
+                            <span class="k">continue</span> <span class="c1"># continue outer loop</span>
+
+                        <span class="k">break</span> <span class="c1"># otherwise, break outer loop</span>
+            <span class="k">else</span><span class="p">:</span> <span class="c1"># if no events happening,</span>
+                <span class="k">if</span> <span class="n">intervention_tracker</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">interventions</span><span class="p">):</span>
+                        <span class="c1"># if still not done with interventions,</span>
+                    <span class="k">while</span> <span class="p">(</span><span class="n">intervention_tracker</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">interventions</span><span class="p">)</span>
+                        <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">t_var</span>
+                        <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">interventions</span><span class="p">[</span><span class="n">intervention_tracker</span><span class="p">]</span><span class="o">.</span><span class="n">time</span>
+                        <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">t_var</span> <span class="o">&lt;</span> <span class="n">tf</span><span class="p">):</span>
+                            <span class="c1"># carry out all interventions at this time point</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">t_var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">interventions</span><span class="p">[</span>
+                            <span class="n">intervention_tracker</span>
+                            <span class="p">]</span><span class="o">.</span><span class="n">time</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">interventions</span><span class="p">[</span>
+                            <span class="n">intervention_tracker</span>
+                            <span class="p">]</span><span class="o">.</span><span class="n">doIntervention</span><span class="p">()</span>
+                        <span class="n">intervention_tracker</span> <span class="o">+=</span> <span class="mi">1</span> <span class="c1"># advance the tracker</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">t_var</span> <span class="o">=</span> <span class="n">tf</span>
+
+        <span class="nb">print</span><span class="p">(</span> <span class="s1">&#39;Simulating time: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">t_var</span><span class="p">),</span> <span class="s1">&#39;END&#39;</span><span class="p">)</span>
+        <span class="n">history</span><span class="p">[</span><span class="n">tf</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">copyState</span><span class="p">(</span>
+            <span class="n">host_sampling</span><span class="o">=</span><span class="n">host_sampling</span><span class="p">,</span>
+            <span class="n">vector_sampling</span><span class="o">=</span><span class="n">vector_sampling</span>
+            <span class="p">)</span>
+        <span class="n">history</span><span class="p">[</span><span class="n">tf</span><span class="p">]</span><span class="o">.</span><span class="n">history</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">history</span><span class="p">[</span><span class="n">tf</span><span class="p">]</span><span class="o">.</span><span class="n">global_trackers</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">global_trackers</span> <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">history</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Pablo Cárdenas.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

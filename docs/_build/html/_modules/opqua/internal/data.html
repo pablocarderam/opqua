@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>opqua.internal.data &mdash; Opqua 1.0.2 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=1ed6394b"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Opqua
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../about.html">About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../requirements_and_installation.html">Requirements and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../model_documentation.html"><code class="docutils literal notranslate"><span class="pre">Model</span></code> Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../API.html">API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Opqua</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">opqua.internal.data</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for opqua.internal.data</h1><div class="highlight"><pre>
+<span></span>
+<span class="sd">&quot;&quot;&quot;Contains data wrangling methods.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span> <span class="c1"># handle arrays</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span> <span class="c1"># data wrangling</span>
+<span class="kn">import</span> <span class="nn">copy</span> <span class="k">as</span> <span class="nn">cp</span>
+<span class="kn">import</span> <span class="nn">joblib</span> <span class="k">as</span> <span class="nn">jl</span>
+<span class="kn">import</span> <span class="nn">textdistance</span> <span class="k">as</span> <span class="nn">td</span>
+<span class="kn">import</span> <span class="nn">scipy.spatial.distance</span> <span class="k">as</span> <span class="nn">sp_dist</span>
+
+<div class="viewcode-block" id="saveToDf">
+<a class="viewcode-back" href="../../../opqua.internal.html#opqua.internal.data.saveToDf">[docs]</a>
+<span class="k">def</span> <span class="nf">saveToDf</span><span class="p">(</span><span class="n">history</span><span class="p">,</span><span class="n">save_to_file</span><span class="p">,</span><span class="n">n_cores</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Save status of model to dataframe, write to file location given.</span>
+
+<span class="sd">    Creates a pandas Dataframe in long format with the given model history, with</span>
+<span class="sd">    one host or vector per simulation time in each row, and columns:</span>
+
+<span class="sd">        - Time - simulation time of entry</span>
+<span class="sd">        - Population - ID of this host/vector&#39;s population</span>
+<span class="sd">        - Organism - host/vector</span>
+<span class="sd">        - ID - ID of host/vector</span>
+<span class="sd">        - Pathogens - all genomes present in this host/vector separated by &#39;;&#39;</span>
+<span class="sd">        - Protection - all genomes present in this host/vector separated by &#39;;&#39;</span>
+<span class="sd">        - Alive - whether host/vector is alive at this time, True/False</span>
+
+<span class="sd">    Writing straight to a file and then reading into a pandas dataframe was</span>
+<span class="sd">    actually more efficient than concatenating directly into a pd dataframe.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        history (dict): dictionary containing model state history, with `keys`=`times` and</span>
+<span class="sd">            `values`=`Model` objects with model snapshot at that time point.</span>
+<span class="sd">        save_to_file (String): file path and name to save model data under.</span>
+
+<span class="sd">    Keyword arguments:</span>
+<span class="sd">        n_cores (int): number of cores to parallelize file export across, if 0, all</span>
+<span class="sd">            cores available are used. Defaults to 0.</span>
+<span class="sd">        **kwargs: additional arguents for joblib multiprocessing.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        pandas DataFrame with model history as described above.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Saving file...&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">n_cores</span><span class="p">:</span>
+        <span class="n">n_cores</span> <span class="o">=</span> <span class="n">jl</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span>
+
+    <span class="n">new_df</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span><span class="s1">&#39;Population&#39;</span><span class="p">,</span><span class="s1">&#39;Organism&#39;</span><span class="p">,</span><span class="s1">&#39;ID&#39;</span><span class="p">,</span><span class="s1">&#39;Pathogens&#39;</span><span class="p">,</span><span class="s1">&#39;Protection&#39;</span><span class="p">,</span><span class="s1">&#39;Alive&#39;</span><span class="p">]</span>
+        <span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="n">jl</span><span class="o">.</span><span class="n">Parallel</span><span class="p">(</span>
+            <span class="n">n_jobs</span><span class="o">=</span><span class="n">n_cores</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="p">(</span>
+            <span class="n">jl</span><span class="o">.</span><span class="n">delayed</span><span class="p">(</span> <span class="k">lambda</span> <span class="n">d</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="p">)</span> <span class="p">(</span>
+                <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="p">[</span>
+                    <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="p">[</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="p">[</span>
+                        <span class="nb">str</span><span class="p">(</span><span class="n">time</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">pop</span><span class="o">.</span><span class="n">id</span><span class="p">),</span> <span class="s1">&#39;Host&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">host</span><span class="o">.</span><span class="n">id</span><span class="p">),</span> <span class="s1">&#39;&quot;&#39;</span>
+                        <span class="o">+</span> <span class="s1">&#39;;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="n">host</span><span class="o">.</span><span class="n">pathogens</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="p">)</span>
+                        <span class="o">+</span> <span class="s1">&#39;&quot;&#39;</span><span class="p">,</span> <span class="s1">&#39;&quot;&#39;</span> <span class="o">+</span> <span class="s1">&#39;;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="n">host</span><span class="o">.</span><span class="n">protection_sequences</span> <span class="p">)</span>
+                        <span class="o">+</span> <span class="s1">&#39;&quot;&#39;</span><span class="p">,</span> <span class="s1">&#39;True&#39;</span>
+                        <span class="p">]</span> <span class="p">)</span> <span class="k">for</span> <span class="n">host</span> <span class="ow">in</span> <span class="n">pop</span><span class="o">.</span><span class="n">hosts</span> <span class="p">]</span> <span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+                    <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="p">[</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="p">[</span>
+                        <span class="nb">str</span><span class="p">(</span><span class="n">time</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">pop</span><span class="o">.</span><span class="n">id</span><span class="p">),</span> <span class="s1">&#39;Vector&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">vector</span><span class="o">.</span><span class="n">id</span><span class="p">),</span> <span class="s1">&#39;&quot;&#39;</span>
+                        <span class="o">+</span> <span class="s1">&#39;;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="n">vector</span><span class="o">.</span><span class="n">pathogens</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="p">)</span>
+                        <span class="o">+</span> <span class="s1">&#39;&quot;&#39;</span><span class="p">,</span> <span class="s1">&#39;&quot;&#39;</span> <span class="o">+</span> <span class="s1">&#39;;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="n">vector</span><span class="o">.</span><span class="n">protection_sequences</span> <span class="p">)</span>
+                        <span class="o">+</span> <span class="s1">&#39;&quot;&#39;</span><span class="p">,</span> <span class="s1">&#39;True&#39;</span>
+                        <span class="p">]</span> <span class="p">)</span> <span class="k">for</span> <span class="n">vector</span> <span class="ow">in</span> <span class="n">pop</span><span class="o">.</span><span class="n">vectors</span> <span class="p">]</span> <span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+                    <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="p">[</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="p">[</span>
+                        <span class="nb">str</span><span class="p">(</span><span class="n">time</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">pop</span><span class="o">.</span><span class="n">id</span><span class="p">),</span> <span class="s1">&#39;Host&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">host</span><span class="o">.</span><span class="n">id</span><span class="p">),</span> <span class="s1">&#39;&quot;&#39;</span>
+                        <span class="o">+</span> <span class="s1">&#39;;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="n">host</span><span class="o">.</span><span class="n">pathogens</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;&quot;&#39;</span><span class="p">,</span> <span class="s1">&#39;&quot;&#39;</span>
+                        <span class="o">+</span> <span class="s1">&#39;;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="n">host</span><span class="o">.</span><span class="n">protection_sequences</span> <span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;&quot;&#39;</span><span class="p">,</span> <span class="s1">&#39;False&#39;</span>
+                        <span class="p">]</span> <span class="p">)</span> <span class="k">for</span> <span class="n">host</span> <span class="ow">in</span> <span class="n">pop</span><span class="o">.</span><span class="n">dead_hosts</span> <span class="p">]</span> <span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+                    <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="p">[</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="p">[</span>
+                        <span class="nb">str</span><span class="p">(</span><span class="n">time</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">pop</span><span class="o">.</span><span class="n">id</span><span class="p">),</span> <span class="s1">&#39;Vector&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">vector</span><span class="o">.</span><span class="n">id</span><span class="p">),</span> <span class="s1">&#39;&quot;&#39;</span>
+                        <span class="o">+</span> <span class="s1">&#39;;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="n">vector</span><span class="o">.</span><span class="n">pathogens</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;&quot;&#39;</span><span class="p">,</span> <span class="s1">&#39;&quot;&#39;</span>
+                        <span class="o">+</span> <span class="s1">&#39;;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="n">vector</span><span class="o">.</span><span class="n">protection_sequences</span> <span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;&quot;&#39;</span><span class="p">,</span> <span class="s1">&#39;False&#39;</span>
+                        <span class="p">]</span> <span class="p">)</span> <span class="k">for</span> <span class="n">vector</span> <span class="ow">in</span> <span class="n">pop</span><span class="o">.</span><span class="n">dead_vectors</span> <span class="p">]</span> <span class="p">)</span>
+                    <span class="k">for</span> <span class="nb">id</span><span class="p">,</span><span class="n">pop</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                <span class="p">]</span> <span class="p">)</span>
+            <span class="p">)</span> <span class="k">for</span> <span class="n">time</span><span class="p">,</span><span class="n">model</span> <span class="ow">in</span> <span class="n">history</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">)</span> <span class="p">)</span>
+
+    <span class="n">new_df</span> <span class="o">=</span> <span class="n">new_df</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+        <span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">,</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">,</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">,</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="n">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">save_to_file</span><span class="p">,</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
+    <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">new_df</span><span class="p">)</span>
+    <span class="n">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="n">new_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">save_to_file</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;...file saved.&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">new_df</span></div>
+
+
+<div class="viewcode-block" id="populationsDf">
+<a class="viewcode-back" href="../../../opqua.internal.html#opqua.internal.data.populationsDf">[docs]</a>
+<span class="k">def</span> <span class="nf">populationsDf</span><span class="p">(</span>
+        <span class="n">data</span><span class="p">,</span> <span class="n">compartment</span><span class="o">=</span><span class="s1">&#39;Infected&#39;</span><span class="p">,</span> <span class="n">hosts</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">vectors</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">num_top_populations</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">track_specific_populations</span><span class="o">=</span><span class="p">[],</span> <span class="n">save_to_file</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create dataframe with aggregated totals per population.</span>
+
+<span class="sd">    Creates a pandas Dataframe in long format with dynamics of a compartment</span>
+<span class="sd">    across populations in the model, with one time point in each row and columns</span>
+<span class="sd">    for time as well as each population.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        data (pandas DataFrame) dataframe with model history as produced by `saveToDf` function.</span>
+
+<span class="sd">    Keyword arguments:</span>
+<span class="sd">        compartment (String): subset of hosts/vectors to count totals of, can be either</span>
+<span class="sd">            &#39;Naive&#39;,&#39;Infected&#39;,&#39;Recovered&#39;, or &#39;Dead&#39;. Defaults to &#39;Infected&#39;.</span>
+<span class="sd">        hosts (Boolean): whether to count hosts. Defaults to True.</span>
+<span class="sd">        vectors (Boolean): whether to count vectors. Defaults to False.</span>
+<span class="sd">        num_top_populations (int): how many populations to count separately and include</span>
+<span class="sd">            as columns, remainder will be counted under column &quot;Other&quot;; if &lt;0,</span>
+<span class="sd">            includes all populations in model. Defaults to -1.</span>
+<span class="sd">        track_specific_populations (list of Strings): contains IDs of specific populations to have</span>
+<span class="sd">            as a separate column if not part of the top num_top_populations</span>
+<span class="sd">            populations. Defaults to [].</span>
+<span class="sd">        save_to_file (String): file path and name to save model data under, no saving</span>
+<span class="sd">            occurs if empty string. Defaults to &quot;&quot;.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        pandas DataFrame with model population dynamics as described above.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">dat</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span> <span class="n">data</span> <span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">hosts</span><span class="p">:</span>
+        <span class="n">dat</span> <span class="o">=</span> <span class="n">dat</span><span class="p">[</span> <span class="n">dat</span><span class="p">[</span><span class="s1">&#39;Organism&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;Host&#39;</span> <span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">vectors</span><span class="p">:</span>
+        <span class="n">dat</span> <span class="o">=</span> <span class="n">dat</span><span class="p">[</span> <span class="n">dat</span><span class="p">[</span><span class="s1">&#39;Organism&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;Vector&#39;</span> <span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">num_top_populations</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">num_top_populations</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span> <span class="n">pd</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span> <span class="n">dat</span><span class="p">[</span><span class="s1">&#39;Population&#39;</span><span class="p">]</span> <span class="p">)</span> <span class="p">)</span>
+
+    <span class="n">dat</span><span class="p">[</span><span class="s1">&#39;Infected&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span> <span class="n">dat</span><span class="p">[</span><span class="s1">&#39;Pathogens&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">len</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="p">)</span>
+    <span class="n">dat</span><span class="p">[</span><span class="s1">&#39;Protected&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span> <span class="n">dat</span><span class="p">[</span><span class="s1">&#39;Protection&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">len</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="p">)</span>
+
+    <span class="n">grouped</span> <span class="o">=</span> <span class="n">dat</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span> <span class="p">[</span>
+        <span class="s1">&#39;Time&#39;</span><span class="p">,</span><span class="s1">&#39;Population&#39;</span><span class="p">,</span><span class="s1">&#39;Alive&#39;</span><span class="p">,</span><span class="s1">&#39;Infected&#39;</span><span class="p">,</span><span class="s1">&#39;Protected&#39;</span>
+        <span class="p">]</span> <span class="p">)</span><span class="o">.</span><span class="n">size</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Number&#39;</span><span class="p">)</span>
+
+    <span class="n">compartment_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Naive&#39;</span><span class="p">,</span><span class="s1">&#39;Infected&#39;</span><span class="p">,</span><span class="s1">&#39;Recovered&#39;</span><span class="p">,</span><span class="s1">&#39;Dead&#39;</span><span class="p">]</span>
+
+    <span class="n">grouped</span><span class="p">[</span><span class="s1">&#39;Compartment&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">compartment_names</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+    <span class="n">grouped</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="p">(</span> <span class="n">grouped</span><span class="p">[</span><span class="s1">&#39;Alive&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">True</span> <span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span> <span class="n">grouped</span><span class="p">[</span><span class="s1">&#39;Infected&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">False</span> <span class="p">)</span>
+            <span class="o">&amp;</span> <span class="p">(</span> <span class="n">grouped</span><span class="p">[</span><span class="s1">&#39;Protected&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">False</span> <span class="p">),</span> <span class="s1">&#39;Compartment&#39;</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="n">compartment_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">grouped</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="p">(</span> <span class="n">grouped</span><span class="p">[</span><span class="s1">&#39;Alive&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">True</span> <span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span> <span class="n">grouped</span><span class="p">[</span><span class="s1">&#39;Infected&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">True</span> <span class="p">),</span>
+        <span class="s1">&#39;Compartment&#39;</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="n">compartment_names</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">grouped</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="p">(</span> <span class="n">grouped</span><span class="p">[</span><span class="s1">&#39;Alive&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">True</span> <span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span> <span class="n">grouped</span><span class="p">[</span><span class="s1">&#39;Infected&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">False</span> <span class="p">)</span>
+        <span class="o">&amp;</span> <span class="p">(</span> <span class="n">grouped</span><span class="p">[</span><span class="s1">&#39;Protected&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">True</span> <span class="p">),</span> <span class="s1">&#39;Compartment&#39;</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="n">compartment_names</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+    <span class="n">grouped</span> <span class="o">=</span> <span class="n">grouped</span><span class="p">[</span> <span class="n">grouped</span><span class="p">[</span><span class="s1">&#39;Compartment&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">compartment</span> <span class="p">]</span>
+
+    <span class="n">grouped</span> <span class="o">=</span> <span class="n">grouped</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>
+        <span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span><span class="s1">&#39;Population&#39;</span><span class="p">,</span><span class="s1">&#39;Compartment&#39;</span><span class="p">]</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+
+    <span class="n">grouped</span> <span class="o">=</span> <span class="n">grouped</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Alive&#39;</span><span class="p">,</span><span class="s1">&#39;Infected&#39;</span><span class="p">,</span><span class="s1">&#39;Protected&#39;</span><span class="p">,</span><span class="s1">&#39;Compartment&#39;</span><span class="p">]</span>
+        <span class="p">)</span>
+
+    <span class="n">grouped</span> <span class="o">=</span> <span class="n">grouped</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="s1">&#39;Population&#39;</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="s1">&#39;Number&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="s1">&#39;Time&#39;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">pop</span> <span class="ow">in</span> <span class="n">pd</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;Population&#39;</span><span class="p">]):</span>
+        <span class="k">if</span> <span class="n">pop</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">grouped</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">grouped</span><span class="p">[</span><span class="n">pop</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">grouped</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span> <span class="o">&lt;</span> <span class="n">num_top_populations</span><span class="p">:</span>
+        <span class="n">num_top_populations</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">grouped</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span>
+
+    <span class="n">populations_to_drop</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">grouped</span><span class="o">.</span><span class="n">columns</span><span class="p">)[</span> <span class="n">num_top_populations</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span> <span class="p">]</span>
+    <span class="k">for</span> <span class="n">pop</span> <span class="ow">in</span> <span class="n">track_specific_populations</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">pop</span> <span class="ow">in</span> <span class="n">populations_to_drop</span><span class="p">:</span>
+            <span class="n">populations_to_drop</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">pop</span><span class="p">)</span>
+
+    <span class="n">grouped</span><span class="p">[</span><span class="s1">&#39;Other&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">populations_to_drop</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">grouped</span><span class="p">[</span><span class="s1">&#39;Other&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">grouped</span><span class="p">[</span><span class="n">populations_to_drop</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">grouped</span><span class="p">[</span><span class="s1">&#39;Other&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">populations_to_drop</span> <span class="o">=</span> <span class="n">populations_to_drop</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;Other&#39;</span><span class="p">]</span>
+
+    <span class="n">grouped</span> <span class="o">=</span> <span class="n">grouped</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span> <span class="n">columns</span><span class="o">=</span><span class="n">populations_to_drop</span> <span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">save_to_file</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">grouped</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">save_to_file</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">grouped</span></div>
+
+
+
+<div class="viewcode-block" id="compartmentDf">
+<a class="viewcode-back" href="../../../opqua.internal.html#opqua.internal.data.compartmentDf">[docs]</a>
+<span class="k">def</span> <span class="nf">compartmentDf</span><span class="p">(</span>
+        <span class="n">data</span><span class="p">,</span> <span class="n">populations</span><span class="o">=</span><span class="p">[],</span> <span class="n">hosts</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">vectors</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">save_to_file</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create dataframe with number of naive, susc., inf., rec. hosts/vectors.</span>
+
+<span class="sd">    Creates a pandas Dataframe with dynamics of all compartments (naive,</span>
+<span class="sd">    infected, recovered, dead) across selected populations in the model,</span>
+<span class="sd">    with one time point in each row and columns for time as well as each</span>
+<span class="sd">    compartment.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        data (pandas DataFrame): dataframe with model history as produced by `saveToDf` function.</span>
+
+<span class="sd">    Keyword arguments:</span>
+<span class="sd">        populations (list of Strings): IDs of populations to include in analysis; if empty, uses all</span>
+<span class="sd">            populations in model. Defaults to [].</span>
+<span class="sd">        hosts (Boolean): whether to count hosts. Defaults to True.</span>
+<span class="sd">        vectors (Boolean): whether to count vectors. Defaults to False.</span>
+<span class="sd">        save_to_file (String): file path and name to save model data under, no saving</span>
+<span class="sd">            occurs if empty string. Defaults to &quot;&quot;.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        pandas DataFrame with model compartment dynamics as described above.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">populations</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">dat</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span> <span class="n">data</span><span class="p">[</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Population&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span> <span class="n">populations</span> <span class="p">)</span> <span class="p">]</span> <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">dat</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span> <span class="n">data</span> <span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">hosts</span><span class="p">:</span>
+        <span class="n">dat</span> <span class="o">=</span> <span class="n">dat</span><span class="p">[</span> <span class="n">dat</span><span class="p">[</span><span class="s1">&#39;Organism&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;Host&#39;</span> <span class="p">]</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">vectors</span><span class="p">:</span>
+        <span class="n">dat</span> <span class="o">=</span> <span class="n">dat</span><span class="p">[</span> <span class="n">dat</span><span class="p">[</span><span class="s1">&#39;Organism&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;Vector&#39;</span> <span class="p">]</span>
+
+    <span class="n">dat</span><span class="p">[</span><span class="s1">&#39;Infected&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span> <span class="n">dat</span><span class="p">[</span><span class="s1">&#39;Pathogens&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">len</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="p">)</span>
+    <span class="n">dat</span><span class="p">[</span><span class="s1">&#39;Protected&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span> <span class="n">dat</span><span class="p">[</span><span class="s1">&#39;Protection&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">len</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="p">)</span>
+
+    <span class="n">grouped</span> <span class="o">=</span> <span class="n">dat</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span> <span class="p">[</span>
+        <span class="s1">&#39;Time&#39;</span><span class="p">,</span><span class="s1">&#39;Alive&#39;</span><span class="p">,</span><span class="s1">&#39;Infected&#39;</span><span class="p">,</span><span class="s1">&#39;Protected&#39;</span>
+        <span class="p">]</span> <span class="p">)</span><span class="o">.</span><span class="n">size</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Number&#39;</span><span class="p">)</span>
+
+    <span class="n">compartment_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Naive&#39;</span><span class="p">,</span><span class="s1">&#39;Infected&#39;</span><span class="p">,</span><span class="s1">&#39;Recovered&#39;</span><span class="p">,</span><span class="s1">&#39;Dead&#39;</span><span class="p">]</span>
+
+    <span class="n">grouped</span><span class="p">[</span><span class="s1">&#39;Compartment&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">compartment_names</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+    <span class="n">grouped</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="p">(</span> <span class="n">grouped</span><span class="p">[</span><span class="s1">&#39;Alive&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">True</span> <span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span> <span class="n">grouped</span><span class="p">[</span><span class="s1">&#39;Infected&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">False</span> <span class="p">)</span>
+        <span class="o">&amp;</span> <span class="p">(</span> <span class="n">grouped</span><span class="p">[</span><span class="s1">&#39;Protected&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">False</span> <span class="p">),</span> <span class="s1">&#39;Compartment&#39;</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="n">compartment_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">grouped</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="p">(</span> <span class="n">grouped</span><span class="p">[</span><span class="s1">&#39;Alive&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">True</span> <span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span> <span class="n">grouped</span><span class="p">[</span><span class="s1">&#39;Infected&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">True</span> <span class="p">)</span>
+        <span class="o">&amp;</span> <span class="p">(</span> <span class="n">grouped</span><span class="p">[</span><span class="s1">&#39;Protected&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">True</span> <span class="p">),</span> <span class="s1">&#39;Compartment&#39;</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="n">compartment_names</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">grouped</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="p">(</span> <span class="n">grouped</span><span class="p">[</span><span class="s1">&#39;Alive&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">True</span> <span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span> <span class="n">grouped</span><span class="p">[</span><span class="s1">&#39;Infected&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">True</span> <span class="p">)</span>
+        <span class="o">&amp;</span> <span class="p">(</span> <span class="n">grouped</span><span class="p">[</span><span class="s1">&#39;Protected&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">False</span> <span class="p">),</span> <span class="s1">&#39;Compartment&#39;</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="n">compartment_names</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;_2&#39;</span>
+    <span class="n">grouped</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="p">(</span> <span class="n">grouped</span><span class="p">[</span><span class="s1">&#39;Alive&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">True</span> <span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span> <span class="n">grouped</span><span class="p">[</span><span class="s1">&#39;Infected&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">False</span> <span class="p">)</span>
+        <span class="o">&amp;</span> <span class="p">(</span> <span class="n">grouped</span><span class="p">[</span><span class="s1">&#39;Protected&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">True</span> <span class="p">),</span> <span class="s1">&#39;Compartment&#39;</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="n">compartment_names</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+    <span class="n">grouped</span> <span class="o">=</span> <span class="n">grouped</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Alive&#39;</span><span class="p">,</span><span class="s1">&#39;Infected&#39;</span><span class="p">,</span><span class="s1">&#39;Protected&#39;</span><span class="p">]</span> <span class="p">)</span>
+    <span class="n">grouped</span> <span class="o">=</span> <span class="n">grouped</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="s1">&#39;Compartment&#39;</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="s1">&#39;Number&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="s1">&#39;Time&#39;</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="s1">&#39;Time&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="p">(</span> <span class="n">compartment_names</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">grouped</span><span class="o">.</span><span class="n">columns</span>
+            <span class="ow">and</span> <span class="n">compartment_names</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;_2&#39;</span> <span class="ow">in</span> <span class="n">grouped</span><span class="o">.</span><span class="n">columns</span> <span class="p">):</span>
+        <span class="n">grouped</span><span class="p">[</span><span class="n">compartment_names</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span> <span class="n">grouped</span><span class="p">[</span> <span class="n">compartment_names</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="p">]</span>
+            <span class="o">+</span> <span class="n">grouped</span><span class="p">[</span> <span class="n">compartment_names</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;_2&#39;</span> <span class="p">]</span> <span class="p">)</span>
+        <span class="n">grouped</span> <span class="o">=</span> <span class="n">grouped</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span> <span class="n">compartment_names</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;_2&#39;</span> <span class="p">])</span>
+    <span class="k">elif</span> <span class="p">(</span> <span class="n">compartment_names</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;_2&#39;</span> <span class="ow">in</span> <span class="n">grouped</span><span class="o">.</span><span class="n">columns</span> <span class="p">):</span>
+        <span class="n">grouped</span><span class="p">[</span><span class="n">compartment_names</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">grouped</span><span class="p">[</span> <span class="n">compartment_names</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;_2&#39;</span> <span class="p">]</span>
+        <span class="n">grouped</span> <span class="o">=</span> <span class="n">grouped</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span> <span class="n">compartment_names</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;_2&#39;</span> <span class="p">])</span>
+
+    <span class="k">for</span> <span class="n">comp_name</span> <span class="ow">in</span> <span class="n">compartment_names</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">comp_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">grouped</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">grouped</span><span class="p">[</span><span class="n">comp_name</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">save_to_file</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">grouped</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">save_to_file</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">grouped</span></div>
+
+
+
+<div class="viewcode-block" id="compositionDf">
+<a class="viewcode-back" href="../../../opqua.internal.html#opqua.internal.data.compositionDf">[docs]</a>
+<span class="k">def</span> <span class="nf">compositionDf</span><span class="p">(</span>
+        <span class="n">data</span><span class="p">,</span> <span class="n">populations</span><span class="o">=</span><span class="p">[],</span> <span class="n">type_of_composition</span><span class="o">=</span><span class="s1">&#39;Pathogens&#39;</span><span class="p">,</span> <span class="n">hosts</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">vectors</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">num_top_sequences</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">track_specific_sequences</span><span class="o">=</span><span class="p">[],</span>
+        <span class="n">genomic_positions</span><span class="o">=</span><span class="p">[],</span> <span class="n">count_individuals_based_on_model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">save_to_file</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">n_cores</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create dataframe with counts for pathogen genomes or resistance.</span>
+
+<span class="sd">    Creates a pandas Dataframe with dynamics of the pathogen strains or</span>
+<span class="sd">    protection sequences across selected populations in the model,</span>
+<span class="sd">    with one time point in each row and columns for pathogen genomes or</span>
+<span class="sd">    protection sequences.</span>
+
+<span class="sd">    Of note: sum of totals for all sequences in one time point does not</span>
+<span class="sd">    necessarily equal the number of infected hosts and/or vectors, given</span>
+<span class="sd">    multiple infections in the same host/vector are counted separately.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        data (pandas DataFrame): dataframe with model history as produced by `saveToDf` function.</span>
+
+<span class="sd">    Keyword arguments:</span>
+<span class="sd">        populations (list of Strings): IDs of populations to include in analysis; if empty, uses all</span>
+<span class="sd">            populations in model. Defaults to [].</span>
+<span class="sd">        type_of_composition (String): field of data to count totals of, can be either</span>
+<span class="sd">            &#39;Pathogens&#39; or &#39;Protection&#39;. Defaults to &#39;Pathogens&#39;.</span>
+<span class="sd">        hosts (Boolean): whether to count hosts. Defaults to True.</span>
+<span class="sd">        vectors (Boolean): whether to count vectors. Defaults to False.</span>
+<span class="sd">        num_top_sequences (int): how many sequences to count separately and include</span>
+<span class="sd">            as columns, remainder will be counted under column &quot;Other&quot;; if &lt;0,</span>
+<span class="sd">            includes all genomes in model. Defaults to -1.</span>
+<span class="sd">        track_specific_sequences (list of Strings): contains specific sequences to have</span>
+<span class="sd">            as a separate column if not part of the top num_top_sequences</span>
+<span class="sd">            sequences. Defaults to [].</span>
+<span class="sd">        genomic_positions (list of lists of int): list in which each element is a list with loci</span>
+<span class="sd">            positions to extract (e.g. genomic_positions=[ [0,3], [5,6] ] extracts</span>
+<span class="sd">            positions 0, 1, 2, and 5 from each genome); if empty, takes full genomes. Defaults to [].</span>
+<span class="sd">        count_individuals_based_on_model (None or Model): Model object with populations and</span>
+<span class="sd">            fitness functions used to evaluate the most fit pathogen genome in each</span>
+<span class="sd">            host/vector in order to count only a single pathogen per host/vector, as</span>
+<span class="sd">            opposed to all pathogens within each host/vector; if None, counts all</span>
+<span class="sd">            pathogens. Defaults to None.</span>
+<span class="sd">        save_to_file (String): file path and name to save model data under, no saving</span>
+<span class="sd">            occurs if empty string. Defaults to &quot;&quot;.</span>
+<span class="sd">        n_cores (int): number of cores to parallelize processing across, if 0, all</span>
+<span class="sd">            cores available are used. Defaults to 0.</span>
+<span class="sd">        **kwargs: additional arguents for joblib multiprocessing.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        pandas DataFrame with model sequence composition dynamics as described above.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">populations</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">dat</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span> <span class="n">data</span><span class="p">[</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Population&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span> <span class="n">populations</span> <span class="p">)</span> <span class="p">]</span> <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">dat</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span> <span class="n">data</span> <span class="p">)</span>
+
+    <span class="n">dat</span><span class="p">[</span>
+        <span class="p">(</span><span class="n">dat</span><span class="p">[</span><span class="n">type_of_composition</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="o">~</span><span class="n">dat</span><span class="p">[</span><span class="n">type_of_composition</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">())</span>
+        <span class="p">]</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">genomic_positions</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Extracting genomic locations...&#39;</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">extractSeq</span><span class="p">(</span><span class="n">ind</span><span class="p">):</span>
+            <span class="n">seqs</span> <span class="o">=</span> <span class="p">[</span> <span class="n">p</span><span class="p">[</span> <span class="n">genomic_positions</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">genomic_positions</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="p">]</span>
+                <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">ind</span><span class="p">[</span><span class="s1">&#39;Pathogens&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;;&#39;</span><span class="p">)</span> <span class="p">]</span>
+
+            <span class="k">return</span> <span class="s1">&#39;;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">seqs</span><span class="p">)</span>
+
+        <span class="n">pathogens</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="n">jl</span><span class="o">.</span><span class="n">Parallel</span><span class="p">(</span><span class="n">n_jobs</span><span class="o">=</span><span class="n">n_cores</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="p">(</span>
+            <span class="n">jl</span><span class="o">.</span><span class="n">delayed</span><span class="p">(</span> <span class="n">extractSeq</span> <span class="p">)</span> <span class="p">(</span><span class="n">ind</span><span class="p">)</span> <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="n">dat</span>
+            <span class="p">)</span> <span class="p">)</span>
+        <span class="n">dat</span><span class="p">[</span><span class="s1">&#39;Pathogens&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pathogens</span>
+
+    <span class="k">if</span> <span class="n">count_individuals_based_on_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Collapsing infections to individuals...&#39;</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">count_individuals_based_on_model</span>
+        <span class="k">if</span> <span class="n">type_of_composition</span> <span class="o">!=</span> <span class="s1">&#39;Pathogens&#39;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Computing count_individuals_based_on_model=True is only allowed for type_of_composition=&#39;Pathogens&#39;.&quot;</span><span class="p">)</span>
+
+        <span class="n">dat</span><span class="p">[</span><span class="s1">&#39;patpop&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dat</span><span class="p">[</span><span class="s1">&#39;Pathogens&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;:::&#39;</span> <span class="o">+</span> <span class="n">dat</span><span class="p">[</span><span class="s1">&#39;Population&#39;</span><span class="p">]</span>
+        <span class="n">unique_patpop</span> <span class="o">=</span> <span class="n">dat</span><span class="p">[</span><span class="s1">&#39;patpop&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">combination</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">unique_patpop</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; / &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">unique_patpop</span><span class="p">))</span> <span class="o">+</span> <span class="s1">&#39; combinations&#39;</span> <span class="p">)</span>
+            <span class="n">gen_str</span><span class="p">,</span><span class="n">pop</span> <span class="o">=</span> <span class="n">combination</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:::&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">gen_str</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                <span class="n">genomes</span> <span class="o">=</span> <span class="n">gen_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;;&#39;</span><span class="p">)</span>
+                <span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="p">[</span>
+                    <span class="n">model</span><span class="o">.</span><span class="n">populations</span><span class="p">[</span><span class="n">pop</span><span class="p">]</span><span class="o">.</span><span class="n">fitnessHost</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">genomes</span> <span class="p">]</span> <span class="p">)</span>
+                <span class="n">dominant_pathogen</span> <span class="o">=</span> <span class="n">genomes</span><span class="p">[</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="p">]</span>
+                <span class="n">dat</span><span class="p">[</span><span class="s1">&#39;patpop&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dat</span><span class="p">[</span><span class="s1">&#39;patpop&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+                    <span class="n">combination</span><span class="p">,</span> <span class="n">dominant_pathogen</span>
+                    <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">dat</span><span class="p">[</span><span class="s1">&#39;patpop&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dat</span><span class="p">[</span><span class="s1">&#39;patpop&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span> <span class="n">combination</span><span class="p">,</span> <span class="s1">&#39;&#39;</span> <span class="p">)</span>
+
+        <span class="n">dat</span><span class="p">[</span><span class="s1">&#39;Pathogens&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dat</span><span class="p">[</span><span class="s1">&#39;patpop&#39;</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">hosts</span><span class="p">:</span>
+        <span class="n">dat</span> <span class="o">=</span> <span class="n">dat</span><span class="p">[</span> <span class="n">dat</span><span class="p">[</span><span class="s1">&#39;Organism&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;Host&#39;</span> <span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">vectors</span><span class="p">:</span>
+        <span class="n">dat</span> <span class="o">=</span> <span class="n">dat</span><span class="p">[</span> <span class="n">dat</span><span class="p">[</span><span class="s1">&#39;Organism&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;Vector&#39;</span> <span class="p">]</span>
+
+    <span class="n">all_sequences</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span>
+        <span class="s1">&#39;;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="n">dat</span><span class="p">[</span><span class="n">type_of_composition</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span> <span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;;&#39;</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="n">top_sequences</span> <span class="o">=</span> <span class="n">all_sequences</span><span class="o">.</span><span class="n">value_counts</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">num_top_sequences</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">num_top_sequences</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span> <span class="n">top_sequences</span> <span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">top_sequences</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">num_top_sequences</span><span class="p">:</span>
+        <span class="n">num_top_sequences</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">top_sequences</span><span class="p">)</span>
+
+    <span class="c1"># genomes_to_track = list(top_sequences[0:num_top_sequences].index)</span>
+    <span class="n">genomes_to_track</span> <span class="o">=</span> <span class="n">track_specific_sequences</span>
+    <span class="k">for</span> <span class="n">genome</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">top_sequences</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">num_top_sequences</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">genome</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">genomes_to_track</span><span class="p">:</span>
+            <span class="n">genomes_to_track</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">genome</span><span class="p">)</span>
+
+    <span class="n">genome_split_data</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">other_genome_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span> <span class="nb">len</span><span class="p">(</span> <span class="n">pd</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">]</span> <span class="p">)</span> <span class="p">)</span> <span class="p">),</span>
+        <span class="n">index</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">]</span> <span class="p">),</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Other&#39;</span><span class="p">]</span>
+        <span class="p">)</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">top_sequences</span><span class="o">.</span><span class="n">index</span><span class="p">)</span> <span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">genome</span> <span class="ow">in</span> <span class="n">top_sequences</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+            <span class="n">dat_genome</span> <span class="o">=</span> <span class="n">dat</span><span class="p">[</span> <span class="n">dat</span><span class="p">[</span><span class="n">type_of_composition</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span>
+                <span class="n">genome</span><span class="p">,</span> <span class="n">na</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">False</span>
+                <span class="p">)</span> <span class="p">]</span>
+            <span class="n">grouped</span> <span class="o">=</span> <span class="n">dat_genome</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;Time&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">size</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">genome</span><span class="p">)</span>
+            <span class="n">grouped</span> <span class="o">=</span> <span class="n">grouped</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;Time&#39;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">genome</span> <span class="ow">in</span> <span class="n">genomes_to_track</span><span class="p">:</span>
+                <span class="n">genome_split_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">grouped</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">other_genome_data</span> <span class="o">=</span> <span class="n">other_genome_data</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="n">grouped</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;outer&#39;</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">other_genome_data</span><span class="p">[</span><span class="s1">&#39;Other&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span> <span class="n">other_genome_data</span><span class="p">[</span><span class="s1">&#39;Other&#39;</span><span class="p">]</span>
+                    <span class="o">+</span> <span class="n">other_genome_data</span><span class="p">[</span><span class="n">genome</span><span class="p">]</span> <span class="p">)</span>
+                <span class="n">other_genome_data</span> <span class="o">=</span> <span class="n">other_genome_data</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">genome</span><span class="p">])</span>
+
+            <span class="n">c</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; / &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span> <span class="nb">len</span><span class="p">(</span><span class="n">top_sequences</span><span class="o">.</span><span class="n">index</span><span class="p">)</span> <span class="p">)</span>
+                <span class="o">+</span> <span class="s1">&#39; genotypes processed.&#39;</span>
+                <span class="p">)</span>
+
+
+        <span class="k">if</span> <span class="n">other_genome_data</span><span class="p">[</span><span class="s1">&#39;Other&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">genome_split_data</span> <span class="o">+=</span> <span class="p">[</span><span class="n">other_genome_data</span><span class="p">]</span>
+            <span class="n">genomes_to_track</span> <span class="o">+=</span> <span class="p">[</span><span class="s1">&#39;Other&#39;</span><span class="p">]</span>
+
+
+    <span class="n">times</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span> <span class="nb">len</span><span class="p">(</span> <span class="n">pd</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">]</span> <span class="p">)</span> <span class="p">)</span> <span class="p">),</span>
+        <span class="n">index</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">]</span> <span class="p">),</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;*None*&#39;</span><span class="p">]</span>
+        <span class="p">)</span>
+    <span class="n">composition</span> <span class="o">=</span> <span class="n">times</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="n">genome_split_data</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;outer&#39;</span> <span class="p">)</span>
+    <span class="n">composition</span> <span class="o">=</span> <span class="n">composition</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;*None*&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">new_order</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">seq</span> <span class="ow">in</span> <span class="n">track_specific_sequences</span><span class="p">:</span>
+        <span class="n">new_order</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">seq</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">composition</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">composition</span><span class="p">[</span><span class="n">seq</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">for</span> <span class="n">seq</span> <span class="ow">in</span> <span class="n">composition</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">seq</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">new_order</span><span class="p">:</span>
+            <span class="n">new_order</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span>
+
+    <span class="n">composition</span> <span class="o">=</span> <span class="n">composition</span><span class="p">[</span><span class="n">new_order</span><span class="p">]</span>
+
+    <span class="n">composition</span> <span class="o">=</span> <span class="n">composition</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+    <span class="n">composition</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span> <span class="n">composition</span><span class="o">.</span><span class="n">columns</span> <span class="p">)[</span><span class="mi">1</span><span class="p">:]</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">save_to_file</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">composition</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">save_to_file</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">composition</span></div>
+
+
+
+<div class="viewcode-block" id="getPathogens">
+<a class="viewcode-back" href="../../../opqua.internal.html#opqua.internal.data.getPathogens">[docs]</a>
+<span class="k">def</span> <span class="nf">getPathogens</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">save_to_file</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create Dataframe with counts for all pathogen genomes in data.</span>
+
+<span class="sd">    Returns sorted pandas DataFrame with counts for occurrences of all pathogen</span>
+<span class="sd">    genomes in data passed.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        data (pandas DataFrame): dataframe with model history as produced by `saveToDf` function.</span>
+
+<span class="sd">    Keyword arguments:</span>
+<span class="sd">        save_to_file (String): file path and name to save model data under, no saving</span>
+<span class="sd">            occurs if empty string. Defaults to &quot;&quot;.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        pandas DataFrame with Series as described above.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">out</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span> <span class="s1">&#39;;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Pathogens&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;;&#39;</span><span class="p">)</span> <span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">value_counts</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Pathogens&#39;</span><span class="p">,</span><span class="s1">&#39;Counts&#39;</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">save_to_file</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">save_to_file</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">out</span></div>
+
+
+<div class="viewcode-block" id="getProtections">
+<a class="viewcode-back" href="../../../opqua.internal.html#opqua.internal.data.getProtections">[docs]</a>
+<span class="k">def</span> <span class="nf">getProtections</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">save_to_file</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create Dataframe with counts for all protection sequences in data.</span>
+
+<span class="sd">    Returns sorted pandas DataFrame with counts for occurrences of all</span>
+<span class="sd">    protection sequences in data passed.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        data (pandas DataFrame): dataframe with model history as produced by `saveToDf` function.</span>
+
+<span class="sd">    Keyword arguments:</span>
+<span class="sd">        save_to_file (String): file path and name to save model data under, no saving</span>
+<span class="sd">            occurs if empty string. Defaults to &quot;&quot;.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        pandas DataFrame with Series as described above.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">out</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span> <span class="s1">&#39;;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Protection&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;;&#39;</span><span class="p">)</span> <span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">value_counts</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Protection&#39;</span><span class="p">,</span><span class="s1">&#39;Counts&#39;</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">save_to_file</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">save_to_file</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">out</span></div>
+
+
+<div class="viewcode-block" id="pathogenDistanceDf">
+<a class="viewcode-back" href="../../../opqua.internal.html#opqua.internal.data.pathogenDistanceDf">[docs]</a>
+<span class="k">def</span> <span class="nf">pathogenDistanceDf</span><span class="p">(</span>
+        <span class="n">data</span><span class="p">,</span> <span class="n">num_top_sequences</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">track_specific_sequences</span><span class="o">=</span><span class="p">[],</span> <span class="n">seq_names</span><span class="o">=</span><span class="p">[],</span>
+        <span class="n">save_to_file</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">n_cores</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create DataFrame with pairwise Hamming distances for pathogen sequences</span>
+<span class="sd">    in data.</span>
+
+<span class="sd">    DataFrame has indexes and columns named according to genomes or argument</span>
+<span class="sd">    `seq_names`, if passed. Distance is measured as percent Hamming distance from</span>
+<span class="sd">    an optimal genome sequence.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        data (pandas DataFrame): dataframe with model history as produced by `saveToDf` function.</span>
+
+<span class="sd">    Keyword arguments:</span>
+<span class="sd">        num_top_sequences (int): how many sequences to include in matrix; if &lt;0,</span>
+<span class="sd">            includes all genomes in data passed. Defaults to -1.</span>
+<span class="sd">        track_specific_sequences (list of Strings): contains specific sequences to include in matrix</span>
+<span class="sd">            if not part of the top num_top_sequences sequences. Defaults to [].</span>
+<span class="sd">        seq_names (list of Strings): list with names to be used for sequence labels in matrix must</span>
+<span class="sd">            be of same length as number of sequences to be displayed; if empty,</span>
+<span class="sd">            uses sequences themselves. Defaults to [].</span>
+<span class="sd">        save_to_file (String): file path and name to save model data under, no saving</span>
+<span class="sd">            occurs if empty string. Defaults to &quot;&quot;.</span>
+<span class="sd">        n_cores (int): number of cores to parallelize distance compute across, if 0, all</span>
+<span class="sd">            cores available are used. Defaults to 0.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        pandas DataFrame with distance matrix as described above.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">sequences</span> <span class="o">=</span> <span class="n">getPathogens</span><span class="p">(</span><span class="n">data</span><span class="p">)[</span><span class="s1">&#39;Pathogens&#39;</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">num_top_sequences</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">sequences</span> <span class="o">=</span> <span class="n">sequences</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">num_top_sequences</span><span class="p">]</span>
+        <span class="n">sequences</span> <span class="o">=</span> <span class="n">sequences</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">track_specific_sequences</span><span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+
+    <span class="c1"># Fix — non parallelized</span>
+    <span class="n">dis_mat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">td</span><span class="o">.</span><span class="n">hamming</span><span class="p">(</span><span class="n">s1</span><span class="p">,</span> <span class="n">s2</span><span class="p">)</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">s1</span><span class="p">),</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">s2</span> <span class="ow">in</span> <span class="n">sequences</span><span class="p">]</span> <span class="k">for</span> <span class="n">s1</span> <span class="ow">in</span> <span class="n">sequences</span><span class="p">])</span>
+            <span class="c1"># Added the max() to avoid division by zero error triggered when</span>
+            <span class="c1"># getPathogenDistanceHistoryDf calls this method with an empty</span>
+            <span class="c1"># dataframe (for a timepoint with no pathogens)</span>
+
+    <span class="c1"># For some reason, this code triggers a full rerun of the simulation.</span>
+    <span class="c1"># Possible joblib bug?</span>
+    <span class="c1"># if not n_cores:</span>
+    <span class="c1">#     n_cores = jl.cpu_count()</span>
+    <span class="c1">#</span>
+    <span class="c1"># dis_mat = np.array( jl.Parallel(n_jobs=n_cores, verbose=1) (</span>
+    <span class="c1">#     jl.delayed( lambda s1: [</span>
+    <span class="c1">#         td.hamming(s1, s2) / max(len(s1),1) for s2 in sequences</span>
+    <span class="c1">#         ] ) (s1) for s1 in sequences</span>
+    <span class="c1">#     ) )</span>
+
+    <span class="n">names</span> <span class="o">=</span> <span class="n">sequences</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">seq_names</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">new_names</span> <span class="o">=</span> <span class="n">seq_names</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span> <span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">seq_names</span><span class="p">)</span> <span class="p">)</span> <span class="p">)</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="n">new_names</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)]</span>
+
+    <span class="n">dis_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span> <span class="n">dis_mat</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">names</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">names</span> <span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">save_to_file</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">dis_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">save_to_file</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">dis_df</span></div>
+
+
+<div class="viewcode-block" id="getPathogenDistanceHistoryDf">
+<a class="viewcode-back" href="../../../opqua.internal.html#opqua.internal.data.getPathogenDistanceHistoryDf">[docs]</a>
+<span class="k">def</span> <span class="nf">getPathogenDistanceHistoryDf</span><span class="p">(</span>
+        <span class="n">data</span><span class="p">,</span> <span class="n">samples</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_top_sequences</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">track_specific_sequences</span><span class="o">=</span><span class="p">[],</span>
+        <span class="n">seq_names</span><span class="o">=</span><span class="p">[],</span> <span class="n">save_to_file</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">n_cores</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create DataFrame with pairwise Hamming distances for pathogen sequences</span>
+<span class="sd">    in data.</span>
+
+<span class="sd">    DataFrame has indexes and columns named according to genomes or argument</span>
+<span class="sd">    `seq_names`, if passed. Distance is measured as percent Hamming distance from</span>
+<span class="sd">    an optimal genome sequence.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        data (pandas DataFrame): dataframe with model history as produced by `saveToDf` function</span>
+
+<span class="sd">    Keyword arguments:</span>
+<span class="sd">        samples (int): how many timepoints to uniformly sample from the total</span>
+<span class="sd">            timecourse; if &lt;0, takes all timepoints. Defaults to 1.</span>
+<span class="sd">        num_top_sequences (int): how many sequences to include in matrix; if &lt;0,</span>
+<span class="sd">            includes all genomes in data passed. Defaults to -1.</span>
+<span class="sd">        track_specific_sequences (list of Strings): contains specific sequences to include in matrix</span>
+<span class="sd">            if not part of the top num_top_sequences sequences. Defaults to [].</span>
+<span class="sd">        seq_names (list of Strings): list with names to be used for sequence labels in matrix must</span>
+<span class="sd">            be of same length as number of sequences to be displayed; if empty,</span>
+<span class="sd">            uses sequences themselves. Defaults to [].</span>
+<span class="sd">        save_to_file (String): file path and name to save model data under, no saving</span>
+<span class="sd">            occurs if empty string. Defaults to &quot;&quot;.</span>
+<span class="sd">        n_cores (int): number of cores to parallelize distance compute across, if 0, all</span>
+<span class="sd">            cores available are used (default 0; int)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        pandas DataFrame with distance matrix as described above.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">samples</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">samples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span>
+            <span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">]))</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">samples</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">sampled_times</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">])[</span><span class="n">samples</span><span class="p">]</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">sampled_times</span><span class="p">)</span> <span class="p">]</span>
+
+    <span class="n">grouped</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;Time&#39;</span><span class="p">)</span>
+    <span class="n">dis_df</span> <span class="o">=</span> <span class="n">grouped</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">d</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">melt</span><span class="p">(</span>
+            <span class="n">pathogenDistanceDf</span><span class="p">(</span>
+                <span class="n">d</span><span class="p">,</span> <span class="n">num_top_sequences</span><span class="o">=</span><span class="n">num_top_sequences</span><span class="p">,</span>
+                    <span class="n">track_specific_sequences</span><span class="o">=</span><span class="n">track_specific_sequences</span><span class="p">,</span>
+                    <span class="n">seq_names</span><span class="o">=</span><span class="n">seq_names</span><span class="p">,</span> <span class="n">save_to_file</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">n_cores</span><span class="o">=</span><span class="n">n_cores</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(),</span>
+                <span class="n">id_vars</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Pathogens&#39;</span><span class="p">],</span> <span class="n">var_name</span><span class="o">=</span><span class="s1">&#39;Pathogen_2&#39;</span><span class="p">,</span>
+                <span class="n">value_name</span><span class="o">=</span><span class="s1">&#39;Distance&#39;</span>
+                <span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+
+    <span class="n">dis_df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span><span class="s1">&#39;drop&#39;</span><span class="p">,</span><span class="s1">&#39;Pathogen_1&#39;</span><span class="p">,</span><span class="s1">&#39;Pathogen_2&#39;</span><span class="p">,</span><span class="s1">&#39;Distance&#39;</span><span class="p">]</span>
+    <span class="n">dis_df</span> <span class="o">=</span> <span class="n">dis_df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s1">&#39;drop&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">save_to_file</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">dis_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">save_to_file</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">dis_df</span></div>
+
+
+<div class="viewcode-block" id="getGenomeTimesDf">
+<a class="viewcode-back" href="../../../opqua.internal.html#opqua.internal.data.getGenomeTimesDf">[docs]</a>
+<span class="k">def</span> <span class="nf">getGenomeTimesDf</span><span class="p">(</span>
+        <span class="n">data</span><span class="p">,</span> <span class="n">samples</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">save_to_file</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">n_cores</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create DataFrame with times genomes first appeared during simulation.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        data (pandas DataFrame): dataframe with model history as produced by `saveToDf` function.</span>
+
+<span class="sd">    Keyword arguments:</span>
+<span class="sd">        samples (int): how many timepoints to uniformly sample from the total</span>
+<span class="sd">            timecourse; if &lt;0, takes all timepoints. Defaults to 1.</span>
+<span class="sd">        save_to_file (String): file path and name to save model data under, no saving</span>
+<span class="sd">            occurs if empty string. Defaults to &quot;&quot;.</span>
+<span class="sd">        n_cores (int): number of cores to parallelize across, if 0, all cores available</span>
+<span class="sd">            are used. Defaults to 0.</span>
+<span class="sd">        **kwargs: additional arguents for joblib multiprocessing.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        pandas DataFrame with genomes and times as described above.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">samples</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">samples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span>
+            <span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">]))</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">samples</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">sampled_times</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">])[</span><span class="n">samples</span><span class="p">]</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">sampled_times</span><span class="p">)</span> <span class="p">]</span>
+
+    <span class="n">his_dat</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+    <span class="n">his_dat</span><span class="p">[</span><span class="s1">&#39;Sequence&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span>
+        <span class="s1">&#39;;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="n">dat</span><span class="p">[</span><span class="s1">&#39;Pathogens&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span> <span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;;&#39;</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">getTime</span><span class="p">(</span><span class="n">seq</span><span class="p">):</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">his_dat</span><span class="p">[</span><span class="s1">&#39;Sequence&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="n">side</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">t</span>
+
+    <span class="n">his_dat</span><span class="p">[</span><span class="s1">&#39;Time_emergence&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">jl</span><span class="o">.</span><span class="n">Parallel</span><span class="p">(</span>
+        <span class="n">n_jobs</span><span class="o">=</span><span class="n">n_cores</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="p">)</span> <span class="p">(</span>
+            <span class="n">jl</span><span class="o">.</span><span class="n">delayed</span><span class="p">(</span> <span class="n">getTime</span> <span class="p">)</span> <span class="p">(</span><span class="n">seq</span><span class="p">)</span> <span class="k">for</span> <span class="n">seq</span> <span class="ow">in</span> <span class="n">his_dat</span><span class="p">[</span><span class="s1">&#39;Sequence&#39;</span><span class="p">]</span>
+            <span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">save_to_file</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">dis_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">save_to_file</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">his_dat</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Pablo Cárdenas.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

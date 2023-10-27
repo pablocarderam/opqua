@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Basic usage &mdash; Opqua 1.0.2 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/nbsphinx-code-cells.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=1ed6394b"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="about.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Evolution" href="evolution.html" />
+    <link rel="prev" title="Tutorials" href="tutorials.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Opqua
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="about.html">About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="requirements_and_installation.html">Requirements and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="tutorials.html">Tutorials</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Basic usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="evolution.html">Evolution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intervention.html">Interventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="metapopulation.html">Metapopulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vital_dynamics.html">Vital dynamics</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="model_documentation.html"><code class="docutils literal notranslate"><span class="pre">Model</span></code> Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="API.html">API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Opqua</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="tutorials.html">Tutorials</a></li>
+      <li class="breadcrumb-item active">Basic usage</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/basic_usage.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Basic-usage">
+<h1>Basic usage<a class="headerlink" href="#Basic-usage" title="Link to this heading"></a></h1>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">opqua.model</span> <span class="kn">import</span> <span class="n">Model</span>
+</pre></div>
+</div>
+</div>
+<p>Make a new model object</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">my_model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>Create a new set of parameters called <code class="docutils literal notranslate"><span class="pre">my_setup</span></code> to be used to simulate a population in the model.</p>
+<p>Here, we will use the default parameter set for a host-host transmission model</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">my_model</span><span class="o">.</span><span class="n">newSetup</span><span class="p">(</span><span class="s1">&#39;my_setup&#39;</span><span class="p">,</span> <span class="n">preset</span><span class="o">=</span><span class="s1">&#39;host-host&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Create a new population of 100 hosts and 0 vectors called <code class="docutils literal notranslate"><span class="pre">my_population</span></code>. The population uses parameters stored in <code class="docutils literal notranslate"><span class="pre">my_setup</span></code></p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">my_model</span><span class="o">.</span><span class="n">newPopulation</span><span class="p">(</span><span class="s1">&#39;my_population&#39;</span><span class="p">,</span> <span class="s1">&#39;my_setup&#39;</span><span class="p">,</span> <span class="n">num_hosts</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Add pathogens with a genome of <em>AAAAAAAAAA</em> to 20 random hosts in population <code class="docutils literal notranslate"><span class="pre">my_population</span></code></p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">my_model</span><span class="o">.</span><span class="n">addPathogensToHosts</span><span class="p">(</span> <span class="s1">&#39;my_population&#39;</span><span class="p">,{</span><span class="s1">&#39;AAAAAAAAAA&#39;</span><span class="p">:</span><span class="mi">20</span><span class="p">}</span> <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Run the simulation for 200 time units</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">my_model</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">200</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Simulating time: 71.89423840111455, event: CONTACT_HOST_HOST
+Simulating time: 136.14665780191842, event: RECOVER_HOST
+Simulating time: 200.15737579926133 END
+</pre></div></div>
+</div>
+<p>Save the model results to a table</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">my_model</span><span class="o">.</span><span class="n">saveToDataFrame</span><span class="p">(</span><span class="s1">&#39;Basic_example.csv&#39;</span><span class="p">)</span>
+<span class="n">data</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Saving file...
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+[Parallel(n_jobs=8)]: Using backend LokyBackend with 8 concurrent workers.
+[Parallel(n_jobs=8)]: Done   2 tasks      | elapsed:    0.3s
+[Parallel(n_jobs=8)]: Batch computation too fast (0.19414451599121096s.) Setting batch_size=2.
+[Parallel(n_jobs=8)]: Done   9 tasks      | elapsed:    0.3s
+[Parallel(n_jobs=8)]: Done  16 tasks      | elapsed:    0.3s
+[Parallel(n_jobs=8)]: Batch computation too fast (0.01929759979248047s.) Setting batch_size=4.
+[Parallel(n_jobs=8)]: Done  26 tasks      | elapsed:    0.3s
+[Parallel(n_jobs=8)]: Done  44 tasks      | elapsed:    0.3s
+[Parallel(n_jobs=8)]: Batch computation too fast (0.013352155685424805s.) Setting batch_size=8.
+[Parallel(n_jobs=8)]: Done  76 tasks      | elapsed:    0.3s
+[Parallel(n_jobs=8)]: Batch computation too fast (0.01486515998840332s.) Setting batch_size=16.
+[Parallel(n_jobs=8)]: Done 124 tasks      | elapsed:    0.4s
+[Parallel(n_jobs=8)]: Done 224 tasks      | elapsed:    0.4s
+[Parallel(n_jobs=8)]: Batch computation too fast (0.02699422836303711s.) Setting batch_size=32.
+[Parallel(n_jobs=8)]: Done 408 tasks      | elapsed:    0.5s
+[Parallel(n_jobs=8)]: Batch computation too fast (0.05492806434631348s.) Setting batch_size=64.
+[Parallel(n_jobs=8)]: Done 792 tasks      | elapsed:    0.6s
+[Parallel(n_jobs=8)]: Batch computation too fast (0.08415079116821289s.) Setting batch_size=128.
+[Parallel(n_jobs=8)]: Done 1292 tasks      | elapsed:    0.7s
+[Parallel(n_jobs=8)]: Done 1495 tasks      | elapsed:    0.7s
+[Parallel(n_jobs=8)]: Done 1698 tasks      | elapsed:    0.7s
+[Parallel(n_jobs=8)]: Done 1793 tasks      | elapsed:    0.7s
+[Parallel(n_jobs=8)]: Done 1956 out of 1956 | elapsed:    0.7s finished
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+...file saved.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Time</th>
+      <th>Population</th>
+      <th>Organism</th>
+      <th>ID</th>
+      <th>Pathogens</th>
+      <th>Protection</th>
+      <th>Alive</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.0</td>
+      <td>my_population</td>
+      <td>Host</td>
+      <td>my_population_0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.0</td>
+      <td>my_population</td>
+      <td>Host</td>
+      <td>my_population_1</td>
+      <td>AAAAAAAAAA</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.0</td>
+      <td>my_population</td>
+      <td>Host</td>
+      <td>my_population_2</td>
+      <td>AAAAAAAAAA</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.0</td>
+      <td>my_population</td>
+      <td>Host</td>
+      <td>my_population_3</td>
+      <td>AAAAAAAAAA</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.0</td>
+      <td>my_population</td>
+      <td>Host</td>
+      <td>my_population_4</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>195595</th>
+      <td>200.0</td>
+      <td>my_population</td>
+      <td>Host</td>
+      <td>my_population_95</td>
+      <td>AAAAAAAAAA</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>195596</th>
+      <td>200.0</td>
+      <td>my_population</td>
+      <td>Host</td>
+      <td>my_population_96</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>195597</th>
+      <td>200.0</td>
+      <td>my_population</td>
+      <td>Host</td>
+      <td>my_population_97</td>
+      <td>AAAAAAAAAA</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>195598</th>
+      <td>200.0</td>
+      <td>my_population</td>
+      <td>Host</td>
+      <td>my_population_98</td>
+      <td>AAAAAAAAAA</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>195599</th>
+      <td>200.0</td>
+      <td>my_population</td>
+      <td>Host</td>
+      <td>my_population_99</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+<p>195600 rows × 7 columns</p>
+</div></div>
+</div>
+<p>Plot the number of susceptible and infected hosts in the model over time</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">graph</span> <span class="o">=</span> <span class="n">my_model</span><span class="o">.</span><span class="n">compartmentPlot</span><span class="p">(</span><span class="s1">&#39;Basic_example_compartment.png&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/basic_usage_15_0.png" src="_images/basic_usage_15_0.png" />
+</div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tutorials.html" class="btn btn-neutral float-left" title="Tutorials" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="evolution.html" class="btn btn-neutral float-right" title="Evolution" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Pablo Cárdenas.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

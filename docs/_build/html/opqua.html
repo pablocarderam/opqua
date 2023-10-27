@@ -1,0 +1,1746 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>opqua package &mdash; Opqua 1.0.2 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=1ed6394b"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="about.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="opqua.internal package" href="opqua.internal.html" />
+    <link rel="prev" title="API" href="API.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Opqua
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="about.html">About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="requirements_and_installation.html">Requirements and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_documentation.html"><code class="docutils literal notranslate"><span class="pre">Model</span></code> Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="API.html">API</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">opqua package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html">opqua.internal package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-opqua.model">opqua.model module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#opqua.model.Model"><code class="docutils literal notranslate"><span class="pre">Model</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-opqua">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Opqua</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="API.html">API</a></li>
+      <li class="breadcrumb-item active">opqua package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/opqua.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="opqua-package">
+<h1>opqua package<a class="headerlink" href="#opqua-package" title="Link to this heading"></a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="opqua.internal.html">opqua.internal package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="opqua.internal.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opqua.internal.html#module-opqua.internal.data">opqua.internal.data module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="opqua.internal.html#opqua.internal.data.compartmentDf"><code class="docutils literal notranslate"><span class="pre">compartmentDf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="opqua.internal.html#opqua.internal.data.compositionDf"><code class="docutils literal notranslate"><span class="pre">compositionDf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="opqua.internal.html#opqua.internal.data.getGenomeTimesDf"><code class="docutils literal notranslate"><span class="pre">getGenomeTimesDf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="opqua.internal.html#opqua.internal.data.getPathogenDistanceHistoryDf"><code class="docutils literal notranslate"><span class="pre">getPathogenDistanceHistoryDf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="opqua.internal.html#opqua.internal.data.getPathogens"><code class="docutils literal notranslate"><span class="pre">getPathogens()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="opqua.internal.html#opqua.internal.data.getProtections"><code class="docutils literal notranslate"><span class="pre">getProtections()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="opqua.internal.html#opqua.internal.data.pathogenDistanceDf"><code class="docutils literal notranslate"><span class="pre">pathogenDistanceDf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="opqua.internal.html#opqua.internal.data.populationsDf"><code class="docutils literal notranslate"><span class="pre">populationsDf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="opqua.internal.html#opqua.internal.data.saveToDf"><code class="docutils literal notranslate"><span class="pre">saveToDf()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="opqua.internal.html#module-opqua.internal.gillespie">opqua.internal.gillespie module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="opqua.internal.html#opqua.internal.gillespie.Gillespie"><code class="docutils literal notranslate"><span class="pre">Gillespie</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.gillespie.Gillespie.model"><code class="docutils literal notranslate"><span class="pre">Gillespie.model</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.gillespie.Gillespie.BIRTH_HOST"><code class="docutils literal notranslate"><span class="pre">Gillespie.BIRTH_HOST</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.gillespie.Gillespie.BIRTH_VECTOR"><code class="docutils literal notranslate"><span class="pre">Gillespie.BIRTH_VECTOR</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.gillespie.Gillespie.CONTACT_HOST_HOST"><code class="docutils literal notranslate"><span class="pre">Gillespie.CONTACT_HOST_HOST</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.gillespie.Gillespie.CONTACT_HOST_VECTOR"><code class="docutils literal notranslate"><span class="pre">Gillespie.CONTACT_HOST_VECTOR</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.gillespie.Gillespie.CONTACT_VECTOR_HOST"><code class="docutils literal notranslate"><span class="pre">Gillespie.CONTACT_VECTOR_HOST</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.gillespie.Gillespie.DIE_HOST"><code class="docutils literal notranslate"><span class="pre">Gillespie.DIE_HOST</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.gillespie.Gillespie.DIE_VECTOR"><code class="docutils literal notranslate"><span class="pre">Gillespie.DIE_VECTOR</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.gillespie.Gillespie.EVENT_IDS"><code class="docutils literal notranslate"><span class="pre">Gillespie.EVENT_IDS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.gillespie.Gillespie.KILL_HOST"><code class="docutils literal notranslate"><span class="pre">Gillespie.KILL_HOST</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.gillespie.Gillespie.KILL_VECTOR"><code class="docutils literal notranslate"><span class="pre">Gillespie.KILL_VECTOR</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.gillespie.Gillespie.MIGRATE_HOST"><code class="docutils literal notranslate"><span class="pre">Gillespie.MIGRATE_HOST</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.gillespie.Gillespie.MIGRATE_VECTOR"><code class="docutils literal notranslate"><span class="pre">Gillespie.MIGRATE_VECTOR</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.gillespie.Gillespie.MUTATE_HOST"><code class="docutils literal notranslate"><span class="pre">Gillespie.MUTATE_HOST</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.gillespie.Gillespie.MUTATE_VECTOR"><code class="docutils literal notranslate"><span class="pre">Gillespie.MUTATE_VECTOR</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.gillespie.Gillespie.POPULATION_CONTACT_HOST_HOST"><code class="docutils literal notranslate"><span class="pre">Gillespie.POPULATION_CONTACT_HOST_HOST</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.gillespie.Gillespie.POPULATION_CONTACT_HOST_VECTOR"><code class="docutils literal notranslate"><span class="pre">Gillespie.POPULATION_CONTACT_HOST_VECTOR</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.gillespie.Gillespie.POPULATION_CONTACT_VECTOR_HOST"><code class="docutils literal notranslate"><span class="pre">Gillespie.POPULATION_CONTACT_VECTOR_HOST</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.gillespie.Gillespie.RECOMBINE_HOST"><code class="docutils literal notranslate"><span class="pre">Gillespie.RECOMBINE_HOST</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.gillespie.Gillespie.RECOMBINE_VECTOR"><code class="docutils literal notranslate"><span class="pre">Gillespie.RECOMBINE_VECTOR</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.gillespie.Gillespie.RECOVER_HOST"><code class="docutils literal notranslate"><span class="pre">Gillespie.RECOVER_HOST</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.gillespie.Gillespie.RECOVER_VECTOR"><code class="docutils literal notranslate"><span class="pre">Gillespie.RECOVER_VECTOR</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.gillespie.Gillespie.doAction"><code class="docutils literal notranslate"><span class="pre">Gillespie.doAction()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.gillespie.Gillespie.getRates"><code class="docutils literal notranslate"><span class="pre">Gillespie.getRates()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.gillespie.Gillespie.run"><code class="docutils literal notranslate"><span class="pre">Gillespie.run()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="opqua.internal.html#module-opqua.internal.host">opqua.internal.host module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="opqua.internal.html#opqua.internal.host.Host"><code class="docutils literal notranslate"><span class="pre">Host</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.host.Host.population"><code class="docutils literal notranslate"><span class="pre">Host.population</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.host.Host.id"><code class="docutils literal notranslate"><span class="pre">Host.id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.host.Host.slim"><code class="docutils literal notranslate"><span class="pre">Host.slim</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.host.Host.acquirePathogen"><code class="docutils literal notranslate"><span class="pre">Host.acquirePathogen()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.host.Host.applyTreatment"><code class="docutils literal notranslate"><span class="pre">Host.applyTreatment()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.host.Host.birth"><code class="docutils literal notranslate"><span class="pre">Host.birth()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.host.Host.copyState"><code class="docutils literal notranslate"><span class="pre">Host.copyState()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.host.Host.die"><code class="docutils literal notranslate"><span class="pre">Host.die()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.host.Host.getWeightedRandomGenome"><code class="docutils literal notranslate"><span class="pre">Host.getWeightedRandomGenome()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.host.Host.infectHost"><code class="docutils literal notranslate"><span class="pre">Host.infectHost()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.host.Host.infectVector"><code class="docutils literal notranslate"><span class="pre">Host.infectVector()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.host.Host.mutate"><code class="docutils literal notranslate"><span class="pre">Host.mutate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.host.Host.recombine"><code class="docutils literal notranslate"><span class="pre">Host.recombine()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.host.Host.recover"><code class="docutils literal notranslate"><span class="pre">Host.recover()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="opqua.internal.html#module-opqua.internal.intervention">opqua.internal.intervention module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="opqua.internal.html#opqua.internal.intervention.Intervention"><code class="docutils literal notranslate"><span class="pre">Intervention</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.intervention.Intervention.time"><code class="docutils literal notranslate"><span class="pre">Intervention.time</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.intervention.Intervention.method_name"><code class="docutils literal notranslate"><span class="pre">Intervention.method_name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.intervention.Intervention.args"><code class="docutils literal notranslate"><span class="pre">Intervention.args</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.intervention.Intervention.model"><code class="docutils literal notranslate"><span class="pre">Intervention.model</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.intervention.Intervention.doIntervention"><code class="docutils literal notranslate"><span class="pre">Intervention.doIntervention()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="opqua.internal.html#module-opqua.internal.plot">opqua.internal.plot module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="opqua.internal.html#opqua.internal.plot.clustermap"><code class="docutils literal notranslate"><span class="pre">clustermap()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="opqua.internal.html#opqua.internal.plot.compartmentPlot"><code class="docutils literal notranslate"><span class="pre">compartmentPlot()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="opqua.internal.html#opqua.internal.plot.compositionPlot"><code class="docutils literal notranslate"><span class="pre">compositionPlot()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="opqua.internal.html#opqua.internal.plot.populationsPlot"><code class="docutils literal notranslate"><span class="pre">populationsPlot()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="opqua.internal.html#module-opqua.internal.population">opqua.internal.population module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population"><code class="docutils literal notranslate"><span class="pre">Population</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.model"><code class="docutils literal notranslate"><span class="pre">Population.model</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.id"><code class="docutils literal notranslate"><span class="pre">Population.id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.setup"><code class="docutils literal notranslate"><span class="pre">Population.setup</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.num_hosts"><code class="docutils literal notranslate"><span class="pre">Population.num_hosts</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.num_vectors"><code class="docutils literal notranslate"><span class="pre">Population.num_vectors</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.slim"><code class="docutils literal notranslate"><span class="pre">Population.slim</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.CHROMOSOME_SEPARATOR"><code class="docutils literal notranslate"><span class="pre">Population.CHROMOSOME_SEPARATOR</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.CONTACT"><code class="docutils literal notranslate"><span class="pre">Population.CONTACT</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.INFECTED"><code class="docutils literal notranslate"><span class="pre">Population.INFECTED</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.LETHALITY"><code class="docutils literal notranslate"><span class="pre">Population.LETHALITY</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.MIGRATION"><code class="docutils literal notranslate"><span class="pre">Population.MIGRATION</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.MUTATION"><code class="docutils literal notranslate"><span class="pre">Population.MUTATION</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.NATALITY"><code class="docutils literal notranslate"><span class="pre">Population.NATALITY</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.NUM_COEFFICIENTS"><code class="docutils literal notranslate"><span class="pre">Population.NUM_COEFFICIENTS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.POPULATION_CONTACT"><code class="docutils literal notranslate"><span class="pre">Population.POPULATION_CONTACT</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.RECEIVE_CONTACT"><code class="docutils literal notranslate"><span class="pre">Population.RECEIVE_CONTACT</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.RECEIVE_POPULATION_CONTACT"><code class="docutils literal notranslate"><span class="pre">Population.RECEIVE_POPULATION_CONTACT</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.RECOMBINATION"><code class="docutils literal notranslate"><span class="pre">Population.RECOMBINATION</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.RECOVERY"><code class="docutils literal notranslate"><span class="pre">Population.RECOVERY</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.addHosts"><code class="docutils literal notranslate"><span class="pre">Population.addHosts()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.addPathogensToHosts"><code class="docutils literal notranslate"><span class="pre">Population.addPathogensToHosts()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.addPathogensToVectors"><code class="docutils literal notranslate"><span class="pre">Population.addPathogensToVectors()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.addVectors"><code class="docutils literal notranslate"><span class="pre">Population.addVectors()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.birthHost"><code class="docutils literal notranslate"><span class="pre">Population.birthHost()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.birthVector"><code class="docutils literal notranslate"><span class="pre">Population.birthVector()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.contactHostHost"><code class="docutils literal notranslate"><span class="pre">Population.contactHostHost()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.contactHostVector"><code class="docutils literal notranslate"><span class="pre">Population.contactHostVector()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.contactVectorHost"><code class="docutils literal notranslate"><span class="pre">Population.contactVectorHost()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.copyState"><code class="docutils literal notranslate"><span class="pre">Population.copyState()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.dieHost"><code class="docutils literal notranslate"><span class="pre">Population.dieHost()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.dieVector"><code class="docutils literal notranslate"><span class="pre">Population.dieVector()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.getWeightedRandom"><code class="docutils literal notranslate"><span class="pre">Population.getWeightedRandom()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.healthyCoefficientRow"><code class="docutils literal notranslate"><span class="pre">Population.healthyCoefficientRow()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.killHost"><code class="docutils literal notranslate"><span class="pre">Population.killHost()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.killVector"><code class="docutils literal notranslate"><span class="pre">Population.killVector()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.migrate"><code class="docutils literal notranslate"><span class="pre">Population.migrate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.mutateHost"><code class="docutils literal notranslate"><span class="pre">Population.mutateHost()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.mutateVector"><code class="docutils literal notranslate"><span class="pre">Population.mutateVector()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.newHostGroup"><code class="docutils literal notranslate"><span class="pre">Population.newHostGroup()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.newVectorGroup"><code class="docutils literal notranslate"><span class="pre">Population.newVectorGroup()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.populationContact"><code class="docutils literal notranslate"><span class="pre">Population.populationContact()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.protectHosts"><code class="docutils literal notranslate"><span class="pre">Population.protectHosts()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.protectVectors"><code class="docutils literal notranslate"><span class="pre">Population.protectVectors()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.recombineHost"><code class="docutils literal notranslate"><span class="pre">Population.recombineHost()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.recombineVector"><code class="docutils literal notranslate"><span class="pre">Population.recombineVector()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.recoverHost"><code class="docutils literal notranslate"><span class="pre">Population.recoverHost()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.recoverVector"><code class="docutils literal notranslate"><span class="pre">Population.recoverVector()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.removeHosts"><code class="docutils literal notranslate"><span class="pre">Population.removeHosts()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.removeVectors"><code class="docutils literal notranslate"><span class="pre">Population.removeVectors()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.setHostHostPopulationContactNeighbor"><code class="docutils literal notranslate"><span class="pre">Population.setHostHostPopulationContactNeighbor()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.setHostMigrationNeighbor"><code class="docutils literal notranslate"><span class="pre">Population.setHostMigrationNeighbor()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.setHostVectorPopulationContactNeighbor"><code class="docutils literal notranslate"><span class="pre">Population.setHostVectorPopulationContactNeighbor()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.setSetup"><code class="docutils literal notranslate"><span class="pre">Population.setSetup()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.setVectorHostPopulationContactNeighbor"><code class="docutils literal notranslate"><span class="pre">Population.setVectorHostPopulationContactNeighbor()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.setVectorMigrationNeighbor"><code class="docutils literal notranslate"><span class="pre">Population.setVectorMigrationNeighbor()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.treatHosts"><code class="docutils literal notranslate"><span class="pre">Population.treatHosts()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.treatVectors"><code class="docutils literal notranslate"><span class="pre">Population.treatVectors()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.updateHostCoefficients"><code class="docutils literal notranslate"><span class="pre">Population.updateHostCoefficients()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.updateVectorCoefficients"><code class="docutils literal notranslate"><span class="pre">Population.updateVectorCoefficients()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.wipeProtectionHosts"><code class="docutils literal notranslate"><span class="pre">Population.wipeProtectionHosts()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.population.Population.wipeProtectionVectors"><code class="docutils literal notranslate"><span class="pre">Population.wipeProtectionVectors()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="opqua.internal.html#module-opqua.internal.setup">opqua.internal.setup module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="opqua.internal.html#opqua.internal.setup.Setup"><code class="docutils literal notranslate"><span class="pre">Setup</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.setup.Setup.id"><code class="docutils literal notranslate"><span class="pre">Setup.id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.setup.Setup.num_loci"><code class="docutils literal notranslate"><span class="pre">Setup.num_loci</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.setup.Setup.possible_alleles"><code class="docutils literal notranslate"><span class="pre">Setup.possible_alleles</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.setup.Setup.fitnessHost"><code class="docutils literal notranslate"><span class="pre">Setup.fitnessHost</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.setup.Setup.contactHost"><code class="docutils literal notranslate"><span class="pre">Setup.contactHost</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.setup.Setup.receiveContactHost"><code class="docutils literal notranslate"><span class="pre">Setup.receiveContactHost</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.setup.Setup.mortalityHost"><code class="docutils literal notranslate"><span class="pre">Setup.mortalityHost</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.setup.Setup.natalityHost"><code class="docutils literal notranslate"><span class="pre">Setup.natalityHost</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.setup.Setup.recoveryHost"><code class="docutils literal notranslate"><span class="pre">Setup.recoveryHost</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.setup.Setup.migrationHost"><code class="docutils literal notranslate"><span class="pre">Setup.migrationHost</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.setup.Setup.populationContactHost"><code class="docutils literal notranslate"><span class="pre">Setup.populationContactHost</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.setup.Setup.mutationHost"><code class="docutils literal notranslate"><span class="pre">Setup.mutationHost</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.setup.Setup.recombinationHost"><code class="docutils literal notranslate"><span class="pre">Setup.recombinationHost</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.setup.Setup.fitnessVector"><code class="docutils literal notranslate"><span class="pre">Setup.fitnessVector</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.setup.Setup.contactVector"><code class="docutils literal notranslate"><span class="pre">Setup.contactVector</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.setup.Setup.receiveContactVector"><code class="docutils literal notranslate"><span class="pre">Setup.receiveContactVector</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.setup.Setup.mortalityVector"><code class="docutils literal notranslate"><span class="pre">Setup.mortalityVector</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.setup.Setup.natalityVector"><code class="docutils literal notranslate"><span class="pre">Setup.natalityVector</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.setup.Setup.recoveryVector"><code class="docutils literal notranslate"><span class="pre">Setup.recoveryVector</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.setup.Setup.migrationVector"><code class="docutils literal notranslate"><span class="pre">Setup.migrationVector</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.setup.Setup.populationContactVector"><code class="docutils literal notranslate"><span class="pre">Setup.populationContactVector</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.setup.Setup.mutationVector"><code class="docutils literal notranslate"><span class="pre">Setup.mutationVector</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.setup.Setup.recombinationVector"><code class="docutils literal notranslate"><span class="pre">Setup.recombinationVector</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.setup.Setup.contact_rate_host_vector"><code class="docutils literal notranslate"><span class="pre">Setup.contact_rate_host_vector</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.setup.Setup.transmission_efficiency_host_vector"><code class="docutils literal notranslate"><span class="pre">Setup.transmission_efficiency_host_vector</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.setup.Setup.transmission_efficiency_vector_host"><code class="docutils literal notranslate"><span class="pre">Setup.transmission_efficiency_vector_host</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.setup.Setup.contact_rate_host_host"><code class="docutils literal notranslate"><span class="pre">Setup.contact_rate_host_host</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.setup.Setup.transmission_efficiency_host_host"><code class="docutils literal notranslate"><span class="pre">Setup.transmission_efficiency_host_host</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.setup.Setup.mean_inoculum_host"><code class="docutils literal notranslate"><span class="pre">Setup.mean_inoculum_host</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.setup.Setup.mean_inoculum_vector"><code class="docutils literal notranslate"><span class="pre">Setup.mean_inoculum_vector</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.setup.Setup.recovery_rate_host"><code class="docutils literal notranslate"><span class="pre">Setup.recovery_rate_host</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.setup.Setup.recovery_rate_vector"><code class="docutils literal notranslate"><span class="pre">Setup.recovery_rate_vector</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#id0"><code class="docutils literal notranslate"><span class="pre">Setup.recovery_rate_vector</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.setup.Setup.mortality_rate_host"><code class="docutils literal notranslate"><span class="pre">Setup.mortality_rate_host</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.setup.Setup.mortality_rate_vector"><code class="docutils literal notranslate"><span class="pre">Setup.mortality_rate_vector</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.setup.Setup.recombine_in_host"><code class="docutils literal notranslate"><span class="pre">Setup.recombine_in_host</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.setup.Setup.recombine_in_vector"><code class="docutils literal notranslate"><span class="pre">Setup.recombine_in_vector</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.setup.Setup.num_crossover_host"><code class="docutils literal notranslate"><span class="pre">Setup.num_crossover_host</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.setup.Setup.num_crossover_vector"><code class="docutils literal notranslate"><span class="pre">Setup.num_crossover_vector</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.setup.Setup.mutate_in_host"><code class="docutils literal notranslate"><span class="pre">Setup.mutate_in_host</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.setup.Setup.mutate_in_vector"><code class="docutils literal notranslate"><span class="pre">Setup.mutate_in_vector</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.setup.Setup.death_rate_host"><code class="docutils literal notranslate"><span class="pre">Setup.death_rate_host</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.setup.Setup.death_rate_vector"><code class="docutils literal notranslate"><span class="pre">Setup.death_rate_vector</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.setup.Setup.birth_rate_host"><code class="docutils literal notranslate"><span class="pre">Setup.birth_rate_host</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.setup.Setup.birth_rate_vector"><code class="docutils literal notranslate"><span class="pre">Setup.birth_rate_vector</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.setup.Setup.vertical_transmission_host"><code class="docutils literal notranslate"><span class="pre">Setup.vertical_transmission_host</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.setup.Setup.vertical_transmission_vector"><code class="docutils literal notranslate"><span class="pre">Setup.vertical_transmission_vector</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.setup.Setup.inherit_protection_host"><code class="docutils literal notranslate"><span class="pre">Setup.inherit_protection_host</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.setup.Setup.inherit_protection_vector"><code class="docutils literal notranslate"><span class="pre">Setup.inherit_protection_vector</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.setup.Setup.protection_upon_recovery_host"><code class="docutils literal notranslate"><span class="pre">Setup.protection_upon_recovery_host</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.setup.Setup.protection_upon_recovery_vector"><code class="docutils literal notranslate"><span class="pre">Setup.protection_upon_recovery_vector</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="opqua.internal.html#module-opqua.internal.vector">opqua.internal.vector module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="opqua.internal.html#opqua.internal.vector.Vector"><code class="docutils literal notranslate"><span class="pre">Vector</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.vector.Vector.population"><code class="docutils literal notranslate"><span class="pre">Vector.population</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.vector.Vector.id"><code class="docutils literal notranslate"><span class="pre">Vector.id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.vector.Vector.slim"><code class="docutils literal notranslate"><span class="pre">Vector.slim</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.vector.Vector.acquirePathogen"><code class="docutils literal notranslate"><span class="pre">Vector.acquirePathogen()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.vector.Vector.applyTreatment"><code class="docutils literal notranslate"><span class="pre">Vector.applyTreatment()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.vector.Vector.birth"><code class="docutils literal notranslate"><span class="pre">Vector.birth()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.vector.Vector.copyState"><code class="docutils literal notranslate"><span class="pre">Vector.copyState()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.vector.Vector.die"><code class="docutils literal notranslate"><span class="pre">Vector.die()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.vector.Vector.getWeightedRandomGenome"><code class="docutils literal notranslate"><span class="pre">Vector.getWeightedRandomGenome()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.vector.Vector.infectHost"><code class="docutils literal notranslate"><span class="pre">Vector.infectHost()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.vector.Vector.infectVector"><code class="docutils literal notranslate"><span class="pre">Vector.infectVector()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.vector.Vector.mutate"><code class="docutils literal notranslate"><span class="pre">Vector.mutate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.vector.Vector.recombine"><code class="docutils literal notranslate"><span class="pre">Vector.recombine()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="opqua.internal.html#opqua.internal.vector.Vector.recover"><code class="docutils literal notranslate"><span class="pre">Vector.recover()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="opqua.internal.html#module-opqua.internal">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-opqua.model">
+<span id="opqua-model-module"></span><h2>opqua.model module<a class="headerlink" href="#module-opqua.model" title="Link to this heading"></a></h2>
+<p>Contains class Model; main class user interacts with.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="opqua.model.Model">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">opqua.model.</span></span><span class="sig-name descname"><span class="pre">Model</span></span><a class="reference internal" href="_modules/opqua/model.html#Model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.model.Model" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class defines a Model.</p>
+<p>This is the main class that the user interacts with.</p>
+<p>The Model class contains populations, setups, and interventions to be used
+in simulation. Also contains groups of hosts/vectors for manipulations and
+stores model history as snapshots for each time point.</p>
+<p><strong>CONSTANTS:</strong></p>
+<ul class="simple">
+<li><p><cite>CB_PALETTE</cite>: a colorblind-friendly 8-color color scheme.</p></li>
+<li><p><cite>DEF_CMAP</cite>: a colormap object for Seaborn plots.</p></li>
+</ul>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.model.Model.populations">
+<span class="sig-name descname"><span class="pre">populations</span></span><a class="headerlink" href="#opqua.model.Model.populations" title="Link to this definition"></a></dt>
+<dd><p>dictionary with keys=population IDs, values=Population
+objects.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.model.Model.setups">
+<span class="sig-name descname"><span class="pre">setups</span></span><a class="headerlink" href="#opqua.model.Model.setups" title="Link to this definition"></a></dt>
+<dd><p>dictionary with keys=setup IDs, values=Setup objects.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.model.Model.interventions">
+<span class="sig-name descname"><span class="pre">interventions</span></span><a class="headerlink" href="#opqua.model.Model.interventions" title="Link to this definition"></a></dt>
+<dd><p>contains model interventions in the order they will occur.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.model.Model.groups">
+<span class="sig-name descname"><span class="pre">groups</span></span><a class="headerlink" href="#opqua.model.Model.groups" title="Link to this definition"></a></dt>
+<dd><p>dictionary with keys=group IDs, values=lists of hosts/vectors.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.model.Model.history">
+<span class="sig-name descname"><span class="pre">history</span></span><a class="headerlink" href="#opqua.model.Model.history" title="Link to this definition"></a></dt>
+<dd><p>dictionary with keys=time values, values=Model objects that
+are snapshots of Model at that timepoint.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.model.Model.t_var">
+<span class="sig-name descname"><span class="pre">t_var</span></span><a class="headerlink" href="#opqua.model.Model.t_var" title="Link to this definition"></a></dt>
+<dd><p>variable that tracks time in simulations.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.model.Model.CB_PALETTE">
+<span class="sig-name descname"><span class="pre">CB_PALETTE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['#E69F00',</span> <span class="pre">'#56B4E9',</span> <span class="pre">'#009E73',</span> <span class="pre">'#F0E442',</span> <span class="pre">'#0072B2',</span> <span class="pre">'#D55E00',</span> <span class="pre">'#CC79A7',</span> <span class="pre">'#999999']</span></em><a class="headerlink" href="#opqua.model.Model.CB_PALETTE" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opqua.model.Model.DEF_CMAP">
+<span class="sig-name descname"><span class="pre">DEF_CMAP</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;matplotlib.colors.ListedColormap</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#opqua.model.Model.DEF_CMAP" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opqua.model.Model.addCustomConditionTracker">
+<span class="sig-name descname"><span class="pre">addCustomConditionTracker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">condition_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trackerFunction</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/model.html#Model.addCustomConditionTracker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.model.Model.addCustomConditionTracker" title="Link to this definition"></a></dt>
+<dd><p>Add a function to track occurrences of custom events in simulation.</p>
+<p>Adds function <cite>trackerFunction</cite> to dictionary <cite>custom_condition_trackers</cite>
+under key <cite>condition_id</cite>. Function <cite>trackerFunction</cite> will be executed at
+every event in the simulation. Every time True is returned,
+the simulation time will be stored under the corresponding <cite>condition_id</cite>
+key inside <cite>global_trackers[‘custom_condition’]</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>condition_id</strong> (<em>String</em>) – ID of this specific condition-</p></li>
+<li><p><strong>trackerFunction</strong> (<em>callable</em>) – function that take a <cite>Model</cite> object as argument
+and returns True or False.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opqua.model.Model.addHosts">
+<span class="sig-name descname"><span class="pre">addHosts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pop_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_hosts</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/model.html#Model.addHosts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.model.Model.addHosts" title="Link to this definition"></a></dt>
+<dd><p>Add a number of healthy hosts to population, return list with them.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pop_id</strong> (<em>String</em>) – ID of population to be modified.</p></li>
+<li><p><strong>num_hosts</strong> (<em>int</em>) – number of hosts to be added.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>list containing new hosts.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opqua.model.Model.addPathogensToHosts">
+<span class="sig-name descname"><span class="pre">addPathogensToHosts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pop_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">genomes_numbers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/model.html#Model.addPathogensToHosts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.model.Model.addPathogensToHosts" title="Link to this definition"></a></dt>
+<dd><p>Add specified pathogens to random hosts, optionally from a list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pop_id</strong> (<em>String</em>) – ID of population to be modified.</p></li>
+<li><p><strong>genomes_numbers</strong> (<em>dict with keys=Strings</em><em>, </em><em>values=int</em>) – genomes to add as keys and number of hosts each one will be added to as values.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>group_id</strong> (<em>String</em>) – ID of specific hosts to sample from, if empty, samples
+from whole population. Defaults to “”.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opqua.model.Model.addPathogensToVectors">
+<span class="sig-name descname"><span class="pre">addPathogensToVectors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pop_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">genomes_numbers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/model.html#Model.addPathogensToVectors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.model.Model.addPathogensToVectors" title="Link to this definition"></a></dt>
+<dd><p>Add specified pathogens to random vectors, optionally from a list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pop_id</strong> (<em>String</em>) – ID of population to be modified.</p></li>
+<li><p><strong>genomes_numbers</strong> (<em>dict with keys=Strings</em><em>, </em><em>values=int</em>) – dictionary containing pathogen
+genomes to add as keys and number of vectors each one will be added to as values.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>group_id</strong> (<em>String</em>) – ID of specific vectors to sample from, if empty, samples
+from whole population. Defaults to “”.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opqua.model.Model.addVectors">
+<span class="sig-name descname"><span class="pre">addVectors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pop_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_vectors</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/model.html#Model.addVectors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.model.Model.addVectors" title="Link to this definition"></a></dt>
+<dd><p>Add a number of healthy vectors to population, return list with them.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pop_id</strong> (<em>String</em>) – ID of population to be modified.</p></li>
+<li><p><strong>num_vectors</strong> (<em>int</em>) – number of vectors to be added.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>list containing new vectors.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opqua.model.Model.clustermap">
+<span class="sig-name descname"><span class="pre">clustermap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_top_sequences=-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">track_specific_sequences=[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seq_names=[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_cores=0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method='weighted'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric='euclidean'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_data_to_file=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend_title='Distance'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend_values=[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize=(10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">10)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dpi=200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_map=&lt;matplotlib.colors.ListedColormap</span> <span class="pre">object&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/model.html#Model.clustermap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.model.Model.clustermap" title="Link to this definition"></a></dt>
+<dd><p>Create a heatmap and dendrogram for pathogen genomes in data passed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file_name</strong> (<em>String</em>) – file path, name, and extension to save plot under.</p></li>
+<li><p><strong>data</strong> (<em>pandas DataFrame</em>) – dataframe with model history as produced by <cite>saveToDf</cite>
+function.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>num_top_sequences</strong> (<em>int</em>) – how many sequences to include in matrix; if &lt;0,
+includes all genomes in data passed. Defaults to -1.</p></li>
+<li><p><strong>track_specific_sequences</strong> (<em>list</em><em> of </em><em>Strings</em>) – contains specific sequences to include
+in matrix if not part of the top num_top_sequences sequences. Defaults to [].</p></li>
+<li><p><strong>seq_names</strong> (<em>list ofStrings</em>) – list with names to be used for sequence labels in matrix
+must be of same length as number of sequences to be displayed; if empty, uses sequences
+themselves. Defaults to [].</p></li>
+<li><p><strong>n_cores</strong> (<em>int &gt;= 0</em>) – number of cores to parallelize distance compute across, if 0,
+all cores available are used. Defaults to 0.</p></li>
+<li><p><strong>method</strong> (<em>String</em>) – clustering algorithm to use with seaborn clustermap. Defaults to ‘weighted’.</p></li>
+<li><p><strong>metric</strong> (<em>String</em>) – distance metric to use with seaborn clustermap. Defaults to ‘euclidean’.</p></li>
+<li><p><strong>save_data_to_file</strong> (<em>String</em>) – file path and name to save model data under, no
+saving occurs if empty string. Defaults to “”.</p></li>
+<li><p><strong>legend_title</strong> (<em>String</em>) – legend title. Defaults to ‘Distance’.</p></li>
+<li><p><strong>figsize</strong> (<em>array-like</em><em> of </em><em>two ints</em>) – dimensions of figure. Defaults to (8,4).</p></li>
+<li><p><strong>dpi</strong> (<em>int</em>) – figure resolution. Defaults to 200.</p></li>
+<li><p><strong>color_map</strong> (<em>matplotlib cmap object</em>) – color map to use for traces. Defaults to <cite>DEF_CMAP</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>figure object for plot with heatmap and dendrogram as described.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opqua.model.Model.compartmentPlot">
+<span class="sig-name descname"><span class="pre">compartmentPlot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">populations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hosts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vectors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_data_to_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Time'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Hosts'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(8,</span> <span class="pre">4)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dpi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">palette</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['#E69F00',</span> <span class="pre">'#56B4E9',</span> <span class="pre">'#009E73',</span> <span class="pre">'#F0E442',</span> <span class="pre">'#0072B2',</span> <span class="pre">'#D55E00',</span> <span class="pre">'#CC79A7',</span> <span class="pre">'#999999']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stacked</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/model.html#Model.compartmentPlot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.model.Model.compartmentPlot" title="Link to this definition"></a></dt>
+<dd><p>Create plot with number of naive,inf,rec,dead hosts/vectors vs. time.</p>
+<p>Creates a line or stacked line plot with dynamics of all compartments
+(naive, infected, recovered, dead) across selected populations in the
+model, with one line for each compartment.</p>
+<p>A host or vector is considered part of the recovered compartment
+if it has protection sequences of any kind and is not infected.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file_name</strong> (<em>String</em>) – file path, name, and extension to save plot under.</p></li>
+<li><p><strong>data</strong> (<em>pandas DataFrame</em>) – dataframe with model history as produced by <cite>saveToDf</cite> function.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>populations</strong> (<em>list</em><em> of </em><em>Strings</em>) – IDs of populations to include in analysis; if empty, uses
+all populations in model. Defaults to [].</p></li>
+<li><p><strong>hosts</strong> (<em>Boolean</em>) – whether to count hosts. Defaults to True.</p></li>
+<li><p><strong>vectors</strong> (<em>Boolean</em>) – whether to count vectors. Defaults to False.</p></li>
+<li><p><strong>save_data_to_file</strong> (<em>String</em>) – file path and name to save model data under, no
+saving occurs if empty string. Defaults to “”.</p></li>
+<li><p><strong>x_label</strong> (<em>String</em>) – X axis title. Defaults to ‘Time’.</p></li>
+<li><p><strong>y_label</strong> (<em>String</em>) – Y axis title. Defaults to ‘Hosts’.</p></li>
+<li><p><strong>legend_title</strong> (<em>String</em>) – legend title. Defaults to ‘Population’.</p></li>
+<li><p><strong>legend_values</strong> (<em>list</em><em> of </em><em>Strings</em>) – labels for each trace, if empty list, uses population
+IDs. Defaults to [].</p></li>
+<li><p><strong>figsize</strong> (<em>array-like</em><em> of </em><em>two ints</em>) – dimensions of figure. Defaults to (8,4).</p></li>
+<li><p><strong>dpi</strong> (<em>int</em><em>)</em>) – figure resolution. Defaults to 200.</p></li>
+<li><p><strong>palette</strong> (<em>list</em><em> of </em><em>color Strings</em>) – color palette to use for traces. Defaults to <cite>CB_PALETTE</cite>.</p></li>
+<li><p><strong>one</strong> (<em>stacked -- whether to draw a regular line plot instead</em><em> of </em><em>a stacked</em>) – (default False, Boolean)</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>axis object for plot with model compartment dynamics as described above</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opqua.model.Model.compositionPlot">
+<span class="sig-name descname"><span class="pre">compositionPlot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">composition_dataframe</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">populations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type_of_composition</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Pathogens'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hosts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vectors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_top_sequences</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">7</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">track_specific_sequences</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_data_to_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Time'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Infections'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(8,</span> <span class="pre">4)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dpi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">palette</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['#E69F00',</span> <span class="pre">'#56B4E9',</span> <span class="pre">'#009E73',</span> <span class="pre">'#F0E442',</span> <span class="pre">'#0072B2',</span> <span class="pre">'#D55E00',</span> <span class="pre">'#CC79A7',</span> <span class="pre">'#999999']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stacked</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_legend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">genomic_positions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">population_fraction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">count_individuals_based_on_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend_title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Genotype'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend_values</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/model.html#Model.compositionPlot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.model.Model.compositionPlot" title="Link to this definition"></a></dt>
+<dd><p>Create plot with counts for pathogen genomes or resistance vs. time.</p>
+<p>Creates a line or stacked line plot with dynamics of the pathogen
+strains or protection sequences across selected populations in the
+model, with one line for each pathogen genome or protection sequence
+being shown.</p>
+<p>Of note: sum of totals for all sequences in one time point does not
+necessarily equal the number of infected hosts and/or vectors, given
+multiple infections in the same host/vector are counted separately.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file_name</strong> (<em>String</em>) – file path, name, and extension to save plot under.</p></li>
+<li><p><strong>data</strong> (<em>pandas DataFrame</em>) – dataframe with model history as produced by <cite>saveToDf</cite> function.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>composition_dataframe</strong> (<em>pandas DataFrame</em>) – output of compositionDf() if already computed
+Defaults to None.</p></li>
+<li><p><strong>populations</strong> (<em>list</em><em> of </em><em>Strings</em>) – IDs of populations to include in analysis; if empty, uses
+all populations in model. Defaults to [].</p></li>
+<li><p><strong>type_of_composition</strong> (<em>String</em>) – ‘Pathogens’ or ‘Protection’. Defaults to ‘Pathogens’.</p></li>
+<li><p><strong>hosts</strong> (<em>Boolean</em>) – </p></li>
+<li><p><strong>vectors</strong> (<em>Boolean</em>) – whether to count vectors. Defaults to False.</p></li>
+<li><p><strong>num_top_sequences</strong> (<em>int</em>) – how many sequences to count separately and include
+as columns, remainder will be counted under column “Other”; if &lt;0,
+includes all genomes in model. Defaults to 7.</p></li>
+<li><p><strong>track_specific_sequences</strong> (<em>list</em><em> of </em><em>Strings</em>) – contains specific sequences to have
+as a separate column if not part of the top num_top_sequences
+sequences. Defaults to [].</p></li>
+<li><p><strong>genomic_positions</strong> (<em>list</em><em> of </em><em>lists</em><em> of </em><em>int</em>) – list in which each element is a list with loci
+positions to extract (e.g. genomic_positions=[ [0,3], [5,6] ]
+extracts positions 0, 1, 2, and 5 from each genome); if empty, takes
+full genomes. Defaults to [].</p></li>
+<li><p><strong>count_individuals_based_on_model</strong> (<em>None</em><em> or </em><a class="reference internal" href="#opqua.model.Model" title="opqua.model.Model"><em>Model</em></a>) – <cite>Model</cite> object with populations and
+fitness functions used to evaluate the most fit pathogen genome in
+each host/vector in order to count only a single pathogen per
+host/vector, as opposed to all pathogens within each host/vector; if
+None, counts all pathogens. Defaults to None.</p></li>
+<li><p><strong>save_data_to_file</strong> (<em>String</em>) – file path and name to save model data under, no
+saving occurs if empty string. Defaults to “”.</p></li>
+<li><p><strong>x_label</strong> (<em>String</em>) – X axis title. Defaults to ‘Time’.</p></li>
+<li><p><strong>y_label</strong> (<em>String</em>) – Y axis title. Defaults to ‘Hosts’.</p></li>
+<li><p><strong>legend_title</strong> (<em>String</em>) – legend title. Defaults to ‘Population’.</p></li>
+<li><p><strong>legend_values</strong> (<em>list</em><em> of </em><em>Strings</em>) – labels for each trace, if empty list, uses population
+IDs. Defaults to [].</p></li>
+<li><p><strong>figsize</strong> (<em>array-like</em><em> of </em><em>two ints</em>) – dimensions of figure. Defaults to (8,4).</p></li>
+<li><p><strong>dpi</strong> (<em>int</em>) – figure resolution. Defaults to 200.</p></li>
+<li><p><strong>palette</strong> (<em>list</em><em> of </em><em>color Strings</em>) – color palette to use for traces. Defaults to <cite>CB_PALETTE</cite>.</p></li>
+<li><p><strong>stacked</strong> (<em>Boolean</em>) – whether to draw a regular line plot instead of a stacked one. Defaults to False.</p></li>
+<li><p><strong>remove_legend</strong> (<em>Boolean</em>) – whether to print the sequences on the figure legend
+instead of printing them on a separate csv file. Defaults to True.</p></li>
+<li><p><strong>**kwargs</strong> – additional arguents for joblib multiprocessing.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>axis object for plot with model sequence composition dynamics as described.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opqua.model.Model.copyState">
+<span class="sig-name descname"><span class="pre">copyState</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">host_sampling</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vector_sampling</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/model.html#Model.copyState"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.model.Model.copyState" title="Link to this definition"></a></dt>
+<dd><p>Returns a slimmed-down representation of the current model state.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>host_sampling</strong> (<em>int &gt;= 0</em>) – how many hosts to skip before saving one in a snapshot
+of the system state (saves all by default). Defaults to 0.</p></li>
+<li><p><strong>vector_sampling</strong> (<em>int &gt;= 0</em>) – how many vectors to skip before saving one in a
+snapshot of the system state (saves all by default). Defaults to 0.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Model object with current population host and vector lists.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opqua.model.Model.createInterconnectedPopulations">
+<span class="sig-name descname"><span class="pre">createInterconnectedPopulations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_populations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id_prefix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">setup_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host_migration_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vector_migration_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host_host_contact_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host_vector_contact_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vector_host_contact_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_hosts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_vectors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/model.html#Model.createInterconnectedPopulations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.model.Model.createInterconnectedPopulations" title="Link to this definition"></a></dt>
+<dd><p>Create new populations, link all of them to each other.</p>
+<p>All populations in this cluster are linked with the same migration rate,
+starting number of hosts and vectors, and setup parameters. Their IDs
+are numbered onto prefix given as ‘id_prefix_0’, ‘id_prefix_1’,
+‘id_prefix_2’, etc.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_populations</strong> (<em>int</em>) – number of populations to be created.</p></li>
+<li><p><strong>id_prefix</strong> (<em>String</em>) – prefix for IDs to be used for this population in the model.</p></li>
+<li><p><strong>setup_name</strong> (<em>Setup object</em>) – setup object with parameters for all populations.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>host_migration_rate</strong> (<em>number &gt;= 0</em>) – host migration rate between populations;
+evts/time. Defaults to 0.</p></li>
+<li><p><strong>vector_migration_rate</strong> (<em>number &gt;= 0</em>) – vector migration rate between populations;
+evts/time. Defaults to 0.</p></li>
+<li><p><strong>host_host_contact_rate</strong> (<em>number &gt;= 0</em>) – host-host inter-population contact rate
+between populations; evts/time. Defaults to 0.</p></li>
+<li><p><strong>host_vector_contact_rate</strong> (<em>number &gt;= 0</em>) – host-vector inter-population contact rate
+between populations; evts/time. Defaults to 0.</p></li>
+<li><p><strong>vector_host_contact_rate</strong> (<em>number &gt;= 0</em>) – vector-host inter-population contact rate
+between populations; evts/time. Defaults to 0.</p></li>
+<li><p><strong>num_hosts</strong> (<em>int</em>) – number of hosts to initialize population with. Defaults to 100.</p></li>
+<li><p><strong>num_vectors</strong> (<em>int</em>) – number of hosts to initialize population with. Defaults to 100.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opqua.model.Model.customModelFunction">
+<span class="sig-name descname"><span class="pre">customModelFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/model.html#Model.customModelFunction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.model.Model.customModelFunction" title="Link to this definition"></a></dt>
+<dd><p>Returns output of given function, passing this model as a parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>function</strong> (<em>callable</em>) – function to be evaluated; must take a Model object as the
+only parameter.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>output of function passed as parameter.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opqua.model.Model.deepCopy">
+<span class="sig-name descname"><span class="pre">deepCopy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/model.html#Model.deepCopy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.model.Model.deepCopy" title="Link to this definition"></a></dt>
+<dd><p>Returns a full copy of the current model with inner references.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Copied Model object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opqua.model.Model.getCompositionData">
+<span class="sig-name descname"><span class="pre">getCompositionData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">populations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type_of_composition</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Pathogens'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hosts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vectors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_top_sequences</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">track_specific_sequences</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">genomic_positions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">count_individuals_based_on_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_data_to_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_cores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/model.html#Model.getCompositionData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.model.Model.getCompositionData" title="Link to this definition"></a></dt>
+<dd><p>Create dataframe with counts for pathogen genomes or resistance.</p>
+<p>Creates a pandas Dataframe with dynamics of the pathogen strains or
+protection sequences across selected populations in the model,
+with one time point in each row and columns for pathogen genomes or
+protection sequences.</p>
+<p>Of note: sum of totals for all sequences in one time point does not
+necessarily equal the number of infected hosts and/or vectors, given
+multiple infections in the same host/vector are counted separately.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>pandas DataFrame</em>) – dataframe with model history as produced by <cite>saveToDf</cite>
+function; if None, computes this dataframe and saves it under ‘<a href="#id1"><span class="problematic" id="id2">raw_data_</span></a>’+’save_data_to_file’.
+Defaults to None.</p></li>
+<li><p><strong>populations</strong> (<em>list</em><em> of </em><em>Strings</em>) – IDs of populations to include in analysis; if empty, uses
+all populations in model. Defaults to [].</p></li>
+<li><p><strong>type_of_composition</strong> (<em>String</em>) – field of data to count totals of, can be either
+‘Pathogens’ or ‘Protection’. Defaults to ‘Pathogens’.</p></li>
+<li><p><strong>hosts</strong> (<em>Boolean</em>) – whether to count hosts. Defaults to True.</p></li>
+<li><p><strong>vectors</strong> (<em>Boolean</em>) – whether to count vectors. Defaults to False.</p></li>
+<li><p><strong>num_top_sequences</strong> (<em>int</em>) – how many sequences to count separately and include
+as columns, remainder will be counted under column “Other”; if &lt;0,
+includes all genomes in model. Defaults to -1.</p></li>
+<li><p><strong>track_specific_sequences</strong> (<em>list</em><em> of </em><em>Strings</em>) – contains specific sequences to have
+as a separate column if not part of the top num_top_sequences
+sequences. Defaults to [].</p></li>
+<li><p><strong>genomic_positions</strong> (<em>list</em><em> of </em><em>lists</em><em> of </em><em>int</em>) – list in which each element is a list with
+loci positions to extract (e.g. genomic_positions=[ [0,3], [5,6] ]
+extracts positions 0, 1, 2, and 5 from each genome); if empty, takes
+full genomes. Defaults to [].</p></li>
+<li><p><strong>count_individuals_based_on_model</strong> (<em>None</em><em> or </em><em>Model object</em>) – Model object with populations and
+fitness functions used to evaluate the most fit pathogen genome in
+each host/vector in order to count only a single pathogen per
+host/vector, asopposed to all pathogens within each host/vector; if
+None, counts all pathogens. Defaults to None.</p></li>
+<li><p><strong>save_data_to_file</strong> (<em>String</em>) – file path and name to save model data under, no
+saving occurs if empty string. Defaults to “”.</p></li>
+<li><p><strong>n_cores</strong> (<em>int</em>) – number of cores to parallelize processing across, if 0, all
+cores available are used. Defaults to 0.</p></li>
+<li><p><strong>**kwargs</strong> – additional arguents for joblib multiprocessing.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>pandas DataFrame with model sequence composition dynamics as described</dt><dd><p>above.</p>
+</dd>
+</dl>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opqua.model.Model.getGenomeTimes">
+<span class="sig-name descname"><span class="pre">getGenomeTimes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_top_sequences</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">track_specific_sequences</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seq_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_cores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_to_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/model.html#Model.getGenomeTimes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.model.Model.getGenomeTimes" title="Link to this definition"></a></dt>
+<dd><p>Create DataFrame with times genomes first appeared during simulation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>pandas DataFrame</em>) – dataframe with model history as produced by <cite>saveToDf</cite>
+function.</p>
+</dd>
+<dt class="field-even">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>samples</strong> (<em>int</em>) – how many timepoints to uniformly sample from the total
+timecourse; if &lt;0, takes all timepoints. Defaults to 1.</p></li>
+<li><p><strong>save_to_file</strong> (<em>String</em>) – file path and name to save model data under, no saving
+occurs if empty string. Defaults to “”.</p></li>
+<li><p><strong>n_cores</strong> (<em>int</em>) – number of cores to parallelize across, if 0, all cores
+available are used. Defaults to 0.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas DataFrame with genomes and times as described above.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opqua.model.Model.getPathogens">
+<span class="sig-name descname"><span class="pre">getPathogens</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_to_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/model.html#Model.getPathogens"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.model.Model.getPathogens" title="Link to this definition"></a></dt>
+<dd><p>Create Dataframe with counts for all pathogen genomes in data.</p>
+<p>Returns sorted pandas Dataframe with counts for occurrences of all
+pathogen genomes in data passed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>pandas DataFrame</em>) – dataframe with model history as produced by <cite>saveToDf</cite> function.</p>
+</dd>
+<dt class="field-even">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>save_to_file</strong> (<em>String</em>) – file path and name to save model data under, no saving
+occurs if empty string. Defaults to “”.</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><cite>pandas dataframe</cite> with Series as described above.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opqua.model.Model.getProtections">
+<span class="sig-name descname"><span class="pre">getProtections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_to_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/model.html#Model.getProtections"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.model.Model.getProtections" title="Link to this definition"></a></dt>
+<dd><p>Create Dataframe with counts for all protection sequences in data.</p>
+<p>Returns sorted <cite>pandas Dataframe</cite> with counts for occurrences of all
+protection sequences in data passed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>pandas DataFrame</em>) – dataframe with model history as produced by <cite>saveToDf</cite> function.</p>
+</dd>
+<dt class="field-even">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>save_to_file</strong> (<em>String</em>) – file path and name to save model data under, no saving
+occurs if empty string. Defaults to “”.</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas DataFrame with Series as described above.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opqua.model.Model.linkPopulationsHostHostContact">
+<span class="sig-name descname"><span class="pre">linkPopulationsHostHostContact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pop1_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pop2_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rate</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/model.html#Model.linkPopulationsHostHostContact"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.model.Model.linkPopulationsHostHostContact" title="Link to this definition"></a></dt>
+<dd><p>Set host-host contact rate from one population towards another.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pop1_id</strong> (<em>String</em>) – origin population for which inter-population contact rate
+will be specified.</p></li>
+<li><p><strong>pop1_id</strong> – destination population for which inter-population contact
+rate will be specified.</p></li>
+<li><p><strong>rate</strong> (<em>number &gt;= 0</em>) – inter-population contact rate from one population to the
+neighbor; evts/time.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opqua.model.Model.linkPopulationsHostMigration">
+<span class="sig-name descname"><span class="pre">linkPopulationsHostMigration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pop1_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pop2_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rate</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/model.html#Model.linkPopulationsHostMigration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.model.Model.linkPopulationsHostMigration" title="Link to this definition"></a></dt>
+<dd><p>Set host migration rate from one population towards another.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pop1_id</strong> (<em>String</em>) – origin population for which migration rate will be specified.</p></li>
+<li><p><strong>pop1_id</strong> – destination population for which migration rate will be
+specified.</p></li>
+<li><p><strong>rate</strong> (<em>number &gt;= 0</em>) – migration rate from one population to the neighbor; evts/time.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opqua.model.Model.linkPopulationsHostVectorContact">
+<span class="sig-name descname"><span class="pre">linkPopulationsHostVectorContact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pop1_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pop2_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rate</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/model.html#Model.linkPopulationsHostVectorContact"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.model.Model.linkPopulationsHostVectorContact" title="Link to this definition"></a></dt>
+<dd><p>Set host-vector contact rate from one population towards another.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pop1_id</strong> (<em>String</em>) – origin population for which inter-population contact rate
+will be specified.</p></li>
+<li><p><strong>pop1_id</strong> – destination population for which inter-population contact
+rate will be specified.</p></li>
+<li><p><strong>rate</strong> (<em>number &gt;= 0</em>) – inter-population contact rate from one population to the
+neighbor; evts/time.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opqua.model.Model.linkPopulationsVectorHostContact">
+<span class="sig-name descname"><span class="pre">linkPopulationsVectorHostContact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pop1_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pop2_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rate</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/model.html#Model.linkPopulationsVectorHostContact"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.model.Model.linkPopulationsVectorHostContact" title="Link to this definition"></a></dt>
+<dd><p>Set vector-host contact rate from one population towards another.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pop1_id</strong> (<em>String</em>) – origin population for which inter-population contact rate
+will be specified.</p></li>
+<li><p><strong>pop1_id</strong> – destination population for which inter-population contact
+rate will be specified.</p></li>
+<li><p><strong>rate</strong> (<em>number &gt;= 0</em>) – inter-population contact rate from one population to the
+neighbor; evts/time.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opqua.model.Model.linkPopulationsVectorMigration">
+<span class="sig-name descname"><span class="pre">linkPopulationsVectorMigration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pop1_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pop2_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rate</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/model.html#Model.linkPopulationsVectorMigration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.model.Model.linkPopulationsVectorMigration" title="Link to this definition"></a></dt>
+<dd><p>Set vector migration rate from one population towards another.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pop1_id</strong> (<em>String</em>) – origin population for which migration rate will be specified.</p></li>
+<li><p><strong>pop1_id</strong> – destination population for which migration rate will be
+specified.</p></li>
+<li><p><strong>rate</strong> (<em>number &gt;= 0</em>) – migration rate from one population to the neighbor; evts/time.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opqua.model.Model.newHostGroup">
+<span class="sig-name descname"><span class="pre">newHostGroup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pop_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hosts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'any'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/model.html#Model.newHostGroup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.model.Model.newHostGroup" title="Link to this definition"></a></dt>
+<dd><p>Return a list of random hosts in population.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pop_id</strong> (<em>String</em>) – ID of population to be sampled from.</p></li>
+<li><p><strong>group_id</strong> (<em>String</em>) – ID to name group with.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>hosts</strong> (<em>number</em>) – number of hosts to be sampled randomly: if &lt;0, samples from
+whole population; if &lt;1, takes that fraction of population; if &gt;=1,
+samples that integer number of hosts. Defaults to -1.</p></li>
+<li><p><strong>type</strong> (<em>String = {'healthy'</em><em>, </em><em>'infected'</em><em>, </em><em>'any'}</em>) – whether to sample healthy hosts only,
+infected hosts only, or any hosts. Defaults to ‘any’.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list containing sampled hosts.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opqua.model.Model.newIntervention">
+<span class="sig-name descname"><span class="pre">newIntervention</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/model.html#Model.newIntervention"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.model.Model.newIntervention" title="Link to this definition"></a></dt>
+<dd><p>Create a new intervention to be carried out at a specific time.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>time</strong> (<em>number &gt;= 0</em>) – time at which intervention will take place.</p></li>
+<li><p><strong>method_name</strong> (<em>String</em>) – intervention to be carried out, must correspond to the
+name of a method of the <cite>Model</cite> object.</p></li>
+<li><p><strong>args</strong> (<em>array-like</em>) – contains arguments for function in positinal order.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opqua.model.Model.newPopulation">
+<span class="sig-name descname"><span class="pre">newPopulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">setup_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_hosts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_vectors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/model.html#Model.newPopulation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.model.Model.newPopulation" title="Link to this definition"></a></dt>
+<dd><p>Create a new Population object with setup parameters.</p>
+<p>If population ID is already in use, appends _2 to it</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>id</strong> (<em>String</em>) – unique identifier for this population in the model.</p></li>
+<li><p><strong>setup_name</strong> (<em>Setup object</em>) – setup object with parameters for this population.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>num_hosts</strong> (<em>int &gt;= 0</em>) – number of hosts to initialize population with. Defaults to 100.</p></li>
+<li><p><strong>num_vectors</strong> (<em>int &gt;= 0</em>) – number of vectors to initialize population with. Defaults to 100.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opqua.model.Model.newSetup">
+<span class="sig-name descname"><span class="pre">newSetup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_loci</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">possible_alleles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fitnessHost</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contactHost</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">receiveContactHost</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mortalityHost</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">natalityHost</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recoveryHost</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">migrationHost</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">populationContactHost</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">receivePopulationContactHost</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutationHost</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recombinationHost</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fitnessVector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contactVector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">receiveContactVector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mortalityVector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">natalityVector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recoveryVector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">migrationVector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">populationContactVector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">receivePopulationContactVector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutationVector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recombinationVector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contact_rate_host_vector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transmission_efficiency_host_vector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transmission_efficiency_vector_host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contact_rate_host_host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transmission_efficiency_host_host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean_inoculum_host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean_inoculum_vector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recovery_rate_host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recovery_rate_vector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mortality_rate_host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mortality_rate_vector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recombine_in_host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recombine_in_vector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_crossover_host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_crossover_vector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutate_in_host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutate_in_vector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">death_rate_host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">death_rate_vector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">birth_rate_host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">birth_rate_vector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vertical_transmission_host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vertical_transmission_vector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inherit_protection_host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inherit_protection_vector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">protection_upon_recovery_host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">protection_upon_recovery_vector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/model.html#Model.newSetup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.model.Model.newSetup" title="Link to this definition"></a></dt>
+<dd><p>Create a new <cite>Setup</cite>, save it in setups dict under given name.</p>
+<p>Two preset setups exist: “vector-borne” and “host-host”. You may select
+one of the preset setups with the preset keyword argument and then
+modify individual parameters with additional keyword arguments, without
+having to specify all of them.</p>
+<p><strong>“host-host”:</strong></p>
+<ul class="simple">
+<li><p><cite>num_loci</cite> = 10</p></li>
+<li><p><cite>possible_alleles</cite> = ‘ATCG’</p></li>
+<li><p><cite>fitnessHost</cite> = (lambda g: 1)</p></li>
+<li><p><cite>contactHost</cite> = (lambda g: 1)</p></li>
+<li><p><cite>receiveContactHost</cite> = (lambda g: 1)</p></li>
+<li><p><cite>mortalityHost</cite> = (lambda g: 1)</p></li>
+<li><p><cite>natalityHost</cite> = (lambda g: 1)</p></li>
+<li><p><cite>recoveryHost</cite> = (lambda g: 1)</p></li>
+<li><p><cite>migrationHost</cite> = (lambda g: 1)</p></li>
+<li><p><cite>populationContactHost</cite> = (lambda g: 1)</p></li>
+<li><p><cite>receivePopulationContactHost</cite> = (lambda g: 1)</p></li>
+<li><p><cite>mutationHost</cite> = (lambda g: 1)</p></li>
+<li><p><cite>recombinationHost</cite> = (lambda g: 1)</p></li>
+<li><p><cite>fitnessVector</cite> = (lambda g: 1)</p></li>
+<li><p><cite>contactVector</cite> = (lambda g: 1)</p></li>
+<li><p><cite>receiveContactVector</cite> = (lambda g: 1)</p></li>
+<li><p><cite>mortalityVector</cite> = (lambda g: 1)</p></li>
+<li><p><cite>natalityVector</cite> = (lambda g: 1)</p></li>
+<li><p><cite>recoveryVector</cite> = (lambda g: 1)</p></li>
+<li><p><cite>migrationVector</cite> = (lambda g: 1)</p></li>
+<li><p><cite>populationContactVector</cite> = (lambda g: 1)</p></li>
+<li><p><cite>receivePopulationContactVector</cite> = (lambda g: 1)</p></li>
+<li><p><cite>mutationVector</cite> = (lambda g: 1)</p></li>
+<li><p><cite>recombinationVector</cite> = (lambda g: 1)</p></li>
+<li><p><cite>contact_rate_host_vector</cite> = 0</p></li>
+<li><p><cite>transmission_efficiency_host_vector</cite> = 0</p></li>
+<li><p><cite>transmission_efficiency_vector_host</cite> = 0</p></li>
+<li><p><cite>contact_rate_host_host</cite> = 2e-1</p></li>
+<li><p><cite>transmission_efficiency_host_host</cite> = 1</p></li>
+<li><p><cite>mean_inoculum_host</cite> = 1e1</p></li>
+<li><p><cite>mean_inoculum_vector</cite> = 0</p></li>
+<li><p><cite>recovery_rate_host</cite> = 1e-1</p></li>
+<li><p><cite>recovery_rate_vector</cite> = 0</p></li>
+<li><p><cite>mortality_rate_host</cite> = 0</p></li>
+<li><p><cite>mortality_rate_vector</cite> = 0</p></li>
+<li><p><cite>recombine_in_host</cite> = 1e-4</p></li>
+<li><p><cite>recombine_in_vector</cite> = 0</p></li>
+<li><p><cite>num_crossover_host</cite> = 1</p></li>
+<li><p><cite>num_crossover_vector</cite> = 0</p></li>
+<li><p><cite>mutate_in_host</cite> = 1e-6</p></li>
+<li><p><cite>mutate_in_vector</cite> = 0</p></li>
+<li><p><cite>death_rate_host</cite> = 0</p></li>
+<li><p><cite>death_rate_vector</cite> = 0</p></li>
+<li><p><cite>birth_rate_host</cite> = 0</p></li>
+<li><p><cite>birth_rate_vector</cite> = 0</p></li>
+<li><p><cite>vertical_transmission_host</cite> = 0</p></li>
+<li><p><cite>vertical_transmission_vector</cite> = 0</p></li>
+<li><p><cite>inherit_protection_host</cite> = 0</p></li>
+<li><p><cite>inherit_protection_vector</cite> = 0</p></li>
+<li><p><cite>protection_upon_recovery_host</cite> = None</p></li>
+<li><p><cite>protection_upon_recovery_vector</cite> = None</p></li>
+</ul>
+<p><strong>“vector-borne”:</strong></p>
+<ul class="simple">
+<li><p><cite>num_loci</cite> = 10</p></li>
+<li><p><cite>possible_alleles</cite> = ‘ATCG’</p></li>
+<li><p><cite>fitnessHost</cite> = (lambda g: 1)</p></li>
+<li><p><cite>contactHost</cite> = (lambda g: 1)</p></li>
+<li><p><cite>receiveContactHost</cite> = (lambda g: 1)</p></li>
+<li><p><cite>mortalityHost</cite> = (lambda g: 1)</p></li>
+<li><p><cite>natalityHost</cite> = (lambda g: 1)</p></li>
+<li><p><cite>recoveryHost</cite> = (lambda g: 1)</p></li>
+<li><p><cite>migrationHost</cite> = (lambda g: 1)</p></li>
+<li><p><cite>populationContactHost</cite> = (lambda g: 1)</p></li>
+<li><p><cite>receivePopulationContactHost</cite> = (lambda g: 1)</p></li>
+<li><p><cite>mutationHost</cite> = (lambda g: 1)</p></li>
+<li><p><cite>recombinationHost</cite> = (lambda g: 1)</p></li>
+<li><p><cite>fitnessVector</cite> = (lambda g: 1)</p></li>
+<li><p><cite>contactVector</cite> = (lambda g: 1)</p></li>
+<li><p><cite>receiveContactVector</cite> = (lambda g: 1)</p></li>
+<li><p><cite>mortalityVector</cite> = (lambda g: 1)</p></li>
+<li><p><cite>natalityVector</cite> = (lambda g: 1)</p></li>
+<li><p><cite>recoveryVector</cite> = (lambda g: 1)</p></li>
+<li><p><cite>migrationVector</cite> = (lambda g: 1)</p></li>
+<li><p><cite>populationContactVector</cite> = (lambda g: 1)</p></li>
+<li><p><cite>receivePopulationContactVector</cite> = (lambda g: 1)</p></li>
+<li><p><cite>mutationVector</cite> = (lambda g: 1)</p></li>
+<li><p><cite>recombinationVector</cite> = (lambda g: 1)</p></li>
+<li><p><cite>contact_rate_host_vector</cite> = 2e-1</p></li>
+<li><p><cite>transmission_efficiency_host_vector</cite> = 1</p></li>
+<li><p><cite>transmission_efficiency_vector_host</cite> = 1</p></li>
+<li><p><cite>contact_rate_host_host</cite> = 0</p></li>
+<li><p><cite>transmission_efficiency_host_host</cite> = 0</p></li>
+<li><p><cite>mean_inoculum_host</cite> = 1e2</p></li>
+<li><p><cite>mean_inoculum_vector</cite> = 1e0</p></li>
+<li><p><cite>recovery_rate_host</cite> = 1e-1</p></li>
+<li><p><cite>recovery_rate_vector</cite> = 1e-1</p></li>
+<li><p><cite>mortality_rate_host</cite> = 0</p></li>
+<li><p><cite>mortality_rate_vector</cite> = 0</p></li>
+<li><p><cite>recombine_in_host</cite> = 0</p></li>
+<li><p><cite>recombine_in_vector</cite> = 1e-4</p></li>
+<li><p><cite>num_crossover_host</cite> = 0</p></li>
+<li><p><cite>num_crossover_vector</cite> = 1</p></li>
+<li><p><cite>mutate_in_host</cite> = 1e-6</p></li>
+<li><p><cite>mutate_in_vector</cite> = 0</p></li>
+<li><p><cite>death_rate_host</cite> = 0</p></li>
+<li><p><cite>death_rate_vector</cite> = 0</p></li>
+<li><p><cite>birth_rate_host</cite> = 0</p></li>
+<li><p><cite>birth_rate_vector</cite> = 0</p></li>
+<li><p><cite>vertical_transmission_host</cite> = 0</p></li>
+<li><p><cite>vertical_transmission_vector</cite> = 0</p></li>
+<li><p><cite>inherit_protection_host</cite> = 0</p></li>
+<li><p><cite>inherit_protection_vector</cite> = 0</p></li>
+<li><p><cite>protection_upon_recovery_host</cite> = None</p></li>
+<li><p><cite>protection_upon_recovery_vector</cite> = None</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>String</em>) – name of setup to be used as a key in model setups dictionary.</p>
+</dd>
+<dt class="field-even">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>preset</strong> (<em>None</em><em> or </em><em>String</em>) – preset setup to be used: “vector-borne” or “host-host”, if
+None, must define all other keyword arguments. Defaults to None.</p></li>
+<li><p><strong>num_loci</strong> (<em>int&gt;0</em>) – length of each pathogen genome string.</p></li>
+<li><p><strong>possible_alleles</strong> (<em>String</em><em> or </em><em>list</em><em> of </em><em>Strings with num_loci elements</em>) – set of possible
+characters in all genome string, or at each position in genome string.</p></li>
+<li><p><strong>fitnessHost</strong> (<em>callable</em><em>, </em><em>takes a String argument and returns a number &gt;= 0</em>) – function
+that evaluates relative fitness in head-to-head competition for different genomes
+within the same host.</p></li>
+<li><p><strong>contactHost</strong> (<em>callable</em><em>, </em><em>takes a String argument and returns a number 0-1</em>) – function that
+returns coefficient modifying probability of a given host being chosen to be the
+infector in a contact event, based on genome sequence of pathogen.</p></li>
+<li><p><strong>receiveContactHost</strong> (<em>callable</em><em>, </em><em>takes a String argument and returns a number 0-1</em>) – function
+that returns coefficient modifying probability of a given host being chosen to be
+the infected in a contact event, based on genome sequence of pathogen.</p></li>
+<li><p><strong>mortalityHost</strong> (<em>callable</em><em>, </em><em>takes a String argument and returns a number 0-1</em>) – function that
+returns coefficient modifying death rate for a given host, based on genome sequence
+of pathogen.</p></li>
+<li><p><strong>natalityHost</strong> (<em>callable</em><em>, </em><em>takes a String argument and returns a number 0-1</em>) – function that
+returns coefficient modifying birth rate for a given host, based on genome sequence
+of pathogen.</p></li>
+<li><p><strong>recoveryHost</strong> (<em>callable</em><em>, </em><em>takes a String argument and returns a number 0-1</em>) – function that
+returns coefficient modifying recovery rate for a given host based on genome sequence
+of pathogen.</p></li>
+<li><p><strong>migrationHost</strong> (<em>callable</em><em>, </em><em>takes a String argument and returns a number 0-1</em>) – function that
+returns coefficient modifying migration rate for a given host based on genome sequence
+of pathogen.</p></li>
+<li><p><strong>populationContactHost</strong> (<em>callable</em><em>, </em><em>takes a String argument and returns a number 0-1</em>) – function
+that returns coefficient modifying population contact rate for a given host based on
+genome sequence of pathogen.</p></li>
+<li><p><strong>mutationHost</strong> (<em>callable</em><em>, </em><em>takes a String argument and returns a number 0-1</em>) – function that
+returns coefficient modifying mutation rate for a given host based on genome sequence
+of pathogen.</p></li>
+<li><p><strong>recombinationHost</strong> (<em>callable</em><em>, </em><em>takes a String argument and returns a number 0-1</em>) – function
+that returns coefficient modifying recombination rate for a given host based on genome
+sequence of pathogen.</p></li>
+<li><p><strong>fitnessVector</strong> (<em>callable</em><em>, </em><em>takes a String argument and returns a number &gt;=0</em>) – function that
+evaluates relative fitness in head-to-head competition for different genomes within
+the same vector.</p></li>
+<li><p><strong>contactVector</strong> (<em>callable</em><em>, </em><em>takes a String argument and returns a number 0-1</em>) – function that
+returns coefficient modifying probability of a given vector being chosen to be the
+infector in a contact event, based on genome sequence of pathogen.</p></li>
+<li><p><strong>receiveContactVector</strong> (<em>callable</em><em>, </em><em>takes a String argument and returns a number 0-1</em>) – function
+that returns coefficient modifying probability of a given vector being chosen to be the
+infected in a contact event, based on genome sequence of pathogen.</p></li>
+<li><p><strong>mortalityVector</strong> (<em>callable</em><em>, </em><em>takes a String argument and returns a number 0-1</em>) – function that
+returns coefficient modifying death rate for a given vector, based on genome sequence
+of pathogen.</p></li>
+<li><p><strong>natalityVector</strong> (<em>callable</em><em>, </em><em>takes a String argument and returns a number 0-1</em>) – function that
+returns coefficient modifying birth rate for a given vector, based on genome sequence
+of pathogen.</p></li>
+<li><p><strong>recoveryVector</strong> (<em>callable</em><em>, </em><em>takes a String argument and returns a number 0-1</em>) – function that
+returns coefficient modifying recovery rate for a given vector based on genome sequence
+of pathogen.</p></li>
+<li><p><strong>migrationVector</strong> (<em>callable</em><em>, </em><em>takes a String argument and returns a number 0-1</em>) – function that
+returns coefficient modifying migration rate for a given vector based on genome sequence
+of pathogen.</p></li>
+<li><p><strong>populationContactVector</strong> (<em>callable</em><em>, </em><em>takes a String argument and returns a number 0-1</em>) – function
+that returns coefficient modifying population contact rate for a given vector based on
+genome sequence of pathogen.</p></li>
+<li><p><strong>mutationVector</strong> (<em>callable</em><em>, </em><em>takes a String argument and returns a number 0-1</em>) – function that
+returns coefficient modifying mutation rate for a given vector based on genome sequence
+of pathogen.</p></li>
+<li><p><strong>recombinationVector</strong> (<em>callable</em><em>, </em><em>takes a String argument and returns a number 0-1</em>) – function
+that returns coefficient modifying recombination rate for a given vector based on genome
+sequence of pathogen.</p></li>
+<li><p><strong>contact_rate_host_vector</strong> (<em>number &gt;= 0</em>) – rate of host-vector contact events, not necessarily
+transmission, assumes constant population density; evts/time.</p></li>
+<li><p><strong>transmission_efficiency_host_vector</strong> (<em>float</em>) – fraction of host-vector contacts
+that result in successful transmission.</p></li>
+<li><p><strong>transmission_efficiency_vector_host</strong> (<em>float</em>) – fraction of vector-host contacts
+that result in successful transmission.</p></li>
+<li><p><strong>contact_rate_host_host</strong> (<em>number &gt;= 0</em>) – rate of host-host contact events, not
+necessarily transmission, assumes constant population density; evts/time.</p></li>
+<li><p><strong>transmission_efficiency_host_host</strong> (<em>float</em>) – fraction of host-host contacts
+that result in successful transmission.</p></li>
+<li><p><strong>mean_inoculum_host</strong> (<em>int &gt;= 0</em>) – mean number of pathogens that are transmitted from
+a vector or host into a new host during a contact event.</p></li>
+<li><p><strong>mean_inoculum_vector</strong> (<em>int &gt;= 0</em>) – from a host to a vector during a contact event.</p></li>
+<li><p><strong>recovery_rate_host</strong> (<em>number &gt;= 0</em>) – rate at which hosts clear all pathogens;
+1/time.</p></li>
+<li><p><strong>recovery_rate_vector</strong> (<em>number &gt;= 0</em>) – rate at which vectors clear all pathogens
+1/time.</p></li>
+<li><p><strong>recovery_rate_vector</strong> – rate at which vectors clear all pathogens
+1/time.</p></li>
+<li><p><strong>mortality_rate_host</strong> (<em>number 0-1</em>) – rate at which infected hosts die from disease.</p></li>
+<li><p><strong>mortality_rate_vector</strong> (<em>number 0-1</em>) – rate at which infected vectors die from
+disease.</p></li>
+<li><p><strong>recombine_in_host</strong> (<em>number &gt;= 0</em>) – rate at which recombination occurs in host;
+evts/time.</p></li>
+<li><p><strong>recombine_in_vector</strong> (<em>number &gt;= 0</em>) – rate at which recombination occurs in vector;
+evts/time.</p></li>
+<li><p><strong>num_crossover_host</strong> (<em>number &gt;= 0</em>) – mean of a Poisson distribution modeling the number
+of crossover events of host recombination events.</p></li>
+<li><p><strong>num_crossover_vector</strong> (<em>number &gt;= 0</em>) – mean of a Poisson distribution modeling the
+number of crossover events of vector recombination events.</p></li>
+<li><p><strong>mutate_in_host</strong> (<em>number &gt;= 0</em>) – rate at which mutation occurs in host; evts/time.</p></li>
+<li><p><strong>mutate_in_vector</strong> (<em>number &gt;= 0</em>) – rate at which mutation occurs in vector; evts/time.</p></li>
+<li><p><strong>death_rate_host</strong> (<em>number &gt;= 0</em>) – natural host death rate; 1/time.</p></li>
+<li><p><strong>death_rate_vector</strong> (<em>number &gt;= 0</em>) – natural vector death rate; 1/time.</p></li>
+<li><p><strong>birth_rate_host</strong> (<em>number &gt;= 0</em>) – infected host birth rate; 1/time.</p></li>
+<li><p><strong>birth_rate_vector</strong> (<em>number &gt;= 0</em>) – infected vector birth rate; 1/time.</p></li>
+<li><p><strong>vertical_transmission_host</strong> (<em>number 0-1</em>) – probability that a host is infected by its
+parent at birth.</p></li>
+<li><p><strong>vertical_transmission_vector</strong> (<em>number 0-1</em>) – probability that a vector is infected by
+its parent at birth.</p></li>
+<li><p><strong>inherit_protection_host</strong> (<em>number 0-1</em>) – probability that a host inherits all
+protection sequences from its parent.</p></li>
+<li><p><strong>inherit_protection_vector</strong> (<em>number 0-1</em>) – probability that a vector inherits all
+protection sequences from its parent.</p></li>
+<li><p><strong>protection_upon_recovery_host</strong> (<em>None</em><em> or </em><em>array-like</em><em> of </em><em>length 2 with int 0-num_loci</em>) – defines
+indexes in genome string that define substring to be added to host protection sequences
+after recovery.</p></li>
+<li><p><strong>protection_upon_recovery_vector</strong> (<em>None</em><em> or </em><em>array-like</em><em> of </em><em>length 2 with int 0-num_loci</em>) – defines
+indexes in genome string that define substring to be added to vector protection sequences
+after recovery.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opqua.model.Model.newVectorGroup">
+<span class="sig-name descname"><span class="pre">newVectorGroup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pop_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vectors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'any'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/model.html#Model.newVectorGroup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.model.Model.newVectorGroup" title="Link to this definition"></a></dt>
+<dd><p>Return a list of random vectors in population.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pop_id</strong> (<em>String</em>) – ID of population to be sampled from.</p></li>
+<li><p><strong>group_id</strong> (<em>String</em>) – ID to name group with.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>vectors</strong> (<em>number</em>) – number of vectors to be sampled randomly: if &lt;0, samples from
+whole population; if &lt;1, takes that fraction of population; if &gt;=1,
+samples that integer number of vectors. Defaults to -1.</p></li>
+<li><p><strong>type</strong> (<em>String = {'healthy'</em><em>, </em><em>'infected'</em><em>, </em><em>'any'}</em>) – whether to sample healthy vectors only, infected vectors
+only, or any vectors. Defaults to ‘any’.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list containing sampled vectors.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opqua.model.Model.pathogenDistanceHistory">
+<span class="sig-name descname"><span class="pre">pathogenDistanceHistory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_top_sequences</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">track_specific_sequences</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seq_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_cores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_to_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/model.html#Model.pathogenDistanceHistory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.model.Model.pathogenDistanceHistory" title="Link to this definition"></a></dt>
+<dd><p>Create DataFrame with pairwise Hamming distances for pathogen
+sequences in data.</p>
+<p>DataFrame has indexes and columns named according to genomes or argument
+seq_names, if passed. Distance is measured as percent Hamming distance
+from an optimal genome sequence.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>pandas DataFrame</em>) – dataframe with model history as produced by <cite>saveToDf</cite>
+function.</p>
+</dd>
+<dt class="field-even">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>samples</strong> (<em>int</em>) – how many timepoints to uniformly sample from the total
+timecourse; if &lt;0, takes all timepoints. Defaults to 1.</p></li>
+<li><p><strong>num_top_sequences</strong> (<em>int</em>) – includes all genomes in data passed. Defaults to -1.</p></li>
+<li><p><strong>track_specific_sequences</strong> (<em>list</em><em> of </em><em>Strings</em>) – contains specific sequences to include in
+matrix if not part of the top num_top_sequences sequences. Defaults to [].</p></li>
+<li><p><strong>seq_names</strong> (<em>list</em><em> of </em><em>Strings</em>) – list with names to be used for sequence labels in matrix
+must be of same length as number of sequences to be displayed; if
+empty, uses sequences themselves. Defaults to [].</p></li>
+<li><p><strong>n_cores</strong> (<em>int &gt;= 0</em>) – number of cores to parallelize distance compute across, if 0,
+all cores available are used. Defaults to 0.</p></li>
+<li><p><strong>save_to_file</strong> (<em>String</em>) – file path and name to save model data under, no saving
+occurs if empty string. Defaults to “”.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas DataFrame with distance matrix as described above.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opqua.model.Model.peakLandscape">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">peakLandscape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">genome</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peak_genome</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/model.html#Model.peakLandscape"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.model.Model.peakLandscape" title="Link to this definition"></a></dt>
+<dd><p>Return genome phenotype by decreasing with distance from optimal seq.</p>
+<p>A purifying selection fitness function based on exponential decay of
+fitness as genomes move away from the optimal sequence. Distance is
+measured as percent Hamming distance from an optimal genome sequence.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>genome</strong> (<em>String</em>) – the genome to be evaluated.</p></li>
+<li><p><strong>peak_genome</strong> (<em>String</em>) – the genome sequence to measure distance against, has
+value of 1.</p></li>
+<li><p><strong>min_value</strong> (<em>number 0-1</em>) – minimum value at maximum distance from optimal
+genome.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>value of genome (number).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opqua.model.Model.populationsPlot">
+<span class="sig-name descname"><span class="pre">populationsPlot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compartment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Infected'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hosts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vectors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_top_populations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">7</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">track_specific_populations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_data_to_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Time'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Hosts'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(8,</span> <span class="pre">4)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dpi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">palette</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['#E69F00',</span> <span class="pre">'#56B4E9',</span> <span class="pre">'#009E73',</span> <span class="pre">'#F0E442',</span> <span class="pre">'#0072B2',</span> <span class="pre">'#D55E00',</span> <span class="pre">'#CC79A7',</span> <span class="pre">'#999999']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stacked</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/model.html#Model.populationsPlot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.model.Model.populationsPlot" title="Link to this definition"></a></dt>
+<dd><p>Create plot with aggregated totals per population across time.</p>
+<p>Creates a line or stacked line plot with dynamics of a compartment
+across populations in the model, with one line for each population.</p>
+<p>A host or vector is considered part of the recovered compartment
+if it has protection sequences of any kind and is not infected.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file_name</strong> (<em>String</em>) – file path, name, and extension to save plot under.</p></li>
+<li><p><strong>data</strong> (<em>pandas DataFrame</em>) – dataframe with model history as produced by saveToDf function.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>compartment</strong> (<em>String</em>) – subset of hosts/vectors to count totals of, can be either
+‘Naive’,’Infected’,’Recovered’, or ‘Dead’. Defaults to ‘Infected’.</p></li>
+<li><p><strong>hosts</strong> (<em>Boolean</em>) – whether to count hosts. Defaults to True.</p></li>
+<li><p><strong>vectors</strong> (<em>Boolean</em>) – </p></li>
+<li><p><strong>num_top_populations</strong> (<em>int</em>) – how many populations to count separately and
+include as columns, remainder will be counted under column “Other”;
+if &lt;0, includes all populations in model. Defaults to 7.</p></li>
+<li><p><strong>track_specific_populations</strong> (<em>list</em><em> of </em><em>Strings</em>) – contains IDs of specific populations to
+have as a separate column if not part of the top num_top_populations
+populations. Defaults to [].</p></li>
+<li><p><strong>save_data_to_file</strong> (<em>String</em>) – file path and name to save model plot data under,
+no saving occurs if empty string. Defaults to “”.</p></li>
+<li><p><strong>x_label</strong> (<em>String</em>) – X axis title. Defaults to ‘Time’.</p></li>
+<li><p><strong>y_label</strong> (<em>String</em>) – Y axis title. Defaults to ‘Hosts’.</p></li>
+<li><p><strong>legend_title</strong> (<em>String</em>) – legend title. Defaults to ‘Population’.</p></li>
+<li><p><strong>legend_values</strong> (<em>list</em><em> of </em><em>Strings</em>) – labels for each trace, if empty list, uses population
+IDs. Defaults to [].</p></li>
+<li><p><strong>figsize</strong> (<em>array-like</em><em> of </em><em>two ints</em>) – dimensions of figure. Defaults to (8,4).</p></li>
+<li><p><strong>dpi</strong> (<em>int</em>) – figure resolution. Defaults to 200.</p></li>
+<li><p><strong>palette</strong> (<em>list</em><em> of </em><em>color Strings</em>) – color palette to use for traces. Defaults to <cite>CB_PALETTE</cite>.</p></li>
+<li><p><strong>stacked</strong> (<em>Boolean</em>) – whether to draw a regular line plot instead of a stacked one. Defaults to False.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><cite>axis object</cite> for plot with model population dynamics as described above.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opqua.model.Model.protectHosts">
+<span class="sig-name descname"><span class="pre">protectHosts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pop_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_hosts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">protection_sequence</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/model.html#Model.protectHosts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.model.Model.protectHosts" title="Link to this definition"></a></dt>
+<dd><p>Protect a random fraction of infected hosts against some infection.</p>
+<p>Adds protection sequence specified to a random fraction of the hosts
+specified. Does not cure them if they are already infected.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pop_id</strong> (<em>String</em>) – ID of population to be modified.</p></li>
+<li><p><strong>frac_hosts</strong> (<em>number between 0 and 1</em>) – fraction of hosts considered to be
+randomly selected.</p></li>
+<li><p><strong>protection_sequence</strong> (<em>String</em>) – sequence against which to protect.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>group_id</strong> (<em>String</em>) – ID of specific hosts to sample from, if empty, samples
+from whole population. Defaults to “”.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opqua.model.Model.protectVectors">
+<span class="sig-name descname"><span class="pre">protectVectors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pop_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_vectors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">protection_sequence</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/model.html#Model.protectVectors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.model.Model.protectVectors" title="Link to this definition"></a></dt>
+<dd><p>Protect a random fraction of infected vectors against some infection.</p>
+<p>Adds protection sequence specified to a random fraction of the vectors
+specified. Does not cure them if they are already infected.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pop_id</strong> (<em>String</em>) – ID of population to be modified.</p></li>
+<li><p><strong>frac_vectors</strong> (<em>number between 0 and 1</em>) – fraction of vectors considered to be randomly selected.</p></li>
+<li><p><strong>protection_sequence</strong> (<em>String</em>) – sequence against which to protect.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>group_id</strong> (<em>String</em>) – ID of specific vectors to sample from, if empty, samples
+from whole population. Defaults to “”.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opqua.model.Model.removeHosts">
+<span class="sig-name descname"><span class="pre">removeHosts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pop_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_hosts_or_list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/model.html#Model.removeHosts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.model.Model.removeHosts" title="Link to this definition"></a></dt>
+<dd><p>Remove a number of specified or random hosts from population.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pop_id</strong> (<em>String</em>) – ID of population to be modified.</p></li>
+<li><p><strong>num_hosts_or_list</strong> (<em>int</em><em> or </em><em>list</em><em> of </em><em>Hosts</em>) – number of hosts to be sampled randomly for removal
+or list of hosts to be removed, must be hosts in this population.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opqua.model.Model.removeVectors">
+<span class="sig-name descname"><span class="pre">removeVectors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pop_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_vectors_or_list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/model.html#Model.removeVectors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.model.Model.removeVectors" title="Link to this definition"></a></dt>
+<dd><p>Remove a number of specified or random vectors from population.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pop_id</strong> (<em>String</em>) – ID of population to be modified.</p></li>
+<li><p><strong>num_vectors_or_list</strong> (<em>int</em><em> or </em><em>list</em><em> of </em><em>Vectors</em>) – number of vectors to be sampled randomly for
+removal or list of vectors to be removed, must be vectors in this
+population.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opqua.model.Model.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_sampling</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host_sampling</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vector_sampling</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/model.html#Model.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.model.Model.run" title="Link to this definition"></a></dt>
+<dd><p>Simulate model for a specified time between two time points.</p>
+<p>Simulates a time series using the Gillespie algorithm.</p>
+<p>Saves a dictionary containing model state history, with <cite>keys=times</cite> and
+<cite>values=Model</cite> objects with model snapshot at that time point under this
+model’s history attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t0</strong> (<em>number &gt;= 0</em>) – initial time point to start simulation at.</p></li>
+<li><p><strong>tf</strong> (<em>number &gt;= 0</em>) – initial time point to end simulation at.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>time_sampling</strong> (<em>int</em>) – how many events to skip before saving a snapshot of the
+system state (saves all by default), if &lt;0, saves only final state. Defaults to 0.</p></li>
+<li><p><strong>host_sampling</strong> (<em>int &gt;= 0</em>) – how many hosts to skip before saving one in a snapshot
+of the system state (saves all by default). Defaults to 0.</p></li>
+<li><p><strong>vector_sampling</strong> (<em>int &gt;= 0</em>) – how many vectors to skip before saving one in a
+snapshot of the system state (saves all by default). Defaults to 0.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opqua.model.Model.runParamSweep">
+<span class="sig-name descname"><span class="pre">runParamSweep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">setup_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_sweep_dic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host_population_size_sweep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vector_population_size_sweep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host_migration_sweep_dic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vector_migration_sweep_dic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host_host_population_contact_sweep_dic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host_vector_population_contact_sweep_dic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vector_host_population_contact_sweep_dic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replicates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host_sampling</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vector_sampling</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_cores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/model.html#Model.runParamSweep"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.model.Model.runParamSweep" title="Link to this definition"></a></dt>
+<dd><p>Simulate a parameter sweep with a model, save only end results.</p>
+<p>Simulates variations of a time series using the Gillespie algorithm.</p>
+<p>Saves a dictionary containing model end state state, with <cite>keys=times</cite> and
+<cite>values=Model</cite> objects with model snapshot. The time is the final
+timepoint.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t0</strong> (<em>number &gt;= 0</em>) – initial time point to start simulation at.</p></li>
+<li><p><strong>tf</strong> (<em>number &gt;= 0</em>) – initial time point to end simulation at.</p></li>
+<li><p><strong>setup_id</strong> (<em>String</em>) – ID of setup to be assigned.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>of</strong> (<em>vector_migration_sweep_dic -- dictionary with keys=population IDs</em>) – Setup), values=list of values for parameter (list, class of elements
+depends on parameter)</p></li>
+<li><p><strong>IDs</strong> (<em>vector_population_size_sweep -- dictionary with keys=population</em>) – (Strings), values=list of values with host population sizes
+(must be greater than original size set for each population, list of
+numbers)</p></li>
+<li><p><strong>IDs</strong> – (Strings), values=list of values with vector population sizes
+(must be greater than original size set for each population, list of
+numbers)</p></li>
+<li><p><strong>of</strong> – origin and destination, separated by a colon ‘;’ (Strings),
+values=list of values (list of numbers)</p></li>
+<li><p><strong>of</strong> – origin and destination, separated by a colon ‘;’ (Strings),
+values=list of values (list of numbers)</p></li>
+<li><p><strong>with</strong> (<em>vector_host_population_contact_sweep_dic -- dictionary</em>) – keys=population IDs of origin and destination, separated by a colon
+‘;’ (Strings), values=list of values (list of numbers)</p></li>
+<li><p><strong>with</strong> – keys=population IDs of origin and destination, separated by a colon
+‘;’ (Strings), values=list of values (list of numbers)</p></li>
+<li><p><strong>with</strong> – keys=population IDs of origin and destination, separated by a colon
+‘;’ (Strings), values=list of values (list of numbers)</p></li>
+<li><p><strong>simulate</strong> (<em>replicates -- how many replicates to</em>) – </p></li>
+<li><p><strong>snapshot</strong> (<em>host_sampling -- how many hosts to skip before saving one in a</em>) – of the system state (saves all by default) (int &gt;= 0, default 0)</p></li>
+<li><p><strong>a</strong> (<em>vector_sampling -- how many vectors to skip before saving one in</em>) – snapshot of the system state (saves all by default)
+(int &gt;= 0, default 0)</p></li>
+<li><p><strong>all</strong> (<em>n_cores -- number</em><em> of </em><em>cores to parallelize file export across</em><em>, </em><em>if 0</em><em>,</em>) – cores available are used (default 0; int &gt;= 0)</p></li>
+<li><p><strong>multiprocessing</strong> (<em>**kwargs -- additional arguents for joblib</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>DataFrame with parameter combinations, list of Model objects with the</dt><dd><p>final snapshots.</p>
+</dd>
+</dl>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opqua.model.Model.runReplicates">
+<span class="sig-name descname"><span class="pre">runReplicates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replicates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host_sampling</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vector_sampling</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_cores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/model.html#Model.runReplicates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.model.Model.runReplicates" title="Link to this definition"></a></dt>
+<dd><p>Simulate replicates of a model, save only end results.</p>
+<p>Simulates replicates of a time series using the Gillespie algorithm.</p>
+<p>Saves a dictionary containing model end state state, with <cite>keys=times</cite> and
+<cite>values=Model</cite> objects with model snapshot. The time is the final timepoint.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t0</strong> (<em>number &gt;= 0</em>) – initial time point to start simulation at.</p></li>
+<li><p><strong>tf</strong> (<em>number &gt;= 0</em>) – initial time point to end simulation at.</p></li>
+<li><p><strong>replicates</strong> (<em>int &gt;= 1</em>) – how many replicates to simulate.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>host_sampling</strong> (<em>int &gt;= 0</em>) – how many hosts to skip before saving one in a snapshot
+of the system state (saves all by default). Defaults to 0.</p></li>
+<li><p><strong>vector_sampling</strong> (<em>int &gt;= 0</em>) – how many vectors to skip before saving one in a
+snapshot of the system state (saves all by default). Defaults to 0.</p></li>
+<li><p><strong>n_cores</strong> (<em>int &gt;= 0</em>) – number of cores to parallelize file export across, if 0, all
+cores available are used. Defaults to 0.</p></li>
+<li><p><strong>**kwargs</strong> – additional arguents for joblib multiprocessing.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List of <cite>Model</cite> objects with the final snapshots.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opqua.model.Model.saveToDataFrame">
+<span class="sig-name descname"><span class="pre">saveToDataFrame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save_to_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_cores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/model.html#Model.saveToDataFrame"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.model.Model.saveToDataFrame" title="Link to this definition"></a></dt>
+<dd><p>Save status of model to dataframe, write to file location given.</p>
+<p>Creates a pandas Dataframe in long format with the given model history,
+with one host or vector per simulation time in each row, and columns:</p>
+<ul class="simple">
+<li><p>Time - simulation time of entry</p></li>
+<li><p>Population - ID of this host/vector’s population</p></li>
+<li><p>Organism - host/vector</p></li>
+<li><p>ID - ID of host/vector</p></li>
+<li><p>Pathogens - all genomes present in this host/vector separated by ‘;’</p></li>
+<li><p>Protection - all genomes present in this host/vector separated by ‘;’</p></li>
+<li><p>Alive - whether host/vector is alive at this time, True/False</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>save_to_file</strong> (<em>String</em>) – file path and name to save model data under.</p>
+</dd>
+<dt class="field-even">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>n_cores</strong> (<em>int &gt;= 0</em>) – number of cores to parallelize file export across, if 0, all
+cores available are used. Defaults to 0.</p></li>
+<li><p><strong>**kwargs</strong> – additional arguents for joblib multiprocessing.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><cite>pandas dataframe</cite> with model history as described above.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opqua.model.Model.setRandomSeed">
+<span class="sig-name descname"><span class="pre">setRandomSeed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seed</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/model.html#Model.setRandomSeed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.model.Model.setRandomSeed" title="Link to this definition"></a></dt>
+<dd><p>Set random seed for numpy random number generator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>seed</strong> (<em>int</em>) – int for the random seed to be passed to numpy.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opqua.model.Model.setSetup">
+<span class="sig-name descname"><span class="pre">setSetup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pop_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">setup_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/model.html#Model.setSetup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.model.Model.setSetup" title="Link to this definition"></a></dt>
+<dd><p>Assign parameters stored in Setup object to this population.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pop_id</strong> (<em>String</em>) – ID of population to be modified.</p></li>
+<li><p><strong>setup_id</strong> (<em>String</em>) – ID of setup to be assigned.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opqua.model.Model.treatHosts">
+<span class="sig-name descname"><span class="pre">treatHosts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pop_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_hosts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resistance_seqs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/model.html#Model.treatHosts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.model.Model.treatHosts" title="Link to this definition"></a></dt>
+<dd><p>Treat random fraction of infected hosts against some infection.</p>
+<p>Removes all infections with genotypes susceptible to given treatment.
+Pathogens are removed if they are missing at least one of the sequences
+in resistance_seqs from their genome. Removes this organism from
+population infected list and adds to healthy list if appropriate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pop_id</strong> (<em>String</em>) – ID of population to be modified.</p></li>
+<li><p><strong>frac_hosts</strong> (<em>number between 0 and 1</em>) – fraction of hosts considered to be randomly selected.</p></li>
+<li><p><strong>resistance_seqs</strong> (<em>list</em><em> of </em><em>Strings</em>) – contains sequences required for treatment resistance.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>group_id</strong> (<em>String</em>) – ID of specific hosts to sample from, if empty, samples
+from whole population. Defaults to “”.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opqua.model.Model.treatVectors">
+<span class="sig-name descname"><span class="pre">treatVectors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pop_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_vectors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resistance_seqs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/model.html#Model.treatVectors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.model.Model.treatVectors" title="Link to this definition"></a></dt>
+<dd><p>Treat random fraction of infected vectors agains some infection.</p>
+<p>Removes all infections with genotypes susceptible to given treatment.
+Pathogens are removed if they are missing at least one of the sequences
+in resistance_seqs from their genome. Removes this organism from
+population infected list and adds to healthy list if appropriate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pop_id</strong> (<em>String</em>) – ID of population to be modified.</p></li>
+<li><p><strong>frac_vectors</strong> (<em>number between 0 and 1</em>) – fraction of vectors considered to be
+randomly selected.</p></li>
+<li><p><strong>resistance_seqs</strong> (<em>list</em><em> of </em><em>Strings</em>) – contains sequences required for treatment resistance.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>group_id</strong> (<em>String</em>) – ID of specific vectors to sample from, if empty, samples
+from whole population. Defaults to “”.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opqua.model.Model.valleyLandscape">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">valleyLandscape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">genome</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valley_genome</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/model.html#Model.valleyLandscape"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.model.Model.valleyLandscape" title="Link to this definition"></a></dt>
+<dd><p>Return genome phenotype by increasing with distance from worst seq.</p>
+<p>A disruptive selection fitness function based on exponential decay of
+fitness as genomes move closer to the worst possible sequence. Distance
+is measured as percent Hamming distance from the worst possible genome
+sequence.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>genome</strong> (<em>String</em>) – the genome to be evaluated.</p></li>
+<li><p><strong>valley_genome</strong> (<em>String</em>) – the genome sequence to measure distance against, has
+value of min_value.</p></li>
+<li><p><strong>min_value</strong> (<em>number 0-1</em>) – fitness value of worst possible genome.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>value of genome (number).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opqua.model.Model.wipeProtectionHosts">
+<span class="sig-name descname"><span class="pre">wipeProtectionHosts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pop_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/model.html#Model.wipeProtectionHosts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.model.Model.wipeProtectionHosts" title="Link to this definition"></a></dt>
+<dd><p>Removes all protection sequences from hosts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>pop_id</strong> (<em>String</em>) – ID of population to be modified.</p>
+</dd>
+<dt class="field-even">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>group_id</strong> (<em>String</em>) – ID of specific hosts to sample from, if empty, samples from
+whole from whole population. Defaults to “”.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opqua.model.Model.wipeProtectionVectors">
+<span class="sig-name descname"><span class="pre">wipeProtectionVectors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pop_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/opqua/model.html#Model.wipeProtectionVectors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opqua.model.Model.wipeProtectionVectors" title="Link to this definition"></a></dt>
+<dd><p>Removes all protection sequences from vectors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>pop_id</strong> (<em>String</em>) – ID of population to be modified.</p>
+</dd>
+<dt class="field-even">Keyword Arguments<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>group_id</strong> (<em>String</em>) – ID of specific vectors to sample from, if empty, samples
+from whole population. Defaults to “”.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-opqua">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-opqua" title="Link to this heading"></a></h2>
+<p>Opqua.</p>
+<p>An epidemiological modeling framework for population genetics and evolution.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="API.html" class="btn btn-neutral float-left" title="API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="opqua.internal.html" class="btn btn-neutral float-right" title="opqua.internal package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Pablo Cárdenas.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

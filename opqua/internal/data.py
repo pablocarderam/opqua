@@ -13,29 +13,30 @@ def saveToDf(history,save_to_file,n_cores=0,verbose=10, **kwargs):
 
     Creates a pandas Dataframe in long format with the given model history, with
     one host or vector per simulation time in each row, and columns:
-        Time - simulation time of entry
-        Population - ID of this host/vector's population
-        Organism - host/vector
-        ID - ID of host/vector
-        Pathogens - all genomes present in this host/vector separated by ;
-        Protection - all genomes present in this host/vector separated by ;
-        Alive - whether host/vector is alive at this time, True/False
+
+        - Time - simulation time of entry
+        - Population - ID of this host/vector's population
+        - Organism - host/vector
+        - ID - ID of host/vector
+        - Pathogens - all genomes present in this host/vector separated by ';'
+        - Protection - all genomes present in this host/vector separated by ';'
+        - Alive - whether host/vector is alive at this time, True/False
 
     Writing straight to a file and then reading into a pandas dataframe was
     actually more efficient than concatenating directly into a pd dataframe.
 
     Arguments:
-    history -- dictionary containing model state history, with keys=times and
-        values=Model objects with model snapshot at that time point
-    save_to_file -- file path and name to save model data under (String)
+        history (dict): dictionary containing model state history, with `keys`=`times` and
+            `values`=`Model` objects with model snapshot at that time point.
+        save_to_file (String): file path and name to save model data under.
 
     Keyword arguments:
-    n_cores -- number of cores to parallelize file export across, if 0, all
-        cores available are used (default 0; int)
-    **kwargs -- additional arguents for joblib multiprocessing
+        n_cores (int): number of cores to parallelize file export across, if 0, all
+            cores available are used. Defaults to 0.
+        **kwargs: additional arguents for joblib multiprocessing.
 
     Returns:
-    pandas dataframe with model history as described above
+        pandas DataFrame with model history as described above.
     """
 
     print('Saving file...')
@@ -100,24 +101,24 @@ def populationsDf(
     for time as well as each population.
 
     Arguments:
-    data -- dataframe with model history as produced by saveToDf function
+        data (pandas DataFrame) dataframe with model history as produced by `saveToDf` function.
 
     Keyword arguments:
-    compartment -- subset of hosts/vectors to count totals of, can be either
-        'Naive','Infected','Recovered', or 'Dead' (default 'Infected'; String)
-    hosts -- whether to count hosts (default True, Boolean)
-    vectors -- whether to count vectors (default False, Boolean)
-    num_top_populations -- how many populations to count separately and include
-        as columns, remainder will be counted under column "Other"; if <0,
-        includes all populations in model (default -1; int)
-    track_specific_populations -- contains IDs of specific populations to have
-        as a separate column if not part of the top num_top_populations
-        populations (list of Strings)
-    save_to_file -- file path and name to save model data under, no saving
-        occurs if empty string (default ''; String)
+        compartment (String): subset of hosts/vectors to count totals of, can be either
+            'Naive','Infected','Recovered', or 'Dead'. Defaults to 'Infected'.
+        hosts (Boolean): whether to count hosts. Defaults to True.
+        vectors (Boolean): whether to count vectors. Defaults to False.
+        num_top_populations (int): how many populations to count separately and include
+            as columns, remainder will be counted under column "Other"; if <0,
+            includes all populations in model. Defaults to -1.
+        track_specific_populations (list of Strings): contains IDs of specific populations to have
+            as a separate column if not part of the top num_top_populations
+            populations. Defaults to [].
+        save_to_file (String): file path and name to save model data under, no saving
+            occurs if empty string. Defaults to "".
 
     Returns:
-    pandas dataframe with model population dynamics as described above
+        pandas DataFrame with model population dynamics as described above.
     """
 
     dat = cp.deepcopy( data )
@@ -204,18 +205,18 @@ def compartmentDf(
     compartment.
 
     Arguments:
-    data -- dataframe with model history as produced by saveToDf function
+        data (pandas DataFrame): dataframe with model history as produced by `saveToDf` function.
 
     Keyword arguments:
-    populations -- IDs of populations to include in analysis; if empty, uses all
-        populations in model (default empty list; list of Strings)
-    hosts -- whether to count hosts (default True, Boolean)
-    vectors -- whether to count vectors (default False, Boolean)
-    save_to_file -- file path and name to save model data under, no saving
-        occurs if empty string (default ''; String)
+        populations (list of Strings): IDs of populations to include in analysis; if empty, uses all
+            populations in model. Defaults to [].
+        hosts (Boolean): whether to count hosts. Defaults to True.
+        vectors (Boolean): whether to count vectors. Defaults to False.
+        save_to_file (String): file path and name to save model data under, no saving
+            occurs if empty string. Defaults to "".
 
     Returns:
-    pandas dataframe with model compartment dynamics as described above
+        pandas DataFrame with model compartment dynamics as described above.
     """
 
     if len(populations) > 0:
@@ -298,38 +299,37 @@ def compositionDf(
     multiple infections in the same host/vector are counted separately.
 
     Arguments:
-    data -- dataframe with model history as produced by saveToDf function
+        data (pandas DataFrame): dataframe with model history as produced by `saveToDf` function.
 
     Keyword arguments:
-    populations -- IDs of populations to include in analysis; if empty, uses all
-        populations in model (default empty list; list of Strings)
-    type_of_composition -- field of data to count totals of, can be either
-        'Pathogens' or 'Protection' (default 'Pathogens'; String)
-    hosts -- whether to count hosts (default True, Boolean)
-    vectors -- whether to count vectors (default False, Boolean)
-    num_top_sequences -- how many sequences to count separately and include
-        as columns, remainder will be counted under column "Other"; if <0,
-        includes all genomes in model (default -1; int)
-    track_specific_sequences -- contains specific sequences to have
-        as a separate column if not part of the top num_top_sequences
-        sequences (default empty list; list of Strings)
-    genomic_positions -- list in which each element is a list with loci
-        positions to extract (e.g. genomic_positions=[ [0,3], [5,6] ] extracts
-        positions 0, 1, 2, and 5 from each genome); if empty, takes full genomes
-        (default empty list; list of lists of int)
-    count_individuals_based_on_model -- Model object with populations and
-        fitness functions used to evaluate the most fit pathogen genome in each
-        host/vector in order to count only a single pathogen per host/vector, as
-        opposed to all pathogens within each host/vector; if None, counts all
-        pathogens (default None; None or Model)
-    save_to_file -- file path and name to save model data under, no saving
-        occurs if empty string (default ''; String)
-    n_cores -- number of cores to parallelize processing across, if 0, all
-        cores available are used (default 0; int)
-    **kwargs -- additional arguents for joblib multiprocessing
+        populations (list of Strings): IDs of populations to include in analysis; if empty, uses all
+            populations in model. Defaults to [].
+        type_of_composition (String): field of data to count totals of, can be either
+            'Pathogens' or 'Protection'. Defaults to 'Pathogens'.
+        hosts (Boolean): whether to count hosts. Defaults to True.
+        vectors (Boolean): whether to count vectors. Defaults to False.
+        num_top_sequences (int): how many sequences to count separately and include
+            as columns, remainder will be counted under column "Other"; if <0,
+            includes all genomes in model. Defaults to -1.
+        track_specific_sequences (list of Strings): contains specific sequences to have
+            as a separate column if not part of the top num_top_sequences
+            sequences. Defaults to [].
+        genomic_positions (list of lists of int): list in which each element is a list with loci
+            positions to extract (e.g. genomic_positions=[ [0,3], [5,6] ] extracts
+            positions 0, 1, 2, and 5 from each genome); if empty, takes full genomes. Defaults to [].
+        count_individuals_based_on_model (None or Model): Model object with populations and
+            fitness functions used to evaluate the most fit pathogen genome in each
+            host/vector in order to count only a single pathogen per host/vector, as
+            opposed to all pathogens within each host/vector; if None, counts all
+            pathogens. Defaults to None.
+        save_to_file (String): file path and name to save model data under, no saving
+            occurs if empty string. Defaults to "".
+        n_cores (int): number of cores to parallelize processing across, if 0, all
+            cores available are used. Defaults to 0.
+        **kwargs: additional arguents for joblib multiprocessing.
 
     Returns:
-    pandas dataframe with model sequence composition dynamics as described above
+        pandas DataFrame with model sequence composition dynamics as described above.
     """
 
     if len(populations) > 0:
@@ -470,18 +470,18 @@ def compositionDf(
 def getPathogens(data, save_to_file=""):
     """Create Dataframe with counts for all pathogen genomes in data.
 
-    Returns sorted pandas Dataframe with counts for occurrences of all pathogen
+    Returns sorted pandas DataFrame with counts for occurrences of all pathogen
     genomes in data passed.
 
     Arguments:
-    data -- dataframe with model history as produced by saveToDf function
+        data (pandas DataFrame): dataframe with model history as produced by `saveToDf` function.
 
     Keyword arguments:
-    save_to_file -- file path and name to save model data under, no saving
-        occurs if empty string (default ''; String)
+        save_to_file (String): file path and name to save model data under, no saving
+            occurs if empty string. Defaults to "".
 
     Returns:
-    pandas dataframe with Series as described above
+        pandas DataFrame with Series as described above.
     """
 
     out = pd.Series( ';'.join(
@@ -497,18 +497,18 @@ def getPathogens(data, save_to_file=""):
 def getProtections(data, save_to_file=""):
     """Create Dataframe with counts for all protection sequences in data.
 
-    Returns sorted pandas Dataframe with counts for occurrences of all
+    Returns sorted pandas DataFrame with counts for occurrences of all
     protection sequences in data passed.
 
     Arguments:
-    data -- dataframe with model history as produced by saveToDf function
+        data (pandas DataFrame): dataframe with model history as produced by `saveToDf` function.
 
     Keyword arguments:
-    save_to_file -- file path and name to save model data under, no saving
-        occurs if empty string (default ''; String)
+        save_to_file (String): file path and name to save model data under, no saving
+            occurs if empty string. Defaults to "".
 
     Returns:
-    pandas dataframe with Series as described above
+        pandas DataFrame with Series as described above.
     """
 
     out = pd.Series( ';'.join(
@@ -528,28 +528,27 @@ def pathogenDistanceDf(
     in data.
 
     DataFrame has indexes and columns named according to genomes or argument
-    seq_names, if passed. Distance is measured as percent Hamming distance from
+    `seq_names`, if passed. Distance is measured as percent Hamming distance from
     an optimal genome sequence.
 
     Arguments:
-    data -- dataframe with model history as produced by saveToDf function
+        data (pandas DataFrame): dataframe with model history as produced by `saveToDf` function.
 
     Keyword arguments:
-    num_top_sequences -- how many sequences to include in matrix; if <0,
-        includes all genomes in data passed (default -1; int)
-    track_specific_sequences -- contains specific sequences to include in matrix
-        if not part of the top num_top_sequences sequences (default empty list;
-        list of Strings)
-    seq_names -- list with names to be used for sequence labels in matrix must
-        be of same length as number of sequences to be displayed; if empty,
-        uses sequences themselves (default empty list; list of Strings)
-    save_to_file -- file path and name to save model data under, no saving
-        occurs if empty string (default ''; String)
-    n_cores -- number of cores to parallelize distance compute across, if 0, all
-        cores available are used (default 0; int)
+        num_top_sequences (int): how many sequences to include in matrix; if <0,
+            includes all genomes in data passed. Defaults to -1.
+        track_specific_sequences (list of Strings): contains specific sequences to include in matrix
+            if not part of the top num_top_sequences sequences. Defaults to [].
+        seq_names (list of Strings): list with names to be used for sequence labels in matrix must
+            be of same length as number of sequences to be displayed; if empty,
+            uses sequences themselves. Defaults to [].
+        save_to_file (String): file path and name to save model data under, no saving
+            occurs if empty string. Defaults to "".
+        n_cores (int): number of cores to parallelize distance compute across, if 0, all
+            cores available are used. Defaults to 0.
 
     Returns:
-    pandas dataframe with distance matrix as described above
+        pandas DataFrame with distance matrix as described above.
     """
 
     sequences = getPathogens(data)['Pathogens']
@@ -597,30 +596,29 @@ def getPathogenDistanceHistoryDf(
     in data.
 
     DataFrame has indexes and columns named according to genomes or argument
-    seq_names, if passed. Distance is measured as percent Hamming distance from
+    `seq_names`, if passed. Distance is measured as percent Hamming distance from
     an optimal genome sequence.
 
     Arguments:
-    data -- dataframe with model history as produced by saveToDf function
+        data (pandas DataFrame): dataframe with model history as produced by `saveToDf` function
 
     Keyword arguments:
-    samples -- how many timepoints to uniformly sample from the total
-        timecourse; if <0, takes all timepoints (default 1; int)
-    num_top_sequences -- how many sequences to include in matrix; if <0,
-        includes all genomes in data passed (default -1; int)
-    track_specific_sequences -- contains specific sequences to include in matrix
-        if not part of the top num_top_sequences sequences (default empty list;
-        list of Strings)
-    seq_names -- list with names to be used for sequence labels in matrix must
-        be of same length as number of sequences to be displayed; if empty,
-        uses sequences themselves (default empty list; list of Strings)
-    save_to_file -- file path and name to save model data under, no saving
-        occurs if empty string (default ''; String)
-    n_cores -- number of cores to parallelize distance compute across, if 0, all
-        cores available are used (default 0; int)
+        samples (int): how many timepoints to uniformly sample from the total
+            timecourse; if <0, takes all timepoints. Defaults to 1.
+        num_top_sequences (int): how many sequences to include in matrix; if <0,
+            includes all genomes in data passed. Defaults to -1.
+        track_specific_sequences (list of Strings): contains specific sequences to include in matrix
+            if not part of the top num_top_sequences sequences. Defaults to [].
+        seq_names (list of Strings): list with names to be used for sequence labels in matrix must
+            be of same length as number of sequences to be displayed; if empty,
+            uses sequences themselves. Defaults to [].
+        save_to_file (String): file path and name to save model data under, no saving
+            occurs if empty string. Defaults to "".
+        n_cores (int): number of cores to parallelize distance compute across, if 0, all
+            cores available are used (default 0; int)
 
     Returns:
-    pandas dataframe with distance matrix as described above
+        pandas DataFrame with distance matrix as described above.
     """
 
     if samples > 0:
@@ -656,19 +654,19 @@ def getGenomeTimesDf(
     """Create DataFrame with times genomes first appeared during simulation.
 
     Arguments:
-    data -- dataframe with model history as produced by saveToDf function
+        data (pandas DataFrame): dataframe with model history as produced by `saveToDf` function.
 
     Keyword arguments:
-    samples -- how many timepoints to uniformly sample from the total
-        timecourse; if <0, takes all timepoints (default 1; int)
-    save_to_file -- file path and name to save model data under, no saving
-        occurs if empty string (default ''; String)
-    n_cores -- number of cores to parallelize across, if 0, all cores available
-        are used (default 0; int)
-    **kwargs -- additional arguents for joblib multiprocessing
+        samples (int): how many timepoints to uniformly sample from the total
+            timecourse; if <0, takes all timepoints. Defaults to 1.
+        save_to_file (String): file path and name to save model data under, no saving
+            occurs if empty string. Defaults to "".
+        n_cores (int): number of cores to parallelize across, if 0, all cores available
+            are used. Defaults to 0.
+        **kwargs: additional arguents for joblib multiprocessing.
 
     Returns:
-    pandas dataframe with genomes and times as described above
+        pandas DataFrame with genomes and times as described above.
     """
 
     if samples > 0:

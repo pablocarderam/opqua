@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>opqua.internal.setup &mdash; Opqua 1.0.2 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=1ed6394b"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Opqua
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../about.html">About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../requirements_and_installation.html">Requirements and Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../model_documentation.html"><code class="docutils literal notranslate"><span class="pre">Model</span></code> Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../API.html">API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Opqua</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">opqua.internal.setup</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for opqua.internal.setup</h1><div class="highlight"><pre>
+<span></span>
+<span class="sd">&quot;&quot;&quot;Contains class Intervention.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Setup">
+<a class="viewcode-back" href="../../../opqua.internal.html#opqua.internal.setup.Setup">[docs]</a>
+<span class="k">class</span> <span class="nc">Setup</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class defines a setup with population parameters.</span>
+<span class="sd">    </span>
+<span class="sd">    Attributes:</span>
+<span class="sd">        id (String): key of the Setup inside model dictionary.</span>
+<span class="sd">        num_loci (int&gt;0): length of each pathogen genome string.</span>
+<span class="sd">        possible_alleles (String or list of Strings with num_loci elements): set of possible </span>
+<span class="sd">            characters in all genome string, or at each position in genome string. </span>
+<span class="sd">        fitnessHost (callable, takes a String argument and returns a number &gt;= 0): function </span>
+<span class="sd">            that evaluates relative fitness in head-to-head competition for different genomes </span>
+<span class="sd">            within the same host.</span>
+<span class="sd">        contactHost (callable, takes a String argument and returns a number 0-1): function that </span>
+<span class="sd">            returns coefficient modifying probability of a given host being chosen to be the </span>
+<span class="sd">            infector in a contact event, based on genome sequence of pathogen.</span>
+<span class="sd">        receiveContactHost (callable, takes a String argument and returns a number 0-1): function </span>
+<span class="sd">            that returns coefficient modifying probability of a given host being chosen to be </span>
+<span class="sd">            the infected in a contact event, based on genome sequence of pathogen.</span>
+<span class="sd">        mortalityHost (callable, takes a String argument and returns a number 0-1): function that </span>
+<span class="sd">            returns coefficient modifying death rate for a given host, based on genome sequence </span>
+<span class="sd">            of pathogen.</span>
+<span class="sd">        natalityHost (callable, takes a String argument and returns a number 0-1): function that </span>
+<span class="sd">            returns coefficient modifying birth rate for a given host, based on genome sequence </span>
+<span class="sd">            of pathogen.</span>
+<span class="sd">        recoveryHost (callable, takes a String argument and returns a number 0-1): function that </span>
+<span class="sd">            returns coefficient modifying recovery rate for a given host based on genome sequence </span>
+<span class="sd">            of pathogen.</span>
+<span class="sd">        migrationHost (callable, takes a String argument and returns a number 0-1): function that </span>
+<span class="sd">            returns coefficient modifying migration rate for a given host based on genome sequence </span>
+<span class="sd">            of pathogen.</span>
+<span class="sd">        populationContactHost (callable, takes a String argument and returns a number 0-1): function </span>
+<span class="sd">            that returns coefficient modifying population contact rate for a given host based on </span>
+<span class="sd">            genome sequence of pathogen.</span>
+<span class="sd">        mutationHost (callable, takes a String argument and returns a number 0-1): function that </span>
+<span class="sd">            returns coefficient modifying mutation rate for a given host based on genome sequence </span>
+<span class="sd">            of pathogen.</span>
+<span class="sd">        recombinationHost (callable, takes a String argument and returns a number 0-1): function </span>
+<span class="sd">            that returns coefficient modifying recombination rate for a given host based on genome </span>
+<span class="sd">            sequence of pathogen.</span>
+<span class="sd">        fitnessVector (callable, takes a String argument and returns a number &gt;=0): function that </span>
+<span class="sd">            evaluates relative fitness in head-to-head competition for different genomes within </span>
+<span class="sd">            the same vector.</span>
+<span class="sd">        contactVector (callable, takes a String argument and returns a number 0-1): function that </span>
+<span class="sd">            returns coefficient modifying probability of a given vector being chosen to be the </span>
+<span class="sd">            infector in a contact event, based on genome sequence of pathogen.</span>
+<span class="sd">        receiveContactVector (callable, takes a String argument and returns a number 0-1): function </span>
+<span class="sd">            that returns coefficient modifying probability of a given vector being chosen to be the </span>
+<span class="sd">            infected in a contact event, based on genome sequence of pathogen.</span>
+<span class="sd">        mortalityVector (callable, takes a String argument and returns a number 0-1): function that </span>
+<span class="sd">            returns coefficient modifying death rate for a given vector, based on genome sequence </span>
+<span class="sd">            of pathogen.</span>
+<span class="sd">        natalityVector (callable, takes a String argument and returns a number 0-1): function that </span>
+<span class="sd">            returns coefficient modifying birth rate for a given vector, based on genome sequence </span>
+<span class="sd">            of pathogen.</span>
+<span class="sd">        recoveryVector (callable, takes a String argument and returns a number 0-1): function that </span>
+<span class="sd">            returns coefficient modifying recovery rate for a given vector based on genome sequence </span>
+<span class="sd">            of pathogen.</span>
+<span class="sd">        migrationVector (callable, takes a String argument and returns a number 0-1): function that </span>
+<span class="sd">            returns coefficient modifying migration rate for a given vector based on genome sequence </span>
+<span class="sd">            of pathogen.</span>
+<span class="sd">        populationContactVector (callable, takes a String argument and returns a number 0-1): function </span>
+<span class="sd">            that returns coefficient modifying population contact rate for a given vector based on </span>
+<span class="sd">            genome sequence of pathogen.</span>
+<span class="sd">        mutationVector (callable, takes a String argument and returns a number 0-1): function that </span>
+<span class="sd">            returns coefficient modifying mutation rate for a given vector based on genome sequence </span>
+<span class="sd">            of pathogen.</span>
+<span class="sd">        recombinationVector (callable, takes a String argument and returns a number 0-1): function </span>
+<span class="sd">            that returns coefficient modifying recombination rate for a given vector based on genome </span>
+<span class="sd">            sequence of pathogen.</span>
+<span class="sd">        contact_rate_host_vector (number &gt;= 0): rate of host-vector contact events, not necessarily </span>
+<span class="sd">            transmission, assumes constant population density; evts/time.</span>
+<span class="sd">        transmission_efficiency_host_vector (float): fraction of host-vector contacts</span>
+<span class="sd">            that result in successful transmission.</span>
+<span class="sd">        transmission_efficiency_vector_host (float): fraction of vector-host contacts</span>
+<span class="sd">            that result in successful transmission.</span>
+<span class="sd">        contact_rate_host_host (number &gt;= 0): rate of host-host contact events, not</span>
+<span class="sd">            necessarily transmission, assumes constant population density; evts/time.</span>
+<span class="sd">        transmission_efficiency_host_host (float): fraction of host-host contacts</span>
+<span class="sd">                that result in successful transmission.</span>
+<span class="sd">        mean_inoculum_host (int &gt;= 0): mean number of pathogens that are transmitted from</span>
+<span class="sd">            a vector or host into a new host during a contact event.</span>
+<span class="sd">        mean_inoculum_vector (int &gt;= 0) mean number of pathogens that are transmitted</span>
+<span class="sd">            from a host to a vector during a contact event.</span>
+<span class="sd">        recovery_rate_host (number &gt;= 0): rate at which hosts clear all pathogens;</span>
+<span class="sd">            1/time.</span>
+<span class="sd">        recovery_rate_vector (number &gt;= 0): rate at which vectors clear all pathogens</span>
+<span class="sd">            1/time.</span>
+<span class="sd">        recovery_rate_vector (number &gt;= 0): rate at which vectors clear all pathogens</span>
+<span class="sd">            1/time.</span>
+<span class="sd">        mortality_rate_host (number 0-1): rate at which infected hosts die from disease.</span>
+<span class="sd">        mortality_rate_vector (number 0-1): rate at which infected vectors die from</span>
+<span class="sd">            disease.</span>
+<span class="sd">        recombine_in_host (number &gt;= 0): rate at which recombination occurs in host;</span>
+<span class="sd">            evts/time.</span>
+<span class="sd">        recombine_in_vector (number &gt;= 0): rate at which recombination occurs in vector;</span>
+<span class="sd">            evts/time.</span>
+<span class="sd">        num_crossover_host (number &gt;= 0): mean of a Poisson distribution modeling the number</span>
+<span class="sd">            of crossover events of host recombination events.</span>
+<span class="sd">        num_crossover_vector (number &gt;= 0): mean of a Poisson distribution modeling the</span>
+<span class="sd">            number of crossover events of vector recombination events.</span>
+<span class="sd">        mutate_in_host (number &gt;= 0): rate at which mutation occurs in host; evts/time.</span>
+<span class="sd">        mutate_in_vector (number &gt;= 0): rate at which mutation occurs in vector; evts/time.</span>
+<span class="sd">        death_rate_host (number &gt;= 0): natural host death rate; 1/time.</span>
+<span class="sd">        death_rate_vector (number &gt;= 0): natural vector death rate; 1/time.</span>
+<span class="sd">        birth_rate_host (number &gt;= 0): infected host birth rate; 1/time.</span>
+<span class="sd">        birth_rate_vector (number &gt;= 0): infected vector birth rate; 1/time.</span>
+<span class="sd">        vertical_transmission_host (number 0-1): probability that a host is infected by its</span>
+<span class="sd">            parent at birth.</span>
+<span class="sd">        vertical_transmission_vector (number 0-1): probability that a vector is infected by</span>
+<span class="sd">            its parent at birth.</span>
+<span class="sd">        inherit_protection_host (number 0-1): probability that a host inherits all</span>
+<span class="sd">            protection sequences from its parent.</span>
+<span class="sd">        inherit_protection_vector (number 0-1): probability that a vector inherits all</span>
+<span class="sd">            protection sequences from its parent.</span>
+<span class="sd">        protection_upon_recovery_host (None or array-like of length 2 with int 0-num_loci): defines </span>
+<span class="sd">            indexes in genome string that define substring to be added to host protection sequences </span>
+<span class="sd">            after recovery.</span>
+<span class="sd">        protection_upon_recovery_vector (None or array-like of length 2 with int 0-num_loci): defines </span>
+<span class="sd">            indexes in genome string that define substring to be added to vector protection sequences </span>
+<span class="sd">            after recovery.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="nb">id</span><span class="p">,</span>
+            <span class="n">num_loci</span><span class="p">,</span> <span class="n">possible_alleles</span><span class="p">,</span>
+            <span class="n">fitnessHost</span><span class="p">,</span> <span class="n">contactHost</span><span class="p">,</span> <span class="n">receiveContactHost</span><span class="p">,</span> <span class="n">mortalityHost</span><span class="p">,</span>
+            <span class="n">natalityHost</span><span class="p">,</span> <span class="n">recoveryHost</span><span class="p">,</span> <span class="n">migrationHost</span><span class="p">,</span>
+            <span class="n">populationContactHost</span><span class="p">,</span> <span class="n">receivePopulationContactHost</span><span class="p">,</span>
+            <span class="n">mutationHost</span><span class="p">,</span> <span class="n">recombinationHost</span><span class="p">,</span>
+            <span class="n">fitnessVector</span><span class="p">,</span> <span class="n">contactVector</span><span class="p">,</span> <span class="n">receiveContactVector</span><span class="p">,</span> <span class="n">mortalityVector</span><span class="p">,</span>
+            <span class="n">natalityVector</span><span class="p">,</span><span class="n">recoveryVector</span><span class="p">,</span> <span class="n">migrationVector</span><span class="p">,</span>
+            <span class="n">populationContactVector</span><span class="p">,</span> <span class="n">receivePopulationContactVector</span><span class="p">,</span>
+            <span class="n">mutationVector</span><span class="p">,</span> <span class="n">recombinationVector</span><span class="p">,</span>
+            <span class="n">contact_rate_host_vector</span><span class="p">,</span>
+            <span class="n">transmission_efficiency_host_vector</span><span class="p">,</span>
+            <span class="n">transmission_efficiency_vector_host</span><span class="p">,</span>
+            <span class="n">contact_rate_host_host</span><span class="p">,</span>
+            <span class="n">transmission_efficiency_host_host</span><span class="p">,</span>
+            <span class="n">mean_inoculum_host</span><span class="p">,</span> <span class="n">mean_inoculum_vector</span><span class="p">,</span>
+            <span class="n">recovery_rate_host</span><span class="p">,</span> <span class="n">recovery_rate_vector</span><span class="p">,</span>
+            <span class="n">mortality_rate_host</span><span class="p">,</span><span class="n">mortality_rate_vector</span><span class="p">,</span>
+            <span class="n">recombine_in_host</span><span class="p">,</span> <span class="n">recombine_in_vector</span><span class="p">,</span>
+            <span class="n">num_crossover_host</span><span class="p">,</span> <span class="n">num_crossover_vector</span><span class="p">,</span>
+            <span class="n">mutate_in_host</span><span class="p">,</span> <span class="n">mutate_in_vector</span><span class="p">,</span> <span class="n">death_rate_host</span><span class="p">,</span><span class="n">death_rate_vector</span><span class="p">,</span>
+            <span class="n">birth_rate_host</span><span class="p">,</span> <span class="n">birth_rate_vector</span><span class="p">,</span>
+            <span class="n">vertical_transmission_host</span><span class="p">,</span> <span class="n">vertical_transmission_vector</span><span class="p">,</span>
+            <span class="n">inherit_protection_host</span><span class="p">,</span> <span class="n">inherit_protection_vector</span><span class="p">,</span>
+            <span class="n">protection_upon_recovery_host</span><span class="p">,</span> <span class="n">protection_upon_recovery_vector</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a new Setup.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            id (String): key of the Setup inside model dictionary.</span>
+<span class="sd">            num_loci (int&gt;0): length of each pathogen genome string.</span>
+<span class="sd">            possible_alleles (String or list of Strings with num_loci elements): set of possible </span>
+<span class="sd">                characters in all genome string, or at each position in genome string. </span>
+<span class="sd">            fitnessHost (callable, takes a String argument and returns a number &gt;= 0): function </span>
+<span class="sd">                that evaluates relative fitness in head-to-head competition for different genomes </span>
+<span class="sd">                within the same host.</span>
+<span class="sd">            contactHost (callable, takes a String argument and returns a number 0-1): function that </span>
+<span class="sd">                returns coefficient modifying probability of a given host being chosen to be the </span>
+<span class="sd">                infector in a contact event, based on genome sequence of pathogen.</span>
+<span class="sd">            receiveContactHost (callable, takes a String argument and returns a number 0-1): function </span>
+<span class="sd">                that returns coefficient modifying probability of a given host being chosen to be </span>
+<span class="sd">                the infected in a contact event, based on genome sequence of pathogen.</span>
+<span class="sd">            mortalityHost (callable, takes a String argument and returns a number 0-1): function that </span>
+<span class="sd">                returns coefficient modifying death rate for a given host, based on genome sequence </span>
+<span class="sd">                of pathogen.</span>
+<span class="sd">            natalityHost (callable, takes a String argument and returns a number 0-1): function that </span>
+<span class="sd">                returns coefficient modifying birth rate for a given host, based on genome sequence </span>
+<span class="sd">                of pathogen.</span>
+<span class="sd">            recoveryHost (callable, takes a String argument and returns a number 0-1): function that </span>
+<span class="sd">                returns coefficient modifying recovery rate for a given host based on genome sequence </span>
+<span class="sd">                of pathogen.</span>
+<span class="sd">            migrationHost (callable, takes a String argument and returns a number 0-1): function that </span>
+<span class="sd">                returns coefficient modifying migration rate for a given host based on genome sequence </span>
+<span class="sd">                of pathogen.</span>
+<span class="sd">            populationContactHost (callable, takes a String argument and returns a number 0-1): function </span>
+<span class="sd">                that returns coefficient modifying population contact rate for a given host based on </span>
+<span class="sd">                genome sequence of pathogen.</span>
+<span class="sd">            mutationHost (callable, takes a String argument and returns a number 0-1): function that </span>
+<span class="sd">                returns coefficient modifying mutation rate for a given host based on genome sequence </span>
+<span class="sd">                of pathogen.</span>
+<span class="sd">            recombinationHost (callable, takes a String argument and returns a number 0-1): function </span>
+<span class="sd">                that returns coefficient modifying recombination rate for a given host based on genome </span>
+<span class="sd">                sequence of pathogen.</span>
+<span class="sd">            fitnessVector (callable, takes a String argument and returns a number &gt;=0): function that </span>
+<span class="sd">                evaluates relative fitness in head-to-head competition for different genomes within </span>
+<span class="sd">                the same vector.</span>
+<span class="sd">            contactVector (callable, takes a String argument and returns a number 0-1): function that </span>
+<span class="sd">                returns coefficient modifying probability of a given vector being chosen to be the </span>
+<span class="sd">                infector in a contact event, based on genome sequence of pathogen.</span>
+<span class="sd">            receiveContactVector (callable, takes a String argument and returns a number 0-1): function </span>
+<span class="sd">                that returns coefficient modifying probability of a given vector being chosen to be the </span>
+<span class="sd">                infected in a contact event, based on genome sequence of pathogen.</span>
+<span class="sd">            mortalityVector (callable, takes a String argument and returns a number 0-1): function that </span>
+<span class="sd">                returns coefficient modifying death rate for a given vector, based on genome sequence </span>
+<span class="sd">                of pathogen.</span>
+<span class="sd">            natalityVector (callable, takes a String argument and returns a number 0-1): function that </span>
+<span class="sd">                returns coefficient modifying birth rate for a given vector, based on genome sequence </span>
+<span class="sd">                of pathogen.</span>
+<span class="sd">            recoveryVector (callable, takes a String argument and returns a number 0-1): function that </span>
+<span class="sd">                returns coefficient modifying recovery rate for a given vector based on genome sequence </span>
+<span class="sd">                of pathogen.</span>
+<span class="sd">            migrationVector (callable, takes a String argument and returns a number 0-1): function that </span>
+<span class="sd">                returns coefficient modifying migration rate for a given vector based on genome sequence </span>
+<span class="sd">                of pathogen.</span>
+<span class="sd">            populationContactVector (callable, takes a String argument and returns a number 0-1): function </span>
+<span class="sd">                that returns coefficient modifying population contact rate for a given vector based on </span>
+<span class="sd">                genome sequence of pathogen.</span>
+<span class="sd">            mutationVector (callable, takes a String argument and returns a number 0-1): function that </span>
+<span class="sd">                returns coefficient modifying mutation rate for a given vector based on genome sequence </span>
+<span class="sd">                of pathogen.</span>
+<span class="sd">            recombinationVector (callable, takes a String argument and returns a number 0-1): function </span>
+<span class="sd">                that returns coefficient modifying recombination rate for a given vector based on genome </span>
+<span class="sd">                sequence of pathogen.</span>
+<span class="sd">            contact_rate_host_vector (number &gt;= 0): rate of host-vector contact events, not necessarily </span>
+<span class="sd">                transmission, assumes constant population density; evts/time.</span>
+<span class="sd">            transmission_efficiency_host_vector (float): fraction of host-vector contacts</span>
+<span class="sd">                that result in successful transmission.</span>
+<span class="sd">            transmission_efficiency_vector_host (float): fraction of vector-host contacts</span>
+<span class="sd">                that result in successful transmission.</span>
+<span class="sd">            contact_rate_host_host (number &gt;= 0): rate of host-host contact events, not</span>
+<span class="sd">                necessarily transmission, assumes constant population density; evts/time.</span>
+<span class="sd">            transmission_efficiency_host_host (float): fraction of host-host contacts</span>
+<span class="sd">                    that result in successful transmission.</span>
+<span class="sd">            mean_inoculum_host (int &gt;= 0): mean number of pathogens that are transmitted from</span>
+<span class="sd">                a vector or host into a new host during a contact event.</span>
+<span class="sd">            mean_inoculum_vector (int &gt;= 0) mean number of pathogens that are transmitted</span>
+<span class="sd">                from a host to a vector during a contact event.</span>
+<span class="sd">            recovery_rate_host (number &gt;= 0): rate at which hosts clear all pathogens;</span>
+<span class="sd">                1/time.</span>
+<span class="sd">            recovery_rate_vector (number &gt;= 0): rate at which vectors clear all pathogens</span>
+<span class="sd">                1/time.</span>
+<span class="sd">            recovery_rate_vector (number &gt;= 0): rate at which vectors clear all pathogens</span>
+<span class="sd">                1/time.</span>
+<span class="sd">            mortality_rate_host (number 0-1): rate at which infected hosts die from disease.</span>
+<span class="sd">            mortality_rate_vector (number 0-1): rate at which infected vectors die from</span>
+<span class="sd">                disease.</span>
+<span class="sd">            recombine_in_host (number &gt;= 0): rate at which recombination occurs in host;</span>
+<span class="sd">                evts/time.</span>
+<span class="sd">            recombine_in_vector (number &gt;= 0): rate at which recombination occurs in vector;</span>
+<span class="sd">                evts/time.</span>
+<span class="sd">            num_crossover_host (number &gt;= 0): mean of a Poisson distribution modeling the number</span>
+<span class="sd">                of crossover events of host recombination events.</span>
+<span class="sd">            num_crossover_vector (number &gt;= 0): mean of a Poisson distribution modeling the</span>
+<span class="sd">                number of crossover events of vector recombination events.</span>
+<span class="sd">            mutate_in_host (number &gt;= 0): rate at which mutation occurs in host; evts/time.</span>
+<span class="sd">            mutate_in_vector (number &gt;= 0): rate at which mutation occurs in vector; evts/time.</span>
+<span class="sd">            death_rate_host (number &gt;= 0): natural host death rate; 1/time.</span>
+<span class="sd">            death_rate_vector (number &gt;= 0): natural vector death rate; 1/time.</span>
+<span class="sd">            birth_rate_host (number &gt;= 0): infected host birth rate; 1/time.</span>
+<span class="sd">            birth_rate_vector (number &gt;= 0): infected vector birth rate; 1/time.</span>
+<span class="sd">            vertical_transmission_host (number 0-1): probability that a host is infected by its</span>
+<span class="sd">                parent at birth.</span>
+<span class="sd">            vertical_transmission_vector (number 0-1): probability that a vector is infected by</span>
+<span class="sd">                its parent at birth.</span>
+<span class="sd">            inherit_protection_host (number 0-1): probability that a host inherits all</span>
+<span class="sd">                protection sequences from its parent.</span>
+<span class="sd">            inherit_protection_vector (number 0-1): probability that a vector inherits all</span>
+<span class="sd">                protection sequences from its parent.</span>
+<span class="sd">            protection_upon_recovery_host (None or array-like of length 2 with int 0-num_loci): defines </span>
+<span class="sd">                indexes in genome string that define substring to be added to host protection sequences </span>
+<span class="sd">                after recovery.</span>
+<span class="sd">            protection_upon_recovery_vector (None or array-like of length 2 with int 0-num_loci): defines </span>
+<span class="sd">                indexes in genome string that define substring to be added to vector protection sequences </span>
+<span class="sd">                after recovery.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">Setup</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="nb">id</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_loci</span> <span class="o">=</span> <span class="n">num_loci</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">possible_alleles</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">possible_alleles</span> <span class="o">=</span> <span class="n">possible_alleles</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">possible_alleles</span> <span class="o">=</span> <span class="p">[</span><span class="n">possible_alleles</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_loci</span>
+                <span class="c1"># possible_alleles must be a list with all available alleles for</span>
+                <span class="c1"># each position</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">fitnessHost</span> <span class="o">=</span> <span class="n">fitnessHost</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">contactHost</span> <span class="o">=</span> <span class="n">contactHost</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">receiveContactHost</span> <span class="o">=</span> <span class="n">receiveContactHost</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mortalityHost</span> <span class="o">=</span> <span class="n">mortalityHost</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">natalityHost</span> <span class="o">=</span> <span class="n">natalityHost</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">recoveryHost</span> <span class="o">=</span> <span class="n">recoveryHost</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">migrationHost</span> <span class="o">=</span> <span class="n">migrationHost</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">populationContactHost</span> <span class="o">=</span> <span class="n">populationContactHost</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">receivePopulationContactHost</span> <span class="o">=</span> <span class="n">receivePopulationContactHost</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mutationHost</span> <span class="o">=</span> <span class="n">mutationHost</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">recombinationHost</span> <span class="o">=</span> <span class="n">recombinationHost</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">fitnessVector</span> <span class="o">=</span> <span class="n">fitnessVector</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">contactVector</span> <span class="o">=</span> <span class="n">contactVector</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">receiveContactVector</span> <span class="o">=</span> <span class="n">receiveContactVector</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mortalityVector</span> <span class="o">=</span> <span class="n">mortalityVector</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">natalityVector</span> <span class="o">=</span> <span class="n">natalityVector</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">recoveryVector</span> <span class="o">=</span> <span class="n">recoveryVector</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">migrationVector</span> <span class="o">=</span> <span class="n">migrationVector</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">populationContactVector</span> <span class="o">=</span> <span class="n">populationContactVector</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">receivePopulationContactVector</span> <span class="o">=</span> <span class="n">receivePopulationContactVector</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mutationVector</span> <span class="o">=</span> <span class="n">mutationVector</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">recombinationVector</span> <span class="o">=</span> <span class="n">recombinationVector</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">contact_rate_host_vector</span> <span class="o">=</span> <span class="n">contact_rate_host_vector</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">contact_rate_host_host</span> <span class="o">=</span> <span class="n">contact_rate_host_host</span>
+            <span class="c1"># contact rates assumes scaling area--large populations are equally</span>
+            <span class="c1"># dense as small ones, so contact is constant with both host and</span>
+            <span class="c1"># vector populations. If you don&#39;t want this to happen, modify the</span>
+            <span class="c1"># population&#39;s contact rate accordingly.</span>
+            <span class="c1"># Examines contacts between infected hosts and all hosts</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transmission_efficiency_host_vector</span> <span class="o">=</span> <span class="n">transmission_efficiency_host_vector</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transmission_efficiency_vector_host</span> <span class="o">=</span> <span class="n">transmission_efficiency_vector_host</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transmission_efficiency_host_host</span> <span class="o">=</span> <span class="n">transmission_efficiency_host_host</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mean_inoculum_host</span> <span class="o">=</span> <span class="n">mean_inoculum_host</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mean_inoculum_vector</span> <span class="o">=</span> <span class="n">mean_inoculum_vector</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">recovery_rate_host</span> <span class="o">=</span> <span class="n">recovery_rate_host</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">recovery_rate_vector</span> <span class="o">=</span> <span class="n">recovery_rate_vector</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mortality_rate_host</span> <span class="o">=</span> <span class="n">mortality_rate_host</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mortality_rate_vector</span> <span class="o">=</span> <span class="n">mortality_rate_vector</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">recombine_in_host</span> <span class="o">=</span> <span class="n">recombine_in_host</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">recombine_in_vector</span> <span class="o">=</span> <span class="n">recombine_in_vector</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_crossover_host</span> <span class="o">=</span> <span class="n">num_crossover_host</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_crossover_vector</span> <span class="o">=</span> <span class="n">num_crossover_vector</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mutate_in_host</span> <span class="o">=</span> <span class="n">mutate_in_host</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mutate_in_vector</span> <span class="o">=</span> <span class="n">mutate_in_vector</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">death_rate_host</span> <span class="o">=</span> <span class="n">death_rate_host</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">death_rate_vector</span> <span class="o">=</span> <span class="n">death_rate_vector</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">birth_rate_host</span> <span class="o">=</span> <span class="n">birth_rate_host</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">birth_rate_vector</span> <span class="o">=</span> <span class="n">birth_rate_vector</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">vertical_transmission_host</span> <span class="o">=</span> <span class="n">vertical_transmission_host</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vertical_transmission_vector</span> <span class="o">=</span> <span class="n">vertical_transmission_vector</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inherit_protection_host</span> <span class="o">=</span> <span class="n">inherit_protection_host</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inherit_protection_vector</span> <span class="o">=</span> <span class="n">inherit_protection_vector</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">protection_upon_recovery_host</span> <span class="o">=</span> <span class="n">protection_upon_recovery_host</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">protection_upon_recovery_vector</span> <span class="o">=</span> <span class="n">protection_upon_recovery_vector</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Pablo Cárdenas.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

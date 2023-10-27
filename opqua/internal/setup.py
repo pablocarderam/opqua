@@ -2,7 +2,125 @@
 """Contains class Intervention."""
 
 class Setup(object):
-    """Class defines a setup with population parameters."""
+    """Class defines a setup with population parameters.
+    
+    Attributes:
+        id (String): key of the Setup inside model dictionary.
+        num_loci (int>0): length of each pathogen genome string.
+        possible_alleles (String or list of Strings with num_loci elements): set of possible 
+            characters in all genome string, or at each position in genome string. 
+        fitnessHost (callable, takes a String argument and returns a number >= 0): function 
+            that evaluates relative fitness in head-to-head competition for different genomes 
+            within the same host.
+        contactHost (callable, takes a String argument and returns a number 0-1): function that 
+            returns coefficient modifying probability of a given host being chosen to be the 
+            infector in a contact event, based on genome sequence of pathogen.
+        receiveContactHost (callable, takes a String argument and returns a number 0-1): function 
+            that returns coefficient modifying probability of a given host being chosen to be 
+            the infected in a contact event, based on genome sequence of pathogen.
+        mortalityHost (callable, takes a String argument and returns a number 0-1): function that 
+            returns coefficient modifying death rate for a given host, based on genome sequence 
+            of pathogen.
+        natalityHost (callable, takes a String argument and returns a number 0-1): function that 
+            returns coefficient modifying birth rate for a given host, based on genome sequence 
+            of pathogen.
+        recoveryHost (callable, takes a String argument and returns a number 0-1): function that 
+            returns coefficient modifying recovery rate for a given host based on genome sequence 
+            of pathogen.
+        migrationHost (callable, takes a String argument and returns a number 0-1): function that 
+            returns coefficient modifying migration rate for a given host based on genome sequence 
+            of pathogen.
+        populationContactHost (callable, takes a String argument and returns a number 0-1): function 
+            that returns coefficient modifying population contact rate for a given host based on 
+            genome sequence of pathogen.
+        mutationHost (callable, takes a String argument and returns a number 0-1): function that 
+            returns coefficient modifying mutation rate for a given host based on genome sequence 
+            of pathogen.
+        recombinationHost (callable, takes a String argument and returns a number 0-1): function 
+            that returns coefficient modifying recombination rate for a given host based on genome 
+            sequence of pathogen.
+        fitnessVector (callable, takes a String argument and returns a number >=0): function that 
+            evaluates relative fitness in head-to-head competition for different genomes within 
+            the same vector.
+        contactVector (callable, takes a String argument and returns a number 0-1): function that 
+            returns coefficient modifying probability of a given vector being chosen to be the 
+            infector in a contact event, based on genome sequence of pathogen.
+        receiveContactVector (callable, takes a String argument and returns a number 0-1): function 
+            that returns coefficient modifying probability of a given vector being chosen to be the 
+            infected in a contact event, based on genome sequence of pathogen.
+        mortalityVector (callable, takes a String argument and returns a number 0-1): function that 
+            returns coefficient modifying death rate for a given vector, based on genome sequence 
+            of pathogen.
+        natalityVector (callable, takes a String argument and returns a number 0-1): function that 
+            returns coefficient modifying birth rate for a given vector, based on genome sequence 
+            of pathogen.
+        recoveryVector (callable, takes a String argument and returns a number 0-1): function that 
+            returns coefficient modifying recovery rate for a given vector based on genome sequence 
+            of pathogen.
+        migrationVector (callable, takes a String argument and returns a number 0-1): function that 
+            returns coefficient modifying migration rate for a given vector based on genome sequence 
+            of pathogen.
+        populationContactVector (callable, takes a String argument and returns a number 0-1): function 
+            that returns coefficient modifying population contact rate for a given vector based on 
+            genome sequence of pathogen.
+        mutationVector (callable, takes a String argument and returns a number 0-1): function that 
+            returns coefficient modifying mutation rate for a given vector based on genome sequence 
+            of pathogen.
+        recombinationVector (callable, takes a String argument and returns a number 0-1): function 
+            that returns coefficient modifying recombination rate for a given vector based on genome 
+            sequence of pathogen.
+        contact_rate_host_vector (number >= 0): rate of host-vector contact events, not necessarily 
+            transmission, assumes constant population density; evts/time.
+        transmission_efficiency_host_vector (float): fraction of host-vector contacts
+            that result in successful transmission.
+        transmission_efficiency_vector_host (float): fraction of vector-host contacts
+            that result in successful transmission.
+        contact_rate_host_host (number >= 0): rate of host-host contact events, not
+            necessarily transmission, assumes constant population density; evts/time.
+        transmission_efficiency_host_host (float): fraction of host-host contacts
+                that result in successful transmission.
+        mean_inoculum_host (int >= 0): mean number of pathogens that are transmitted from
+            a vector or host into a new host during a contact event.
+        mean_inoculum_vector (int >= 0) mean number of pathogens that are transmitted
+            from a host to a vector during a contact event.
+        recovery_rate_host (number >= 0): rate at which hosts clear all pathogens;
+            1/time.
+        recovery_rate_vector (number >= 0): rate at which vectors clear all pathogens
+            1/time.
+        recovery_rate_vector (number >= 0): rate at which vectors clear all pathogens
+            1/time.
+        mortality_rate_host (number 0-1): rate at which infected hosts die from disease.
+        mortality_rate_vector (number 0-1): rate at which infected vectors die from
+            disease.
+        recombine_in_host (number >= 0): rate at which recombination occurs in host;
+            evts/time.
+        recombine_in_vector (number >= 0): rate at which recombination occurs in vector;
+            evts/time.
+        num_crossover_host (number >= 0): mean of a Poisson distribution modeling the number
+            of crossover events of host recombination events.
+        num_crossover_vector (number >= 0): mean of a Poisson distribution modeling the
+            number of crossover events of vector recombination events.
+        mutate_in_host (number >= 0): rate at which mutation occurs in host; evts/time.
+        mutate_in_vector (number >= 0): rate at which mutation occurs in vector; evts/time.
+        death_rate_host (number >= 0): natural host death rate; 1/time.
+        death_rate_vector (number >= 0): natural vector death rate; 1/time.
+        birth_rate_host (number >= 0): infected host birth rate; 1/time.
+        birth_rate_vector (number >= 0): infected vector birth rate; 1/time.
+        vertical_transmission_host (number 0-1): probability that a host is infected by its
+            parent at birth.
+        vertical_transmission_vector (number 0-1): probability that a vector is infected by
+            its parent at birth.
+        inherit_protection_host (number 0-1): probability that a host inherits all
+            protection sequences from its parent.
+        inherit_protection_vector (number 0-1): probability that a vector inherits all
+            protection sequences from its parent.
+        protection_upon_recovery_host (None or array-like of length 2 with int 0-num_loci): defines 
+            indexes in genome string that define substring to be added to host protection sequences 
+            after recovery.
+        protection_upon_recovery_vector (None or array-like of length 2 with int 0-num_loci): defines 
+            indexes in genome string that define substring to be added to vector protection sequences 
+            after recovery.
+    """
 
     def __init__(
             self,
@@ -34,136 +152,121 @@ class Setup(object):
         """Create a new Setup.
 
         Arguments:
-        id -- key of the Setup inside model dictionary (String)
-        num_loci -- length of each pathogen genome string (int > 0)
-        possible_alleles -- set of possible characters in all genome string, or
-            at each position in genome string (String or list of Strings with
-            num_loci elements)
-        fitnessHost -- function that evaluates relative fitness in head-to-head
-            competition for different genomes within the same host
-            (function object, takes a String argument and returns a number >= 0)
-        contactHost -- function that returns coefficient modifying probability
-            of a given host being chosen to be the infector in a contact event,
-            based on genome sequence of pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        receiveContactHost -- function that returns coefficient modifying
-            probability of a given host being chosen to be the infected in
-            a contact event, based on genome sequence of pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        mortalityHost -- function that returns coefficient modifying death rate
-            for a given host, based on genome sequence of pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        natalityHost -- function that returns coefficient modifying birth rate
-            for a given host, based on genome sequence of pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        recoveryHost -- function that returns coefficient modifying recovery
-            rate for a given host based on genome sequence of pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        migrationHost -- function that returns coefficient modifying migration
-            rate for a given host based on genome sequence of pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        populationContactHost -- function that returns coefficient modifying
-            population contact rate for a given host based on genome sequence of
-            pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        mutationHost -- function that returns coefficient modifying mutation
-            rate for a given host based on genome sequence of pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        recombinationHost -- function that returns coefficient modifying
-            recombination rate for a given host based on genome sequence of
-            pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        fitnessVector -- function that evaluates relative fitness in head-to-
-            head competition for different genomes within the same vector
-            (function object, takes a String argument and returns a number >= 0)
-        contactVector -- function that returns coefficient modifying probability
-            of a given vector being chosen to be the infector in a contact
-            event, based on genome sequence of pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        receiveContactVector -- function that returns coefficient modifying
-            probability of a given vector being chosen to be the infected in
-            a contact event, based on genome sequence of pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        mortalityVector -- function that returns coefficient modifying death
-            rate for a given vector, based on genome sequence of pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        natalityVector -- function that returns coefficient modifying birth rate
-            for a given vector, based on genome sequence of pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        recoveryVector -- function that returns coefficient modifying recovery
-            rate for a given vector based on genome sequence of pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        migrationVector -- function that returns coefficient modifying migration
-            rate for a given vector based on genome sequence of pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        populationContactVector -- function that returns coefficient modifying
-            population contact rate for a given vector based on genome sequence
-            of pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        mutationVector -- function that returns coefficient modifying mutation
-            rate for a given vector based on genome sequence of pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        recombinationVector -- function that returns coefficient modifying
-            recombination rate for a given vector based on genome sequence of
-            pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        contact_rate_host_vector -- rate of host-vector contact events, not
-            necessarily transmission, assumes constant population density;
-            evts/time (number >= 0)
-        transmission_efficiency_host_vector -- fraction of host-vector contacts
-            that result in successful transmission
-        transmission_efficiency_vector_host -- fraction of vector-host contacts
-            that result in successful transmission
-        contact_rate_host_host -- rate of host-host contact events, not
-            necessarily transmission, assumes constant population density;
-            evts/time (number >= 0)
-        transmission_efficiency_host_host -- fraction of host-host contacts
-                that result in successful transmission
-        mean_inoculum_host -- mean number of pathogens that are transmitted from
-            a vector or host into a new host during a contact event (int >= 0)
-        mean_inoculum_vector -- mean number of pathogens that are transmitted
-            from a host to a vector during a contact event (int >= 0)
-        recovery_rate_host -- rate at which hosts clear all pathogens;
-            1/time (number >= 0)
-        recovery_rate_vector -- rate at which vectors clear all pathogens
-            1/time (number >= 0)
-        recovery_rate_vector -- rate at which vectors clear all pathogens
-            1/time (number >= 0)
-        mortality_rate_host -- rate at which infected hosts die from disease
-            (number 0-1)
-        mortality_rate_vector -- rate at which infected vectors die from
-            disease (number 0-1)
-        recombine_in_host -- rate at which recombination occurs in host;
-            evts/time (number >= 0)
-        recombine_in_vector -- rate at which recombination occurs in vector;
-            evts/time (number >= 0)
-        num_crossover_host -- mean of a Poisson distribution modeling the number
-            of crossover events of host recombination events (number >= 0)
-        num_crossover_vector -- mean of a Poisson distribution modeling the
-            number of crossover events of vector recombination events
-            (number >= 0)
-        mutate_in_host -- rate at which mutation occurs in host; evts/time
-            (number >= 0)
-        mutate_in_vector -- rate at which mutation occurs in vector; evts/time
-            (number >= 0)
-        death_rate_host -- natural host death rate; 1/time (number >= 0)
-        death_rate_vector -- natural vector death rate; 1/time (number >= 0)
-        birth_rate_host -- infected host birth rate; 1/time (number >= 0)
-        birth_rate_vector -- infected vector birth rate; 1/time (number >= 0)
-        vertical_transmission_host -- probability that a host is infected by its
-            parent at birth (number 0-1)
-        vertical_transmission_vector -- probability that a vector is infected by
-            its parent at birth (number 0-1)
-        inherit_protection_host -- probability that a host inherits all
-            protection sequences from its parent (number 0-1)
-        inherit_protection_vector -- probability that a vector inherits all
-            protection sequences from its parent (number 0-1)
-        protection_upon_recovery_host -- defines indexes in genome string that
-            define substring to be added to host protection sequences after
-            recovery (None or array-like of length 2 with int 0-num_loci)
-        protection_upon_recovery_vector -- defines indexes in genome string that
-            define substring to be added to vector protection sequences after
-            recovery (None or array-like of length 2 with int 0-num_loci)
+            id (String): key of the Setup inside model dictionary.
+            num_loci (int>0): length of each pathogen genome string.
+            possible_alleles (String or list of Strings with num_loci elements): set of possible 
+                characters in all genome string, or at each position in genome string. 
+            fitnessHost (callable, takes a String argument and returns a number >= 0): function 
+                that evaluates relative fitness in head-to-head competition for different genomes 
+                within the same host.
+            contactHost (callable, takes a String argument and returns a number 0-1): function that 
+                returns coefficient modifying probability of a given host being chosen to be the 
+                infector in a contact event, based on genome sequence of pathogen.
+            receiveContactHost (callable, takes a String argument and returns a number 0-1): function 
+                that returns coefficient modifying probability of a given host being chosen to be 
+                the infected in a contact event, based on genome sequence of pathogen.
+            mortalityHost (callable, takes a String argument and returns a number 0-1): function that 
+                returns coefficient modifying death rate for a given host, based on genome sequence 
+                of pathogen.
+            natalityHost (callable, takes a String argument and returns a number 0-1): function that 
+                returns coefficient modifying birth rate for a given host, based on genome sequence 
+                of pathogen.
+            recoveryHost (callable, takes a String argument and returns a number 0-1): function that 
+                returns coefficient modifying recovery rate for a given host based on genome sequence 
+                of pathogen.
+            migrationHost (callable, takes a String argument and returns a number 0-1): function that 
+                returns coefficient modifying migration rate for a given host based on genome sequence 
+                of pathogen.
+            populationContactHost (callable, takes a String argument and returns a number 0-1): function 
+                that returns coefficient modifying population contact rate for a given host based on 
+                genome sequence of pathogen.
+            mutationHost (callable, takes a String argument and returns a number 0-1): function that 
+                returns coefficient modifying mutation rate for a given host based on genome sequence 
+                of pathogen.
+            recombinationHost (callable, takes a String argument and returns a number 0-1): function 
+                that returns coefficient modifying recombination rate for a given host based on genome 
+                sequence of pathogen.
+            fitnessVector (callable, takes a String argument and returns a number >=0): function that 
+                evaluates relative fitness in head-to-head competition for different genomes within 
+                the same vector.
+            contactVector (callable, takes a String argument and returns a number 0-1): function that 
+                returns coefficient modifying probability of a given vector being chosen to be the 
+                infector in a contact event, based on genome sequence of pathogen.
+            receiveContactVector (callable, takes a String argument and returns a number 0-1): function 
+                that returns coefficient modifying probability of a given vector being chosen to be the 
+                infected in a contact event, based on genome sequence of pathogen.
+            mortalityVector (callable, takes a String argument and returns a number 0-1): function that 
+                returns coefficient modifying death rate for a given vector, based on genome sequence 
+                of pathogen.
+            natalityVector (callable, takes a String argument and returns a number 0-1): function that 
+                returns coefficient modifying birth rate for a given vector, based on genome sequence 
+                of pathogen.
+            recoveryVector (callable, takes a String argument and returns a number 0-1): function that 
+                returns coefficient modifying recovery rate for a given vector based on genome sequence 
+                of pathogen.
+            migrationVector (callable, takes a String argument and returns a number 0-1): function that 
+                returns coefficient modifying migration rate for a given vector based on genome sequence 
+                of pathogen.
+            populationContactVector (callable, takes a String argument and returns a number 0-1): function 
+                that returns coefficient modifying population contact rate for a given vector based on 
+                genome sequence of pathogen.
+            mutationVector (callable, takes a String argument and returns a number 0-1): function that 
+                returns coefficient modifying mutation rate for a given vector based on genome sequence 
+                of pathogen.
+            recombinationVector (callable, takes a String argument and returns a number 0-1): function 
+                that returns coefficient modifying recombination rate for a given vector based on genome 
+                sequence of pathogen.
+            contact_rate_host_vector (number >= 0): rate of host-vector contact events, not necessarily 
+                transmission, assumes constant population density; evts/time.
+            transmission_efficiency_host_vector (float): fraction of host-vector contacts
+                that result in successful transmission.
+            transmission_efficiency_vector_host (float): fraction of vector-host contacts
+                that result in successful transmission.
+            contact_rate_host_host (number >= 0): rate of host-host contact events, not
+                necessarily transmission, assumes constant population density; evts/time.
+            transmission_efficiency_host_host (float): fraction of host-host contacts
+                    that result in successful transmission.
+            mean_inoculum_host (int >= 0): mean number of pathogens that are transmitted from
+                a vector or host into a new host during a contact event.
+            mean_inoculum_vector (int >= 0) mean number of pathogens that are transmitted
+                from a host to a vector during a contact event.
+            recovery_rate_host (number >= 0): rate at which hosts clear all pathogens;
+                1/time.
+            recovery_rate_vector (number >= 0): rate at which vectors clear all pathogens
+                1/time.
+            recovery_rate_vector (number >= 0): rate at which vectors clear all pathogens
+                1/time.
+            mortality_rate_host (number 0-1): rate at which infected hosts die from disease.
+            mortality_rate_vector (number 0-1): rate at which infected vectors die from
+                disease.
+            recombine_in_host (number >= 0): rate at which recombination occurs in host;
+                evts/time.
+            recombine_in_vector (number >= 0): rate at which recombination occurs in vector;
+                evts/time.
+            num_crossover_host (number >= 0): mean of a Poisson distribution modeling the number
+                of crossover events of host recombination events.
+            num_crossover_vector (number >= 0): mean of a Poisson distribution modeling the
+                number of crossover events of vector recombination events.
+            mutate_in_host (number >= 0): rate at which mutation occurs in host; evts/time.
+            mutate_in_vector (number >= 0): rate at which mutation occurs in vector; evts/time.
+            death_rate_host (number >= 0): natural host death rate; 1/time.
+            death_rate_vector (number >= 0): natural vector death rate; 1/time.
+            birth_rate_host (number >= 0): infected host birth rate; 1/time.
+            birth_rate_vector (number >= 0): infected vector birth rate; 1/time.
+            vertical_transmission_host (number 0-1): probability that a host is infected by its
+                parent at birth.
+            vertical_transmission_vector (number 0-1): probability that a vector is infected by
+                its parent at birth.
+            inherit_protection_host (number 0-1): probability that a host inherits all
+                protection sequences from its parent.
+            inherit_protection_vector (number 0-1): probability that a vector inherits all
+                protection sequences from its parent.
+            protection_upon_recovery_host (None or array-like of length 2 with int 0-num_loci): defines 
+                indexes in genome string that define substring to be added to host protection sequences 
+                after recovery.
+            protection_upon_recovery_vector (None or array-like of length 2 with int 0-num_loci): defines 
+                indexes in genome string that define substring to be added to vector protection sequences 
+                after recovery.
         """
 
         super(Setup, self).__init__()
