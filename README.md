@@ -49,11 +49,13 @@ Check out the `changelog` file for information on recent updates.
 
 Opqua has been used in-depth to study [pathogen evolution across fitness valleys](https://github.com/pablocarderam/fitness_valleys_opqua).
 Check out the peer-reviewed preprint on
-[biorXiv](https://doi.org/10.1101/2021.12.16.473045), now peer-reviewed.
+[biorXiv](https://doi.org/10.1101/2021.12.16.473045), now peer-reviewed
+[here](https://doi.org/10.1126/sciadv.abo0173).
 
-Opqua is developed by [Pablo Cárdenas](https://pablo-cardenas.com) in
-collaboration with Vladimir Corredor and Mauricio Santos-Vega.
-Follow their science antics on Twitter at
+Opqua is developed by [Pablo Cárdenas](https://pablo-cardenas.com). The original
+publication was created in collaboration with Vladimir Corredor and Mauricio
+Santos-Vega. Follow their science antics on BlueSky
+[@pcr-guy](https://bsky.app/profile/pcr-guy.bsky.social) or Twitter at
 [@pcr_guy](https://twitter.com/pcr_guy) and
 [@msantosvega](https://twitter.com/msantosvega).
 
@@ -70,10 +72,19 @@ yourself! See the
 [Usage](#Usage) sections for more details.
 
 #### Population genetic composition plots for pathogens
-An optimal pathogen genome arises and outcompetes all others through intra-host
-competition. See `fitness_function_mutation_example.py` in the
-`examples/tutorials/evolution` folder.
+An optimal pathogen genome arises through de novo mutation and outcompetes all
+others through intra-host competition. See
+`fitness_function_mutation_example.py` in the `examples/tutorials/evolution`
+folder.
 ![Compartments](img/fitness_function_mutation_example_composition.png "fitness_function_mutation_example composition")
+
+An optimal pathogen genome arises through independent reassortment of
+chromosomes or genome segments, outcompeting all others
+through increases in transmissibility and intra-host competition.
+See `transmissibility_function_reassortment_example.py` in
+the `examples/tutorials/evolution` folder. Similar code can be used to achieve
+genetic recombination by setting `num_crossover_host` to greater than 0.
+![Compartments](img/transmissibility_function_reassortment_example.png "transmissibility_function_reassortment_example composition")
 
 #### Host/vector compartment plots
 A population with natural birth and death dynamics shows the effects of a
@@ -315,7 +326,8 @@ they acquire immune protection, if the model allows it.
 
 ### Simulation
 
-Models are simulated using an implementation of the Gillespie algorithm in which
+Models are simulated using an implementation of the Gillespie algorithm
+(optionally with tau-leaping approximation) in which
 the rates of different kinds of events across different populations are
 computed with each population's parameters and current state, and are then
 stored in a matrix. In addition, each population has host and vector matrices
@@ -327,6 +339,22 @@ matrix are updated, and the master rate matrix is recomputed based on this
 information.
 
 ![Simulation](img/simulation.png "simulation illustration")
+
+Tau-leaping is achieved by setting a time step threshold under which the
+step size defaults to a larger fixed step size. The number of events of each type
+occurring in every population of the model within this time span is then
+calculated as a random value from a Poisson distribution with mean equal to the
+corresponding rate. All events for this time span are then executed. The choice
+of the time step threshold and the minimum step size determines the accuracy of
+the approximation. By default, the minimum step size is set to be the minimum of
+all intrahost growth threshold times for hosts and vectors across all model
+populations, or the minimum mean time before transmission. This ensures that
+the likelihood of multiple events occurring within the same host in the same
+tau-leap is low. The threshold time is lower by a factor of the number of event
+types across all populations to account for the fact that this tau-leaping
+approximation only becomes less intensive if the number of events in the leap is
+larger than the number of types of events. This threshold is excessively
+stringent but provides a good bound.
 
 The model's state at any given time comprises all populations, their hosts
 and vectors, and the pathogen genomes infecting each of these. A copy of the
@@ -595,6 +623,8 @@ contact_rate_host_host = 2e-1
 transmission_efficiency_host_host = 1
 mean_inoculum_host = 1e1
 mean_inoculum_vector = 0
+variance_inoculum_host = 3
+variance_inoculum_vector = 0
 recovery_rate_host = 1e-1
 recovery_rate_vector = 0
 mortality_rate_host = 0
@@ -648,8 +678,10 @@ transmission_efficiency_host_vector = 1
 transmission_efficiency_vector_host = 1
 contact_rate_host_host = 0
 transmission_efficiency_host_host = 0
-mean_inoculum_host = 1e2
-mean_inoculum_vector = 1e0
+mean_inoculum_host = 3
+mean_inoculum_vector = 1
+variance_inoculum_host = 3
+variance_inoculum_vector = 1
 recovery_rate_host = 1e-1
 recovery_rate_vector = 1e-1
 mortality_rate_host = 0
@@ -774,6 +806,10 @@ _Keyword arguments:_
     a vector or host into a new host during a contact event (int >= 0)
 - mean_inoculum_vector -- mean number of pathogens that are transmitted
     from a host to a vector during a contact event (int >= 0)
+- variance_inoculum_host -- variance in number of pathogens that are
+    transmitted from a host/vector to a host during a contact event (num >=0)
+- variance_inoculum_vector -- variance in number of pathogens that are
+    transmitted from a host to a vector during a contact (num >=0)
 - recovery_rate_host -- rate at which hosts clear all pathogens;
     1/time (number >= 0)
 - recovery_rate_vector -- rate at which vectors clear all pathogens;
@@ -853,7 +889,9 @@ _Arguments:_
 #### run
 
 ```python
-run(t0,tf,time_sampling=0,host_sampling=0,vector_sampling=0)
+run(
+t0,tf,method='approximated',time_sampling=0,host_sampling=0,vector_sampling=0,
+skip_uninfected=False)
 ```
 
 
@@ -868,6 +906,15 @@ model's history attribute.
 _Arguments:_
 - t0 -- initial time point to start simulation at (number)
 - tf -- initial time point to end simulation at (number)
+
+_Keyword arguments:_
+- method -- algorithm to be used; default is approximated solver
+        ('approximated' or 'exact'; default 'approximated')
+- dt_leap -- time leap size used to simulate bursts; if None, set to
+    minimum growth threshold time across all populations (number,
+    default None)
+- dt_thre -- time threshold below which bursts are used; if None, set to
+    dt_leap (number, default None)
 - time_sampling -- how many events to skip before saving a snapshot of the
     system state (saves all by default), if <0, saves only final state
     (int, default 0)
@@ -875,17 +922,23 @@ _Arguments:_
     of the system state (saves all by default) (int, default 0)
 - vector_sampling -- how many vectors to skip before saving one in a  
     snapshot of the system state (saves all by default) (int, default 0)
+- skip_uninfected -- whether to save only infected hosts/vectors and
+        record the number of uninfected host/vectors instead (Boolean,
+        default False)
 
 #### runReplicates
 
 ```python
-runReplicates(t0,tf,replicates,host_sampling=0,vector_sampling=0,**kwargs)
+runReplicates(
+t0,tf,replicates,method='approximated',host_sampling=0,vector_sampling=0,
+skip_uninfected=False,**kwargs)
 ```
 
 
 Simulate replicates of a model, save only end results.
 
-Simulates replicates of a time series using the Gillespie algorithm.
+Simulates replicates of a time series using a variation of the exact Gillespie
+algorithm (can also use the tau-leaping method).
 
 Saves a dictionary containing model end state state, with keys=times and
 values=Model objects with model snapshot. The time is the final
@@ -897,11 +950,21 @@ _Arguments:_
 - replicates -- how many replicates to simulate (int >= 1)
 
 _Keyword arguments:_
+- method -- algorithm to be used; default is approximated solver
+        ('approximated' or 'exact'; default 'approximated')
+- dt_leap -- time leap size used to simulate bursts; if None, set to
+    minimum growth threshold time across all populations (number,
+    default None)
+- dt_thre -- time threshold below which bursts are used; if None, set to
+    dt_leap (number, default None)
 - host_sampling -- how many hosts to skip before saving one in a snapshot
     of the system state (saves all by default) (int >= 0, default 0)
 - vector_sampling -- how many vectors to skip before saving one in a
     snapshot of the system state (saves all by default)
     (int >= 0, default 0)
+- skip_uninfected -- whether to save only infected hosts/vectors and
+        record the number of uninfected host/vectors instead (Boolean,
+        default False)
 - **kwargs -- additional arguents for joblib multiprocessing
 
 Returns:
@@ -918,14 +981,16 @@ host_migration_sweep_dic={}, vector_migration_sweep_dic={},
 host_host_population_contact_sweep_dic={},
 host_vector_population_contact_sweep_dic={},
 vector_host_population_contact_sweep_dic={},
-replicates=1,host_sampling=0,vector_sampling=0,n_cores=0,
+replicates=1,method='approximated',host_sampling=0,vector_sampling=0,
+skip_uninfected=False,n_cores=0,
 **kwargs)
 ```
 
 
 Simulate a parameter sweep with a model, save only end results.
 
-Simulates variations of a time series using the Gillespie algorithm.
+Simulates replicates of a time series using a variation of the exact Gillespie
+algorithm (can also use the tau-leaping method).
 
 Saves a dictionary containing model end state state, with keys=times and
 values=Model objects with model snapshot. The time is the final
@@ -964,11 +1029,21 @@ _Keyword Arguments:_
     IDs of origin and destination, separated by a colon ';' (Strings),
     values=list of values (list of numbers)
 - replicates -- how many replicates to simulate (int >= 1)
+- method -- algorithm to be used; default is approximated solver
+        (can be either 'approximated' or 'exact')
+- dt_leap -- time leap size used to simulate bursts; if None, set to
+    minimum growth threshold time across all populations (number,
+    default None)
+- dt_thre -- time threshold below which bursts are used; if None, set to
+    dt_leap (number, default None)
 - host_sampling -- how many hosts to skip before saving one in a snapshot
     of the system state (saves all by default) (int >= 0, default 0)
 - vector_sampling -- how many vectors to skip before saving one in a
     snapshot of the system state (saves all by default)
     (int >= 0, default 0)
+- skip_uninfected -- whether to save only infected hosts/vectors and
+        record the number of uninfected host/vectors instead (Boolean,
+        default False)
 - n_cores -- number of cores to parallelize file export across, if 0, all
     cores available are used (default 0; int >= 0)
 - **kwargs -- additional arguents for joblib multiprocessing
@@ -980,7 +1055,7 @@ _Returns:_
 #### copyState
 
 ```python
-copyState(host_sampling=0,vector_sampling=0)
+copyState(host_sampling=0,vector_sampling=0,skip_uninfected=False)
 ```
 
 
@@ -992,6 +1067,9 @@ _Keyword arguments:_
 - vector_sampling -- how many vectors to skip before saving one in a
     snapshot of the system state (saves all by default)
     (int >= 0, default 0)
+- skip_uninfected -- whether to save only infected hosts/vectors and
+        record the number of uninfected host/vectors instead (Boolean,
+        default False)
 
 _Returns:_
 Model object with current population host and vector lists.
@@ -1743,7 +1821,7 @@ treatVectors(pop_id, frac_vectors, resistance_seqs, group_id="")
 ```
 
 
-Treat random fraction of infected vectors agains some infection.
+Treat random fraction of infected vectors against some infection.
 
 Removes all infections with genotypes susceptible to given treatment.
 Pathogens are removed if they are missing at least one of the sequences

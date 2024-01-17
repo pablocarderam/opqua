@@ -36,8 +36,8 @@ model.newPopulation(
 model.createInterconnectedPopulations(
     5,'clustered_population_','setup_cluster',
     host_migration_rate=0, vector_migration_rate=0,
-    vector_host_contact_rate=2e-2,
-    host_vector_contact_rate=2e-2,
+    vector_host_contact_rate=5e-2,
+    host_vector_contact_rate=5e-2,
     num_hosts=20, num_vectors=20
     )
     # Create a cluster of 5 populations connected to each other with a
@@ -45,15 +45,15 @@ model.createInterconnectedPopulations(
     # Each population has an numbered ID with the prefix
     # "clustered_population_", has the parameters defined in the "setup_cluster"
     # setup, and has 20 hosts and vectors.
-model.linkPopulationsHostVectorContact('population_A','clustered_population_4',2e-2)
-model.linkPopulationsVectorHostContact('clustered_population_4','population_A',2e-2)
+model.linkPopulationsHostVectorContact('population_A','clustered_population_4',5e-2)
+model.linkPopulationsVectorHostContact('clustered_population_4','population_A',5e-2)
     # We link population_A to one of the clustered populations with a one-way
     # population contact rate of 1e-2 for population_A hosts and
     # clustered_population_4 vectors. Note that for population contacts, both
     # populations need to have contact rates towards each other (migration does
     # not require this)
-model.linkPopulationsHostVectorContact('population_A','population_B',2e-2)
-model.linkPopulationsVectorHostContact('population_B','population_A',2e-2)
+model.linkPopulationsHostVectorContact('population_A','population_B',5e-2)
+model.linkPopulationsVectorHostContact('population_B','population_A',5e-2)
     # We link population_A to population_B with a one-way
     # population contact rate of 1e-2 for population_A hosts and
     # population_B vectors. Note that for population contacts, both

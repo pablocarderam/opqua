@@ -3,6 +3,7 @@
 
 import numpy as np
 import copy as cp
+# import scipy.stats as sp_stats
 
 class Vector(object):
     """Class defines vector entities to be infected by pathogens in model.
@@ -23,6 +24,8 @@ class Vector(object):
     recombine -- recombine two random pathogen genomes at random locus
     getWeightedRandomGenome -- returns index of element chosen from weights and
         given random number
+    zeroTruncatedPoisson -- return random number from zero-truncated Poisson
+    zeroTruncatedNegBinomial -- random number from 0-truncated negative binomial
     """
 
     def __init__(self, population, id, slim=False):
@@ -46,6 +49,7 @@ class Vector(object):
                 # immune to. If a pathogen's genome contains one of these
                 # values, it cannot infect this vector.
             self.population = population
+            self.random = population.model.random # random number generator
             self.sum_fitness = 0
                 # sum of all pathogen fitnesses within this vector
             self.coefficient_index = population.coefficients_vectors.shape[0]
@@ -75,9 +79,6 @@ class Vector(object):
 
         Arguments:
         genome -- the genome to be added (String)
-
-        Returns:
-        whether or not the model has changed state (Boolean)
         """
 
         self.pathogens[genome] = self.population.fitnessVector(genome)
@@ -120,17 +121,18 @@ class Vector(object):
         """Infect given host with a sample of this vector's pathogens.
 
         Each pathogen in the infector is sampled as present or absent in the
-        inoculum by drawing from a Poisson distribution with a mean equal to the
-        mean inoculum size of the organism being infected weighted by each
-        genome's fitness as a fraction of the total in the infector as the
-        probability of each trial (minimum 1 pathogen transfered). Each pathogen
-        present in the inoculum will be added to the infected organism, if it
-        does not have protection from the pathogen's genome. Fitnesses are
-        computed for the pathogens' genomes in the infected organism, and the
-        organism is included in the poplation's infected list if appropriate.
+        inoculum by drawing from a negative binomial distribution with
+        a mean equal to the mean inoculum size of the organism being infected
+        weighted by each genome's fitness as a fraction of the total in the
+        infector as the probability of each trial (minimum 1 pathogen
+        transferred). Each pathogen present in the inoculum will be added to the
+        infected organism, if it does not have protection from the pathogen's
+        genome. Fitnesses are computed for the pathogens' genomes in the
+        infected organism, and the organism is included in the poplation's
+        infected list if appropriate.
 
         Arguments:
-        vector -- the vector to be infected (Vector)
+        host -- the host to be infected (Host)
 
         Returns:
         whether or not the model has changed state (Boolean)
@@ -143,11 +145,8 @@ class Vector(object):
             self.pathogens[g] / self.sum_fitness for g in genomes
             ]
 
-        genomes_inoculated = np.unique( np.random.choice(
-            genomes, p=fitness_weights,
-            size=max(
-                np.random.poisson( self.population.mean_inoculum_host ), 1
-                )
+        genomes_inoculated = np.unique( self.random.choice(
+            genomes, p=fitness_weights, size=self.zeroTruncatedNegBinomial()
             ) )
         for genome in genomes_inoculated:
             if genome not in host.pathogens.keys() and not any(
@@ -162,14 +161,15 @@ class Vector(object):
         """Infect given host with a sample of this vector's pathogens.
 
         Each pathogen in the infector is sampled as present or absent in the
-        inoculum by drawing from a Poisson distribution with a mean equal to the
-        mean inoculum size of the organism being infected weighted by each
-        genome's fitness as a fraction of the total in the infector as the
-        probability of each trial (minimum 1 pathogen transfered). Each pathogen
-        present in the inoculum will be added to the infected organism, if it
-        does not have protection from the pathogen's genome. Fitnesses are
-        computed for the pathogens' genomes in the infected organism, and the
-        organism is included in the poplation's infected list if appropriate.
+        inoculum by drawing from a negative binomial distribution with
+        a mean equal to the mean inoculum size of the organism being infected
+        weighted by each genome's fitness as a fraction of the total in the
+        infector as the probability of each trial (minimum 1 pathogen
+        transferred). Each pathogen present in the inoculum will be added to the
+        infected organism, if it does not have protection from the pathogen's
+        genome. Fitnesses are computed for the pathogens' genomes in the
+        infected organism, and the organism is included in the poplation's
+        infected list if appropriate.
 
         Arguments:
         vector -- the vector to be infected (Vector)
@@ -185,11 +185,8 @@ class Vector(object):
             self.pathogens[g] / self.sum_fitness for g in genomes
             ]
 
-        genomes_inoculated = np.unique( np.random.choice(
-            genomes, p=fitness_weights,
-            size=max(
-                np.random.poisson( self.population.mean_inoculum_vector ), 1
-                )
+        genomes_inoculated = np.unique( self.random.choice(
+            genomes, p=fitness_weights, size=self.zeroTruncatedNegBinomial()
             ) )
         for genome in genomes_inoculated:
             if genome not in vector.pathogens.keys() and not any(
@@ -246,10 +243,11 @@ class Vector(object):
         vector_list = self.population.addVectors(1)
         vector = vector_list[0]
 
-        if self.population.vertical_transmission_vector > rand:
+        if ( self.population.vertical_transmission_vector > rand
+                and len( self.pathogens.keys() ) > 0 ):
             self.infectVector(vector)
 
-        if self.population.inherit_protection_vector > np.random.random():
+        if self.population.inherit_protection_vector > self.random.random():
             vector.protection_sequences = self.protection_sequences.copy()
 
     def applyTreatment(self, resistance_seqs):
@@ -322,8 +320,10 @@ class Vector(object):
         index_other_genome,rand = self.getWeightedRandomGenome( rand,weights )
 
         if index_genome != index_other_genome:
-            num_evts = np.random.poisson( self.population.num_crossover_vector )
-            loci = np.random.randint( 0, self.population.num_loci, num_evts )
+            num_evts = self.zeroTruncatedPoisson(
+                self.population.num_crossover_vector
+                ) if self.population.num_crossover_vector > 1 else 0
+            loci = self.random.integers( 0, self.population.num_loci, num_evts )
 
             children = [ genomes[index_genome], genomes[index_other_genome] ]
 
@@ -336,7 +336,7 @@ class Vector(object):
                 genome.split(self.population.CHROMOSOME_SEPARATOR)
                 for genome in children
                 ]
-            parent = np.random.randint( 0, 2, len( children[0] ) )
+            parent = self.random.integers( 0, 2, len( children[0] ) )
 
             children = [
                 self.population.CHROMOSOME_SEPARATOR.join([
@@ -350,7 +350,9 @@ class Vector(object):
                 ]
 
             for new_genome in children:
-                if new_genome not in self.pathogens:
+                if new_genome not in self.pathogens.keys() and not any(
+                        [ p in new_genome for p in self.protection_sequences ]
+                        ):
                     self.acquirePathogen(new_genome)
 
                 if new_genome not in self.population.model.global_trackers['genomes_seen']:
@@ -367,10 +369,58 @@ class Vector(object):
         new 0-1 random number (number)
         """
 
-        r_tot = np.sum( r )
-        u = rand * r_tot # random uniform number between 0 and total rate
-        r_cum = 0
-        for i,e in enumerate(r): # for every possible event,
-            r_cum += e # add this event's rate to cumulative rate
-            if u < r_cum: # if random number is under cumulative rate
-                return i, ( ( u - r_cum + e ) / e )
+        # r_tot = np.sum( r )
+        # u = rand * r_tot # random uniform number between 0 and total rate
+        # r_cum = 0
+        # for i,e in enumerate(r): # for every possible event,
+        #     r_cum += e # add this event's rate to cumulative rate
+        #     if u < r_cum: # if random number is under cumulative rate
+        #         return i, ( ( u - r_cum + e ) / e )
+
+        # sum_arr = np.cumsum( r )
+        # rand = rand * sum_arr[-1]
+        # idx = int( np.abs( np.floor(rand - sum_arr)+1 ).argmin() )
+        # return idx, 1+rand-sum_arr[idx]
+
+        return self.random.choice( range( len(r) ), p=r/np.sum(r) ), rand
+
+    def zeroTruncatedPoisson(self, rate):
+        """Returns random number from a zero-truncated Poisson distribution.
+
+        Lifted from the wonderful folks at
+        https://en.wikipedia.org/wiki/Zero-truncated_Poisson_distribution
+
+        Arguments:
+        rate -- Poisson rate parameter (number)
+
+        Returns:
+        random number from a zero-truncated Poisson distribution (number)
+        """
+
+        return int( 1 + self.random.poisson(rate - 1) )
+
+        # u = self.random.uniform(np.exp(-rate), 1)
+        # t = -np.log(u)
+        # return 1 + self.random.poisson(rate - t)
+
+    def zeroTruncatedNegBinomial(self):
+        """Random number from a zero-truncated negative binomial distribution.
+
+        Approximates true value by adding 1 to output. Uses parameters
+        stored in population.
+
+        Returns:
+        random number from a zero-truncated negative binomial distribution (number)
+        """
+
+        return int( 1 + np.random.negative_binomial(
+            n=self.population.neg_binomial_n_host,
+            p=self.population.neg_binomial_p_host
+            ) )
+
+        # return int( sp_stats.nbinom(
+        #     p=self.population.neg_binomial_p_vector,
+        #     n=self.population.neg_binomial_n_vector
+        #     ).ppf( np.random.uniform(
+        #         self.population.neg_binomial_lower_limit_vector, 1
+        #         ) ) )

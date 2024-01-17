@@ -39,7 +39,10 @@ def myHostFitness(genome):
         # with a very low minimum fitness.
 
 def myHostContact(genome):
-    return 1 if genome == my_optimal_genome else 0.05
+    return Model.peakLandscape(
+        genome, peak_genome=my_optimal_genome, min_value=0.25
+        )
+    # return 1 if genome == my_optimal_genome else 0.5
         # Stabilizing selection: any deviation from the "optimal genome"
         # sequence 1/20 of the fitness of the optimal genome. There is no
         # middle ground between the optimal and the rest, in this case.
@@ -54,7 +57,7 @@ model.newSetup( # Now, we'll define our new setup:
         # approach.
     num_loci=len(my_optimal_genome),
         # Define length of "genome", or total number of alleles.
-    contact_rate_host_host = 2e0,
+    contact_rate_host_host = 4e-1,
     contactHost=myHostContact,
         # Assign the contact function we created (could be a lambda function)
     fitnessHost=myHostFitness,
@@ -71,7 +74,7 @@ model.newSetup( # Now, we'll define our new setup:
         # "/").
     )
 
-model.newPopulation('my_population','my_setup',num_hosts=100)
+model.newPopulation('my_population','my_setup',num_hosts=200)
 model.addPathogensToHosts( 'my_population',{'BEST/BADD/BEST/BADD':10} )
     # We will start off the simulation with a suboptimal pathogen genome,
     # Throughout the course of the simulation, we should see this genome
@@ -82,7 +85,7 @@ model.addPathogensToHosts( 'my_population',{'BADD/BEST/BADD/BEST':10} )
     # Throughout the course of the simulation, we should see this genome
     # be outcompeted by more optimal pathogen genotypes, culminating in the
     # optimal genome, which outcompetes all others.
-model.run(0,500,time_sampling=100)
+model.run(0,500,time_sampling=9,method='exact')
 data = model.saveToDataFrame('transmissibility_function_reassortment_example.csv')
 
 graph_composition = model.compositionPlot(

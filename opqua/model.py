@@ -14,7 +14,7 @@ from opqua.internal.vector import Vector
 from opqua.internal.population import Population
 from opqua.internal.setup import Setup
 from opqua.internal.intervention import Intervention
-from opqua.internal.gillespie import Gillespie
+from opqua.internal.simulation import Simulation
 from opqua.internal.data import saveToDf, getPathogens, getProtections, \
     getPathogenDistanceHistoryDf
 from opqua.internal.plot import populationsPlot, compartmentPlot, \
@@ -35,6 +35,7 @@ class Model(object):
     DEF_CMAP -- a colormap object for Seaborn plots
 
     *** --- ATTRIBUTES: --- ***
+    random -- Numpy Generator instance for random numbers
     populations -- dictionary with keys=population IDs, values=Population
         objects
     setups -- dictionary with keys=setup IDs, values=Setup objects
@@ -136,6 +137,7 @@ class Model(object):
     def __init__(self):
         """Create a new Model object."""
         super(Model, self).__init__()
+        self.random = np.random.default_rng() # random number generator
         self.populations = {}
             # dictionary with keys=population IDs, values=Population objects
         self.setups = {}
@@ -150,7 +152,9 @@ class Model(object):
         self.global_trackers = {
                 # dictionary keeping track of some global indicators over all
                 # the course of the simulation
-            'num_events' : { id:0 for id in Gillespie.EVENT_IDS.values() },
+            'num_events' : { id:0 for id in Simulation.EVENT_IDS.values() },
+                # tracks the number of each kind of event in the simulation
+            'num_events_over_time' : { id:[0] for id in Simulation.EVENT_IDS.values() },
                 # tracks the number of each kind of event in the simulation
             'last_event_time' : 0,
                 # time point at which the last event in the simulation happened
@@ -184,7 +188,7 @@ class Model(object):
         seed -- int for the random seed to be passed to numpy (int)
         """
 
-        np.random.seed(seed)
+        self.random = np.random.default_rng(seed) # random number generator
 
     def newSetup(
             self, name, preset=None,
@@ -206,6 +210,7 @@ class Model(object):
             contact_rate_host_host=None,
             transmission_efficiency_host_host=None,
             mean_inoculum_host=None, mean_inoculum_vector=None,
+            variance_inoculum_host=None, variance_inoculum_vector=None,
             recovery_rate_host=None, recovery_rate_vector=None,
             mortality_rate_host=None, mortality_rate_vector=None,
             recombine_in_host=None, recombine_in_vector=None,
@@ -245,6 +250,7 @@ class Model(object):
         receiveContactHost -- function that returns coefficient modifying
             probability of a given host being chosen to be the infected in
             a contact event, based on genome sequence of pathogen
+            (function object, takes a String argument and returns a number 0-1)
         mortalityHost -- function that returns coefficient modifying death rate
             for a given host, based on genome sequence of pathogen
             (function object, takes a String argument and returns a number 0-1)
@@ -318,6 +324,10 @@ class Model(object):
             a vector or host into a new host during a contact event (int >= 0)
         mean_inoculum_vector -- mean number of pathogens that are transmitted
             from a host to a vector during a contact event (int >= 0)
+        variance_inoculum_host -- variance in number of pathogens that are
+            transmitted from a host/vector to a host during a contact (num >=0)
+        variance_inoculum_vector -- variance in number of pathogens that are
+            transmitted from a host to a vector during a contact (num >=0)
         recovery_rate_host -- rate at which hosts clear all pathogens;
             1/time (number >= 0)
         recovery_rate_vector -- rate at which vectors clear all pathogens
@@ -422,9 +432,13 @@ class Model(object):
                 0 if transmission_efficiency_host_host is None \
                 else transmission_efficiency_host_host
             mean_inoculum_host = \
-                1e2 if mean_inoculum_host is None else mean_inoculum_host
+                3 if mean_inoculum_host is None else mean_inoculum_host
             mean_inoculum_vector = \
                 1 if mean_inoculum_vector is None else mean_inoculum_vector
+            variance_inoculum_host = \
+                3 if variance_inoculum_host is None else variance_inoculum_host
+            variance_inoculum_vector = \
+                1 if variance_inoculum_vector is None else variance_inoculum_vector
             recovery_rate_host = \
                 1e-1 if recovery_rate_host is None else recovery_rate_host
             recovery_rate_vector = \
@@ -534,6 +548,10 @@ class Model(object):
                 1e1 if mean_inoculum_host is None else mean_inoculum_host
             mean_inoculum_vector = \
                 0 if mean_inoculum_vector is None else mean_inoculum_vector
+            variance_inoculum_host = \
+                3 if variance_inoculum_host is None else variance_inoculum_host
+            variance_inoculum_vector = \
+                0 if variance_inoculum_vector is None else variance_inoculum_vector
             recovery_rate_host = \
                 1e-1 if recovery_rate_host is None else recovery_rate_host
             recovery_rate_vector = \
@@ -589,6 +607,7 @@ class Model(object):
             contact_rate_host_host,
             transmission_efficiency_host_host,
             mean_inoculum_host, mean_inoculum_vector,
+            variance_inoculum_host, variance_inoculum_vector,
             recovery_rate_host, recovery_rate_vector,
             mortality_rate_host,mortality_rate_vector,
             recombine_in_host, recombine_in_vector,
@@ -630,10 +649,14 @@ class Model(object):
         self.custom_condition_trackers['condition_id'] = trackerFunction
         self.global_trackers['custom_conditions']['condition_id'] = []
 
-    def run(self,t0,tf,time_sampling=0,host_sampling=0,vector_sampling=0):
+    def run(
+            self,t0,tf,method='exact',dt_leap=None,dt_thre=None,
+            time_sampling=0,host_sampling=0,vector_sampling=0,
+            skip_uninfected=False,print_every_n_events=1000):
         """Simulate model for a specified time between two time points.
 
-        Simulates a time series using the Gillespie algorithm.
+        Simulates a time series using a variation of Gillespie tau-leaping
+        algorithm.
 
         Saves a dictionary containing model state history, with keys=times and
         values=Model objects with model snapshot at that time point under this
@@ -644,6 +667,13 @@ class Model(object):
         tf -- initial time point to end simulation at (number >= 0)
 
         Keyword arguments:
+        method -- algorithm to be used; default is approximated solver
+            (can be either 'approximated' or 'exact')
+        dt_leap -- time leap size used to simulate bursts; if None, set to
+            minimum growth threshold time across all populations (number,
+            default None)
+        dt_thre -- time threshold below which bursts are used; if None, set to
+            dt_leap (number, default None)
         time_sampling -- how many events to skip before saving a snapshot of the
             system state (saves all by default), if <0, saves only final state
             (int, default 0)
@@ -652,19 +682,26 @@ class Model(object):
         vector_sampling -- how many vectors to skip before saving one in a
             snapshot of the system state (saves all by default)
             (int >= 0, default 0)
+        skip_uninfected -- whether to save only infected hosts/vectors and
+            record the number of uninfected host/vectors instead (Boolean,
+            default False)
         """
 
-        sim = Gillespie(self)
+        sim = Simulation(self)
         self.history = sim.run(
-            t0, tf, time_sampling, host_sampling, vector_sampling
+            t0, tf, method, dt_leap, dt_thre, time_sampling, host_sampling,
+            vector_sampling, skip_uninfected, print_every_n_events
             )
 
     def runReplicates(
-            self,t0,tf,replicates,host_sampling=0,vector_sampling=0,n_cores=0,
+            self,t0,tf,replicates,method='exact',dt_leap=None,
+            dt_thre=None,host_sampling=0,vector_sampling=0,
+            skip_uninfected=False,n_cores=0,
             **kwargs):
         """Simulate replicates of a model, save only end results.
 
-        Simulates replicates of a time series using the Gillespie algorithm.
+        Simulates replicates of a time series using a variation of the Gillespie
+        tau-leaping algorithm.
 
         Saves a dictionary containing model end state state, with keys=times and
         values=Model objects with model snapshot. The time is the final
@@ -676,11 +713,21 @@ class Model(object):
         replicates -- how many replicates to simulate (int >= 1)
 
         Keyword arguments:
+        method -- algorithm to be used; default is approximated solver
+            (can be either 'approximated' or 'exact')
+        dt_leap -- time leap size used to simulate bursts; if None, set to
+            minimum growth threshold time across all populations (number,
+            default None)
+        dt_thre -- time threshold below which bursts are used; if None, set to
+            dt_leap (number, default None)
         host_sampling -- how many hosts to skip before saving one in a snapshot
             of the system state (saves all by default) (int >= 0, default 0)
         vector_sampling -- how many vectors to skip before saving one in a
             snapshot of the system state (saves all by default)
             (int >= 0, default 0)
+        skip_uninfected -- whether to save only infected hosts/vectors and
+            record the number of uninfected host/vectors instead (Boolean,
+            default False)
         n_cores -- number of cores to parallelize file export across, if 0, all
             cores available are used (default 0; int >= 0)
         **kwargs -- additional arguents for joblib multiprocessing
@@ -696,10 +743,11 @@ class Model(object):
 
         def run(sim_num):
             model = self.deepCopy()
-            sim = Gillespie(model)
+            sim = Simulation(model)
             mod = sim.run(
-                t0,tf,time_sampling=-1,
-                host_sampling=host_sampling,vector_sampling=vector_sampling
+                t0,tf,method=method,time_sampling=-1,
+                host_sampling=host_sampling,vector_sampling=vector_sampling,
+                skip_uninfected=skip_uninfected
                 )[tf]
             mod.history = { tf:mod }
             return mod
@@ -716,11 +764,13 @@ class Model(object):
             host_host_population_contact_sweep_dic={},
             host_vector_population_contact_sweep_dic={},
             vector_host_population_contact_sweep_dic={},
-            replicates=1,host_sampling=0,vector_sampling=0,n_cores=0,
+            replicates=1,method='exact',dt_leap=None,dt_thre=None,
+            host_sampling=0,vector_sampling=0,skip_uninfected=False,n_cores=0,
             **kwargs):
         """Simulate a parameter sweep with a model, save only end results.
 
-        Simulates variations of a time series using the Gillespie algorithm.
+        Simulates variations of a time series using a variation of the Gillespie
+        tau-leaping algorithm.
 
         Saves a dictionary containing model end state state, with keys=times and
         values=Model objects with model snapshot. The time is the final
@@ -759,11 +809,21 @@ class Model(object):
             keys=population IDs of origin and destination, separated by a colon
             ';' (Strings), values=list of values (list of numbers)
         replicates -- how many replicates to simulate (int >= 1)
+        method -- algorithm to be used; default is approximated solver
+            (can be either 'approximated' or 'exact')
+        dt_leap -- time leap size used to simulate bursts; if None, set to
+            minimum growth threshold time across all populations (number,
+            default None)
+        dt_thre -- time threshold below which bursts are used; if None, set to
+            dt_leap (number, default None)
         host_sampling -- how many hosts to skip before saving one in a snapshot
             of the system state (saves all by default) (int >= 0, default 0)
         vector_sampling -- how many vectors to skip before saving one in a
             snapshot of the system state (saves all by default)
             (int >= 0, default 0)
+        skip_uninfected -- whether to save only infected hosts/vectors and
+            record the number of uninfected host/vectors instead (Boolean,
+            default False)
         n_cores -- number of cores to parallelize file export across, if 0, all
             cores available are used (default 0; int >= 0)
         **kwargs -- additional arguents for joblib multiprocessing
@@ -919,10 +979,11 @@ class Model(object):
             for name,pop in model.populations.items():
                 pop.setSetup( model.setups[pop.setup.id] )
 
-            sim = Gillespie(model)
+            sim = Simulation(model)
             mod = sim.run(
-                t0,tf,time_sampling=-1,
-                host_sampling=host_sampling,vector_sampling=vector_sampling
+                t0,tf,time_sampling=-1,method=method,
+                host_sampling=host_sampling,vector_sampling=vector_sampling,
+                skip_uninfected=skip_uninfected
                 )[tf]
             mod.history = { tf:mod }
             return mod
@@ -935,7 +996,7 @@ class Model(object):
                 )
             )
 
-    def copyState(self,host_sampling=0,vector_sampling=0):
+    def copyState(self,host_sampling=0,vector_sampling=0,skip_uninfected=False):
         """Returns a slimmed-down representation of the current model state.
 
         Keyword arguments:
@@ -944,6 +1005,9 @@ class Model(object):
         vector_sampling -- how many vectors to skip before saving one in a
             snapshot of the system state (saves all by default)
             (int >= 0, default 0)
+        skip_uninfected -- whether to save only infected hosts/vectors and
+            record the number of uninfected host/vectors instead (Boolean,
+            default False)
 
         Returns:
         Model object with current population host and vector lists.
@@ -952,7 +1016,7 @@ class Model(object):
         copy = Model()
 
         copy.populations = {
-            id: p.copyState(host_sampling,vector_sampling)
+            id: p.copyState(host_sampling,vector_sampling,skip_uninfected)
             for id,p in self.populations.items()
             }
 
@@ -1926,15 +1990,25 @@ class Model(object):
 
     ### Modify population parameters: ###
 
-    def setSetup(self, pop_id, setup_id):
+    def setSetup(
+            self, pop_id, setup_id,
+            update_coefficients_hosts=True, update_coefficients_vectors=True):
         """Assign parameters stored in Setup object to this population.
 
         Arguments:
         pop_id -- ID of population to be modified (String)
         setup_id -- ID of setup to be assigned (String)
+        update_coefficients_hosts -- whether to recalculate all host
+            coefficients (Boolean)
+        update_coefficients_vectors -- whether to recalculate all vector
+            coefficients (Boolean)
         """
 
-        self.populations[pop_id].setSetup( self.setups[setup_id] )
+        self.populations[pop_id].setSetup(
+            self.setups[setup_id],
+            update_coefficients_hosts=update_coefficients_hosts,
+            update_coefficients_vectors=update_coefficients_vectors
+            )
 
     ### Utility: ###
 
@@ -1974,6 +2048,30 @@ class Model(object):
 
         distance = td.hamming(genome, peak_genome) / len(genome)
         value = np.exp( np.log( min_value ) * distance )
+
+        return value
+
+    @staticmethod
+    def roundPeakLandscape(genome, peak_genome, max_value, floor=1e-6):
+        """Return genome phenotype by decreasing with distance from optimal seq.
+
+        A purifying selection fitness function based on exponential decay of
+        fitness as genomes move away from the optimal sequence. Distance is
+        measured as percent Hamming distance from an optimal genome sequence.
+
+        Arguments:
+        genome -- the genome to be evaluated (String)
+        peak_genome -- the genome sequence to measure distance against, has
+            value of 1 (String)
+        min_value -- minimum value at maximum distance from optimal
+            genome (number 0-1)
+
+        Return:
+        value of genome (number)
+        """
+
+        distance = td.hamming(genome, peak_genome) / len(genome)
+        value = max( 1 - np.exp( np.log( 1-max_value ) * ( 1-distance ) ),floor)
 
         return value
 

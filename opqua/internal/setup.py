@@ -22,6 +22,7 @@ class Setup(object):
             contact_rate_host_host,
             transmission_efficiency_host_host,
             mean_inoculum_host, mean_inoculum_vector,
+            variance_inoculum_host, variance_inoculum_vector,
             recovery_rate_host, recovery_rate_vector,
             mortality_rate_host,mortality_rate_vector,
             recombine_in_host, recombine_in_vector,
@@ -123,6 +124,10 @@ class Setup(object):
             a vector or host into a new host during a contact event (int >= 0)
         mean_inoculum_vector -- mean number of pathogens that are transmitted
             from a host to a vector during a contact event (int >= 0)
+        variance_inoculum_host -- variance in number of pathogens that are
+            transmitted from a vector/host to a host during a contact (num >=0)
+        variance_inoculum_vector -- variance in number of pathogens that are
+            transmitted from a host to a vector during a contact (num >=0)
         recovery_rate_host -- rate at which hosts clear all pathogens;
             1/time (number >= 0)
         recovery_rate_vector -- rate at which vectors clear all pathogens
@@ -214,6 +219,8 @@ class Setup(object):
         self.transmission_efficiency_host_host = transmission_efficiency_host_host
         self.mean_inoculum_host = mean_inoculum_host
         self.mean_inoculum_vector = mean_inoculum_vector
+        self.variance_inoculum_host = variance_inoculum_host
+        self.variance_inoculum_vector = variance_inoculum_vector
         self.recovery_rate_host = recovery_rate_host
         self.recovery_rate_vector = recovery_rate_vector
         self.mortality_rate_host = mortality_rate_host

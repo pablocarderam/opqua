@@ -71,6 +71,16 @@ def saveToDf(history,save_to_file,n_cores=0,verbose=10, **kwargs):
                         + ';'.join( vector.pathogens.keys() ) + '"', '"'
                         + ';'.join( vector.protection_sequences ) + '"', 'False'
                         ] ) for vector in pop.dead_vectors ] )
+                    + '\n'.join( np.repeat(
+                        str(time)+','+pop.id+',Host,'
+                        +pop.id+'_unspecified_healthy,"","",True',
+                        pop.num_healthy_hosts
+                        ) )
+                    + '\n'.join( np.repeat(
+                        str(time)+','+pop.id+',Vector,'
+                        +pop.id+'_unspecified_healthy,"","",True',
+                        pop.num_healthy_vectors
+                        ) )
                     for id,pop in model.populations.items()
                 ] )
             ) for time,model in history.items()
@@ -255,6 +265,11 @@ def compartmentDf(
         ( grouped['Alive'] == True ) & ( grouped['Infected'] == False )
         & ( grouped['Protected'] == True ), 'Compartment'
         ] = compartment_names[2]
+
+    grouped['Number'] = grouped.groupby(
+        ['Time', 'Compartment']
+        )['Number'].transform('sum')
+    grouped = grouped.drop_duplicates( subset=['Time', 'Compartment'] )
 
     grouped = grouped.drop( columns=['Alive','Infected','Protected'] )
     grouped = grouped.pivot(
@@ -556,9 +571,9 @@ def pathogenDistanceDf(
 
     if num_top_sequences > 0:
         sequences = sequences[0:num_top_sequences]
-        sequences = sequences.append(
-            pd.Series(track_specific_sequences)
-            ).unique()
+        sequences = pd.concat([
+            sequences, pd.Series(track_specific_sequences)
+            ]).unique()
 
     # Fix — non parallelized
     dis_mat = np.array([[td.hamming(s1, s2) / max(len(s1),1)

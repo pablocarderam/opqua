@@ -1,10 +1,60 @@
 
 # Opqua Changelog
 
+## v1.1.0
+## 17 Jan 2024
+Cleaned up everything for a release. Looking ahead:
+1. A big overhaul of mutation mechanisms and intra-host dynamics
+2. A big overhaul of host acquired immunity
+3. Performance improvements by refactoring simulation engine in C
+
+## May 2023
+Changes:
+- Uses new Numpy Generator class for random numbers, some performance
+  improvement expected.
+- Added function ``zeroTruncatedPoisson`` to return random numbers from a
+  zero-truncated Poisson distribution, to be used to define the number of
+  cross-over events
+- Added function ``zeroTruncatedNegBinomial`` to return random numbers from a
+  zero-truncated negative binomial distribution (or at least an approximation),
+  to be used to define inoculum size during transmission (Sobel et al. 2017 find
+  negative binomial is superior to Poisson when estimating bottleneck size);
+  also add model parameters ``variance_inoculum_host`` and
+  ``variance_inoculum_vector`` to be used by this function
+- Renamed Gillespie class as Simulation; added new simulation algorithm that
+  implements a variation of tau leaping (but left exact Gillespie as default
+  since estimating adequate tau parameter seems tricky)
+- Fixed bug in ``compartmentDf`` which created duplicated rows in dataframe
+  when hosts or vectors died infected and/or protected
+
+## 3 Jan 2023
+- Bumped Pillow to satisfy the Github bot
+- Fixed a bug that made recombination events depend on mutation coefficients
+  instead of recombination coefficients (does not affect published results)
+- Slightly alter the way Poisson distributions are used to define the number of
+  cross-over events and pathogens inoculated in transmission, for consistency
+  (add 1 to the mean of events once they are guaranteed to happen; impact on
+  existing simulations is negligible)
+- Modify ``getWeightedRandom()`` to use numpy arrays (profiling shows it does
+  increase efficiency)
+- Added a new parameter to the ``run()`` function: ``skip_uninfected``. When
+  ``True``, allows Opqua to store copies of only infected hosts/vectors as
+  simulation progresses, and stores total number of healthy hosts to then
+  reconstitute those as generic rows on dataframe after simulation is over. For
+  simulations with a large number of hosts/vectors and relatively low infection
+  prevalence, this can greatly increase simulation speed.
+- Changed Gillespie algorithm to only recalculate probabilities for events that
+  may happen in simulation (since many simulations omit certain types of events)
+- Added parameters to ``setSetup`` that optionally allow recalculation of all
+  host and/or vector coefficients, thus overwriting all establishment frequency
+  effects; the new default is to not recalculate
+
 ## v1.0.2
+## 17 Nov 2022
 Previous fix didn't cut it and I jumped the gun on the release. This works.
 
 ## v1.0.1
+## 17 Nov 2022
 Fixed recombination bug where one of the two progeny genomes was being lost
 (thanks David Suárez!).
 Updated joblib version.

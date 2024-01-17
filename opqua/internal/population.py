@@ -2,6 +2,7 @@
 """Contains class Population."""
 
 import numpy as np
+# import scipy.stats as sp_stats
 import copy as cp
 import random
 
@@ -131,8 +132,12 @@ class Population(object):
 
         self.model = model
         self.id = id
+        self.random = model.random # random number generator
 
-        if not slim:
+        if slim:
+            self.num_healthy_hosts = 0
+            self.num_healthy_vectors = 0
+        else:
                 # if not slimmed down for data storage, save other attributes
 
                 # Each element in these following arrays contains the sum of all
@@ -205,7 +210,7 @@ class Population(object):
             self.setHostVectorPopulationContactNeighbor(self,0)
             self.setVectorHostPopulationContactNeighbor(self,0)
 
-    def copyState(self,host_sampling=0,vector_sampling=0):
+    def copyState(self,host_sampling=0,vector_sampling=0,skip_uninfected=False):
         """Returns a slimmed-down version of the current population state.
 
         Arguments:
@@ -218,10 +223,23 @@ class Population(object):
         Population object with current host and vector lists.
         """
 
+        host_list = self.infected_hosts if skip_uninfected else self.hosts
+        vector_list = self.infected_vectors if skip_uninfected else self.vectors
+
         copy = Population(self.model, self.id, None, 0, 0, slim=True)
+
+        if skip_uninfected:
+            copy.num_healthy_hosts = int(
+                len(self.healthy_hosts) / (host_sampling+1)
+                )
+            copy.num_healthy_vectors = int(
+                len(self.vectors) - len(self.infected_vectors)
+                / (vector_sampling+1)
+                )
+
         if host_sampling > 0:
             host_sample = random.sample(
-                self.hosts, int( len(self.hosts) / (host_sampling+1) )
+                host_list, int( len(host_list) / (host_sampling+1) )
                 )
             dead_host_sample = random.sample(
                 self.dead_hosts, int( len(self.dead_hosts) / (host_sampling+1) )
@@ -229,12 +247,12 @@ class Population(object):
             copy.hosts = [ h.copyState() for h in host_sample ]
             copy.dead_hosts = [ h.copyState() for h in dead_host_sample ]
         else:
-            copy.hosts = [ h.copyState() for h in self.hosts ]
+            copy.hosts = [ h.copyState() for h in host_list ]
             copy.dead_hosts = [ h.copyState() for h in self.dead_hosts ]
 
         if vector_sampling > 0:
             vector_sample = random.sample(
-                self.vectors, int( len(self.vectors) / (vector_sampling+1) )
+                vector_list, int( len(vector_list) / (vector_sampling+1) )
                 )
             dead_vector_sample = random.sample(
                 self.dead_vectors,int(len(self.dead_vectors)/(vector_sampling+1))
@@ -242,16 +260,22 @@ class Population(object):
             copy.vectors = [ v.copyState() for v in vector_sample ]
             copy.dead_vectors = [ v.copyState() for v in dead_vector_sample ]
         else:
-            copy.vectors = [ v.copyState() for v in self.vectors ]
+            copy.vectors = [ v.copyState() for v in vector_list ]
             copy.dead_vectors = [ v.copyState() for v in self.dead_vectors ]
 
         return copy
 
-    def setSetup(self, setup):
+    def setSetup(
+            self, setup,
+            update_coefficients_hosts=False, update_coefficients_vectors=False):
         """Assign parameters stored in Setup object to this population.
 
         Arguments:
         setup -- the setup to be assigned (Setup)
+        update_coefficients_hosts -- whether to recalculate all host
+            coefficients (Boolean)
+        update_coefficients_vectors -- whether to recalculate all vector
+            coefficients (Boolean)
         """
 
         self.setup = setup
@@ -296,6 +320,8 @@ class Population(object):
         self.transmission_efficiency_host_host = setup.transmission_efficiency_host_host
         self.mean_inoculum_host = setup.mean_inoculum_host
         self.mean_inoculum_vector = setup.mean_inoculum_vector
+        self.variance_inoculum_host = setup.variance_inoculum_host
+        self.variance_inoculum_vector = setup.variance_inoculum_vector
         self.recovery_rate_host = setup.recovery_rate_host
         self.recovery_rate_vector = setup.recovery_rate_vector
         self.mortality_rate_host = setup.mortality_rate_host
@@ -318,6 +344,50 @@ class Population(object):
             = setup.protection_upon_recovery_host
         self.protection_upon_recovery_vector \
             = setup.protection_upon_recovery_vector
+
+        if self.mean_inoculum_host > 0:
+            self.mean_inoculum_host = max(
+                self.mean_inoculum_host, 1.001
+                ) # corrects mean to avoid undefined parameters
+            self.variance_inoculum_host = max(
+                self.variance_inoculum_host, (self.mean_inoculum_host-1) * 1.001
+                ) # corrects variance to avoid undefined parameters
+            self.neg_binomial_n_host = (
+                np.power( ( self.mean_inoculum_host - 1 ), 2 )
+                / ( self.variance_inoculum_host - ( self.mean_inoculum_host - 1 ) )
+                )
+                # subtracting 1 from the mean here is a bit of a hack but needed
+                # due to zero-truncation
+            self.neg_binomial_p_host = (
+                ( self.mean_inoculum_host - 1 ) / self.variance_inoculum_host
+                )
+                # subtracting 1 from the mean here is a bit of a hack but needed
+                # due to zero-truncation
+            # self.neg_binomial_lower_limit_host = sp_stats.nbinom(
+            #     p=self.neg_binomial_p_host, n=self.neg_binomial_n_host
+            #     ).cdf(1)
+
+        if self.mean_inoculum_vector > 0:
+            self.mean_inoculum_vector = max(
+                self.mean_inoculum_vector, 1.001
+                ) # corrects mean to avoid undefined parameters
+            self.variance_inoculum_vector = max(
+                self.variance_inoculum_vector, (self.mean_inoculum_vector-1) * 1.001
+                ) # corrects variance to avoid undefined parameters
+            self.neg_binomial_n_vector = (
+                np.power( ( self.mean_inoculum_vector - 1 ), 2 )
+                / (self.variance_inoculum_vector - (self.mean_inoculum_vector - 1))
+                # subtracting 1 from the mean here is a bit of a hack but needed
+                # due to zero-truncation
+                )
+            self.neg_binomial_p_vector = (
+                ( self.mean_inoculum_vector - 1 ) / self.variance_inoculum_vector
+                )
+                # subtracting 1 from the mean here is a bit of a hack but needed
+                # due to zero-truncation
+            # self.neg_binomial_lower_limit_vector = sp_stats.nbinom(
+            #     p=self.neg_binomial_p_vector, n=self.neg_binomial_n_vector
+            #     ).cdf(1)
 
     def addHosts(self, num_hosts):
         """Add a number of healthy hosts to population, return list with them.
@@ -397,7 +467,7 @@ class Population(object):
             num_hosts = hosts
 
         if len(possible_hosts) >= num_hosts:
-            return np.random.choice(possible_hosts, num_hosts, replace=False)
+            return self.random.choice(possible_hosts, num_hosts, replace=False)
         else:
             raise ValueError(
                 "You're asking for " + str(num_hosts)
@@ -446,7 +516,7 @@ class Population(object):
             num_vectors = vectors
 
         if len(possible_vectors) >= num_vectors:
-            return np.random.choice(possible_vectors, num_vectors, replace=False)
+            return self.random.choice(possible_vectors, num_vectors, replace=False)
         else:
             raise ValueError(
                 "You're asking for " + str(num_vectors)
@@ -484,7 +554,7 @@ class Population(object):
                         )
         else:
             for _ in range(num_hosts_or_list):
-                host_removed = np.random.choice(self.hosts)
+                host_removed = self.random.choice(self.hosts)
                 if host_removed in self.infected_hosts:
                     self.infected_hosts.remove( host_removed )
                 else:
@@ -526,7 +596,7 @@ class Population(object):
                         )
         else:
             for _ in range(num_vectors):
-                vector_removed = np.random.choice(self.vectors)
+                vector_removed = self.random.choice(self.vectors)
                 if vector_removed in self.infected_vectors:
                     self.infected_vectors.remove( vector_removed )
 
@@ -561,7 +631,7 @@ class Population(object):
                 allele in self.possible_alleles[i] + self.CHROMOSOME_SEPARATOR
                     for i,allele in enumerate(genome)
                 ] ):
-                rand_hosts = np.random.choice(
+                rand_hosts = self.random.choice(
                     hosts, int(genomes_numbers[genome]), replace=False
                     )
 
@@ -600,7 +670,7 @@ class Population(object):
                 allele in self.possible_alleles[i] + self.CHROMOSOME_SEPARATOR
                     for i,allele in enumerate(genome)
                 ] ):
-                rand_vectors = np.random.choice(
+                rand_vectors = self.random.choice(
                     vectors, int(genomes_numbers[genome]), replace=False
                     )
 
@@ -645,7 +715,7 @@ class Population(object):
             if len( host.pathogens ):
                 possible_infected_hosts.append( host )
 
-        treat_hosts = np.random.choice(
+        treat_hosts = self.random.choice(
             possible_infected_hosts,
             int( frac_hosts * len( possible_infected_hosts ) ), replace=False
             )
@@ -680,7 +750,7 @@ class Population(object):
             if len( vector.pathogens ):
                 possible_infected_vectors.append( vector )
 
-        treat_vectors = np.random.choice(
+        treat_vectors = self.random.choice(
             possible_infected_vectors,
             int( frac_vectors * len( possible_infected_vectors ) ),
             replace=False
@@ -708,7 +778,7 @@ class Population(object):
         if len(hosts) > 0:
             hosts_to_consider = hosts
 
-        protect_hosts = np.random.choice(
+        protect_hosts = self.random.choice(
             self.hosts, int( frac_hosts * len( hosts_to_consider ) ),
             replace=False
             )
@@ -735,7 +805,7 @@ class Population(object):
         if len(vectors) > 0:
             vectors_to_consider = vectors
 
-        protect_vectors = np.random.choice(
+        protect_vectors = self.random.choice(
             self.vectors, int( frac_vectors * len( vectors_to_consider ) ),
             replace=False
             )
@@ -814,16 +884,16 @@ class Population(object):
         rand -- uniform random number from 0 to 1 to use when choosing
             individuals to migrate; if None, generates new random number to
             choose (through numpy), otherwise, assumes event is happening
-            through Gillespie class call and migrates a single host or vector
+            through Simulation class call and migrates a single host or vector
             (default None; 0-1 number)
         """
 
         if rand is None:
-            migrating_hosts = np.random.choice(
+            migrating_hosts = self.random.choice(
                 self.hosts, num_hosts, replace=False,
                 p=self.coefficients_hosts[:,self.MIGRATION]
                 )
-            migrating_vectors = np.random.choice(
+            migrating_vectors = self.random.choice(
                 self.vectors, num_vectors, replace=False,
                 p=self.coefficients_vectors[:,self.MIGRATION]
                 )
@@ -1198,7 +1268,7 @@ class Population(object):
         """
 
         index_host,rand = self.getWeightedRandom(
-            rand,self.coefficients_hosts[:,self.MUTATION]
+            rand,self.coefficients_hosts[:,self.RECOMBINATION]
             )
         host = self.hosts[index_host]
 
@@ -1216,7 +1286,7 @@ class Population(object):
         """
 
         index_vector,rand = self.getWeightedRandom(
-            rand,self.coefficients_vectors[:,self.MUTATION]
+            rand,self.coefficients_vectors[:,self.RECOMBINATION]
             )
         vector = self.vectors[index_vector]
 
@@ -1264,23 +1334,64 @@ class Population(object):
         return v
 
     def getWeightedRandom(self, rand, r):
-        """Returns index of element chosen from weights and given random number.
+        # return getWeightedRandomJAX(rand, r)
 
-        Since sampling from coefficient arrays which contain a dummy first row,
-        index is decreased by 1.
+        # sum_arr = jnp.cumsum( r )
+        # rand = rand * sum_arr[-1]
+        # idx = jnp.abs( jnp.floor(rand - sum_arr)+1 ).argmin()
+        # return idx-1, 1+rand-sum_arr[idx]
+        #    # i-1 is used here because we are adding 1 extra element to
+        #    # Host and Vector coefficient arrays inside of Population
 
-        Arguments:
-        rand -- 0-1 random number (number)
-        r -- array with weights (numpy vector)
+        # r_tot = np.sum( r )
+        # u = rand * r_tot # random uniform number between 0 and total rate
+        # r_cum = 0
+        # for i,e in enumerate(r): # for every possible event,
+        #     r_cum += e # add this event's rate to cumulative rate
+        #     if u < r_cum: # if random number is under cumulative rate
+        #         return i-1, ( ( u - r_cum + e ) / e )
+        #             # i-1 is used here because we are adding 1 extra element to
+        #             # Host and Vector coefficient arrays inside of Population
 
-        Returns:
-        new 0-1 random number (number)
-        """
+        return self.random.choice( range( len(r) ), p=r/np.sum(r) )-1, rand
+            # i-1 is used here because we are adding 1 extra element to
+            # Host and Vector coefficient arrays inside of Population
 
-        r_tot = np.sum( r )
-        u = rand * r_tot # random uniform number between 0 and total rate
-        r_cum = 0
-        for i,e in enumerate(r): # for every possible event,
-            r_cum += e # add this event's rate to cumulative rate
-            if u < r_cum: # if random number is under cumulative rate
-                return i-1, ( ( u - r_cum + e ) / e )
+        # sum_arr = np.cumsum( r )
+        # rand = rand * sum_arr[-1]
+        # idx = int( np.abs( np.floor(rand - sum_arr)+1 ).argmin() )
+        # return idx-1, 1+rand-sum_arr[idx]
+        #     # i-1 is used here because we are adding 1 extra element to
+        #     # Host and Vector coefficient arrays inside of Population
+
+# @jax.jit
+# def getWeightedRandomJAX(rand, r):
+#     """Returns index of element chosen from weights and given random number.
+#
+#     Since sampling from coefficient arrays which contain a dummy first row,
+#     index is decreased by 1.
+#
+#     Arguments:
+#     rand -- 0-1 random number (number)
+#     r -- array with weights (numpy vector)
+#
+#     Returns:
+#     new 0-1 random number (number)
+#     """
+#
+#     # r_tot = np.sum( r )
+#     # u = rand * r_tot # random uniform number between 0 and total rate
+#     # r_cum = 0
+#     # for i,e in enumerate(r): # for every possible event,
+#     #     r_cum += e # add this event's rate to cumulative rate
+#     #     if u < r_cum: # if random number is under cumulative rate
+#     #         return i-1, ( ( u - r_cum + e ) / e )
+#     #             # i-1 is used here because we are adding 1 extra element to
+#     #             # Host and Vector coefficient arrays inside of Population
+#
+#     sum_arr = jnp.cumsum( r )
+#     rand = rand * sum_arr[-1]
+#     idx = jnp.abs( jnp.floor(rand - sum_arr)+1 ).argmin()
+#     return idx-1, 1+rand-sum_arr[idx]
+#         # i-1 is used here because we are adding 1 extra element to
+#         # Host and Vector coefficient arrays inside of Population
