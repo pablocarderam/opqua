@@ -3,6 +3,9 @@
 
 ## v1.1.0
 ## 17 Jan 2024
+Update to pandas dataframe handling (replace append with concat) to comply with
+new version.
+
 Cleaned up everything for a release. Looking ahead:
 1. A big overhaul of mutation mechanisms and intra-host dynamics
 2. A big overhaul of host acquired immunity
