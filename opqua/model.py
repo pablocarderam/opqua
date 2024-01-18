@@ -15,9 +15,9 @@ from opqua.internal.population import Population
 from opqua.internal.setup import Setup
 from opqua.internal.intervention import Intervention
 from opqua.internal.simulation import Simulation
-from opqua.internal.data import saveToDf, getPathogens, getProtections, \
+from opqua.analysis.data import saveToDf, getPathogens, getProtections, \
     getPathogenDistanceHistoryDf
-from opqua.internal.plot import populationsPlot, compartmentPlot, \
+from opqua.analysis.plot import populationsPlot, compartmentPlot, \
     compositionPlot, clustermap
 
 class Model(object):

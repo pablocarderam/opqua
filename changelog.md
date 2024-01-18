@@ -1,6 +1,9 @@
 
 # Opqua Changelog
 
+## 18 Jan 2024
+Moved plot and data files to a separate directory for organizational purposes.
+
 ## v1.1.0
 ## 17 Jan 2024
 Update to pandas dataframe handling (replace append with concat) to comply with

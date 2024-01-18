@@ -10,7 +10,7 @@ import seaborn as sns # pretty plots
 import scipy.cluster.hierarchy as sp_hie
 import scipy.spatial as sp_spa
 
-from opqua.internal.data import saveToDf, populationsDf, compartmentDf, \
+from opqua.analysis.data import saveToDf, populationsDf, compartmentDf, \
     compositionDf, pathogenDistanceDf
 
 CB_PALETTE = ["#E69F00", "#56B4E9", "#009E73",
