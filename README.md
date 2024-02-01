@@ -459,6 +459,10 @@ DIE_VECTOR denote death by natural means.
 generator
 - [newSetup](#newsetup) -- creates a new Setup, save it in setups dict under
 given name
+- [saveSetup](#saveSetup) -- saves Setup parameters to given file location as a
+CSV file
+- [loadSetup](#loadSetup) -- loads Setup parameters from CSV file at given
+location
 - [newIntervention](#newintervention) -- creates a new intervention executed
 during simulation
 - [run](#run) -- simulates model for a specified length of time
@@ -578,7 +582,7 @@ Class constructor; create a new Model object.
 #### newSetup
 
 ```python
-newSetup()
+newSetup(name, preset=None, **kwargs)
 ```
 
 
@@ -587,7 +591,7 @@ Create a new Setup, save it in setups dict under given name.
 Two preset setups exist: "vector-borne" and "host-host". You may select
 one of the preset setups with the preset keyword argument and then
 modify individual parameters with additional keyword arguments, without
-having to specify all of them.
+having to specify all of them. You may also not select a preset setup.
 
 
 "host-host":
@@ -711,6 +715,7 @@ _Keyword arguments:_
 - preset -- preset setup to be used: "vector-borne" or "host-host", if
     None, must define all other keyword arguments (default None; None or
     String)
+- **kwargs -- setup parameters and values, which may include the following:
 - num_loci -- length of each pathogen genome string (int > 0)
 - possible_alleles -- set of possible characters in all genome string, or
     at each position in genome string (String or list of Strings with
@@ -851,6 +856,38 @@ _Keyword arguments:_
 - protection_upon_recovery_vector -- defines indexes in genome string that
     define substring to be added to vector protection sequences after
     recovery (None or array-like of length 2 with int 0-num_loci)
+
+#### saveSetup
+
+```python
+saveSetup(setup_name, save_to_file)
+```
+
+
+Saves Setup parameters to given file location as a CSV file.
+Functions (e.g. fitness functions) cannot be saved in this format.
+
+_Arguments:_
+- setup_name -- name of setup used as a key in setups dictionary
+- save_to_file -- file path and name to save  parameters under (String)
+
+#### loadSetup
+
+```python
+loadSetup(setup_name, file, preset=None)
+```
+
+
+Loads Setup parameters from CSV file at given location.
+
+_Arguments:_
+- setup_name -- name of setup to be used as a key in setups dictionary
+- file -- file path to CSV file with parameters (String)
+
+_Keyword arguments:_
+- preset -- if using preset parameters, 'host-host' or 'vector-borne'
+    (String, default None)
+- **kwargs -- setup parameters and values
 
 #### newIntervention
 

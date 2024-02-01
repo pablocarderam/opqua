@@ -1,247 +1,159 @@
 
-"""Contains class Intervention."""
+"""Contains class Setup."""
+
+# import importlib.util
+# import importlib_resources
+import sys
+import io
+import pandas as pd
 
 class Setup(object):
-    """Class defines a setup with population parameters."""
+    """Class defines a setup with population parameters.
 
-    def __init__(
-            self,
-            id,
-            num_loci, possible_alleles,
-            fitnessHost, contactHost, receiveContactHost, mortalityHost,
-            natalityHost, recoveryHost, migrationHost,
-            populationContactHost, receivePopulationContactHost,
-            mutationHost, recombinationHost,
-            fitnessVector, contactVector, receiveContactVector, mortalityVector,
-            natalityVector,recoveryVector, migrationVector,
-            populationContactVector, receivePopulationContactVector,
-            mutationVector, recombinationVector,
-            contact_rate_host_vector,
-            transmission_efficiency_host_vector,
-            transmission_efficiency_vector_host,
-            contact_rate_host_host,
-            transmission_efficiency_host_host,
-            mean_inoculum_host, mean_inoculum_vector,
-            variance_inoculum_host, variance_inoculum_vector,
-            recovery_rate_host, recovery_rate_vector,
-            mortality_rate_host,mortality_rate_vector,
-            recombine_in_host, recombine_in_vector,
-            num_crossover_host, num_crossover_vector,
-            mutate_in_host, mutate_in_vector, death_rate_host,death_rate_vector,
-            birth_rate_host, birth_rate_vector,
-            vertical_transmission_host, vertical_transmission_vector,
-            inherit_protection_host, inherit_protection_vector,
-            protection_upon_recovery_host, protection_upon_recovery_vector):
-        """Create a new Setup.
+    Methods:
+    setParameters -- sets values for all parameters in the simulation
+    save -- saves Setup parameters to given file location as a CSV file
+    load -- loads Setup parameters from CSV file at given location
+    """
 
-        Arguments:
-        id -- key of the Setup inside model dictionary (String)
-        num_loci -- length of each pathogen genome string (int > 0)
-        possible_alleles -- set of possible characters in all genome string, or
-            at each position in genome string (String or list of Strings with
-            num_loci elements)
-        fitnessHost -- function that evaluates relative fitness in head-to-head
-            competition for different genomes within the same host
-            (function object, takes a String argument and returns a number >= 0)
-        contactHost -- function that returns coefficient modifying probability
-            of a given host being chosen to be the infector in a contact event,
-            based on genome sequence of pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        receiveContactHost -- function that returns coefficient modifying
-            probability of a given host being chosen to be the infected in
-            a contact event, based on genome sequence of pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        mortalityHost -- function that returns coefficient modifying death rate
-            for a given host, based on genome sequence of pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        natalityHost -- function that returns coefficient modifying birth rate
-            for a given host, based on genome sequence of pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        recoveryHost -- function that returns coefficient modifying recovery
-            rate for a given host based on genome sequence of pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        migrationHost -- function that returns coefficient modifying migration
-            rate for a given host based on genome sequence of pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        populationContactHost -- function that returns coefficient modifying
-            population contact rate for a given host based on genome sequence of
-            pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        mutationHost -- function that returns coefficient modifying mutation
-            rate for a given host based on genome sequence of pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        recombinationHost -- function that returns coefficient modifying
-            recombination rate for a given host based on genome sequence of
-            pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        fitnessVector -- function that evaluates relative fitness in head-to-
-            head competition for different genomes within the same vector
-            (function object, takes a String argument and returns a number >= 0)
-        contactVector -- function that returns coefficient modifying probability
-            of a given vector being chosen to be the infector in a contact
-            event, based on genome sequence of pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        receiveContactVector -- function that returns coefficient modifying
-            probability of a given vector being chosen to be the infected in
-            a contact event, based on genome sequence of pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        mortalityVector -- function that returns coefficient modifying death
-            rate for a given vector, based on genome sequence of pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        natalityVector -- function that returns coefficient modifying birth rate
-            for a given vector, based on genome sequence of pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        recoveryVector -- function that returns coefficient modifying recovery
-            rate for a given vector based on genome sequence of pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        migrationVector -- function that returns coefficient modifying migration
-            rate for a given vector based on genome sequence of pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        populationContactVector -- function that returns coefficient modifying
-            population contact rate for a given vector based on genome sequence
-            of pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        mutationVector -- function that returns coefficient modifying mutation
-            rate for a given vector based on genome sequence of pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        recombinationVector -- function that returns coefficient modifying
-            recombination rate for a given vector based on genome sequence of
-            pathogen
-            (function object, takes a String argument and returns a number 0-1)
-        contact_rate_host_vector -- rate of host-vector contact events, not
-            necessarily transmission, assumes constant population density;
-            evts/time (number >= 0)
-        transmission_efficiency_host_vector -- fraction of host-vector contacts
-            that result in successful transmission
-        transmission_efficiency_vector_host -- fraction of vector-host contacts
-            that result in successful transmission
-        contact_rate_host_host -- rate of host-host contact events, not
-            necessarily transmission, assumes constant population density;
-            evts/time (number >= 0)
-        transmission_efficiency_host_host -- fraction of host-host contacts
-                that result in successful transmission
-        mean_inoculum_host -- mean number of pathogens that are transmitted from
-            a vector or host into a new host during a contact event (int >= 0)
-        mean_inoculum_vector -- mean number of pathogens that are transmitted
-            from a host to a vector during a contact event (int >= 0)
-        variance_inoculum_host -- variance in number of pathogens that are
-            transmitted from a vector/host to a host during a contact (num >=0)
-        variance_inoculum_vector -- variance in number of pathogens that are
-            transmitted from a host to a vector during a contact (num >=0)
-        recovery_rate_host -- rate at which hosts clear all pathogens;
-            1/time (number >= 0)
-        recovery_rate_vector -- rate at which vectors clear all pathogens
-            1/time (number >= 0)
-        recovery_rate_vector -- rate at which vectors clear all pathogens
-            1/time (number >= 0)
-        mortality_rate_host -- rate at which infected hosts die from disease
-            (number 0-1)
-        mortality_rate_vector -- rate at which infected vectors die from
-            disease (number 0-1)
-        recombine_in_host -- rate at which recombination occurs in host;
-            evts/time (number >= 0)
-        recombine_in_vector -- rate at which recombination occurs in vector;
-            evts/time (number >= 0)
-        num_crossover_host -- mean of a Poisson distribution modeling the number
-            of crossover events of host recombination events (number >= 0)
-        num_crossover_vector -- mean of a Poisson distribution modeling the
-            number of crossover events of vector recombination events
-            (number >= 0)
-        mutate_in_host -- rate at which mutation occurs in host; evts/time
-            (number >= 0)
-        mutate_in_vector -- rate at which mutation occurs in vector; evts/time
-            (number >= 0)
-        death_rate_host -- natural host death rate; 1/time (number >= 0)
-        death_rate_vector -- natural vector death rate; 1/time (number >= 0)
-        birth_rate_host -- infected host birth rate; 1/time (number >= 0)
-        birth_rate_vector -- infected vector birth rate; 1/time (number >= 0)
-        vertical_transmission_host -- probability that a host is infected by its
-            parent at birth (number 0-1)
-        vertical_transmission_vector -- probability that a vector is infected by
-            its parent at birth (number 0-1)
-        inherit_protection_host -- probability that a host inherits all
-            protection sequences from its parent (number 0-1)
-        inherit_protection_vector -- probability that a vector inherits all
-            protection sequences from its parent (number 0-1)
-        protection_upon_recovery_host -- defines indexes in genome string that
-            define substring to be added to host protection sequences after
-            recovery (None or array-like of length 2 with int 0-num_loci)
-        protection_upon_recovery_vector -- defines indexes in genome string that
-            define substring to be added to vector protection sequences after
-            recovery (None or array-like of length 2 with int 0-num_loci)
-        """
+    def __init__(self):
+        """Create a new Setup."""
 
         super(Setup, self).__init__()
 
-        self.id = id
+        self.parameter_names = [
+            'id',
+            'num_loci','possible_alleles',
+            'fitnessHost','contactHost','receiveContactHost','mortalityHost',
+            'natalityHost','recoveryHost','migrationHost',
+            'populationContactHost','receivePopulationContactHost',
+            'mutationHost','recombinationHost',
+            'fitnessVector','contactVector','receiveContactVector',
+            'mortalityVector','natalityVector','recoveryVector',
+            'migrationVector',
+            'populationContactVector','receivePopulationContactVector',
+            'mutationVector','recombinationVector',
+            'contact_rate_host_vector',
+            'transmission_efficiency_host_vector',
+            'transmission_efficiency_vector_host',
+            'contact_rate_host_host',
+            'transmission_efficiency_host_host',
+            'mean_inoculum_host','mean_inoculum_vector',
+            'variance_inoculum_host','variance_inoculum_vector',
+            'recovery_rate_host','recovery_rate_vector',
+            'mortality_rate_host','mortality_rate_vector',
+            'recombine_in_host','recombine_in_vector',
+            'num_crossover_host','num_crossover_vector',
+            'mutate_in_host','mutate_in_vector',
+            'death_rate_host','death_rate_vector',
+            'birth_rate_host','birth_rate_vector',
+            'vertical_transmission_host','vertical_transmission_vector',
+            'inherit_protection_host','inherit_protection_vector',
+            'protection_upon_recovery_host','protection_upon_recovery_vector'
+            ]
 
-        self.num_loci = num_loci
-        if isinstance(possible_alleles, list):
-            self.possible_alleles = possible_alleles
+    def setParameters(self,**kwargs):
+        """Initializes a new Setup.
+
+        Arguments:
+        loaded_from_file -- whether parameters already imported (Boolean)
+
+        Keyword arguments:
+        **kwargs -- setup parameters and values
+        """
+        for parameter, value in kwargs.items():
+            setattr( self, parameter, value )
+
+        self.num_loci = int(self.num_loci)
+
+        if isinstance(self.possible_alleles, list):
+            self.possible_alleles = self.possible_alleles
         else:
-            self.possible_alleles = [possible_alleles] * self.num_loci
+            self.possible_alleles = [self.possible_alleles] * self.num_loci
                 # possible_alleles must be a list with all available alleles for
                 # each position
 
-        self.fitnessHost = fitnessHost
-        self.contactHost = contactHost
-        self.receiveContactHost = receiveContactHost
-        self.mortalityHost = mortalityHost
-        self.natalityHost = natalityHost
-        self.recoveryHost = recoveryHost
-        self.migrationHost = migrationHost
-        self.populationContactHost = populationContactHost
-        self.receivePopulationContactHost = receivePopulationContactHost
-        self.mutationHost = mutationHost
-        self.recombinationHost = recombinationHost
+    def save(self,save_to_file):
+        """
+        Saves Setup parameters to given file location as a CSV file.
 
-        self.fitnessVector = fitnessVector
-        self.contactVector = contactVector
-        self.receiveContactVector = receiveContactVector
-        self.mortalityVector = mortalityVector
-        self.natalityVector = natalityVector
-        self.recoveryVector = recoveryVector
-        self.migrationVector = migrationVector
-        self.populationContactVector = populationContactVector
-        self.receivePopulationContactVector = receivePopulationContactVector
-        self.mutationVector = mutationVector
-        self.recombinationVector = recombinationVector
+        Functions (e.g. fitness functions) cannot be saved in this format.
 
-        self.contact_rate_host_vector = contact_rate_host_vector
-        self.contact_rate_host_host = contact_rate_host_host
-            # contact rates assumes scaling area--large populations are equally
-            # dense as small ones, so contact is constant with both host and
-            # vector populations. If you don't want this to happen, modify the
-            # population's contact rate accordingly.
-            # Examines contacts between infected hosts and all hosts
-        self.transmission_efficiency_host_vector = transmission_efficiency_host_vector
-        self.transmission_efficiency_vector_host = transmission_efficiency_vector_host
-        self.transmission_efficiency_host_host = transmission_efficiency_host_host
-        self.mean_inoculum_host = mean_inoculum_host
-        self.mean_inoculum_vector = mean_inoculum_vector
-        self.variance_inoculum_host = variance_inoculum_host
-        self.variance_inoculum_vector = variance_inoculum_vector
-        self.recovery_rate_host = recovery_rate_host
-        self.recovery_rate_vector = recovery_rate_vector
-        self.mortality_rate_host = mortality_rate_host
-        self.mortality_rate_vector = mortality_rate_vector
+        Arguments:
+        save_to_file -- file path and name to save  parameters under (String)
+        """
+        out = 'Parameter,Value\n'
+        function_counter = 0
+        for parameter in self.parameter_names:
+            if hasattr( getattr(self,parameter), '__call__'):
+                    # checks if parameter is function
+                out = out + parameter + ',#FUNCTION:'+parameter+'Function\n'
+                function_counter += 1
+            else:
+                out = out + parameter + ',' + str( getattr(self,parameter) )+'\n'
 
-        self.recombine_in_host = recombine_in_host
-        self.recombine_in_vector = recombine_in_vector
-        self.num_crossover_host = num_crossover_host
-        self.num_crossover_vector = num_crossover_vector
-        self.mutate_in_host = mutate_in_host
-        self.mutate_in_vector = mutate_in_vector
+        file = open(save_to_file,'w')
+        file.write(out)
+        file.close()
 
-        self.death_rate_host = death_rate_host
-        self.death_rate_vector = death_rate_vector
-        self.birth_rate_host = birth_rate_host
-        self.birth_rate_vector = birth_rate_vector
+        print('Parameter file saved.')
 
-        self.vertical_transmission_host = vertical_transmission_host
-        self.vertical_transmission_vector = vertical_transmission_vector
-        self.inherit_protection_host = inherit_protection_host
-        self.inherit_protection_vector = inherit_protection_vector
+    def load(self,file,preset=None,**kwargs):
+        """
+        Loads Setup parameters from CSV file at given location.
 
-        self.protection_upon_recovery_host = protection_upon_recovery_host
-        self.protection_upon_recovery_vector = protection_upon_recovery_vector
+        Functions (e.g. fitness functions) are loaded as function names preceded
+        by the keyword: "#FUNCTION:" . The functions themselves are defined in a
+        separate file.
+
+        Arguments:
+        file -- file path to CSV file with parameters (String)
+
+        Keyword arguments:
+        preset -- if using preset parameters, 'host-host' or 'vector-borne'
+            (String, default None)
+        **kwargs -- setup parameters and values
+        """
+        if preset is None:
+            df = pd.read_csv(file)
+        else:
+            file_name = preset+'.csv'
+            parameter_dir = importlib_resources.files('opqua') / 'parameters'
+            parameter_bytes = (parameter_dir / file_name).read_bytes()
+            parameter_str = str(parameter_bytes,'utf-8')
+            parameter_data = io.StringIO(parameter_str)
+            df = pd.read_csv(parameter_data)
+
+        # if function_file_path is not None:
+        #     spec = importlib.util.spec_from_file_location(
+        #         'function_params', function_file_path
+        #         )
+        #     function_params = importlib.util.module_from_spec(spec)
+        #     sys.modules['function_params'] = function_params
+        #     spec.loader.exec_module(function_params)
+
+        for i,row in df.iterrows():
+            if '#FUNCTION:' in str(row['Value']): # checks if parameter is function
+                function_name = row['Value'][len('#FUNCTION'):].strip()
+                if ( #function_file_path is None or
+                        not hasattr(function_params, function_name) ):
+                    setattr( self, row['Parameter'], lambda g:1 )
+                else:
+                    setattr( self, row['Parameter'], getattr(
+                            function_params, function_name
+                            ) )
+            elif not isinstance(row['Value'], str) and pd.isna(row['Value']):
+                setattr( self, row['Parameter'], None )
+            elif isinstance(row['Value'], str) and (
+                    row['Value'].replace('.','',1).isdigit()
+                        # checks if number, https://stackoverflow.com/questions/354038/how-do-i-check-if-a-string-represents-a-number-float-or-int
+                    or 'e-' in row['Value'] or 'e+' in row['Value']
+                        # or if scientific notation
+                    ):
+                setattr( self, row['Parameter'], float(row['Value']) )
+            else:
+                setattr( self, row['Parameter'], row['Value'] )
+
+        self.setParameters(**kwargs)
+
+        print('Parameter file loaded.')

@@ -4,6 +4,13 @@
 ## 18 Jan 2024
 Moved plot and data files to a separate directory for organizational purposes.
 
+## v1.1.1
+## 31 Jan 2024
+- Added methods to save and load parameter settings into Setup objects
+- Changed Setup object internal mechanics
+- Added default parameter values as external csv files, removed them from Model
+  class
+
 ## v1.1.0
 ## 17 Jan 2024
 Update to pandas dataframe handling (replace append with concat) to comply with
