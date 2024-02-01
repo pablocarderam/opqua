@@ -1,8 +1,9 @@
 
 # Opqua Changelog
 
-## 18 Jan 2024
-Moved plot and data files to a separate directory for organizational purposes.
+## v1.1.2
+## 1 Feb 2024
+Forgot the MANIFEST.in file to get the csv files.
 
 ## v1.1.1
 ## 31 Jan 2024
@@ -10,6 +11,9 @@ Moved plot and data files to a separate directory for organizational purposes.
 - Changed Setup object internal mechanics
 - Added default parameter values as external csv files, removed them from Model
   class
+
+## 18 Jan 2024
+Moved plot and data files to a separate directory for organizational purposes.
 
 ## v1.1.0
 ## 17 Jan 2024
