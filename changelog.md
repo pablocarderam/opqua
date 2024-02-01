@@ -1,13 +1,19 @@
 
 # Opqua Changelog
 
+## v1.2.0
+## 1 Feb 2024
+Woke up and decided yesterday's changes were significant enough to warrant a
+version change to 1.2.0 :)
+
 ## v1.1.2
 ## 1 Feb 2024
 Forgot the MANIFEST.in file to get the csv files.
 
 ## v1.1.1
 ## 31 Jan 2024
-- Added methods to save and load parameter settings into Setup objects
+- Added methods to save and load parameter settings into Setup objects using
+  CSV files
 - Changed Setup object internal mechanics
 - Added default parameter values as external csv files, removed them from Model
   class
