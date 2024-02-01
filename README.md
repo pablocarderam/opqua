@@ -718,8 +718,8 @@ _Keyword arguments:_
 - **kwargs -- setup parameters and values, which may include the following:
 - num_loci -- length of each pathogen genome string (int > 0)
 - possible_alleles -- set of possible characters in all genome string, or
-    at each position in genome string (String or list of Strings with
-    num_loci elements)
+    at each position in genome string; to specify lists in parameter files, use
+    prefix `#LIST:` (String or list of Strings with num_loci elements)
 - fitnessHost -- function that evaluates relative fitness in head-to-head
     competition for different genomes within the same host
     (function object, takes a String argument and returns a number >= 0)
@@ -860,7 +860,7 @@ _Keyword arguments:_
 #### saveSetup
 
 ```python
-saveSetup(setup_name, save_to_file)
+saveSetup(setup_id, save_to_file)
 ```
 
 
@@ -868,20 +868,20 @@ Saves Setup parameters to given file location as a CSV file.
 Functions (e.g. fitness functions) cannot be saved in this format.
 
 _Arguments:_
-- setup_name -- name of setup used as a key in setups dictionary
+- setup_id -- name of setup used as a key in setups dictionary
 - save_to_file -- file path and name to save  parameters under (String)
 
 #### loadSetup
 
 ```python
-loadSetup(setup_name, file, preset=None)
+loadSetup(setup_id, file, preset=None)
 ```
 
 
 Loads Setup parameters from CSV file at given location.
 
 _Arguments:_
-- setup_name -- name of setup to be used as a key in setups dictionary
+- setup_id -- name of setup to be used as a key in setups dictionary
 - file -- file path to CSV file with parameters (String)
 
 _Keyword arguments:_
@@ -1541,7 +1541,7 @@ _Returns:_
 #### newPopulation
 
 ```python
-newPopulation(id, setup_name, num_hosts=100, num_vectors=100)
+newPopulation(id, setup_id, num_hosts=100, num_vectors=100)
 ```
 
 
@@ -1551,7 +1551,7 @@ If population ID is already in use, appends _2 to it
 
 _Arguments:_
 - id -- unique identifier for this population in the model (String)
-- setup_name -- setup object with parameters for this population (Setup)
+- setup_id -- setup object with parameters for this population (Setup)
 
 _Keyword Arguments:_
 - num_hosts -- number of hosts to initialize population with (default 100;
@@ -1648,7 +1648,7 @@ _Arguments:_
 
 ```python
 createInterconnectedPopulations(
-      num_populations, id_prefix, setup_name,
+      num_populations, id_prefix, setup_id,
       host_migration_rate=0, vector_migration_rate=0,
       host_host_contact_rate=0,
       host_vector_contact_rate=0, vector_host_contact_rate=0,
@@ -1667,7 +1667,7 @@ _Arguments:_
 - num_populations -- number of populations to be created (int)
 - id_prefix -- prefix for IDs to be used for this population in the model,
     (String)
-- setup_name -- setup object with parameters for all populations (Setup)
+- setup_id -- setup object with parameters for all populations (Setup)
 
 _Keyword arguments:_
 - host_migration_rate -- host migration rate between populations;

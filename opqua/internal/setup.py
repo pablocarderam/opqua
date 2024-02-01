@@ -2,9 +2,10 @@
 """Contains class Setup."""
 
 # import importlib.util
-# import importlib_resources
+import importlib_resources
 import sys
 import io
+import ast
 import pandas as pd
 
 class Setup(object):
@@ -65,6 +66,13 @@ class Setup(object):
             setattr( self, parameter, value )
 
         self.num_loci = int(self.num_loci)
+        if self.population_threshold <= 0 and self.selection_threshold <= 0:
+            self.population_threshold = 0
+            self.selection_threshold = 100 # arbitrarily large
+        if self.population_threshold <= 0:
+            self.population_threshold = 1 / self.selection_threshold
+        elif self.selection_threshold <= 0:
+            self.selection_threshold = 1 / self.population_threshold
 
         if isinstance(self.possible_alleles, list):
             self.possible_alleles = self.possible_alleles
@@ -89,6 +97,10 @@ class Setup(object):
                     # checks if parameter is function
                 out = out + parameter + ',#FUNCTION:'+parameter+'Function\n'
                 function_counter += 1
+            elif isinstance( getattr(self,parameter), list ):
+                out = out + parameter + ',#LIST:' + str(
+                    getattr(self,parameter)
+                    )+'\n'
             else:
                 out = out + parameter + ',' + str( getattr(self,parameter) )+'\n'
 
@@ -114,6 +126,9 @@ class Setup(object):
             (String, default None)
         **kwargs -- setup parameters and values
         """
+        self.population_threshold = -1
+        self.selection_threshold = -1
+
         if preset is None:
             df = pd.read_csv(file)
         else:
@@ -133,15 +148,21 @@ class Setup(object):
         #     spec.loader.exec_module(function_params)
 
         for i,row in df.iterrows():
-            if '#FUNCTION:' in str(row['Value']): # checks if parameter is function
+            if '#FUNCTION:' in str( row['Value'] ):
+                    # checks if parameter is function
                 function_name = row['Value'][len('#FUNCTION'):].strip()
-                if ( #function_file_path is None or
-                        not hasattr(function_params, function_name) ):
+                # if ( function_file_path is None or
+                #         not hasattr(function_params, function_name) ):
+                if len( str( row['Value'] ).strip() ) == len('#FUNCTION:'):
                     setattr( self, row['Parameter'], lambda g:1 )
                 else:
                     setattr( self, row['Parameter'], getattr(
                             function_params, function_name
                             ) )
+            elif '#LIST:' in str(row['Value']):
+                setattr( self, row['Parameter'], ast.literal_eval(
+                    row['Value'][ len('#LIST:'): ]
+                    ) )
             elif not isinstance(row['Value'], str) and pd.isna(row['Value']):
                 setattr( self, row['Parameter'], None )
             elif isinstance(row['Value'], str) and (

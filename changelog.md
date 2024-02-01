@@ -1,6 +1,15 @@
 
 # Opqua Changelog
 
+## v1.2.1
+## 1 Feb 2024
+Fixed some bugs in function importing (or lack thereof; recommended practice is 
+to declare function parameters as Python code in same scope as simulation and
+pass function names as arguments to `newSetup()` or `loadSetup()`).
+
+Also corrected small bug in which `importlib_resources` wasn't being imported in
+`Setup` class.
+
 ## v1.2.0
 ## 1 Feb 2024
 Woke up and decided yesterday's changes were significant enough to warrant a
