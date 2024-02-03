@@ -16,3 +16,4 @@ seaborn==0.13.1
 six==1.16.0
 textdistance==4.6.1
 tzdata==2023.4
+pyvis==0.3.2

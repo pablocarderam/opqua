@@ -18,7 +18,7 @@ from opqua.internal.simulation import Simulation
 from opqua.analysis.data import saveToDf, getPathogens, getProtections, \
     getPathogenDistanceHistoryDf
 from opqua.analysis.plot import populationsPlot, compartmentPlot, \
-    compositionPlot, clustermap
+    compositionPlot, clustermap, visualizeMutationNetwork
 
 class Model(object):
     """Class defines a Model.
@@ -109,6 +109,12 @@ class Model(object):
 
     - Modify population parameters -
     setSetup -- assigns a given set of parameters to this population
+
+    - Compute a fitness landscape -
+    newLandscape -- creates a new Landscape object with a setup
+    mapLandscape -- maps and evaluates fitness of all relevant mutations
+    saveLandscape -- saves mutation network and fitness values
+    loadLandscape -- load mutation network and fitness values
 
     - Utility -
     customModelFunction -- returns output of given function run on model
@@ -1634,6 +1640,112 @@ class Model(object):
             self.setups[setup_id],
             update_coefficients_hosts=update_coefficients_hosts,
             update_coefficients_vectors=update_coefficients_vectors
+            )
+
+    ### Compute fitness landscapes ###
+    def newLandscape(self, setup_id, landscape_id, fitnessFunc=None,
+            population_threshold=None, selection_threshold=None,
+            max_depth=None, allele_groups=None):
+        """Create a new Landscape
+
+        Arguments:
+        setup_id -- ID of setup with associated parameters (String)
+        landscape_id -- ID of landscape (String)
+
+        Keyword arguments:
+        fitnessFunc -- fitness function used to evaluate genomes (function
+            taking a genome for argument and returning a fitness value >0,
+            default None)
+        population_threshold -- pathogen threshold under which drift is assumed
+            to dominate (number >1, default None)
+        selection_threshold -- selection coefficient threshold under which
+            drift is assumed to dominate; related to population_threshold
+            (number >1, default None)
+        max_depth -- max number of mutations considered when evaluating
+            establishment rates (integer >0, default None)
+        allele_groups -- relevant alleles affecting fitness, each element
+            contains a list of strings, each string contains a group of alleles
+            that all have equivalent fitness behavior (list of lists of Strings)
+        """
+        self.setups[setup_id].newLandscape(
+            landscape_id,
+            fitnessFunc=fitnessFunc, population_threshold=population_threshold,
+            selection_threshold=selection_threshold,
+            max_depth=max_depth, allele_groups=allele_groups
+            )
+
+    def mapLandscape(self,setup_id,landscape_id,seed_genomes):
+        """Maps and evaluates relevant mutations given object parameters
+
+        Saves result in landscape's mutation_network property.
+
+        Arguments:
+        setup_id -- ID of setup with associated parameters (String)
+        landscape_id -- ID of landscape (String)
+        seed_genomes -- genome or list of genomes used as background for
+            mutations (String or list of Strings)
+        """
+        self.setups[setup_id].landscapes[landscape_id].map(seed_genomes)
+
+    def saveLandscape(self,setup_id,landscape_id,save_to_file):
+        """Saves mutation network and fitness values stored in landscape
+
+        CSV format has the following columns:
+        Genome: reduced genome
+        Neighbors: list of neighboring reduced genomes, separated by semicolons
+        Rates: list of corresponding establishment rates for neighbors,
+            separated by semicolons
+        Sum_rates: number with sum of all rates in previous list
+
+        Arguments:
+        setup_id -- ID of setup with associated parameters (String)
+        landscape_id -- ID of landscape (String)
+        save_to_file -- file path and name to save model data under (String)
+        """
+        self.setups[setup_id].landscapes[landscape_id].save(save_to_file)
+
+    def loadLandscape(self,setup_id,landscape_id,file):
+        """Loads mutation network and fitness from file path
+
+        CSV format has the following columns:
+        Genome: reduced genome
+        Neighbors: list of neighboring reduced genomes, separated by semicolons
+        Rates: list of corresponding establishment rates for neighbors,
+            separated by semicolons
+        Sum_rates: number with sum of all rates in previous list
+
+        Arguments:
+        setup_id -- ID of setup with associated parameters (String)
+        landscape_id -- ID of landscape (String)
+        file -- file path and name to save model data under (String)
+        """
+        self.setups[setup_id].landscapes[landscape_id].load(file)
+
+    def visualizeMutationNetwork(self,setup_id,landscape_id,file_name,
+            toggle_physics=True, #toggle_stabilization=True,
+            node_color='rgba(215,140,10,1)', edge_color='rgba(215,190,150,1)'):#,
+            # node_size_range=[1,5], edge_width_range=[1,5], log_base=10):
+        """Create a network visualization for pathogen genomes in landscape
+
+        Arguments:
+        setup_id -- ID of setup with associated parameters (String)
+        landscape_id -- ID of landscape (String)
+        file_name -- file path and name to save html graph under (String)
+        toggle_physics -- whether graph moves (Boolean)
+        node_color -- node color (String)
+        edge_color -- edge color (String)
+
+        Returns:
+        figure object for plot with heatmap and dendrogram as described
+        """
+
+        visualizeMutationNetwork(
+            self.setups[setup_id].landscapes[landscape_id].mutation_network,
+            file_name, toggle_physics=toggle_physics,
+            # toggle_stabilization=toggle_stabilization,
+            node_color=node_color, edge_color=edge_color,
+            # node_size_range=node_size_range, edge_width_range=edge_width_range,
+            # log_base=log_base
             )
 
     ### Utility: ###

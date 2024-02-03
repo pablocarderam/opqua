@@ -35,6 +35,7 @@ setup(
                       'scipy',
                       'matplotlib',
                       'seaborn',
+                      'pyvis',
                       ],
 
     classifiers=[

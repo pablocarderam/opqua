@@ -2,6 +2,12 @@ Parameter,Value
 id,my_setup
 num_loci,10
 possible_alleles,ATCG
+allele_groups,#LIST:
+max_depth,0
+intrahost_population,100
+population_threshold,0
+selection_threshold,100
+generation_time,1
 fitnessHost,#FUNCTION:
 contactHost,#FUNCTION:
 receiveContactHost,#FUNCTION:

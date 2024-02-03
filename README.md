@@ -477,6 +477,8 @@ only end results
 
 - [saveToDataFrame](#savetodataframe) -- saves status of model to data frame,
 writes to file
+- [getCompositionData](#getCompositionData) -- create dataframe with counts for
+  pathogen genomes or resistance
 - [getPathogens](#getpathogens) -- creates data frame with counts for all
 pathogen genomes
 - [getProtections](#getprotections) -- creates data frame with counts for all
@@ -493,8 +495,8 @@ given data
 distances for pathogen genomes at different times
 - [getGenomeTimes](#getGenomeTimes) -- create DataFrame with times genomes first
 appeared during simulation
-- [getCompositionData](#getCompositionData) -- create dataframe with counts for
-      pathogen genomes or resistance
+- [visualizeMutationNetwork](#visualizeMutationNetwork) -- creates interactive
+  visualization of mutation network
 
 #### Model interventions ###
 
@@ -542,6 +544,13 @@ sequences from vectors
 Modify population parameters:
 - [setSetup](#setsetup) -- assigns a given set of parameters to this
 population
+
+Compute a fitness landscape:
+- [newLandscape](#newLandscape) -- creates a new Landscape object with a setup
+- [mapLandscape](#mapLandscape) -- maps and evaluates fitness of all relevant
+mutations
+- [saveLandscape](#saveLandscape) -- saves mutation network and fitness values
+- [loadLandscape](#loadLandscape) -- load mutation network and fitness values
 
 Utility:
 - [customModelFunction](#customModelFunction) -- returns output of given
@@ -598,6 +607,12 @@ having to specify all of them. You may also not select a preset setup.
 ```python
 num_loci = 10
 possible_alleles = 'ATCG'
+allele_groups = [['ATCG']]
+max_depth = 0
+intrahost_population = 100
+population_threshold = 0
+selection_threshold = 100 # arbitrarily large
+generation_time = 1
 fitnessHost = (lambda g: 1)
 contactHost = (lambda g: 1)
 receiveContactHost = (lambda g: 1)
@@ -655,6 +670,12 @@ protection_upon_recovery_vector = None
 ```python
 num_loci = 10
 possible_alleles = 'ATCG'
+allele_groups = [['ATCG']]
+max_depth = 0
+intrahost_population = 100
+population_threshold = 0
+selection_threshold = 100 # arbitrarily large
+generation_time = 1
 fitnessHost = (lambda g: 1)
 contactHost = (lambda g: 1)
 receiveContactHost = (lambda g: 1)
@@ -720,6 +741,20 @@ _Keyword arguments:_
 - possible_alleles -- set of possible characters in all genome string, or
     at each position in genome string; to specify lists in parameter files, use
     prefix `#LIST:` (String or list of Strings with num_loci elements)
+- allele_groups -- relevant alleles affecting fitness, each element
+    contains a list of strings, each string contains a group of alleles
+    that all have equivalent fitness behavior; if single list provided, then
+    those groups are used for all loci; to specify lists in parameter files, use
+    prefix `#LIST:` (list of lists of Strings)
+- max_depth -- max number of mutations considered when evaluating
+    establishment rates (integer >0)
+- intrahost_population -- maximum intrahost pathogen population (integer >0)
+- population_threshold -- any intrahost variant that still drifts over this
+    threshold is assumed to always be under drift; =1/selection_threshold
+    (number >0)
+- selection_threshold -- any intrahost variant with a selection coefficient
+    under this threshold is assumed to always be under drift (number >0)
+- generation_time -- pathogen replication cycle time (number >0)
 - fitnessHost -- function that evaluates relative fitness in head-to-head
     competition for different genomes within the same host
     (function object, takes a String argument and returns a number >= 0)
@@ -1538,6 +1573,28 @@ _Keyword arguments:_
 _Returns:_
 - pandas dataframe with genomes and times as described above
 
+#### visualizeMutationNetwork
+
+```python
+visualizeMutationNetwork(setup_id,landscape_id,file_name,
+toggle_physics=True,
+node_color='rgba(215,140,10,1)', edge_color='rgba(215,190,150,1)')
+```
+
+
+Create a network visualization for pathogen genomes in landscape
+
+_Arguments:_
+- setup_id -- ID of setup with associated parameters (String)
+- landscape_id -- ID of landscape (String)
+- file_name -- file path and name to save html graph under (String)
+- toggle_physics -- whether graph moves (Boolean)
+- node_color -- node color (String)
+- edge_color -- edge color (String)
+
+_Returns:_
+- figure object for plot with heatmap and dendrogram as described
+
 #### newPopulation
 
 ```python
@@ -1964,6 +2021,89 @@ Assign parameters stored in Setup object to this population.
 _Arguments:_
 - pop_id -- ID of population to be modified (String)
 - setup_id -- ID of setup to be assigned (String)
+
+#### newLandscape
+```python
+newLandscape(setup_id, landscape_id, fitnessFunc=None,
+          population_threshold=None, selection_threshold=None,
+          max_depth=None, allele_groups=None)
+```
+
+
+Create a new Landscape
+
+_Arguments:_
+- setup_id -- ID of setup with associated parameters (String)
+- landscape_id -- ID of landscape (String)
+
+_Keyword arguments:_
+- fitnessFunc -- fitness function used to evaluate genomes (function
+    taking a genome for argument and returning a fitness value >0,
+    default None)
+- population_threshold -- pathogen threshold under which drift is assumed
+    to dominate (number >1, default None)
+- selection_threshold -- selection coefficient threshold under which
+    drift is assumed to dominate; related to population_threshold
+    (number >1, default None)
+- max_depth -- max number of mutations considered when evaluating
+    establishment rates (integer >0, default None)
+- allele_groups -- relevant alleles affecting fitness, each element
+    contains a list of strings, each string contains a group of alleles
+    that all have equivalent fitness behavior (list of lists of Strings)
+
+#### mapLandscape
+```python
+mapLandscape(setup_id,landscape_id,seed_genomes)
+```
+
+
+Maps and evaluates relevant mutations given object parameters
+
+Saves result in landscape's mutation_network property.
+
+_Arguments:_
+- setup_id -- ID of setup with associated parameters (String)
+- landscape_id -- ID of landscape (String)
+- seed_genomes -- genome or list of genomes used as background for
+  mutations (String or list of Strings)
+
+#### saveLandscape
+```python
+saveLandscape(setup_id,landscape_id,save_to_file)
+```
+
+
+Saves mutation network and fitness values stored in landscape
+
+CSV format has the following columns:
+- Genome: reduced genome
+- Neighbors: list of neighboring reduced genomes, separated by semicolons
+- Rates: list of corresponding establishment rates for neighbors,
+    separated by semicolons
+- Sum_rates: number with sum of all rates in previous list
+
+_Arguments:_
+- setup_id -- ID of setup with associated parameters (String)
+- landscape_id -- ID of landscape (String)
+- save_to_file -- file path and name to save model data under (String)
+
+#### loadLandscape
+```python
+loadLandscape(setup_id,landscape_id,file)
+```
+
+
+Loads mutation network and fitness from file path
+
+CSV format has the following columns:
+- Genome: reduced genome
+- Neighbors: list of neighboring reduced genomes, separated by semicolons
+- Rates: list of corresponding establishment rates for neighbors,
+    separated by semicolons
+- Sum_rates: number with sum of all rates in previous list
+
+_Arguments:_
+- file -- file path and name to save model data under (String)
 
 #### customModelFunction
 ```python

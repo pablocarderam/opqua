@@ -1,6 +1,12 @@
 
 # Opqua Changelog
 
+## 3 Feb 2024
+Successfully implemented Landscape class to traverse and compute fitness
+landscapes, the parameters needed for this in the Setup class, as well as a
+plotting function to visualize the resulting mutation networks using the PyVis
+package. 
+
 ## v1.2.1
 ## 1 Feb 2024
 Fixed some bugs in function importing (or lack thereof; recommended practice is 

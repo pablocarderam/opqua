@@ -8,6 +8,8 @@ import io
 import ast
 import pandas as pd
 
+from opqua.internal.landscape import Landscape
+
 class Setup(object):
     """Class defines a setup with population parameters.
 
@@ -24,7 +26,9 @@ class Setup(object):
 
         self.parameter_names = [
             'id',
-            'num_loci','possible_alleles',
+            'num_loci','possible_alleles', 'allele_groups',
+            'max_depth', 'intrahost_population',
+            'population_threshold', 'selection_threshold', 'generation_time',
             'fitnessHost','contactHost','receiveContactHost','mortalityHost',
             'natalityHost','recoveryHost','migrationHost',
             'populationContactHost','receivePopulationContactHost',
@@ -53,6 +57,8 @@ class Setup(object):
             'protection_upon_recovery_host','protection_upon_recovery_vector'
             ]
 
+        self.landscapes = {}
+
     def setParameters(self,**kwargs):
         """Initializes a new Setup.
 
@@ -73,6 +79,11 @@ class Setup(object):
             self.population_threshold = 1 / self.selection_threshold
         elif self.selection_threshold <= 0:
             self.selection_threshold = 1 / self.population_threshold
+
+        if len(self.allele_groups) == 0:
+            self.allele_groups = [ list(self.possible_alleles) ]
+        if len(self.allele_groups) == 1:
+            self.allele_groups = self.allele_groups * self.num_loci
 
         if isinstance(self.possible_alleles, list):
             self.possible_alleles = self.possible_alleles
@@ -160,9 +171,13 @@ class Setup(object):
                             function_params, function_name
                             ) )
             elif '#LIST:' in str(row['Value']):
-                setattr( self, row['Parameter'], ast.literal_eval(
-                    row['Value'][ len('#LIST:'): ]
-                    ) )
+                if len(row['Value'].strip()) > len('#LIST:'):
+                    setattr( self, row['Parameter'], ast.literal_eval(
+                        row['Value'][ len('#LIST:'): ]
+                        ) )
+                else:
+                    setattr( self, row['Parameter'], '' )
+
             elif not isinstance(row['Value'], str) and pd.isna(row['Value']):
                 setattr( self, row['Parameter'], None )
             elif isinstance(row['Value'], str) and (
@@ -178,3 +193,32 @@ class Setup(object):
         self.setParameters(**kwargs)
 
         print('Parameter file loaded.')
+
+    def newLandscape(self, landscape_id, fitnessFunc=None,
+            population_threshold=None, selection_threshold=None,
+            max_depth=None, allele_groups=None):
+        """Create a new Landscape.
+
+        Keyword arguments:
+        setup_id -- ID of setup with associated parameters (String)
+        landscape_id -- ID of landscape with associated parameters (String)
+        fitnessFunc -- fitness function used to evaluate genomes (function
+            taking a genome for argument and returning a fitness value >0,
+            default None)
+        population_threshold -- pathogen threshold under which drift is assumed
+            to dominate (number >1, default None)
+        selection_threshold -- selection coefficient threshold under which
+            drift is assumed to dominate; related to population_threshold
+            (number >1, default None)
+        max_depth -- max number of mutations considered when evaluating
+            establishment rates (integer >0, default None)
+        allele_groups -- relevant alleles affecting fitness, each element
+            contains a list of strings, each string contains a group of alleles
+            that all have equivalent fitness behavior (list of lists of Strings)
+        """
+        self.landscapes[landscape_id] = Landscape(
+            id=landscape_id, setup=self,
+            fitnessFunc=fitnessFunc, population_threshold=population_threshold,
+            selection_threshold=selection_threshold,
+            max_depth=max_depth, allele_groups=allele_groups
+            )
