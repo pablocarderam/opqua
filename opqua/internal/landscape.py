@@ -23,7 +23,7 @@ class Landscape(object):
     """
 
     def __init__(self, id=None, setup=None,
-            fitnessFunc=None,
+            fitnessFunc=None, mutate=None, generation_time=None,
             population_threshold=None, selection_threshold=None,
             max_depth=None, allele_groups=None):
         """Create a new Landscape.
@@ -34,6 +34,9 @@ class Landscape(object):
         fitnessFunc -- fitness function used to evaluate genomes (function
             taking a genome for argument and returning a fitness value >0,
             default None)
+        mutate -- mutation rate per generation (number>0, default None)
+        generation_time -- time between pathogen generations (number>0, default
+            None)
         population_threshold -- pathogen threshold under which drift is assumed
             to dominate (number >1, default None)
         selection_threshold -- selection coefficient threshold under which
@@ -53,20 +56,23 @@ class Landscape(object):
 
         self.fitnessFunc = setup.fitnessHost \
             if fitnessFunc is None else fitnessFunc
-        self.population_threshold = setup.population_threshold \
+        self.mutate = setup.mutate_in_host if mutate is None else mutate
+        self.generation_time = setup.generation_time_host \
+            if generation_time is None else generation_time
+        self.population_threshold = setup.population_threshold_host \
             if population_threshold is None else population_threshold
-        self.max_depth = setup.max_depth if max_depth is None else max_depth
-        self.allele_groups = setup.allele_groups \
+        self.max_depth = setup.max_depth_host if max_depth is None else max_depth
+        self.allele_groups = setup.allele_groups_host \
             if allele_groups is None else allele_groups
             # list where every item is a list of strings, each string containing
             # a group of alleles that all have equivalent fitness behavior
 
         if selection_threshold is not None:
-            self.selection_threshold = selection_threshold
+            self.selection_threshold_host = selection_threshold
         elif population_threshold is not None:
             self.selection_threshold = 1 / population_threshold
         else:
-            self.selection_threshold = setup.selection_threshold
+            self.selection_threshold = setup.selection_threshold_host
             # selection threshold is defined
             # in terms of selection coefficient, i.e. selective advantage of
             # mutant over original genome with fitness=1
@@ -76,7 +82,7 @@ class Landscape(object):
         self.relevant_loci = []
         self.allele_groups_reduced = []
         self.total_alleles = []
-        for i,locus in enumerate(setup.allele_groups):
+        for i,locus in enumerate(self.allele_groups):
             if len(locus) > 1:
                 self.relevant_loci.append(i)
                 reduced_alleles_locus = ''
@@ -165,7 +171,7 @@ class Landscape(object):
         """
         return (
             np.power(
-                self.setup.mutate_in_host / self.setup.generation_time, distance
+                self.mutate / self.generation_time, distance
                 ) # P( d mutations happening ); rate is inverse of P and mean t
             * np.prod( synonym_probs ) # P( all the d mutations are correct )
             * sp_spe.perm( distance, distance ) # num ways to get d mutations

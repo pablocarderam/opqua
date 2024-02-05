@@ -28,7 +28,7 @@ model.newSetup( # Now, we'll define our new setup:
         # Each locus can have different possible alleles if you define this
         # argument as a list of strings, but here, we take the simplest
         # approach.
-    allele_groups=[['A','BCD']],
+    allele_groups_host=[['A','BCD']],
         # available alleles are grouped in two groups of alleles with equivalent
         # behavior: B, C, and D are phenotypically identical across all loci
     num_loci=len(my_optimal_genomes[0]),
@@ -41,8 +41,7 @@ model.newSetup( # Now, we'll define our new setup:
     )
 
 model.newLandscape('my_setup', 'my_landscape', fitnessFunc=myHostFitness,
-          population_threshold=1e10, selection_threshold=None,
-          max_depth=4, allele_groups=None)
+          population_threshold=1e10, max_depth=4)
     # defines new fitness landscape object based on setup parameters; depth=4
     # and a large population threshold means it will be fully evaluated
 

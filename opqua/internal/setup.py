@@ -26,9 +26,17 @@ class Setup(object):
 
         self.parameter_names = [
             'id',
-            'num_loci','possible_alleles', 'allele_groups',
-            'max_depth', 'intrahost_population',
-            'population_threshold', 'selection_threshold', 'generation_time',
+            'num_loci','possible_alleles',
+            'allele_groups_host', 'allele_groups_vector',
+            'max_depth_host','max_depth_vector',
+            'peak_pathogen_population_host',
+            'steady_pathogen_population_host',
+            'peak_pathogen_population_vector',
+            'steady_pathogen_population_vector',
+            'population_threshold_host', 'selection_threshold_host',
+            'population_threshold_vector', 'selection_threshold_vector',
+            'generation_time_host', 'max_generation_size_host',
+            'generation_time_vector', 'max_generation_size_vector',
             'fitnessHost','contactHost','receiveContactHost','mortalityHost',
             'natalityHost','recoveryHost','migrationHost',
             'populationContactHost','receivePopulationContactHost',
@@ -74,16 +82,29 @@ class Setup(object):
         self.num_loci = int(self.num_loci)
         if self.population_threshold <= 0 and self.selection_threshold <= 0:
             self.population_threshold = 0
-            self.selection_threshold = 100 # arbitrarily large
+            self.selection_threshold = 1e5 # arbitrarily large
         if self.population_threshold <= 0:
             self.population_threshold = 1 / self.selection_threshold
         elif self.selection_threshold <= 0:
             self.selection_threshold = 1 / self.population_threshold
 
-        if len(self.allele_groups) == 0:
-            self.allele_groups = [ list(self.possible_alleles) ]
-        if len(self.allele_groups) == 1:
-            self.allele_groups = self.allele_groups * self.num_loci
+        if self.population_threshold_vector <= 0 and self.selection_threshold_vector <= 0:
+            self.population_threshold_vector = 0
+            self.selection_threshold_vector = 1e5 # arbitrarily large
+        if self.population_threshold_vector <= 0:
+            self.population_threshold_vector = 1 / self.selection_threshold_vector
+        elif self.selection_threshold_vector <= 0:
+            self.selection_threshold_vector = 1 / self.population_threshold_vector
+
+        if len(self.allele_groups_host) == 0:
+            self.allele_groups_host = [ list(self.possible_alleles) ]
+        if len(self.allele_groups_host) == 1:
+            self.allele_groups_host = self.allele_groups_host * self.num_loci
+
+        if len(self.allele_groups_vector) == 0:
+            self.allele_groups_vector = [ list(self.possible_alleles) ]
+        if len(self.allele_groups_vector) == 1:
+            self.allele_groups_vector = self.allele_groups_vector *self.num_loci
 
         if isinstance(self.possible_alleles, list):
             self.possible_alleles = self.possible_alleles
@@ -194,7 +215,8 @@ class Setup(object):
 
         print('Parameter file loaded.')
 
-    def newLandscape(self, landscape_id, fitnessFunc=None,
+    def newLandscape(self, landscape_id, fitnessFunc=None, mutate=None,
+            generation_time=None,
             population_threshold=None, selection_threshold=None,
             max_depth=None, allele_groups=None):
         """Create a new Landscape.
@@ -205,6 +227,9 @@ class Setup(object):
         fitnessFunc -- fitness function used to evaluate genomes (function
             taking a genome for argument and returning a fitness value >0,
             default None)
+        mutate -- mutation rate per generation (number>0, default None)
+        generation_time -- time between pathogen generations (number>0, default
+            None)
         population_threshold -- pathogen threshold under which drift is assumed
             to dominate (number >1, default None)
         selection_threshold -- selection coefficient threshold under which
@@ -218,7 +243,9 @@ class Setup(object):
         """
         self.landscapes[landscape_id] = Landscape(
             id=landscape_id, setup=self,
-            fitnessFunc=fitnessFunc, population_threshold=population_threshold,
+            fitnessFunc=fitnessFunc, mutate=mutate,
+            generation_time=generation_time,
+            population_threshold=population_threshold,
             selection_threshold=selection_threshold,
             max_depth=max_depth, allele_groups=allele_groups
             )

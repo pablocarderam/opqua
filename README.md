@@ -607,12 +607,22 @@ having to specify all of them. You may also not select a preset setup.
 ```python
 num_loci = 10
 possible_alleles = 'ATCG'
-allele_groups = [['ATCG']]
-max_depth = 0
-intrahost_population = 100
-population_threshold = 0
-selection_threshold = 100 # arbitrarily large
-generation_time = 1
+allele_groups_host = #LIST:
+allele_groups_vector = #LIST:
+max_depth_host = 0
+max_depth_vector = 0
+peak_pathogen_population_host = 100
+steady_pathogen_population_host = 100
+peak_pathogen_population_vector = 100
+steady_pathogen_population_vector = 100
+population_threshold_host = 0
+population_threshold_vector = 0
+selection_threshold_host = 100
+selection_threshold_vector = 100
+generation_time_host = 1
+max_generation_size_host = 10
+generation_time_vector = 1
+max_generation_size_vector = 10
 fitnessHost = (lambda g: 1)
 contactHost = (lambda g: 1)
 receiveContactHost = (lambda g: 1)
@@ -670,12 +680,22 @@ protection_upon_recovery_vector = None
 ```python
 num_loci = 10
 possible_alleles = 'ATCG'
-allele_groups = [['ATCG']]
-max_depth = 0
-intrahost_population = 100
-population_threshold = 0
-selection_threshold = 100 # arbitrarily large
-generation_time = 1
+allele_groups_host = #LIST:
+allele_groups_vector = #LIST:
+max_depth_host = 0
+max_depth_vector = 0
+peak_pathogen_population_host = 100
+steady_pathogen_population_host = 100
+peak_pathogen_population_vector = 100
+steady_pathogen_population_vector = 100
+population_threshold_host = 0
+population_threshold_vector = 0
+selection_threshold_host = 100
+selection_threshold_vector = 100
+generation_time_host = 1
+max_generation_size_host = 10
+generation_time_vector = 1
+max_generation_size_vector = 10
 fitnessHost = (lambda g: 1)
 contactHost = (lambda g: 1)
 receiveContactHost = (lambda g: 1)
@@ -746,15 +766,37 @@ _Keyword arguments:_
     that all have equivalent fitness behavior; if single list provided, then
     those groups are used for all loci; to specify lists in parameter files, use
     prefix `#LIST:` (list of lists of Strings)
-- max_depth -- max number of mutations considered when evaluating
-    establishment rates (integer >0)
-- intrahost_population -- maximum intrahost pathogen population (integer >0)
-- population_threshold -- any intrahost variant that still drifts over this
+- max_depth_host -- maximum number of mutations considered when evaluating
+    establishment rates in hosts (integer >0)
+- max_depth_vector -- maximum number of mutations considered when evaluating
+    establishment rates in vectors (integer >0)
+- peak_pathogen_population_host -- peak intrahost pathogen population
+  (integer >0)
+- steady_pathogen_population_host -- semi steady-state intrahost pathogen
+  population (integer >0)
+- peak_pathogen_population_vector -- peak intrahost pathogen population
+  (integer >0)
+- steady_pathogen_population_vector -- semi steady-state intrahost pathogen
+  population (integer >0)
+- population_threshold_host -- any intrahost variant that still drifts over this
     threshold is assumed to always be under drift; =1/selection_threshold
     (number >0)
-- selection_threshold -- any intrahost variant with a selection coefficient
-    under this threshold is assumed to always be under drift (number >0)
-- generation_time -- pathogen replication cycle time (number >0)
+- population_threshold_vector -- any intravector variant that still drifts over
+    this threshold is assumed to always be under drift; =1/selection_threshold
+    (number >0)
+- selection_threshold_host -- any intrahost variant with a selection coefficient
+    under this threshold is assumed to always be under drift;
+    =1/selection_threshold (number >0)
+- selection_threshold_vector -- any intravector variant with a selection
+    coefficient under this threshold is assumed to always be under drift;
+    =1/selection_threshold (number >0)
+- generation_time_host -- pathogen replication cycle time in hosts (number >0)
+- generation_time_vector -- pathogen replication cycle time in vectors
+  (number >0)
+- max_generation_size_host,10 -- maximum growth within hosts, in units of
+  pathogens per replication cycle (number>1)
+- max_generation_size_vector,10 -- maximum growth within vectors, in units of
+  pathogens per replication cycle (number>1)
 - fitnessHost -- function that evaluates relative fitness in head-to-head
     competition for different genomes within the same host
     (function object, takes a String argument and returns a number >= 0)
@@ -869,9 +911,9 @@ _Keyword arguments:_
 - num_crossover_vector -- mean of a Poisson distribution modeling the
     number of crossover events of vector recombination events
     (number >= 0)
-- mutate_in_host -- rate at which mutation occurs in host; events/time
+- mutate_in_host -- rate at which mutation occurs in host; events/generation
     (number >= 0)
-- mutate_in_vector -- rate at which mutation occurs in vector; events/time
+- mutate_in_vector -- rate at which mutation occurs in vector; events/generation
     (number >= 0)
 - death_rate_host -- natural host death rate; 1/time (number >= 0)
 - death_rate_vector -- natural vector death rate; 1/time (number >= 0)
@@ -2026,6 +2068,7 @@ _Arguments:_
 #### newLandscape
 ```python
 newLandscape(setup_id, landscape_id, fitnessFunc=None,
+          mutate=None, generation_time=None,
           population_threshold=None, selection_threshold=None,
           max_depth=None, allele_groups=None)
 ```
@@ -2041,6 +2084,9 @@ _Keyword arguments:_
 - fitnessFunc -- fitness function used to evaluate genomes (function
     taking a genome for argument and returning a fitness value >0,
     default None)
+- mutate -- mutation rate per generation (number>0, default None)
+- generation_time -- time between pathogen generations (number>0, default
+    None)
 - population_threshold -- pathogen threshold under which drift is assumed
     to dominate (number >1, default None)
 - selection_threshold -- selection coefficient threshold under which

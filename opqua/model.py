@@ -1644,6 +1644,7 @@ class Model(object):
 
     ### Compute fitness landscapes ###
     def newLandscape(self, setup_id, landscape_id, fitnessFunc=None,
+            mutate=None, generation_time=None,
             population_threshold=None, selection_threshold=None,
             max_depth=None, allele_groups=None):
         """Create a new Landscape
@@ -1656,6 +1657,9 @@ class Model(object):
         fitnessFunc -- fitness function used to evaluate genomes (function
             taking a genome for argument and returning a fitness value >0,
             default None)
+        mutate -- mutation rate per generation (number>0, default None)
+        generation_time -- time between pathogen generations (number>0, default
+            None)
         population_threshold -- pathogen threshold under which drift is assumed
             to dominate (number >1, default None)
         selection_threshold -- selection coefficient threshold under which
@@ -1669,7 +1673,9 @@ class Model(object):
         """
         self.setups[setup_id].newLandscape(
             landscape_id,
-            fitnessFunc=fitnessFunc, population_threshold=population_threshold,
+            fitnessFunc=fitnessFunc, mutate=None,
+            generation_time=generation_time,
+            population_threshold=population_threshold,
             selection_threshold=selection_threshold,
             max_depth=max_depth, allele_groups=allele_groups
             )

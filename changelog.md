@@ -13,6 +13,7 @@ Bug fixes and improvements for landscape mapping:
 - improved visualization controls
 - cleaned up documentation of `Landscape` class and `visualizeMutationNetwork`
 - added landscape mapping example to `examples` folder and output graph to `img`
+- split some of the landscaping parameters into host and vector versions
 
 ## 3 Feb 2024
 Successfully implemented Landscape class to traverse and compute fitness
