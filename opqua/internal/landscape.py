@@ -5,6 +5,7 @@ import copy as cp
 import textdistance as td
 import numpy as np
 import pandas as pd
+import scipy.special as sp_spe
 
 class Landscape(object):
     """Class defines a new fitness landscape mapping genomes and fitness.
@@ -14,6 +15,7 @@ class Landscape(object):
     reduceGenome -- returns reduced genome with only fitness-relevant alleles
     establishmentRatePerPathogen -- returns establishment rate (per individual)
     makeNeighbor -- records one genome as having a second as a neighbor
+    evaluateNeighbors -- recursively evaluates fitness of neighboring mutations
     mapNeighbors -- recursively maps mutations in immediate neighborhood
     map -- maps and evaluates fitness of all relevant mutations
     save -- saves mutation network and fitness values
@@ -73,17 +75,20 @@ class Landscape(object):
         self.num_equivalent_alleles = []
         self.relevant_loci = []
         self.allele_groups_reduced = []
+        self.total_alleles = []
         for i,locus in enumerate(setup.allele_groups):
             if len(locus) > 1:
                 self.relevant_loci.append(i)
                 reduced_alleles_locus = ''
                 self.equivalent_alleles.append({})
                 self.num_equivalent_alleles.append({})
+                self.total_alleles.append(0)
                 for group in locus:
                     reduced_alleles_locus = reduced_alleles_locus + group[0]
                     for allele in group:
                         self.equivalent_alleles[i][allele] = group[0]
                         self.num_equivalent_alleles[i][allele] = len(group)
+                        self.total_alleles[i] += 1
 
                 self.allele_groups_reduced.append(reduced_alleles_locus)
 
@@ -150,7 +155,7 @@ class Landscape(object):
         Arguments:
         ancestor_fitness -- fitness of ancestor genome (number)
         mutant_fitness -- fitness of mutant genome, >ancestor_fitness (number)
-        distance -- Levenshtein distance between both genomes (integer)
+        distance -- Hamming distance between both genomes (integer)
         synonym_probs -- combinatorial probability of obtaining the exact
             mutations needed, given that same number of mutations happening
             (number)
@@ -161,10 +166,13 @@ class Landscape(object):
         return (
             np.power(
                 self.setup.mutate_in_host / self.setup.generation_time, distance
-                )
-            * np.prod( synonym_probs )
+                ) # P( d mutations happening ); rate is inverse of P and mean t
+            * np.prod( synonym_probs ) # P( all the d mutations are correct )
+            * sp_spe.perm( distance, distance ) # num ways to get d mutations
+                # ASSUMPTION: all paths are viable!!! big assumption!
             * ( ( mutant_fitness / ancestor_fitness ) - 1 )
-                # this last factor is the selection coefficint
+                # this last factor is the selection coefficient,
+                # i.e. mean time to escape drift
             )
 
     def makeNeighbor(
@@ -177,15 +185,21 @@ class Landscape(object):
         ancestor_fitness -- fitness of ancestor genome (number)
         mutant_genome -- mutant reduced genome (String)
         mutant_fitness -- fitness of mutant genome (number)
-        distance -- Levenshtein distance between both genomes (integer)
+        distance -- Hamming distance between both genomes (integer)
         synonym_probs -- combinatorial probability of obtaining the exact
             mutations needed, given that same number of mutations happening
             (number)
         """
-        print('      Anc: '+ancestor_genome+', Mut: '+mutant_genome+', ',ancestor_fitness, mutant_fitness, distance, synonym_probs)
+        # print('      Anc: '+ancestor_genome+', Mut: '+mutant_genome+', ',ancestor_fitness, mutant_fitness, distance, synonym_probs)
         if ancestor_genome not in self.mutation_network.keys():
             self.mutation_network[ ancestor_genome ] = {
-                'neighbors':[], 'rates':[], 'sum_rates':0
+                'neighbors':[], 'rates':[], 'sum_rates':0,
+                'fitness':ancestor_fitness
+                }
+        if mutant_genome not in self.mutation_network.keys():
+            self.mutation_network[ mutant_genome ] = {
+                'neighbors':[], 'rates':[], 'sum_rates':0,
+                'fitness':mutant_fitness
                 }
 
         establishment_rate = self.establishmentRatePerPathogen(
@@ -215,84 +229,6 @@ class Landscape(object):
                 ancestor_genome
                 ]['rates'][i] = establishment_rate
 
-    # def mapNeighbors(
-    #         self, reduced_genome, fitness, background_genome, depth, ancestors):
-    #     """Recursively maps and evaluates fitness of mutations in neighborhood.
-    #
-    #     Saves result in self.mutation_network property.
-    #
-    #     Recursive function!
-    #
-    #     Arguments:
-    #     reduced_genome -- reduced genome used as parent for mutations (String)
-    #     fitness -- fitness of background genome (number >1)
-    #     background_genome -- full genome used as background (String)
-    #     depth -- Levenshtein distance since last fitness increase (integer)
-    #     ancestors -- List containing ancestor genomes and their associated
-    #         properties; each element is a dictionary with:
-    #             'genome': reduced ancestor genome (String)
-    #             'fitness': fitness of reduced ancestor genome (String)
-    #             'synonym_probs_fwd': combinatorial probability of obtaining the
-    #                 exact mutations needed to get from ancestor to mutant, given
-    #                 that same number of mutations happening (number)
-    #             'synonym_probs_rev': combinatorial probability of obtaining the
-    #                 exact mutations needed to get from mutant to ancestor, given
-    #                 that same number of mutations happening (number)
-    #     """
-    #     print('Mapping '+reduced_genome)
-    #     self.mapped.append(reduced_genome)
-    #     for ancestor_distance,ancestor in enumerate(ancestors):
-    #         selection_coefficient = ( ( fitness / ancestor['fitness'] ) - 1 )
-    #             # of mutant vs. parent
-    #
-    #         if selection_coefficient > self.selection_threshold:
-    #             depth = -1
-    #             self.makeNeighbor(
-    #                 ancestor['genome'], ancestor['fitness'],
-    #                 reduced_genome, fitness,
-    #                 ancestor_distance, ancestor['synonym_probs_fwd']
-    #                 )
-    #         elif ( -1 * selection_coefficient > self.selection_threshold ):
-    #             self.makeNeighbor(
-    #                 reduced_genome, fitness,
-    #                 ancestor['genome'], ancestor['fitness'],
-    #                 ancestor_distance, ancestor['synonym_probs_rev']
-    #                 )
-    #
-    #     if depth < self.max_depth:
-    #         depth += 1
-    #         new_ancestors = [{
-    #                 'genome':reduced_genome,'fitness':fitness,
-    #                 'synonym_probs_fwd':1,'synonym_probs_rev':1
-    #             }] + cp.deepcopy(ancestors[0:-2])
-    #         for locus,locus_alleles in enumerate( self.allele_groups_reduced ):
-    #             for allele in locus_alleles:
-    #                 if allele != reduced_genome[locus]:
-    #                     mutant = reduced_genome[0:locus] \
-    #                         + allele + reduced_genome[locus+1:]
-    #                     print('Scanning mutant: '+mutant)
-    #                     if mutant not in self.mapped:
-    #                         mutant_fitness = self.fitness(
-    #                             mutant, genome_reduced=True,
-    #                             background_genome=background_genome
-    #                             )
-    #                         for ancestor in new_ancestors:
-    #                             ancestor['synonym_probs_fwd'] = (
-    #                                 ancestor['synonym_probs_fwd']
-    #                                 * self.num_equivalent_alleles[locus][
-    #                                     allele
-    #                                     ] / len( self.allele_groups[locus] )
-    #                                 )
-    #                             ancestor['synonym_probs_rev'] = (
-    #                                 ancestor['synonym_probs_rev']
-    #                                 * self.num_equivalent_alleles[locus][
-    #                                     reduced_genome[locus]
-    #                                     ] / len( self.allele_groups[locus] )
-    #                                 )
-    #                         self.mapNeighbors(
-    #                             mutant, mutant_fitness, background_genome,
-    #                             depth, new_ancestors
-    #                             )
     def evaluateNeighbors(
             self, reduced_genome, fitness, background_genome, depth,
             synonym_probs_fwd, synonym_probs_rev, ancestor, ancestor_fitness,
@@ -307,19 +243,26 @@ class Landscape(object):
         reduced_genome -- reduced genome used as parent for mutations (String)
         fitness -- fitness of background genome (number >1)
         background_genome -- full genome used as background (String)
-        depth -- Levenshtein distance since last fitness increase (integer)
-        ancestors -- List containing ancestor genomes and their associated
-            properties; each element is a dictionary with:
-                'genome': reduced ancestor genome (String)
-                'fitness': fitness of reduced ancestor genome (String)
-                'synonym_probs_fwd': combinatorial probability of obtaining the
-                    exact mutations needed to get from ancestor to mutant, given
-                    that same number of mutations happening (number)
-                'synonym_probs_rev': combinatorial probability of obtaining the
-                    exact mutations needed to get from mutant to ancestor, given
-                    that same number of mutations happening (number)
+        depth -- Hamming distance since last fitness increase (integer)
+        synonym_probs_fwd -- combinatorial probability of obtaining the
+            exact mutations needed to get from ancestor to mutant, given
+            that same number of mutations happening (number)
+        synonym_probs_rev -- combinatorial probability of obtaining the
+            exact mutations needed to get from mutant to ancestor, given
+            that same number of mutations happening (number)
+        ancestor -- ancestor genome from which neighbors are evaluated (String)
+        ancestor_fitness -- fitness of ancestor (number)
+        loci_mutated -- list of indexes of positions already mutated in this
+            evaluation run (List of integers)
+
+        Returns:
+        dictionary with keys=all first neighbor genomes, values=dictionary with
+        'fitness':fitness of neighbor, 'more_fit':whether or not this mutant is
+        more fit than the ancestor being evaluated (above the selection
+        threshold).
         """
-        print('   Scanning from: '+reduced_genome+', depth: '+str(depth),', ancestor: '+ancestor+', loci mutated: '+str(loci_mutated))
+        # print('   Scanning from: '+reduced_genome+', depth: '+str(depth),', ancestor: '+ancestor+', loci mutated: '+str(loci_mutated))
+        depth += 1
         first_neighbors = {}
         for locus,locus_alleles in enumerate( self.allele_groups_reduced ):
             if locus not in loci_mutated:
@@ -327,7 +270,7 @@ class Landscape(object):
                     if allele != reduced_genome[locus]:
                         mutant = reduced_genome[0:locus] \
                             + allele + reduced_genome[locus+1:]
-                        print('      Scanning mutant: '+mutant)
+                        # print('      Scanning mutant: '+mutant)
 
                         if mutant != ancestor:
                             mutant_fitness = self.fitness(
@@ -348,12 +291,12 @@ class Landscape(object):
                             synonym_probs_fwd_new = synonym_probs_fwd + [
                                 self.num_equivalent_alleles[locus][
                                     allele
-                                    ] / len( self.allele_groups[locus] )
+                                    ] / self.total_alleles[locus]
                                 ]
                             synonym_probs_rev_new = synonym_probs_rev + [
                                 self.num_equivalent_alleles[locus][
                                     reduced_genome[locus]
-                                    ] / len( self.allele_groups[locus] )
+                                    ] / self.total_alleles[locus]
                                 ]
 
                             if selection_coefficient > self.selection_threshold:
@@ -376,8 +319,8 @@ class Landscape(object):
                             if depth < self.max_depth:
                                 self.evaluateNeighbors(
                                     mutant, mutant_fitness, background_genome,
-                                    depth+1,
-                                    synonym_probs_fwd_new, synonym_probs_rev_new,
+                                    depth,
+                                    synonym_probs_fwd_new,synonym_probs_rev_new,
                                     ancestor, ancestor_fitness,
                                     loci_mutated + [locus]
                                     )
@@ -396,26 +339,16 @@ class Landscape(object):
         reduced_genome -- reduced genome used as parent for mutations (String)
         fitness -- fitness of background genome (number >1)
         background_genome -- full genome used as background (String)
-        depth -- Levenshtein distance since last fitness increase (integer)
-        ancestors -- List containing ancestor genomes and their associated
-            properties; each element is a dictionary with:
-                'genome': reduced ancestor genome (String)
-                'fitness': fitness of reduced ancestor genome (String)
-                'synonym_probs_fwd': combinatorial probability of obtaining the
-                    exact mutations needed to get from ancestor to mutant, given
-                    that same number of mutations happening (number)
-                'synonym_probs_rev': combinatorial probability of obtaining the
-                    exact mutations needed to get from mutant to ancestor, given
-                    that same number of mutations happening (number)
+        depth -- Hamming distance since last fitness increase (integer)
         """
-        print('Mapping '+reduced_genome+', depth: '+str(depth))
+        # print('Mapping '+reduced_genome+', depth: '+str(depth))
         self.mapped.append(reduced_genome)
         depth += 1
         first_neighbors = self.evaluateNeighbors(
-            reduced_genome, fitness, background_genome, depth, [1], [1],
+            reduced_genome, fitness, background_genome, 0, [1], [1],
             reduced_genome, fitness, []
             )
-        print('First neighbors of '+reduced_genome+': '+','.join(first_neighbors.keys()))
+        # print('First neighbors of '+reduced_genome+': '+','.join(first_neighbors.keys()))
         for mutant in first_neighbors.keys():
             if mutant not in self.mapped:
                 if first_neighbors[mutant]['more_fit']:
@@ -450,7 +383,7 @@ class Landscape(object):
 
         print('Landscape mapping complete.')
 
-    def save(save_to_file):
+    def save(self,save_to_file):
         """Saves mutation network and fitness values stored in mutation_network
 
         CSV format has the following columns:
@@ -465,13 +398,14 @@ class Landscape(object):
         """
         print('Saving landscape to file...')
 
-        out = 'Genome,Neighbors,Rates,Sum_rates\n'
+        out = 'Genome,Neighbors,Rates,Sum_rates,Fitness\n'
         for genome in self.mutation_network:
             out = out + genome + ',' + ';'.join(
                 self.mutation_network[genome]['neighbors']
                 ) + ',' + ';'.join(
-                self.mutation_network[genome]['rates']
-                ) + ',' + str( self.mutation_network[genome]['sum_rates'] )+'\n'
+                [ str(r) for r in self.mutation_network[genome]['rates'] ]
+                ) + ',' + str( self.mutation_network[genome]['sum_rates'] ) \
+                + ',' + str( self.mutation_network[genome]['fitness'] )+'\n'
 
         file = open(save_to_file,'w')
         file.write(out)
@@ -479,7 +413,7 @@ class Landscape(object):
 
         print('...file saved.')
 
-    def load(file):
+    def load(self,file):
         """Loads mutation network and fitness from file path
 
         CSV format has the following columns:
@@ -494,14 +428,15 @@ class Landscape(object):
         """
         print('Loading landscape from file...')
 
-        df = pd.load_csv(file)
+        df = pd.read_csv(file)
 
         self.mutation_network = {}
         for i,row in df.iterrows():
             self.mutation_network[ row['Genome'] ] : {
                 'neighbors' : row['Neighbors'].split(';'),
                 'rates' : [ float(r) for r in row['Rates'].split(';') ],
-                'sum_rates' : float( row['Sum_rates'] )
+                'sum_rates' : float( row['Sum_rates'] ),
+                'fitness' : float( row['Fitness'] )
                 }
 
         print('...landscape loaded.')

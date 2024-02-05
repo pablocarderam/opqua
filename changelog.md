@@ -1,11 +1,24 @@
 
 # Opqua Changelog
 
+## 5 Feb 2024
+Bug fixes and improvements for landscape mapping:
+- incomplete mapping due to incorrect depth handling in `evaluateNeighbors()`
+- incorrect calculation of probabilities of acquiring specific mutations: first,
+  the total number of alleles used in normalization was wrong; second, the total
+  number of available paths to acquiring a group of mutations (calculated by
+  permutation without replacement and *assuming equal path likelihood*) was
+  missing
+- added fitness as a recorded variable in mutation networks and visualization
+- improved visualization controls
+- cleaned up documentation of `Landscape` class and `visualizeMutationNetwork`
+- added landscape mapping example to `examples` folder and output graph to `img`
+
 ## 3 Feb 2024
 Successfully implemented Landscape class to traverse and compute fitness
 landscapes, the parameters needed for this in the Setup class, as well as a
 plotting function to visualize the resulting mutation networks using the PyVis
-package. 
+package.
 
 ## v1.2.1
 ## 1 Feb 2024

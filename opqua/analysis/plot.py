@@ -2,6 +2,7 @@
 """Contains graphmaking methods."""
 
 ### Imports ###
+import types
 import copy as cp
 import numpy as np # handle arrays
 import pandas as pd # data wrangling
@@ -9,7 +10,7 @@ import matplotlib.pyplot as plt # plots
 import seaborn as sns # pretty plots
 import scipy.cluster.hierarchy as sp_hie
 import scipy.spatial as sp_spa
-import pyvis.network as pvn
+import pyvis.network as pv_n
 
 from opqua.analysis.data import saveToDf, populationsDf, compartmentDf, \
     compositionDf, pathogenDistanceDf
@@ -401,9 +402,8 @@ def clustermap(
 
 def visualizeMutationNetwork(
         mutation_network, file_name, toggle_physics=True,
-        # toggle_stabilization=True,
-        node_color='rgba(215,140,10,1)',edge_color='rgba(215,190,150,1)'):#,
-        # node_size_range=[1,5], edge_width_range=[1,5], log_base=10):
+        node_color='rgba(215,140,10,1)', peak_border_color='rgba(150,100,10,1)',
+        edge_color='rgba(215,190,150,1)', show_labels=True):
     """Create a network visualization for relevant pathogen genomes in landscape
 
     Arguments:
@@ -411,13 +411,11 @@ def visualizeMutationNetwork(
     file_name -- file path and name to save html graph under (String)
     toggle_physics -- whether graph moves (Boolean)
     node_color -- node color (String)
+    peak_border_color -- color of borders on peak nodes (String)
     edge_color -- edge color (String)
-
-    Returns:
-    figure object for plot with heatmap and dendrogram as described
+    show_labels -- whether to show genomes on nodes (Boolean)
     """
     entry_rates = {}
-    # mutation_rates = []
     for genome in mutation_network.keys():
         if genome not in entry_rates.keys():
             entry_rates[genome] = 0
@@ -427,97 +425,82 @@ def visualizeMutationNetwork(
                 entry_rates[neighbor] = 0
 
             entry_rates[neighbor] += mutation_network[genome]['rates'][i]
-            # mutation_rates.append( mutation_network[genome]['rates'][i] )
 
-    # log_mut_rates = np.emath.logn( log_base, np.array(mutation_rates) + 1 )
-    # log_mut_rates_modifier = log_mut_rates.min()
-    # max_log_mut_rate = log_mut_rates.max() + log_mut_rates_modifier
+    node_color_obj = { 'background':node_color, 'border':node_color }
+    peak_color_obj = { 'background':node_color, 'border':peak_border_color }
+    edge_color_obj = { 'color':edge_color }
 
-
-    # log_sum_rates = np.emath.logn( log_base, [
-    #     entry_rates[genome] + 1 for genome in entry_rates.keys()
-    #     ])
-    # log_sum_rates_modifier = log_sum_rates.min()
-    # max_log_sum_rate = log_sum_rates.max() + log_sum_rates_modifier
-    # print(log_sum_rates.min(),log_sum_rates.max())
-
-    net = pvn.Network(directed=True)
+    net = pv_n.Network(directed=True)
     for genome in mutation_network.keys():
         if genome not in net.get_nodes():
-            net.add_node(
-                genome, title=genome+'\nRate in: '+str(
-                    entry_rates[genome]
-                    )+'\nRate out: '+str(mutation_network[genome]['sum_rates']),
-                value=entry_rates[genome],#( np.emath.logn( log_base, entry_rates[genome] + 1 )
-                    # + log_sum_rates_modifier ) * ( node_size_range[1] - node_size_range[0] )
-                    # / max_log_sum_rate + node_size_range[0],
-                color=node_color,#[0:-2]+str(
-                    # (
-                    #     ( np.emath.logn( log_base, entry_rates[genome] )
-                    #         + log_sum_rates_modifier )
-                    #     / ( log_sum_rates.max() + log_sum_rates_modifier )
-                    #     )
-                    # * ( alpha[1]-alpha[0] )
-                    # + alpha[0]
-                    # )+')',
-                label=' '
-                )
+            if mutation_network[genome]['sum_rates'] > 0:
+                net.add_node(
+                    genome, title=genome+'\nFitness: '+str(
+                        mutation_network[genome]['fitness']
+                        )+'\nRate in: '+str(
+                        entry_rates[genome]
+                        )+'\nRate out: '+str(
+                            mutation_network[genome]['sum_rates']
+                            ),
+                    value=entry_rates[genome],
+                    color=node_color_obj,
+                    label = genome if show_labels else ' '
+                    )
+            else:
+                net.add_node(
+                    genome, title=genome+'\nFitness: '+str(
+                        mutation_network[genome]['fitness']
+                        )+'\nRate in: '+str(
+                        entry_rates[genome]
+                        )+'\nRate out: '+str(
+                            mutation_network[genome]['sum_rates']
+                            ),
+                    value=entry_rates[genome],
+                    color=peak_color_obj,
+                    borderWidth=5,
+                    label = genome if show_labels else ' ',
+                    physics=False
+                    )
 
         for i,neighbor in enumerate( mutation_network[genome]['neighbors'] ):
             if neighbor not in net.get_nodes():
-                if neighbor in mutation_network.keys():
+                if mutation_network[neighbor]['sum_rates'] > 0:
                     net.add_node(
-                        neighbor, title=neighbor+'\nRate in: '+str(
+                        neighbor, title=neighbor+'\nFitness: '+str(
+                            mutation_network[neighbor]['fitness']
+                            )+'\nRate in: '+str(
                             entry_rates[neighbor]
-                            )+'\nRate out: '
-                            +str(mutation_network[neighbor]['sum_rates']),
-                        value=entry_rates[neighbor],#( np.emath.logn( log_base, entry_rates[neighbor] + 1 )
-                            # + log_sum_rates_modifier )
-                            # * ( node_size_range[1] - node_size_range[0] )
-                            # / max_log_sum_rate + node_size_range[0],
-                        color=node_color,#[0:-2]+str(
-                            # (
-                            #     ( np.emath.logn( log_base, entry_rates[neighbor] )
-                            #         + log_sum_rates_modifier )
-                            #     / ( log_sum_rates.max() + log_sum_rates_modifier )
-                            #     )
-                            # * ( alpha[1]-alpha[0] )
-                            # + alpha[0]
-                            # )+')',
-                        label=' '
+                            )+'\nRate out: '+str(
+                                mutation_network[neighbor]['sum_rates']
+                                ),
+                        value=entry_rates[neighbor],
+                        color=node_color_obj,
+                        label = neighbor if show_labels else ' '
                         )
                 else:
                     net.add_node(
-                        neighbor, title=neighbor+'\nRate in: '+str(
+                        neighbor, title=neighbor+'\nFitness: '+str(
+                            mutation_network[neighbor]['fitness']
+                            )+'\nRate in: '+str(
                             entry_rates[neighbor]
-                            )+'\nRate out: 0',
-                        value=entry_rates[neighbor],#node_size_range[1],
-                        color=node_color,#[0:-2]+str(alpha[1])+')',
-                        label=' ',
+                            )+'\nRate out: '+str(
+                                mutation_network[neighbor]['sum_rates']
+                                ),
+                        value=entry_rates[neighbor],
+                        color=peak_color_obj,
+                        borderWidth=5,
+                        label = neighbor if show_labels else ' ',
                         physics=False
                         )
 
             net.add_edge(
-                genome, neighbor, #weight=mutation_network[genome]['rates'][i],
+                genome, neighbor,
                 title=mutation_network[genome]['rates'][i],
-                value=mutation_network[genome]['rates'][i],#( np.emath.logn( log_base,
-                    # mutation_network[genome]['rates'][i] + 1
-                    # ) + log_mut_rates_modifier )
-                    # * ( edge_width_range[1] - edge_width_range[0] )
-                    # / max_log_mut_rate + edge_width_range[0],
-                color=edge_color,#[0:-2]+str(
-                    # (
-                    #     ( np.emath.logn( log_base, mutation_network[genome]['sum_rates'])
-                    #         + log_sum_rates_modifier )
-                    #     / ( log_sum_rates.max() + log_sum_rates_modifier )
-                    #     )
-                    # * ( alpha[1]-alpha[0] )
-                    # + alpha[0]
-                    # )+')',
+                value=mutation_network[genome]['rates'][i],
+                color=edge_color_obj,
                 )
 
     net.toggle_physics(toggle_physics)
-    # net.toggle_stabilization(toggle_stabilization)
     net.show_buttons(True)
     net.force_atlas_2based()
     net.show(file_name+'.html',notebook=False)

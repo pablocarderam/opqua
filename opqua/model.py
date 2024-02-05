@@ -1721,10 +1721,12 @@ class Model(object):
         """
         self.setups[setup_id].landscapes[landscape_id].load(file)
 
-    def visualizeMutationNetwork(self,setup_id,landscape_id,file_name,
-            toggle_physics=True, #toggle_stabilization=True,
-            node_color='rgba(215,140,10,1)', edge_color='rgba(215,190,150,1)'):#,
-            # node_size_range=[1,5], edge_width_range=[1,5], log_base=10):
+    def visualizeMutationNetwork(
+            self,setup_id,landscape_id,file_name,
+            toggle_physics=True,
+            node_color='rgba(215,140,10,1)',
+            peak_border_color='rgba(150,100,10,1)',
+            edge_color='rgba(215,190,150,1)', show_labels=True):
         """Create a network visualization for pathogen genomes in landscape
 
         Arguments:
@@ -1733,19 +1735,16 @@ class Model(object):
         file_name -- file path and name to save html graph under (String)
         toggle_physics -- whether graph moves (Boolean)
         node_color -- node color (String)
+        peak_border_color -- color of borders on peak nodes (String)
         edge_color -- edge color (String)
-
-        Returns:
-        figure object for plot with heatmap and dendrogram as described
+        show_labels -- whether to show genomes on nodes (Boolean)
         """
 
         visualizeMutationNetwork(
             self.setups[setup_id].landscapes[landscape_id].mutation_network,
             file_name, toggle_physics=toggle_physics,
-            # toggle_stabilization=toggle_stabilization,
             node_color=node_color, edge_color=edge_color,
-            # node_size_range=node_size_range, edge_width_range=edge_width_range,
-            # log_base=log_base
+            show_labels=show_labels
             )
 
     ### Utility: ###
