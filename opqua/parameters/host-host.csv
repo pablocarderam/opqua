@@ -18,6 +18,8 @@ generation_time_host,1
 max_generation_size_host,10
 generation_time_vector,1
 max_generation_size_vector,10
+max_generations_survival_host,1000
+max_generations_survival_vector,1000
 fitnessHost,#FUNCTION:
 contactHost,#FUNCTION:
 receiveContactHost,#FUNCTION:

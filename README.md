@@ -52,9 +52,10 @@ Check out the peer-reviewed preprint on
 [biorXiv](https://doi.org/10.1101/2021.12.16.473045), now peer-reviewed
 [here](https://doi.org/10.1126/sciadv.abo0173).
 
-Opqua is developed by [Pablo Cárdenas](https://pablo-cardenas.com). The original
-publication was created in collaboration with Vladimir Corredor and Mauricio
-Santos-Vega. Follow their science antics on BlueSky
+Opqua is developed by [Pablo Cárdenas](https://pablo-cardenas.com).
+
+The first publication using Opqua was created in collaboration with Vladimir
+Corredor and Mauricio Santos-Vega. Follow their science antics on BlueSky
 [@pcr-guy](https://bsky.app/profile/pcr-guy.bsky.social) or Twitter at
 [@pcr_guy](https://twitter.com/pcr_guy) and
 [@msantosvega](https://twitter.com/msantosvega).
@@ -76,7 +77,7 @@ An optimal pathogen genome arises through de novo mutation and outcompetes all
 others through intra-host competition. See
 `fitness_function_mutation_example.py` in the `examples/tutorials/evolution`
 folder.
-![Compartments](img/fitness_function_mutation_example_composition.png "fitness_function_mutation_example composition")
+![Fitness_function_mutation_example composition plot](img/fitness_function_mutation_example_composition.png "Fitness_function_mutation_example composition plot")
 
 An optimal pathogen genome arises through independent reassortment of
 chromosomes or genome segments, outcompeting all others
@@ -84,38 +85,47 @@ through increases in transmissibility and intra-host competition.
 See `transmissibility_function_reassortment_example.py` in
 the `examples/tutorials/evolution` folder. Similar code can be used to achieve
 genetic recombination by setting `num_crossover_host` to greater than 0.
-![Compartments](img/transmissibility_function_reassortment_example.png "transmissibility_function_reassortment_example composition")
+![Transmissibility_function_reassortment_example composition plot](img/transmissibility_function_reassortment_example_composition.png "Transmissibility_function_reassortment_example composition plot")
 
 #### Host/vector compartment plots
 A population with natural birth and death dynamics shows the effects of a
 pathogen. "Dead" denotes deaths caused by pathogen infection. See
 `vector-borne_birth-death_example.py` in the `examples/tutorials/vital_dynamics`
 folder.
-![Compartments](img/vector-borne_birth-death_example.png "vector-borne_birth-death_example compartments")
+![Vector-borne_birth-death_example compartments plot](img/vector-borne_birth-death_example.png "Vector-borne_birth-death_example compartments plot")
 
 #### Plots of a host/vector compartment across different populations in a metapopulation
 Pathogens spread through a network of interconnected populations of hosts. Lines
 denote infected pathogens. See
 `metapopulations_migration_example.py` in the
 `examples/tutorials/metapopulations` folder.
-![Compartments](img/metapopulations_migration_example.png "metapopulations_migration_example populations")
+![Metapopulations_migration_example populations plot](img/metapopulations_migration_example.png "Metapopulations_migration_example populations plot")
 
 #### Host/vector compartment plots
 A population undergoes different interventions, including changes in
 epidemiological parameters and vaccination. "Recovered" denotes immunized,
 uninfected hosts.
 See `intervention_examples.py` in the `examples/tutorials/interventions` folder.
-![Compartments](img/intervention_examples_compartments.png "intervention_examples compartments")
+![Intervention_examples compartments plot](img/intervention_examples_compartments.png "Intervention_examples compartments plot")
 
 #### Pathogen phylogenies
 Phylogenies can be computed for pathogen genomes that emerge throughout the
 simulation. See `fitness_function_mutation_example.py` in the
 `examples/tutorials/evolution` folder.
-![Compartments](img/fitness_function_mutation_example_clustermap.png "fitness_function_mutation_example clustermap")
+![Fitness_function_mutation_example clustermap plot](img/fitness_function_mutation_example_clustermap.png "Fitness_function_mutation_example clustermap plot")
+
+#### Mutant fitness landscapes
+Mutant genotypes connect to each other across fitness landscapes according to
+their rate of emerging and establishing in intrahost evolution.
+See `landscape_example.py` in the
+`examples/tutorials/landscapes` folder.
+![Mutation network screenshot plot](img/mutation_network.png "Mutation network screenshot")
 
 For advanced examples (including multiple parameter sweeps), check out
 [this separate repository](https://github.com/pablocarderam/fitness-valleys-opqua)
-(preprint forthcoming).
+(preprint on
+[biorXiv](https://doi.org/10.1101/2021.12.16.473045), now peer-reviewed
+[here](https://doi.org/10.1126/sciadv.abo0173)).
 
 ## Requirements and Installation
 
@@ -214,7 +224,7 @@ contact")
 - mutation of a pathogen in an infected host/vector
 - recombination of two pathogens in an infected host/vector
 
-![Events](img/events.png "events illustration")
+![Events illustration](img/events.png "Events illustration")
 
 The likelihood of each event occurring is determined by the population's
 parameters (explained in the [newSetup](#newSetup) function documentation) and
@@ -338,7 +348,7 @@ host. Whenever an event occurs, the corresponding entries in the population
 matrix are updated, and the master rate matrix is recomputed based on this
 information.
 
-![Simulation](img/simulation.png "simulation illustration")
+![Simulation illustration](img/simulation.png "Simulation illustration")
 
 Tau-leaping is achieved by setting a time step threshold under which the
 step size defaults to a larger fixed step size. The number of events of each type
@@ -623,6 +633,8 @@ generation_time_host = 1
 max_generation_size_host = 10
 generation_time_vector = 1
 max_generation_size_vector = 10
+max_generations_survival_host = 30
+max_generations_survival_vector = 30
 fitnessHost = (lambda g: 1)
 contactHost = (lambda g: 1)
 receiveContactHost = (lambda g: 1)
@@ -696,6 +708,8 @@ generation_time_host = 1
 max_generation_size_host = 10
 generation_time_vector = 1
 max_generation_size_vector = 10
+max_generations_survival_host = 30
+max_generations_survival_vector = 30
 fitnessHost = (lambda g: 1)
 contactHost = (lambda g: 1)
 receiveContactHost = (lambda g: 1)
@@ -793,10 +807,14 @@ _Keyword arguments:_
 - generation_time_host -- pathogen replication cycle time in hosts (number >0)
 - generation_time_vector -- pathogen replication cycle time in vectors
   (number >0)
-- max_generation_size_host,10 -- maximum growth within hosts, in units of
+- max_generation_size_host -- maximum growth within hosts, in units of
   pathogens per replication cycle (number>1)
-- max_generation_size_vector,10 -- maximum growth within vectors, in units of
+- max_generation_size_vector -- maximum growth within vectors, in units of
   pathogens per replication cycle (number>1)
+- max_generations_survival_host -- number of generations used to compute rates
+  and probabilities of genotype emergence in hosts (integer)
+- max_generations_survival_vector -- number of generations used to compute rates
+  and probabilities of genotype emergence in vectors (integer)
 - fitnessHost -- function that evaluates relative fitness in head-to-head
     competition for different genomes within the same host
     (function object, takes a String argument and returns a number >= 0)

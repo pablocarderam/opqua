@@ -1,6 +1,12 @@
 
 # Opqua Changelog
 
+## 11 Feb 2024
+Changed computation of emergence probabilities in `Landscape` class to correctly
+account for pathway dependence in instances in which intermediates with lower
+fitness are present. Also corrected wait time before mutations are accumulated.
+Updated parameters, documentation, tutorial, and output in corresponding manner.
+
 ## 5 Feb 2024
 Bug fixes and improvements for landscape mapping:
 - incomplete mapping due to incorrect depth handling in `evaluateNeighbors()`
@@ -14,6 +20,8 @@ Bug fixes and improvements for landscape mapping:
 - cleaned up documentation of `Landscape` class and `visualizeMutationNetwork`
 - added landscape mapping example to `examples` folder and output graph to `img`
 - split some of the landscaping parameters into host and vector versions
+
+Also, added all necessary parameters for new intrahost evolution algorithm.
 
 ## 3 Feb 2024
 Successfully implemented Landscape class to traverse and compute fitness

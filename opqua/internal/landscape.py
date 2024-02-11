@@ -6,6 +6,8 @@ import textdistance as td
 import numpy as np
 import pandas as pd
 import scipy.special as sp_spe
+import scipy.stats as sp_sta
+import itertools as itt
 
 class Landscape(object):
     """Class defines a new fitness landscape mapping genomes and fitness.
@@ -13,7 +15,9 @@ class Landscape(object):
     Methods:
     fitness -- evaluates fitness of genome using stored fitness function
     reduceGenome -- returns reduced genome with only fitness-relevant alleles
-    establishmentRatePerPathogen -- returns establishment rate (per individual)
+    survivalProbabilities -- returns array of survival probabilities per
+        generation for mutant
+    establishmentRate -- returns establishment rate (per individual)
     makeNeighbor -- records one genome as having a second as a neighbor
     evaluateNeighbors -- recursively evaluates fitness of neighboring mutations
     mapNeighbors -- recursively maps mutations in immediate neighborhood
@@ -25,7 +29,8 @@ class Landscape(object):
     def __init__(self, id=None, setup=None,
             fitnessFunc=None, mutate=None, generation_time=None,
             population_threshold=None, selection_threshold=None,
-            max_depth=None, allele_groups=None):
+            max_depth=None, allele_groups=None, population_size=None,
+            max_generations_survival=None):
         """Create a new Landscape.
 
         Keyword arguments:
@@ -47,6 +52,9 @@ class Landscape(object):
         allele_groups -- relevant alleles affecting fitness, each element
             contains a list of strings, each string contains a group of alleles
             that all have equivalent fitness behavior (list of lists of Strings)
+        population_size -- intrahost population (integer)
+        max_generations_survival -- number of generations used to compute rates
+            and probabilities of genotype emergence (integer)
         """
         super(Landscape, self).__init__()
         self.id = id
@@ -61,6 +69,10 @@ class Landscape(object):
             if generation_time is None else generation_time
         self.population_threshold = setup.population_threshold_host \
             if population_threshold is None else population_threshold
+        self.population_size = setup.steady_pathogen_population_host \
+            if population_size is None else population_size
+        self.max_generations_survival = int(setup.max_generations_survival_host) \
+            if max_generations_survival is None else int(max_generations_survival)
         self.max_depth = setup.max_depth_host if max_depth is None else max_depth
         self.allele_groups = setup.allele_groups_host \
             if allele_groups is None else allele_groups
@@ -109,6 +121,19 @@ class Landscape(object):
             #   'sum_rates': number with sum of all rates in previous list
         self.mapped = []
 
+        self.survival_probabilities_neutral = self.survivalProbabilities(
+            0, self.max_generations_survival,
+            self.population_size
+            )
+        self.mutation_wait_time_probabilities = np.array([
+            sp_sta.geom.pmf( x+1, self.mutate )
+            for x in range( self.max_generations_survival )
+            ])
+        self.survival_to_mutation_prob_neutral = np.sum( np.multiply(
+            self.survival_probabilities_neutral,
+            self.mutation_wait_time_probabilities
+            ) )
+
     def fitness(self,genome,genome_reduced=False, background_genome=None):
         """Fitness function used to evaluate genomes.
 
@@ -154,36 +179,190 @@ class Landscape(object):
             self.equivalent_alleles[l][ genome[l] ] for l in self.relevant_loci
             ] )
 
-    def establishmentRatePerPathogen(
-            self, ancestor_fitness, mutant_fitness, distance, synonym_probs):
+    def survivalProbabilities(
+            self, selection_coefficient, max_generations_survival,
+            population_size, population_size_threshold=1e4):
+        """Returns array of survival probabilities per generation for mutant.
+
+        Arguments:
+        selection_coefficient -- between mutant and background (number)
+        max_generations_survival -- max generations computed (integer)
+        population_size -- population size considered (integer)
+        population_size_threshold -- population over which approximation is used
+            (integer)
+
+        Returns:
+        array of survival probabilities per generation for mutant (array)
+        """
+        probs = np.zeros( max_generations_survival + 1 )
+        if population_size > population_size_threshold:
+            for i in range( 1, max_generations_survival + 1 ):
+                probs[i] = np.exp(
+                    ( 1 + selection_coefficient ) * ( probs[i-1] - 1 )
+                    ) # Fisher (unfortunately) 1922
+
+        else:
+            for i in range( 1, max_generations_survival + 1 ):
+                probs[i] = np.power(
+                    1 - (
+                        ( 1 + selection_coefficient ) * ( 1 - probs[i-1] )
+                        / population_size
+                        ),
+                    population_size
+                    )
+
+        return 1-probs[1:]
+
+    def establishmentRate(
+            self, ancestor_fitness, mutant_fitness, distance,
+            mutations, ancestor_genome, background_genome):
         """Returns establishment rate (calculated per individual pathogen).
 
         Arguments:
         ancestor_fitness -- fitness of ancestor genome (number)
         mutant_fitness -- fitness of mutant genome, >ancestor_fitness (number)
         distance -- Hamming distance between both genomes (integer)
-        synonym_probs -- combinatorial probability of obtaining the exact
-            mutations needed, given that same number of mutations happening
-            (number)
+        mutations -- list of mutations  between the ancestor genome and mutant,
+            in format "WT allele"+"position"+"mutant allele" (e.g. A334K) (list)
+        ancestor_genome -- reduced ancestor genome sequence (String)
+        background_genome -- full background genome that reduced ancestor was
+            extracted from (String)
 
         Returns:
         Rate at which the mutant fixates over the ancestor background (number)
         """
-        return (
-            np.power(
-                self.mutate / self.generation_time, distance
-                ) # P( d mutations happening ); rate is inverse of P and mean t
-            * np.prod( synonym_probs ) # P( all the d mutations are correct )
-            * sp_spe.perm( distance, distance ) # num ways to get d mutations
-                # ASSUMPTION: all paths are viable!!! big assumption!
-            * ( ( mutant_fitness / ancestor_fitness ) - 1 )
-                # this last factor is the selection coefficient,
-                # i.e. mean time to escape drift
+        correct_distance_rate = self.mutate /( distance * self.generation_time )
+        correct_mutation_prob = np.power(
+            ( 1 / len(background_genome) ), distance
+            ) * np.prod([
+            self.num_equivalent_alleles[ int(mut[1:-1]) ][ mut[-1] ]
+            / self.total_alleles[ int(mut[1:-1]) ]
+            for mut in mutations
+            ])
+
+        mut_permutations = list( itt.permutations( mutations ) )
+        weight_emergence_permutations = np.zeros( len(mut_permutations) )
+
+        for i,path in enumerate(mut_permutations):
+            # print('Rates for path '+str(path))
+            prev_intermediate = ancestor_genome
+            weight_intermediates = np.zeros( len(path) )
+            for j,mutation in enumerate(path):
+                intermediate = prev_intermediate[ 0:int( mutation[1:-1] ) ] \
+                    + mutation[-1] \
+                    + prev_intermediate[ (int( mutation[1:-1] ) + 1): ]
+                intermediate_fitness = self.fitness(
+                    intermediate, genome_reduced=True,
+                    background_genome=background_genome
+                    )
+                selection_coefficient = (
+                    ( intermediate_fitness / ancestor_fitness ) - 1
+                    ) # of intermediate vs. ancestor
+                if selection_coefficient <= 0:
+                        # if not detrimental, then we assume mutant is governed
+                        # by drift (because this is prior to establishment)
+                    survival_probabilities_mut = self.survivalProbabilities(
+                        selection_coefficient, self.max_generations_survival,
+                        self.population_size
+                        )
+                    weight_intermediates[j] = np.sum( np.multiply(
+                        survival_probabilities_mut,
+                        self.mutation_wait_time_probabilities
+                        ) ) / self.survival_to_mutation_prob_neutral
+
+                    prev_intermediate = intermediate
+                        # (
+                        # self.mutate * ( 1 / len(background_genome) )
+                        # * ( self.num_equivalent_alleles[
+                        #     int( mutation[1:-1] )
+                        #     ][ mutation[-1] ]
+                        # / self.total_alleles[ int( mutation[1:-1] ) ] )
+                        # * np.power(
+                        #     (
+                        #         ( 1 - self.mutate )
+                        #         # + (
+                        #         #     self.mutate * ( 1 / len(background_genome) )
+                        #         #     * self.num_equivalent_alleles[
+                        #         #         int( mutation[1:-1] )
+                        #         #         ][ mutation[0] ]
+                        #         #     / self.total_alleles[ int( mutation[1:-1] ) ]
+                        #         #     )
+                        #         ), np.linspace(
+                        #             0, self.max_generations_survival-1,
+                        #             self.max_generations_survival
+                        #             )
+                        #
+                        #     )
+                        # )
+                    # generation_rates = 1 / (
+                    #     np.linspace(
+                    #         1, self.max_generations_survival,
+                    #         self.max_generations_survival
+                    #         )
+                    #     * self.generation_time
+                    #     )
+                    # weight_intermediates[j] = self.population_size * np.sum(
+                    #     np.multiply(
+                    #         np.multiply(
+                    #             survival_probabilities, mutation_probabilities
+                    #             ),
+                    #         generation_rates
+                    #         )
+                    #     )
+
+                    # prev_intermediate = intermediate
+
+                    # print('Rate for intermediate '+intermediate+': '+str(weight_intermediates[j]))
+                    # print(self.population_size * np.multiply(
+                    #         np.multiply(
+                    #             survival_probabilities, mutation_probabilities
+                    #             ),
+                    #         generation_rates
+                    #         )
+                    #     )
+                    # print('Survival probabilities:')
+                    # print(survival_probabilities)
+                    # print('Mutation probabilities:',self.mutate,self.num_equivalent_alleles[
+                    #     int( mutation[1:-1] )
+                    #     ][ mutation[-1] ]
+                    # / self.total_alleles[ int( mutation[1:-1] ) ])
+                    # print(mutation_probabilities)
+                    # print('Generation rates:')
+                    # print(generation_rates)
+
+                weight_emergence_permutations[i] = np.prod(weight_intermediates)
+            else:
+                weight_emergence_permutations[i] = 1
+
+            # print('Weight for path: '+str(weight_emergence_permutations[i]))
+
+        emergence_rate = (
+            correct_distance_rate * correct_mutation_prob
+            * np.sum( weight_emergence_permutations )
             )
+
+        establishment_rate = ( ( mutant_fitness / ancestor_fitness ) - 1 )
+            # rate of establishment after emergence;
+            # this last factor is the selection coefficient,
+            # i.e. 1 / mean time to escape drift
+        # print('Rate from ancestor to mutant: '+str(emergence_rate)+' * '+str(establishment_rate)+' = '+str(emergence_rate * establishment_rate))
+
+        return self.population_size * emergence_rate * establishment_rate
+            # (
+            # np.power(
+            #     self.mutate / self.generation_time, distance
+            #     ) # P( d mutations happening ); rate is inverse of P and mean t THIS IS WRONG? SHOULD BE 1 / ( distance * t_gen/mut_rate )
+            # * np.prod( synonym_probs ) # P( all the d mutations are correct )
+            # * sp_spe.perm( distance, distance ) # num ways to get d mutations
+            #     # ASSUMPTION: all paths are viable!!! big assumption!
+            #     # Instead of this term, for every permutation, compute a likelihood relative to s=0 based on s, mutation rate, population size??
+            # r_emergence * r_establishment
+            # )
 
     def makeNeighbor(
             self, ancestor_genome, ancestor_fitness,
-            mutant_genome, mutant_fitness, distance, synonym_probs):
+            mutant_genome, mutant_fitness, distance, mutations,
+            background_genome):
         """Records one genome as having a second as a neighbor
 
         Arguments:
@@ -192,9 +371,10 @@ class Landscape(object):
         mutant_genome -- mutant reduced genome (String)
         mutant_fitness -- fitness of mutant genome (number)
         distance -- Hamming distance between both genomes (integer)
-        synonym_probs -- combinatorial probability of obtaining the exact
-            mutations needed, given that same number of mutations happening
-            (number)
+        mutations -- list of mutations  between the ancestor genome and mutant,
+            in format "WT allele"+"position"+"mutant allele" (e.g. A334K) (list)
+        background_genome -- full background genome that reduced ancestor was
+            extracted from (String)
         """
         # print('      Anc: '+ancestor_genome+', Mut: '+mutant_genome+', ',ancestor_fitness, mutant_fitness, distance, synonym_probs)
         if ancestor_genome not in self.mutation_network.keys():
@@ -208,8 +388,10 @@ class Landscape(object):
                 'fitness':mutant_fitness
                 }
 
-        establishment_rate = self.establishmentRatePerPathogen(
-            ancestor_fitness, mutant_fitness, distance, np.prod(synonym_probs)
+        # print('Establishment rates from '+ancestor_genome+' to '+mutant_genome+' (d='+str(distance)+', s='+str((mutant_fitness/ancestor_fitness)-1)+')')
+        establishment_rate = self.establishmentRate(
+            ancestor_fitness, mutant_fitness, distance, mutations,
+            ancestor_genome, background_genome
             )
 
         if ( mutant_genome
@@ -237,8 +419,7 @@ class Landscape(object):
 
     def evaluateNeighbors(
             self, reduced_genome, fitness, background_genome, depth,
-            synonym_probs_fwd, synonym_probs_rev, ancestor, ancestor_fitness,
-            loci_mutated):
+            mutations, ancestor, ancestor_fitness, loci_mutated):
         """Recursively evaluates fitness of mutations in neighborhood.
 
         Saves result in self.mutation_network property.
@@ -250,12 +431,8 @@ class Landscape(object):
         fitness -- fitness of background genome (number >1)
         background_genome -- full genome used as background (String)
         depth -- Hamming distance since last fitness increase (integer)
-        synonym_probs_fwd -- combinatorial probability of obtaining the
-            exact mutations needed to get from ancestor to mutant, given
-            that same number of mutations happening (number)
-        synonym_probs_rev -- combinatorial probability of obtaining the
-            exact mutations needed to get from mutant to ancestor, given
-            that same number of mutations happening (number)
+        mutations -- list of mutations  between the ancestor genome and mutant,
+            in format "WT allele"+"position"+"mutant allele" (e.g. A334K) (list)
         ancestor -- ancestor genome from which neighbors are evaluated (String)
         ancestor_fitness -- fitness of ancestor (number)
         loci_mutated -- list of indexes of positions already mutated in this
@@ -294,39 +471,43 @@ class Landscape(object):
                                     'more_fit':False
                                     }
 
-                            synonym_probs_fwd_new = synonym_probs_fwd + [
-                                self.num_equivalent_alleles[locus][
-                                    allele
-                                    ] / self.total_alleles[locus]
-                                ]
-                            synonym_probs_rev_new = synonym_probs_rev + [
-                                self.num_equivalent_alleles[locus][
-                                    reduced_genome[locus]
-                                    ] / self.total_alleles[locus]
-                                ]
-
                             if selection_coefficient > self.selection_threshold:
                                 self.makeNeighbor(
                                     ancestor, ancestor_fitness,
                                     mutant, mutant_fitness,
-                                    depth,synonym_probs_fwd_new
+                                    depth, mutations+[
+                                        reduced_genome[locus] + str(locus)
+                                        + allele
+                                        ],
+                                    background_genome
                                     )
                                 if depth == 1:
                                     first_neighbors[mutant]['more_fit'] = True
 
                             elif ( -1 * selection_coefficient
                                     > self.selection_threshold ):
+                                flipped_mutations = [
+                                    mutation[-1] + mutation[1:-1] + mutation[0]
+                                    for mutation in mutations
+                                    ]
                                 self.makeNeighbor(
                                     mutant, mutant_fitness,
                                     ancestor, ancestor_fitness,
-                                    depth,synonym_probs_rev_new
+                                    depth, flipped_mutations+[
+                                        allele + str(locus)
+                                        + reduced_genome[locus]
+                                        ],
+                                    background_genome
                                     )
 
                             if depth < self.max_depth:
                                 self.evaluateNeighbors(
                                     mutant, mutant_fitness, background_genome,
                                     depth,
-                                    synonym_probs_fwd_new,synonym_probs_rev_new,
+                                    mutations+[
+                                        reduced_genome[locus] + str(locus)
+                                        + allele
+                                        ],
                                     ancestor, ancestor_fitness,
                                     loci_mutated + [locus]
                                     )
@@ -351,7 +532,7 @@ class Landscape(object):
         self.mapped.append(reduced_genome)
         depth += 1
         first_neighbors = self.evaluateNeighbors(
-            reduced_genome, fitness, background_genome, 0, [1], [1],
+            reduced_genome, fitness, background_genome, 0, [],
             reduced_genome, fitness, []
             )
         # print('First neighbors of '+reduced_genome+': '+','.join(first_neighbors.keys()))
