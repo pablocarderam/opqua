@@ -52,5 +52,8 @@ model.newLandscape('my_setup', 'my_landscape', fitnessFunc=myHostFitness,
 model.mapLandscape('my_setup', 'my_landscape', 'AAAA')
     # evaluates and maps mutation establishment rates across landscape
 
+model.saveLandscape('my_setup', 'my_landscape', 'landscape.csv')
+model.loadLandscape('my_setup', 'my_landscape', 'landscape.csv')
+
 model.visualizeMutationNetwork('my_setup', 'my_landscape', 'mutation_network')
     # creates interactive visualization

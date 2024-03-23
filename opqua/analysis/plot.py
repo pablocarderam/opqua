@@ -424,7 +424,7 @@ def visualizeMutationNetwork(
             if neighbor not in entry_rates.keys():
                 entry_rates[neighbor] = 0
 
-            entry_rates[neighbor] += mutation_network[genome]['rates'][i]
+            entry_rates[neighbor] += mutation_network[genome]['rates'][i].sum()
 
     node_color_obj = { 'background':node_color, 'border':node_color }
     peak_color_obj = { 'background':node_color, 'border':peak_border_color }
@@ -495,8 +495,8 @@ def visualizeMutationNetwork(
 
             net.add_edge(
                 genome, neighbor,
-                title=mutation_network[genome]['rates'][i],
-                value=mutation_network[genome]['rates'][i],
+                title=mutation_network[genome]['rates'][i].sum(),
+                value=mutation_network[genome]['rates'][i].sum(),
                 color=edge_color_obj,
                 )
 

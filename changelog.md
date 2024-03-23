@@ -1,6 +1,17 @@
 
 # Opqua Changelog
 
+## 23 Mar 2024
+Major overhaul of computation of establishment and emergence probabilities in
+`Landscape` class. This new approach is based on discretizing mutant cloud
+diffusion to compute emergence probability at different pseudotimes (mutant
+cloud sizes) after bottleneck, then computing probability of fixation within
+pseudotime (mutant cloud size) frame, then normalizing by time to obtain true
+rate (slideshow explains, preprint will explain in detail). Now each mutant has
+a series of emergence-establishment rates corresponding to different mutant
+cloud sizes/pseudotimes after bottleneck. Plot class changed accordingly to
+visualize sum of all rates across time.
+
 ## 11 Feb 2024
 Changed computation of emergence probabilities in `Landscape` class to correctly
 account for pathway dependence in instances in which intermediates with lower

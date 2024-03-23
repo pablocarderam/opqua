@@ -1,12 +1,14 @@
 
 """Contains class Landscape."""
 
+import math as ma
 import copy as cp
 import textdistance as td
 import numpy as np
 import pandas as pd
 import scipy.special as sp_spe
 import scipy.stats as sp_sta
+import scipy.integrate as sp_int
 import itertools as itt
 
 class Landscape(object):
@@ -17,7 +19,7 @@ class Landscape(object):
     reduceGenome -- returns reduced genome with only fitness-relevant alleles
     survivalProbabilities -- returns array of survival probabilities per
         generation for mutant
-    establishmentRate -- returns establishment rate (per individual)
+    establishmentRates -- returns establishment rate (per individual)
     makeNeighbor -- records one genome as having a second as a neighbor
     evaluateNeighbors -- recursively evaluates fitness of neighboring mutations
     mapNeighbors -- recursively maps mutations in immediate neighborhood
@@ -27,10 +29,10 @@ class Landscape(object):
     """
 
     def __init__(self, id=None, setup=None,
-            fitnessFunc=None, mutate=None, generation_time=None,
-            population_threshold=None, selection_threshold=None,
-            max_depth=None, allele_groups=None, population_size=None,
-            max_generations_survival=None):
+            fitnessFunc=None, mutationFunc=None, mutate=None,
+            generation_time=None, population_threshold=None,
+            selection_threshold=None, max_depth=None, allele_groups=None,
+            population_size=None, max_generations_survival=None):
         """Create a new Landscape.
 
         Keyword arguments:
@@ -38,6 +40,9 @@ class Landscape(object):
         setup -- setup with associated parameters (Setup object, default None)
         fitnessFunc -- fitness function used to evaluate genomes (function
             taking a genome for argument and returning a fitness value >0,
+            default None)
+        mutationFunc -- mutation function used to evaluate genomes (function
+            taking a genome for argument and returning a mutation coefficient>0,
             default None)
         mutate -- mutation rate per generation (number>0, default None)
         generation_time -- time between pathogen generations (number>0, default
@@ -64,6 +69,8 @@ class Landscape(object):
 
         self.fitnessFunc = setup.fitnessHost \
             if fitnessFunc is None else fitnessFunc
+        self.mutationFunc = setup.mutationHost \
+            if mutationFunc is None else mutationFunc
         self.mutate = setup.mutate_in_host if mutate is None else mutate
         self.generation_time = setup.generation_time_host \
             if generation_time is None else generation_time
@@ -112,27 +119,46 @@ class Landscape(object):
 
         self.fitness_values_reduced = {}
             # contain fitness values of reduced genomes
+        self.mutation_rates_reduced = {}
+            # contain mutation rates of reduced genomes
 
         self.mutation_network = {}
             # Contains all connections and rates:
             # Keys: reduced genomes. Values: dictionaries with
             #   'neighbors':list of neighboring reduced genomes
-            #   'rates': list of corresponding establishment rates for neighbors
+            #   'rates': list of lists, each inner list has the list of
+            #       establishment rates for the corresponding neighbor in
+            #       'neighbors', each rate in inner list corresponds to rate at
+            #       the mutant cloud size corresponding to the inner index
             #   'sum_rates': number with sum of all rates in previous list
         self.mapped = []
 
-        self.survival_probabilities_neutral = self.survivalProbabilities(
-            0, self.max_generations_survival,
-            self.population_size
+        # Fixed evolutionary parameters
+        self.max_cloud_size_factor = 2
+            # how many times bigger than max depth we will consider
+        self.alpha = 4 # for Gamma distribution of fixation waiting times
+        self.scaling_coefficient = 0.67
+            # for Gamma distribution of fixation waiting times
+        self.m_param = -1.12 # for correction of mean fixation waiting time
+        self.k_param = 1.27 # for correction of mean fixation waiting time
+
+        # Precalculate PMF values for use below
+        self.poisson_pmf_vals = np.zeros(
+            ( self.max_depth, self.max_depth * self.max_cloud_size_factor )
             )
-        self.mutation_wait_time_probabilities = np.array([
-            sp_sta.geom.pmf( x+1, self.mutate )
-            for x in range( self.max_generations_survival )
-            ])
-        self.survival_to_mutation_prob_neutral = np.sum( np.multiply(
-            self.survival_probabilities_neutral,
-            self.mutation_wait_time_probabilities
-            ) )
+        for distance in range( self.max_depth ):
+            for d_cloud_em in range(self.max_depth *self.max_cloud_size_factor):
+                # poisson_pmf_vals[d_cloud_em] = sp_sta.poisson.pmf(
+                #     distance, d_cloud_em
+                #     )
+                self.poisson_pmf_vals[ distance, d_cloud_em ] = (
+                    np.power( d_cloud_em, distance ) * np.exp( -d_cloud_em )
+                    / ma.factorial( distance )
+                    )
+
+        # Will store precalculated PMF values for use below
+        self.seed_mutation_rate = 0
+        self.geom_pmf_vals_seed = []
 
     def fitness(self,genome,genome_reduced=False, background_genome=None):
         """Fitness function used to evaluate genomes.
@@ -165,6 +191,44 @@ class Landscape(object):
             fitness = self.fitnessFunc(genome)
 
         return fitness
+
+    def mutationRate(self,genome,genome_reduced=False, background_genome=None):
+        """Mutation function used to evaluate genomes.
+
+        Arguments:
+        genome -- genome sequence to be evaluated (String)
+
+        Keyword arguments:
+        genome_reduced -- whether the genome given is reduced (Boolean)
+        background_genome -- genome on which mutations are introduced, if
+            sequence being evaluated is a reduced genome (String)
+
+        Returns:
+        Number >0 representing the mutation rate (per genome) of genome g
+        """
+        if genome_reduced:
+            if genome in self.mutation_rates_reduced.keys():
+                mutation_rate = self.mutation_rates_reduced[genome]
+            elif background_genome is not None:
+                full_genome = background_genome
+                for i,locus in enumerate(self.relevant_loci):
+                    full_genome = full_genome[0:locus] + genome[i] \
+                        + full_genome[locus+1:]
+
+                mutation_rate = (
+                    self.mutationFunc(full_genome)
+                    * self.mutate * len( self.relevant_loci )
+                    )
+                self.mutation_rates_reduced[genome] = mutation_rate
+            else:
+                mutation_rate = -1 # Error
+        else:
+            mutation_rate = (
+                self.mutationFunc(genome)
+                * self.mutate * len( self.relevant_loci )
+                )
+
+        return mutation_rate
 
     def reduceGenome(self,genome):
         """Returns reduced genome with only fitness-relevant alleles.
@@ -213,10 +277,12 @@ class Landscape(object):
 
         return 1-probs[1:]
 
-    def establishmentRate(
+    def establishmentRates(
             self, ancestor_fitness, mutant_fitness, distance,
             mutations, ancestor_genome, background_genome):
-        """Returns establishment rate (calculated per individual pathogen).
+        """Returns establishment rates (calculated per individual pathogen).
+
+        One establishment rate per mutant cloud distance is calculated.
 
         Arguments:
         ancestor_fitness -- fitness of ancestor genome (number)
@@ -229,135 +295,216 @@ class Landscape(object):
             extracted from (String)
 
         Returns:
-        Rate at which the mutant fixates over the ancestor background (number)
+        Array with rates at which the mutant fixates over the ancestor
+        background for each mutant cloud radius (corresponding to element index)
+        (array of numbers)
         """
-        correct_distance_rate = self.mutate /( distance * self.generation_time )
-        correct_mutation_prob = np.power(
-            ( 1 / len(background_genome) ), distance
-            ) * np.prod([
-            self.num_equivalent_alleles[ int(mut[1:-1]) ][ mut[-1] ]
-            / self.total_alleles[ int(mut[1:-1]) ]
-            for mut in mutations
-            ])
+        # print('            Establishment rates: '+str([ancestor_genome,mutations]))
 
-        mut_permutations = list( itt.permutations( mutations ) )
-        weight_emergence_permutations = np.zeros( len(mut_permutations) )
+        ancestor_mutation_rate = self.mutationRate( ancestor_genome )
+        if ancestor_mutation_rate == self.seed_mutation_rate:
+            geom_pmf_vals_anc = self.geom_pmf_vals_seed
+        else:
+            max_generations_until_emergence = int( np.ceil(
+                self.max_depth * self.max_cloud_size_factor
+                / ancestor_mutation_rate
+                ) )
+            geom_pmf_vals_anc = np.zeros(max_generations_until_emergence)
+            for x in range(max_generations_until_emergence):
+                # geom_pmf_vals_anc[x] = sp_sta.geom.pmf( x+1,ancestor_mutation_rate )
+                geom_pmf_vals_anc[x] = np.power(
+                    1-ancestor_mutation_rate, x
+                    ) * x
 
-        for i,path in enumerate(mut_permutations):
-            # print('Rates for path '+str(path))
-            prev_intermediate = ancestor_genome
-            weight_intermediates = np.zeros( len(path) )
-            for j,mutation in enumerate(path):
-                intermediate = prev_intermediate[ 0:int( mutation[1:-1] ) ] \
-                    + mutation[-1] \
-                    + prev_intermediate[ (int( mutation[1:-1] ) + 1): ]
-                intermediate_fitness = self.fitness(
-                    intermediate, genome_reduced=True,
-                    background_genome=background_genome
-                    )
-                selection_coefficient = (
-                    ( intermediate_fitness / ancestor_fitness ) - 1
-                    ) # of intermediate vs. ancestor
-                if selection_coefficient <= 0:
-                        # if not detrimental, then we assume mutant is governed
-                        # by drift (because this is prior to establishment)
-                    survival_probabilities_mut = self.survivalProbabilities(
-                        selection_coefficient, self.max_generations_survival,
-                        self.population_size
-                        )
-                    weight_intermediates[j] = np.sum( np.multiply(
-                        survival_probabilities_mut,
-                        self.mutation_wait_time_probabilities
-                        ) ) / self.survival_to_mutation_prob_neutral
+        rates = [ np.zeros(1) ] * ( self.max_depth * self.max_cloud_size_factor )
 
-                    prev_intermediate = intermediate
-                        # (
-                        # self.mutate * ( 1 / len(background_genome) )
-                        # * ( self.num_equivalent_alleles[
-                        #     int( mutation[1:-1] )
-                        #     ][ mutation[-1] ]
-                        # / self.total_alleles[ int( mutation[1:-1] ) ] )
-                        # * np.power(
-                        #     (
-                        #         ( 1 - self.mutate )
-                        #         # + (
-                        #         #     self.mutate * ( 1 / len(background_genome) )
-                        #         #     * self.num_equivalent_alleles[
-                        #         #         int( mutation[1:-1] )
-                        #         #         ][ mutation[0] ]
-                        #         #     / self.total_alleles[ int( mutation[1:-1] ) ]
-                        #         #     )
-                        #         ), np.linspace(
-                        #             0, self.max_generations_survival-1,
-                        #             self.max_generations_survival
-                        #             )
-                        #
-                        #     )
-                        # )
-                    # generation_rates = 1 / (
-                    #     np.linspace(
-                    #         1, self.max_generations_survival,
-                    #         self.max_generations_survival
-                    #         )
-                    #     * self.generation_time
-                    #     )
-                    # weight_intermediates[j] = self.population_size * np.sum(
-                    #     np.multiply(
-                    #         np.multiply(
-                    #             survival_probabilities, mutation_probabilities
-                    #             ),
-                    #         generation_rates
-                    #         )
-                    #     )
-
-                    # prev_intermediate = intermediate
-
-                    # print('Rate for intermediate '+intermediate+': '+str(weight_intermediates[j]))
-                    # print(self.population_size * np.multiply(
-                    #         np.multiply(
-                    #             survival_probabilities, mutation_probabilities
-                    #             ),
-                    #         generation_rates
-                    #         )
-                    #     )
-                    # print('Survival probabilities:')
-                    # print(survival_probabilities)
-                    # print('Mutation probabilities:',self.mutate,self.num_equivalent_alleles[
-                    #     int( mutation[1:-1] )
-                    #     ][ mutation[-1] ]
-                    # / self.total_alleles[ int( mutation[1:-1] ) ])
-                    # print(mutation_probabilities)
-                    # print('Generation rates:')
-                    # print(generation_rates)
-
-                weight_emergence_permutations[i] = np.prod(weight_intermediates)
-            else:
-                weight_emergence_permutations[i] = 1
-
-            # print('Weight for path: '+str(weight_emergence_permutations[i]))
-
-        emergence_rate = (
-            correct_distance_rate * correct_mutation_prob
-            * np.sum( weight_emergence_permutations )
+        q_em = 0 # population fraction with this mutant genotype (emergence)
+        p_fix = 0 # probability of this mutant fixating (establishing at 1:1)
+            # once it has emerged
+        q_fix = 0 # fraction of fixation events occurring during this current
+            # time frame (before mutant cloud distance is advanced)
+        t_len = 0 # length of current time frame (before mutant cloud distance
+            # is advanced)
+        selection_coefficient = (
+            ( mutant_fitness / ancestor_fitness ) - 1
             )
 
-        establishment_rate = ( ( mutant_fitness / ancestor_fitness ) - 1 )
-            # rate of establishment after emergence;
-            # this last factor is the selection coefficient,
-            # i.e. 1 / mean time to escape drift
-        # print('Rate from ancestor to mutant: '+str(emergence_rate)+' * '+str(establishment_rate)+' = '+str(emergence_rate * establishment_rate))
+        t_len = self.generation_time / ancestor_mutation_rate
 
-        return self.population_size * emergence_rate * establishment_rate
-            # (
-            # np.power(
-            #     self.mutate / self.generation_time, distance
-            #     ) # P( d mutations happening ); rate is inverse of P and mean t THIS IS WRONG? SHOULD BE 1 / ( distance * t_gen/mut_rate )
-            # * np.prod( synonym_probs ) # P( all the d mutations are correct )
-            # * sp_spe.perm( distance, distance ) # num ways to get d mutations
-            #     # ASSUMPTION: all paths are viable!!! big assumption!
-            #     # Instead of this term, for every permutation, compute a likelihood relative to s=0 based on s, mutation rate, population size??
-            # r_emergence * r_establishment
-            # )
+        p_fix = (
+            ( - np.exp( -2 * selection_coefficient ) + 1 )
+            / ( - np.exp(
+                -2 * self.population_size * selection_coefficient
+                ) + 1 )
+            ) # Kimura diffusion approximation (1957, 1962)
+
+        p_cm = (
+            np.power( 1/len( self.relevant_loci ), distance )
+            * np.prod([
+                self.num_equivalent_alleles[ int(mut[1:-1]) ][ mut[-1] ]
+                / self.total_alleles[ int(mut[1:-1]) ]
+                for mut in mutations
+                ])
+            )
+            # probability of getting correct combination of mutations
+            # given correct number of mutations
+
+        mut_permutations = list( itt.permutations( mutations ) )
+
+        mean_fix_t = (
+                # mean fixation (establishment to 50%) time of mutant
+            np.log( self.population_size )
+            / np.log(selection_coefficient+1)
+                # this is from Tami Liebermann's class, I think derives
+                # from Kimura 1957, 1962 again
+            + np.exp(
+                self.m_param * np.log( selection_coefficient ) + self.k_param
+                )
+                # this is a correction factor that matches up, derived
+                # from simulation, parameter weights fitted
+            )
+        beta = selection_coefficient / self.scaling_coefficient
+            # beta to be used in Gamma/Erland PDF; these values fitted
+            # from simulation
+
+        for d_cloud_current in range( self.max_depth * self.max_cloud_size_factor ):
+                # d_cloud_current describes mutant cloud size in units of
+                # mutations
+            rates[d_cloud_current] = np.zeros(d_cloud_current)
+            # print('              Cloud current: '+str(d_cloud_current))
+            for d_cloud_em in range( d_cloud_current ):
+                # print('                Cloud emergence: '+str(d_cloud_em))
+                    # d_cloud_em describes mutant cloud size in units of
+                    # mutations at moment in which mutation arose
+                q_nm = 0 # population fraction with correct number of mutations
+                if d_cloud_em == 0:
+                        # if mutant cloud just started, assume variation from 1
+                        # replication cycle
+                    q_nm = np.power( ancestor_mutation_rate, distance )
+                else:
+                        # otherwise, variation is set by Poisson PMF mutant
+                        # cloud with mean=cloud size and k=distance of mutant
+                        # of interest
+                    # print(d_cloud_em)
+                    q_nm = self.poisson_pmf_vals[ distance, d_cloud_em ]
+
+                sum_w = 0
+                    # sum of likelihood weights for every available mutation
+                    # path leading to mutant
+
+                weight_emergence_permutations =np.zeros( len(mut_permutations) )
+                generations_until_emergence = int( np.ceil(
+                    ( d_cloud_current - d_cloud_em )
+                    / ancestor_mutation_rate
+                    ) )
+                mutation_probabilities_anc = np.array([
+                    geom_pmf_vals_anc[x]
+                    for x in range(1, generations_until_emergence+1)
+                    ])
+                survival_probabilities_anc \
+                        = self.survivalProbabilities(
+                    1, generations_until_emergence, self.population_size
+                    )
+
+                for i,path in enumerate(mut_permutations):
+                    # print('Rates for path '+str(path))
+                    prev_intermediate = ancestor_genome
+                    weight_intermediates = np.zeros( len(path) )
+                    for j,mutation in enumerate(path):
+                        intermediate = prev_intermediate[
+                            0:int( mutation[1:-1] )
+                            ] + mutation[-1] \
+                            + prev_intermediate[ (int( mutation[1:-1] ) + 1): ]
+                        # print('                  Intermediate: '+str(intermediate))
+                        intermediate_fitness = self.fitness(
+                            intermediate, genome_reduced=True,
+                            background_genome=background_genome
+                            )
+                        intermediate_selection_coefficient = (
+                            ( intermediate_fitness / ancestor_fitness ) - 1
+                            ) # of intermediate vs. ancestor
+                        if intermediate_selection_coefficient <= 0:
+                                # if not detrimental, then we assume mutant is
+                                # governed by drift (because this is prior to
+                                # establishment)
+                            intermediate_mutation_rate = self.mutationRate(
+                                intermediate, genome_reduced=True,
+                                background_genome=background_genome
+                                )
+                            if ( intermediate_mutation_rate
+                                    == ancestor_mutation_rate ):
+                                mutation_probabilities_mut \
+                                    = mutation_probabilities_anc
+                            else:
+                                mutation_probabilities_mut = np.array([
+                                    # sp_sta.geom.pmf(
+                                    #     x+1,intermediate_mutation_rate
+                                    #     )
+                                    np.power( 1-intermediate_mutation_rate,x )*x
+                                        # change this to save mut probabilities
+                                        # in class pmf data structure and
+                                        # reaccess here if possible? perhaps not
+                                    for x in range(
+                                        1, generations_until_emergence+1
+                                        )
+                                    ])
+                            survival_probabilities_mut \
+                                    = self.survivalProbabilities(
+                                intermediate_selection_coefficient,
+                                generations_until_emergence,
+                                self.population_size
+                                )
+
+                            weight_intermediates[j] = (
+                                np.sum( np.multiply(
+                                    mutation_probabilities_mut,
+                                    survival_probabilities_mut
+                                    ) )
+                                / np.sum( np.multiply(
+                                    mutation_probabilities_anc,
+                                    survival_probabilities_anc
+                                    ) )
+                                )
+                        else:
+                            weight_intermediates[j] = 1
+
+                        prev_intermediate = intermediate
+
+                    weight_emergence_permutations[i] \
+                        = np.prod(weight_intermediates)
+
+                    # print('Weight for path: '+str(weight_emergence_permutations[i]))
+                sum_w = weight_emergence_permutations.sum()
+
+                q_em = q_nm * p_cm * sum_w
+                    # fraction that have emerged depend on fraction with correct
+                    # number of mutations, probability of having correct
+                    # combination of mutations, and weighted likelihood of
+                    # mutant lineages surviving and acquiring those mutations
+                    # (weighted relative to neutral drift)
+
+                q_fix = sp_int.quad( # numerically computes a definite integral
+                    lambda x: max( 0,
+                        np.power( x-mean_fix_t, self.alpha-1 )
+                        * np.exp( -beta * ( x-mean_fix_t ) )
+                        * np.power( beta, self.alpha )
+                        / ma.gamma( self.alpha )
+                        ),
+                        # integrating Gamma PDF describing distribution of
+                        # mutant fixation wait times
+                    ( d_cloud_current-d_cloud_em-1 ) / (ancestor_mutation_rate),
+                    ( d_cloud_current-d_cloud_em ) / ( ancestor_mutation_rate )
+                    # time interval boundaries of integration given by times of
+                    # current mutant cloud size being considered
+                    )[0] # first argument is integration, second is error
+
+                rates[d_cloud_current][d_cloud_em] = (
+                    q_em * p_fix * q_fix / t_len
+                    )
+
+            rates[d_cloud_current] = rates[d_cloud_current].sum()
+
+        return np.array(rates)
 
     def makeNeighbor(
             self, ancestor_genome, ancestor_fitness,
@@ -376,6 +523,7 @@ class Landscape(object):
         background_genome -- full background genome that reduced ancestor was
             extracted from (String)
         """
+        # print('          Making neighbor: '+str([ancestor_genome,mutant_genome]))
         # print('      Anc: '+ancestor_genome+', Mut: '+mutant_genome+', ',ancestor_fitness, mutant_fitness, distance, synonym_probs)
         if ancestor_genome not in self.mutation_network.keys():
             self.mutation_network[ ancestor_genome ] = {
@@ -389,7 +537,7 @@ class Landscape(object):
                 }
 
         # print('Establishment rates from '+ancestor_genome+' to '+mutant_genome+' (d='+str(distance)+', s='+str((mutant_fitness/ancestor_fitness)-1)+')')
-        establishment_rate = self.establishmentRate(
+        establishment_rates = self.establishmentRates(
             ancestor_fitness, mutant_fitness, distance, mutations,
             ancestor_genome, background_genome
             )
@@ -400,22 +548,22 @@ class Landscape(object):
                 mutant_genome
                 )
             self.mutation_network[ ancestor_genome ]['rates'].append(
-                establishment_rate
+                establishment_rates
                 )
             self.mutation_network[ ancestor_genome ]['sum_rates'] \
-                += self.mutation_network[ ancestor_genome ]['rates'][-1]
+                += self.mutation_network[ ancestor_genome ]['rates'][-1].sum()
         else:
             i = self.mutation_network[ ancestor_genome ]['neighbors'].index(
                 mutant_genome
                 )
             self.mutation_network[ ancestor_genome ]['sum_rates'] = (
                 self.mutation_network[ ancestor_genome ]['sum_rates']
-                - self.mutation_network[ ancestor_genome ]['rates'][i]
-                + establishment_rate
+                - self.mutation_network[ ancestor_genome ]['rates'][i].sum()
+                + establishment_rates.sum()
                 )
             self.mutation_network[
                 ancestor_genome
-                ]['rates'][i] = establishment_rate
+                ]['rates'][i] = establishment_rates
 
     def evaluateNeighbors(
             self, reduced_genome, fitness, background_genome, depth,
@@ -447,9 +595,12 @@ class Landscape(object):
         # print('   Scanning from: '+reduced_genome+', depth: '+str(depth),', ancestor: '+ancestor+', loci mutated: '+str(loci_mutated))
         depth += 1
         first_neighbors = {}
+        # print('    Evaluating: '+reduced_genome)
         for locus,locus_alleles in enumerate( self.allele_groups_reduced ):
+            # print('      Locus: '+str([locus,locus_alleles]))
             if locus not in loci_mutated:
                 for allele in locus_alleles:
+                    # print('        Allele: '+str(allele))
                     if allele != reduced_genome[locus]:
                         mutant = reduced_genome[0:locus] \
                             + allele + reduced_genome[locus+1:]
@@ -531,6 +682,7 @@ class Landscape(object):
         # print('Mapping '+reduced_genome+', depth: '+str(depth))
         self.mapped.append(reduced_genome)
         depth += 1
+        print('  Evaluating: '+reduced_genome)
         first_neighbors = self.evaluateNeighbors(
             reduced_genome, fitness, background_genome, 0, [],
             reduced_genome, fitness, []
@@ -542,6 +694,7 @@ class Landscape(object):
                     depth = 0
 
                 if depth < self.max_depth:
+                    print('  Mapping: '+mutant)
                     self.mapNeighbors(
                         mutant, first_neighbors[ mutant ]['fitness'],
                         background_genome, depth
@@ -566,6 +719,20 @@ class Landscape(object):
             reduced_genome = self.reduceGenome(seed_genome)
             self.mapped = []
 
+            self.seed_mutation_rate = self.mutationRate( seed_genome )
+            original_max_generations_until_emergence = int( np.ceil(
+                self.max_depth * self.max_cloud_size_factor
+                / self.seed_mutation_rate
+                ) )
+            self.geom_pmf_vals_seed = np.zeros(
+                original_max_generations_until_emergence
+                )
+            for x in range(original_max_generations_until_emergence):
+                self.geom_pmf_vals_seed[x] = np.power(
+                    1-self.seed_mutation_rate, x
+                    ) * x
+
+            print('Reduced seed: '+seed_genome)
             self.mapNeighbors( reduced_genome, fitness, seed_genome, 0 )
 
         print('Landscape mapping complete.')
@@ -590,7 +757,10 @@ class Landscape(object):
             out = out + genome + ',' + ';'.join(
                 self.mutation_network[genome]['neighbors']
                 ) + ',' + ';'.join(
-                [ str(r) for r in self.mutation_network[genome]['rates'] ]
+                [
+                    '_'.join( [ str(r) for r in rates ] )
+                    for rates in self.mutation_network[genome]['rates']
+                    ]
                 ) + ',' + str( self.mutation_network[genome]['sum_rates'] ) \
                 + ',' + str( self.mutation_network[genome]['fitness'] )+'\n'
 
@@ -615,15 +785,26 @@ class Landscape(object):
         """
         print('Loading landscape from file...')
 
-        df = pd.read_csv(file)
+        df = pd.read_csv(file).fillna('')
 
         self.mutation_network = {}
         for i,row in df.iterrows():
-            self.mutation_network[ row['Genome'] ] : {
+            self.mutation_network[ row['Genome'] ] = {
                 'neighbors' : row['Neighbors'].split(';'),
-                'rates' : [ float(r) for r in row['Rates'].split(';') ],
+                'rates' : [
+                    [ r for r in rates.split('_') ]
+                    for rates in row['Rates'].split(';')
+                    ],
                 'sum_rates' : float( row['Sum_rates'] ),
                 'fitness' : float( row['Fitness'] )
                 }
+            if len( self.mutation_network[ row['Genome'] ]['neighbors'][0] ) >0:
+                self.mutation_network[ row['Genome'] ]['rates'] \
+                     = np.asarray(
+                     self.mutation_network[ row['Genome'] ]['rates']
+                     ).astype(float)
+            else:
+                self.mutation_network[ row['Genome'] ]['neighbors'] = []
+                self.mutation_network[ row['Genome'] ]['rates'] = []
 
         print('...landscape loaded.')
