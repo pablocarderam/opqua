@@ -596,7 +596,7 @@ class Population(object):
                         vector_removed.coefficient_index, 0
                         )
         else:
-            for _ in range(num_vectors_or_list):
+            for _ in range(num_vectors):
                 vector_removed = self.random.choice(self.vectors)
                 if vector_removed in self.infected_vectors:
                     self.infected_vectors.remove( vector_removed )

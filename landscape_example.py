@@ -6,6 +6,11 @@ accessible because it has more equivalent alleles.
 
 from opqua.model import Model
 import numpy as np
+import scipy.stats as sp_sta
+import matplotlib.pyplot as plt # plots
+import seaborn as sns # pretty plots
+
+import cProfile
 
 my_optimal_genomes = ['AAAA','TTTT','CCCC','GGGG'] # Define an optimal genome.
 
@@ -49,11 +54,47 @@ model.newLandscape('my_setup', 'my_landscape', fitnessFunc=myHostFitness,
     # defines new fitness landscape object based on setup parameters; depth=4
     # and a large population threshold means it will be fully evaluated
 
-model.mapLandscape('my_setup', 'my_landscape', 'AAAA')
+gens = 2000
+s = 0.01
+land = model.setups['my_setup'].landscapes['my_landscape']
+sur_mut = land.survivalProbabilities(
+    s, gens, land.population_size
+    )
+sur_neu = land.survivalProbabilities(
+    0, gens, land.population_size
+    )
+mut_wait_time = np.array([
+    sp_sta.geom.pmf( x+1, land.mutate )
+    for x in range( gens )
+    ])
+mult_mut = np.multiply(sur_mut,mut_wait_time).cumsum()
+mult_neu = np.multiply(sur_neu,mut_wait_time).cumsum()
+quo = np.divide( mult_mut, mult_neu )
+# print(sur)
+# print(mut_wait_time)
+# print(mult)
+print(sur_mut.sum(),sur_neu.sum(),mut_wait_time.sum(),mult_mut[-1],mult_neu[-1],quo[-1])
+ax = plt.subplot(6, 1, 1)
+ax.plot(sur_mut)
+ax = plt.subplot(6, 1, 2)
+ax.plot(sur_neu)
+ax = plt.subplot(6, 1, 3)
+ax.plot(mut_wait_time)
+ax = plt.subplot(6, 1, 4)
+ax.plot(mult_mut)
+ax = plt.subplot(6, 1, 5)
+ax.plot(mult_neu)
+ax = plt.subplot(6, 1, 6)
+ax.plot(quo)
+plt.savefig('surv.png', bbox_inches='tight')
+
+cProfile.run("model.mapLandscape('my_setup', 'my_landscape', 'AAAA')",sort='cumtime')
+# model.mapLandscape('my_setup', 'my_landscape', 'AAAA')
     # evaluates and maps mutation establishment rates across landscape
 
 model.saveLandscape('my_setup', 'my_landscape', 'landscape.csv')
 model.loadLandscape('my_setup', 'my_landscape', 'landscape.csv')
+print(model.setups['my_setup'].landscapes['my_landscape'].mutation_network)
 
 model.visualizeMutationNetwork('my_setup', 'my_landscape', 'mutation_network')
     # creates interactive visualization

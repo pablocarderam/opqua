@@ -36,7 +36,7 @@ Also, added all necessary parameters for new intrahost evolution algorithm.
 
 ## 3 Feb 2024
 Successfully implemented Landscape class to traverse and compute fitness
-landscapes, the parameters needed for this in the Setup class, as well as a
+landscapes, the parameters needed for this in the `Setup` class, as well as a
 plotting function to visualize the resulting mutation networks using the PyVis
 package.
 
@@ -56,14 +56,14 @@ version change to 1.2.0 :)
 
 ## v1.1.2
 ## 1 Feb 2024
-Forgot the MANIFEST.in file to get the csv files.
+Forgot the `MANIFEST.in` file to get the csv files.
 
 ## v1.1.1
 ## 31 Jan 2024
-- Added methods to save and load parameter settings into Setup objects using
+- Added methods to save and load parameter settings into `Setup` objects using
   CSV files
-- Changed Setup object internal mechanics
-- Added default parameter values as external csv files, removed them from Model
+- Changed `Setup` object internal mechanics
+- Added default parameter values as external csv files, removed them from `Model`
   class
 
 ## 18 Jan 2024
@@ -92,10 +92,10 @@ Changes:
   negative binomial is superior to Poisson when estimating bottleneck size);
   also add model parameters ``variance_inoculum_host`` and
   ``variance_inoculum_vector`` to be used by this function
-- Renamed Gillespie class as Simulation; added new simulation algorithm that
+- Renamed `Gillespie` class as `Simulation`; added new simulation algorithm that
   implements a variation of tau leaping (but left exact Gillespie as default
   since estimating adequate tau parameter seems tricky)
-- Fixed bug in ``compartmentDf`` which created duplicated rows in dataframe
+- Fixed bug in `compartmentDf` which created duplicated rows in dataframe
   when hosts or vectors died infected and/or protected
 
 ## 3 Jan 2023
@@ -116,7 +116,7 @@ Changes:
   prevalence, this can greatly increase simulation speed.
 - Changed Gillespie algorithm to only recalculate probabilities for events that
   may happen in simulation (since many simulations omit certain types of events)
-- Added parameters to ``setSetup`` that optionally allow recalculation of all
+- Added parameters to `setSetup` that optionally allow recalculation of all
   host and/or vector coefficients, thus overwriting all establishment frequency
   effects; the new default is to not recalculate
 
@@ -149,20 +149,20 @@ plotting immunity/protection.
 
 ## v0.9.8.2
 ## 8 Mar 2022
-Change units of lethality_rate_host and lethality_rate_vector to be a rate like
+Change units of `lethality_rate_host` and `lethality_rate_vector` to be a rate like
 other parameters for better internal consistency, instead of a fraction of
 recovered cases. Affects only behavior of simulations with disease-caused
 mortality. Updated example accordingly.
 
 ## v0.9.8.1
 ## 7 Mar 2022
-Fix bug in updateVectorCoefficients() specific to natality and migration.
+Fix bug in `updateVectorCoefficients()` specific to natality and migration.
 Does not affect any simulation results as long as natality and migration are not
 functions of pathogen genome sequence.
 
 ## v0.9.8
 ## 27 Feb 2022
-Update compositionPlot additional arguments.
+Update `compositionPlot` additional arguments.
 
 ## v0.9.7
 ## 18 Jan 2022
@@ -184,10 +184,10 @@ Parenthesis error.
 ## v0.9.4
 ## 9 Dec 2021
 Another small change to the Gillespie algorithm, this time to avoid rare
-infinite loops when tampering with t_var.
-- changed order in which time delta was added to t_var to be after interventions
+infinite loops when tampering with `t_var`.
+- changed order in which time delta was added to `t_var` to be after interventions
   occur
-- do not carry out interventions if t_var is past simulation end time
+- do not carry out interventions if `t_var` is past simulation end time
 
 ## v0.9.3
 ## 8 Dec 2021
@@ -210,21 +210,21 @@ General simulation structure changes:
   rate (i.e. constant per vector contact rate). Does not affect behavior of
   simulations if total number of hosts and vectors is equal (or if models have
   no vector-borne pathogens)
-- made time variable t_var a property of Model objects instead of internal to
-  Gillespie object, allowing users to modify simulation time (e.g. for
+- made time variable t_var a property of `Model` objects instead of internal to
+  `Gillespie` object, allowing users to modify simulation time (e.g. for
   killswitches); does not affect simulation results
 
 Opqua structure changes:
 - changed way interventions are executed to guarantee that the Model object
   being simulated carries the intervention upon itself
-- changed runReplicates() to create independent copies of model object and run
+- changed `runReplicates()` to create independent copies of model object and run
   simulations on each (should not affect simulation results due to
   parallelization through joblib)
-- added deepCopy() to reassign all internal model and population references in
+- added `deepCopy()` to reassign all internal model and population references in
   copied model objects
-- changed runReplicates() and runParamSweep() to use deepCopy() (should not
+- changed `runReplicates()` and `runParamSweep()` to use `deepCopy()` (should not
   affect simulation results due to parallelization through joblib)
-- added customModelFunction() function to allow users to add custom methods to
+- added `customModelFunction()` function to allow users to add custom methods to
   specific Model instances (e.g. for killswitches and conditional interventions)
 
 Opqua syntax changes:
@@ -237,14 +237,14 @@ All graphs in publication (title pending) generated with this stable version.
 [RETROACTIVE EDIT: first draft only]
 
 General model structure changes:
-- added transmission_efficiency_host_host, transmission_efficiency_host_vector,
-  transmission_efficiency_vector_host as additional parameters
+- added transmission_efficiency_host_host, `transmission_efficiency_host_vector`,
+  `transmission_efficiency_vector_host` as additional parameters
 - made global_trackers copy into history object of a model
 - adjusted computation of recombination probabilities for hosts and vectors
 - skip recombining when parental genomes are the same
 - changed genome sampling during inoculation of hosts and vectors
 - added more flexibility, changed structure, and debugged migration/population
-  contact options in runParamSweep()
+  contact options in `runParamSweep()`
 
 In compositionDf():
 - remove missing data
@@ -254,18 +254,18 @@ In compositionDf():
 
 Miscellaneous:
 - add option to plot population fractions instead of absolute counts in
-  compositionPlot()
+  `compositionPlot()`
 - Gillespie algorithm now prints out event name rather than ID number
 - changed error handling when adding pathogens to hosts and vectors
-- removed a duplicate definition in Model newSetup()
-- changed a group name in intervention_example.py
+- removed a duplicate definition in `Model newSetup()`
+- changed a group name in `intervention_example.py`
 
 ## v0.2.6
 ## 8 Oct 2021
 v0.2.5 created a major bug that escaped my attention with the division by zero
 error fix.
 
-- corrected Host and Vector acquirePathogen() functions to restore correct
+- corrected `Host` and `Vector` `acquirePathogen()` functions to restore correct
       behavior
 - added a requirements.txt file purely for reference purposes in case a future
       dependency update breaks opqua
@@ -274,47 +274,47 @@ error fix.
 ## 8 Oct 2021
 - added global_trackers dictionary to Model in order to track and return some
       global indicators when running replicates or parameter sweeps
-- added addCustomConditionTracker() function to Model class in order to allow
+- added addCustomConditionTracker() function to `Model` class in order to allow
       users to track custom events in model
-- modified mutation() and recombination() in Vector and Host classes as well as
-      addPathogensToHosts() and addPathogensToVectors() in Population class in
-      order to track genomes seed for global_trackers
-- added model attribute to Population class for the above reason as well
+- modified `mutation()` and `recombination()` in `Vector` and `Host` classes as well as
+      `addPathogensToHosts()` and `addPathogensToVectors()` in `Population` class in
+      order to track genomes seed for `global_trackers`
+- added model attribute to `Population` class for the above reason as well
 - fix way host and vector sampling is handled (apparently I forgot to actually
-      implement it in Gillespie and Population classes after I added the
+      implement it in `Gillespie` and `Population` classes after I added the
       arguments, haha)
-- minor bug fix: modify acquirePathogen in Vector and Host classes to avoid
-      division by zero errors when recalculating sum_fitness after it was zero
-- corrected name of compositionDataframe argument in compositionPlot() to
+- minor bug fix: modify `acquirePathogen` in `Vector` and `Host` classes to avoid
+      division by zero errors when recalculating `sum_fitness` after it was zero
+- corrected name of `compositionDataframe` argument in `compositionPlot()` to
       composition_dataframe
 
 ## v0.2.4
 ## 5 Oct 2021
-- fixed regex processing bug in compositionDf()
-- added **kwargs argument passing to joblib functions to allow user to change
+- fixed regex processing bug in `compositionDf()`
+- added `**kwargs` argument passing to joblib functions to allow user to change
       backend and stuff
 
 Trying to deploy on cluster so bear with me on the updates here
 
 ## v0.2.3
 ## 5 Oct 2021
-- added parameter sweep function runParamSweep()
-- added id property and argument to Setup() in order to associate a Setup to its
-      ID in a Model, so that runParamSweep() can edit the setups
-- added getCompositionData() function to Model class to allow user output
+- added parameter sweep function `runParamSweep()`
+- added id property and argument to `Setup()` in order to associate a Setup to its
+      ID in a Model, so that `runParamSweep()` can edit the setups
+- added `getCompositionData()` function to `Model` class to allow user output
       composition data without plotting compartments
-- fixed bug in how runReplicates() computed and return output
-- added verbose optional argument to saveToDf() to reduce console output
+- fixed bug in how `runReplicates()` computed and return output
+- added verbose optional argument to `saveToDf()` to reduce console output
 - added composition_dataframe optional argument to allow for pre-computed data
 - added setup.cfg as per [Joel Barmettler](https://medium.com/@joel.barmettler/how-to-upload-your-python-package-to-pypi-65edc5fe9c56)
       I guess?
 
 ## v0.2.2
 ## 21 July 2021
-- change compositionPLot remove_legend behavior to fix bug
-- change pathogenDistanceDf seq_names behavior to fix bug
+- change `compositionPLot` `remove_legend` behavior to fix bug
+- change `pathogenDistanceDf` `seq_names` behavior to fix bug
 - reduce mean inoculum from hosts into vectors to reflect malaria cycle
-- modify infectHost and infectVector inoculation behavior so that mean_inoculum
+- modify `infectHost` and `infectVector` inoculation behavior so that mean_inoculum
       does not affect overall transmission rate; each infection now results in
       at least 1 pathogen transfer (if not containing and not immune to the
       pathogen genome sampled)
@@ -334,15 +334,15 @@ Trying to deploy on cluster so bear with me on the updates here
 - host/vector birth/death rates in populations -> make birth event.
       Done, tested
 - separate natural death into an event that doesn't log deaths. Done, tested
-- make RECEIVE_CONTACT and RECEIVE_POPULATION_CONTACT coefficient columns
+- make `RECEIVE_CONTACT` and `RECEIVE_POPULATION_CONTACT` coefficient columns
       in arrays, modify how these events are handled. Done, tested
 - migrate vectors. Done, test
 - contact between populations (without migration). Done, tested
 
 ### Output
 - make genome labels optional, if no labels write a file with the genomes
-      in the same order for compositionPlot. Done, test
-- compositionPlot – make custom groupings, eg. "genomes containing
+      in the same order for `compositionPlot`. Done, test
+- `compositionPlot` – make custom groupings, eg. "genomes containing
       sequence AAA". Done, test
 - make option to count only 1 fitness-dominant strain/host in
       compositionPlot. Done, test
@@ -362,5 +362,5 @@ Trying to deploy on cluster so bear with me on the updates here
 - update tutorials. Done, tested
 
 ### TODO:
-- correctly update arguments in function documentation and README for
-compositionPlot family functions
+- correctly update arguments in function documentation and `README` for
+`compositionPlot` family functions
